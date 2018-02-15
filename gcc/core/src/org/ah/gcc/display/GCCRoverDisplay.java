@@ -13,12 +13,9 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
-import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.UBJsonReader;
 
 public class GCCRoverDisplay extends ApplicationAdapter implements InputProcessor {
     private ModelBatch batch;
@@ -42,10 +39,14 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
     public Array<ModelInstance> instances;
     private InputMultiplexer cameraInputMultiplexer;
+    private ModelFactory modelFactory;
+    private GCCRoverWheel wheel;
 
 
     @Override
     public void create() {
+        modelFactory = new  ModelFactory();
+        modelFactory.load();
         Gdx.input.setInputProcessor(this);
         Gdx.input.setCursorCatched(mouse);
 
@@ -68,55 +69,52 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         instances = new Array<ModelInstance>();
 
 
-        UBJsonReader jsonreader = new UBJsonReader();
-        G3dModelLoader modelloader = new G3dModelLoader(jsonreader);
-        ObjLoader objModelloader = new ObjLoader();
+        tpModel = modelFactory.loadModel("model.g3db");
+        try {
+            roverModel = modelFactory.getBaloon();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        tpModel = modelloader.loadModel(Gdx.files.internal("model.g3db"));
-        roverModel = objModelloader.loadModel(Gdx.files.internal("3d/balloon1.obj"));
-        roverModel = objModelloader.loadModel(Gdx.files.internal("3d/balloon1.obj"));
 
 //        roverModel = modelloader.loadModel(Gdx.files.internal("3d/balloon1.g3db"));
 
-        ModelInstance rover = new ModelInstance(roverModel, 0, 0, 0);
-
-        ModelInstance tp = new ModelInstance(tpModel, 0, 3, 0);
-        ModelInstance tp2 = new ModelInstance(tpModel, 0, -3, 0);
+//        ModelInstance rover = new ModelInstance(roverModel, 0, 0, 0);
+        wheel = new GCCRoverWheel(1, 0, modelFactory);
+//        ModelInstance tp = new ModelInstance(tpModel, 0, 3, 0);
+        ModelInstance tp2 = new ModelInstance(tpModel, 0, -10, 0);
 
 //        tp.transform.scale(0.5f, 0.5f, 0.5f);
-        rover.transform.scale(0.1f, 0.1f, 0.1f);
-
-//        roverModel.materials.clear();
-//        roverModel.materials.addAll(tp.materials);
-//
-//        rover.materials.clear();
-//        rover.materials.addAll(tp.materials);
-
-        instances.add(tp);
+//        rover.transform.scale(0.1f, 0.1f, 0.1f);
+//        instances.add(tp);
         instances.add(tp2);
-        instances.add(rover);
+//        instances.add(rover);
 
         // modelInstance.transform.rotate(new Vector3(1f, 0f, 0f), 45f);
 
         environment = new Environment();
 
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.65f, 0.65f, 0.65f, 1f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.1f, 0.1f, 0.1f, 1f));
         DirectionalLight light = new DirectionalLight();
         environment.add(light.set(1f, 1f, 1f, new Vector3(0f, -10f, 0f)));
+        DirectionalLight light2 = new DirectionalLight();
+
+        environment.add(light2.set(1f, 1f, 1f, new Vector3(4f,  10f, 0f)));
+
         camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), -45f);
     }
 
     @Override
     public void render() {
         // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
-
-        Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f);
+        wheel.updatePosition(wheel.getPosition());
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
         camera.update();
         batch.begin(camera);
         batch.render(instances, environment);
-
+        wheel.render(batch, environment);
         batch.end();
 
         if (moveleft) {
