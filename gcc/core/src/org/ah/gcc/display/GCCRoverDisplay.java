@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -14,6 +15,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
@@ -32,28 +35,25 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private int mouseY = 0;
     private float rotSpeed = 0.1f;
 
-    private boolean mouse = true;
+    private boolean mouse = false;
     private Model roverModel;
     private CameraInputController camController;
-
 
     public Array<ModelInstance> instances;
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
+    private GCCRover rover;
     private GCCRoverWheel wheel;
 
+    private int cameratype = 0;
 
     @Override
     public void create() {
-        modelFactory = new  ModelFactory();
+        modelFactory = new ModelFactory();
         modelFactory.load();
-        Gdx.input.setInputProcessor(this);
-        Gdx.input.setCursorCatched(mouse);
-
-
 
         camera = new PerspectiveCamera(45, 800, 480);
-        camera.position.set(0f, 0f, 100f);
+        camera.position.set(240f, 0f, 240f);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.1f;
         camera.far = 10000f;
@@ -63,11 +63,11 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         cameraInputMultiplexer = new InputMultiplexer();
         cameraInputMultiplexer.addProcessor(this);
         cameraInputMultiplexer.addProcessor(camController);
-
+        Gdx.input.setInputProcessor(cameraInputMultiplexer);
+        Gdx.input.setCursorCatched(mouse);
         batch = new ModelBatch();
 
         instances = new Array<ModelInstance>();
-
 
         tpModel = modelFactory.loadModel("model.g3db");
         try {
@@ -76,21 +76,16 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             e.printStackTrace();
         }
 
+        wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
 
-//        roverModel = modelloader.loadModel(Gdx.files.internal("3d/balloon1.g3db"));
+        Model arenaModel = modelFactory.loadModel("arena.obj");
+        ModelInstance arena = new ModelInstance(arenaModel, -200, -9, -200);
+        arena.transform.scale(0.16f, 0.16f, 0.16f);
+        arena.materials.get(0).set(ColorAttribute.createDiffuse(Color.GRAY));
 
-//        ModelInstance rover = new ModelInstance(roverModel, 0, 0, 0);
-        wheel = new GCCRoverWheel(1, 0, modelFactory);
-//        ModelInstance tp = new ModelInstance(tpModel, 0, 3, 0);
-        ModelInstance tp2 = new ModelInstance(tpModel, 0, -10, 0);
+        instances.add(arena);
 
-//        tp.transform.scale(0.5f, 0.5f, 0.5f);
-//        rover.transform.scale(0.1f, 0.1f, 0.1f);
-//        instances.add(tp);
-        instances.add(tp2);
-//        instances.add(rover);
-
-        // modelInstance.transform.rotate(new Vector3(1f, 0f, 0f), 45f);
+        rover = new GCCRover("rover1", modelFactory, Color.WHITE);
 
         environment = new Environment();
 
@@ -98,35 +93,75 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         DirectionalLight light = new DirectionalLight();
         environment.add(light.set(1f, 1f, 1f, new Vector3(0f, -10f, 0f)));
         DirectionalLight light2 = new DirectionalLight();
-
-        environment.add(light2.set(1f, 1f, 1f, new Vector3(4f,  10f, 0f)));
-
+        environment.add(light2.set(1f, 1f, 1f, new Vector3(4f, 10f, 0f)));
+        DirectionalLight light3 = new DirectionalLight();
+        environment.add(light3.set(1f, 1f, 1f, new Vector3(0f, 0f, 0f)));
+        DirectionalLight light4 = new DirectionalLight();
+        environment.add(light4.set(1f, 1f, 1f, new Vector3(0f, 0f, 100f)));
+        DirectionalLight light5 = new DirectionalLight();
+        environment.add(light5.set(1f, 1f, 1f, new Vector3(0f, 0f, -10f)));
         camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), -45f);
+
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+
     }
 
     @Override
     public void render() {
+
         // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
-        wheel.updatePosition(wheel.getPosition());
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+        Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+
+        if (cameratype == 0) {
+            Vector3 pos = new Vector3();
+            pos = rover.getTransform().getTranslation(pos);
+            camera.lookAt(pos);
+            camera.up.set(new Vector3(0, 1, 0));
+
+        } else if (cameratype == 1) {
+            Vector3 pos = new Vector3();
+            pos = rover.getTransform().getTranslation(pos);
+            pos.y = 10f;
+
+            camera.position.set(pos);
+
+            Quaternion q = new Quaternion();
+            q = rover.getTransform().getRotation(q);
+            camera.direction.set(new Vector3(0.1f, 0, 0));
+            camera.direction.rotate(new Vector3(0, 1, 0), 180 + q.getAngleAround(new Vector3(0, 1, 0)));
+
+            camera.up.set(new Vector3(0, 1, 0));
+
+            camera.fieldOfView = 120f;;
+        } else if (cameratype == 2) {
+            Vector3 pos = new Vector3();
+            pos = rover.getTransform().getTranslation(pos);
+            camera.lookAt(pos);
+            camera.position.set(240f, 0f, 10f);
+            camera.up.set(new Vector3(0, 1, 0));
+
+        }
+
         camera.update();
+
         batch.begin(camera);
         batch.render(instances, environment);
-        wheel.render(batch, environment);
+        rover.render(batch, environment);
         batch.end();
 
-        if (moveleft) {
-            camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), 1f);
-        } else if (moveright) {
-            camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), -1f);
-        }
-        if (moveup) {
-            camera.position.add(camera.direction.nor());
-        } else if (movedown) {
-            camera.position.sub(camera.direction.nor());
-        }
+        rover.update();
+        Inputs i = Inputs.create();
+        i.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
+        i.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
+        i.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
+        i.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
+        i.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
+        i.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+
+        rover.processInput(i);
     }
 
     @Override
@@ -137,6 +172,11 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
     @Override
     public boolean keyDown(int keycode) {
+        if (keycode == Input.Keys.F1) {
+            cameratype = 0;
+        } else if (keycode == Input.Keys.F2) {
+            cameratype = 1;
+        }
         if (keycode == Input.Keys.ESCAPE) {
             mouse = !mouse;
             Gdx.input.setCursorCatched(mouse);
@@ -153,8 +193,10 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             moveleft = true;
         } else if (keycode == Input.Keys.D) {
             moveright = true;
+
         } else if (keycode == Input.Keys.W) {
             moveup = true;
+
         } else if (keycode == Input.Keys.S) {
             movedown = true;
         } else if (keycode == Input.Keys.TAB) {
@@ -243,4 +285,5 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     public boolean scrolled(int amount) {
         return false;
     }
+
 }

@@ -19,6 +19,7 @@ public class ModelFactory {
 
     private String errorMessage = "No model found: try load()";
     private Model motorholder;
+    private Model fullwheel;
 
     public ModelFactory() {
         UBJsonReader jsonreader = new UBJsonReader();
@@ -49,7 +50,9 @@ public class ModelFactory {
         body = loadModel("Body.obj");
         pinoon = loadModel("PiNoon.obj");
         top = loadModel("Top.obj");
-//        tyre = loadModel("Tyre.obj");
+        tyre = loadModel("Tyre.obj");
+        fullwheel = loadModel("FullWheel.obj");
+
         wheel = loadModel("Wheel.obj");
         motorholder = loadModel("MotorHolder.obj");
 
@@ -67,6 +70,13 @@ public class ModelFactory {
             throw (new Exception(errorMessage));
         }
         return motorholder;
+    }
+
+    public Model getFullWheel() throws Exception {
+        if (fullwheel == null) {
+            throw (new Exception(errorMessage));
+        }
+        return fullwheel;
     }
 
     public Model getBody() throws Exception {
