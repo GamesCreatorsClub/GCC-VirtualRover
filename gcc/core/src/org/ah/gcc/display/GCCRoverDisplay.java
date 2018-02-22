@@ -55,8 +55,8 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(240f, 0f, 240f);
         camera.lookAt(0f, 0f, 0f);
-        camera.near = 0.1f;
-        camera.far = 10000f;
+        camera.near = 0.02f;
+        camera.far = 1000f;
 
         camController = new CameraInputController(camera);
 
@@ -79,27 +79,25 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
 
         Model arenaModel = modelFactory.loadModel("arena.obj");
-        ModelInstance arena = new ModelInstance(arenaModel, -200, -9, -200);
+//        ModelBuilder modelBuilder = new ModelBuilder();
+//        Model arenaModel = modelBuilder.createBox(4000f, 5f, 4000f,
+//            new Material(ColorAttribute.createDiffuse(Color.RED)),
+//            Usage.Position | Usage.Normal);
+
+        ModelInstance arena = new ModelInstance(arenaModel);
+        arena.transform.translate(-200, -16, -200);
         arena.transform.scale(0.16f, 0.16f, 0.16f);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(Color.GRAY));
+//        arena.materials.get(0).set(ColorAttribute.createDiffuse(Color.RED));
 
         instances.add(arena);
 
-        rover = new GCCRover("rover1", modelFactory, Color.WHITE);
+        rover = new GCCRover("rover1", modelFactory, Color.RED);
 
         environment = new Environment();
 
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.1f, 0.1f, 0.1f, 1f));
         DirectionalLight light = new DirectionalLight();
-        environment.add(light.set(1f, 1f, 1f, new Vector3(0f, -10f, 0f)));
-        DirectionalLight light2 = new DirectionalLight();
-        environment.add(light2.set(1f, 1f, 1f, new Vector3(4f, 10f, 0f)));
-        DirectionalLight light3 = new DirectionalLight();
-        environment.add(light3.set(1f, 1f, 1f, new Vector3(0f, 0f, 0f)));
-        DirectionalLight light4 = new DirectionalLight();
-        environment.add(light4.set(1f, 1f, 1f, new Vector3(0f, 0f, 100f)));
-        DirectionalLight light5 = new DirectionalLight();
-        environment.add(light5.set(1f, 1f, 1f, new Vector3(0f, 0f, -10f)));
+        environment.add(light.set(1f, 1f, 1f, new Vector3(0f, -20f, 0f)));
         camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), -45f);
 
         ModelBuilder mb = new ModelBuilder();
@@ -112,12 +110,18 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
         // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
         Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
+
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+        Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
+        Gdx.gl.glEnable(Gdx.gl20.GL_POLYGON_OFFSET_FILL);
+        Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
+
 
         if (cameratype == 0) {
             Vector3 pos = new Vector3();
             pos = rover.getTransform().getTranslation(pos);
+            camController.target.set(pos);
             camera.lookAt(pos);
             camera.up.set(new Vector3(0, 1, 0));
 

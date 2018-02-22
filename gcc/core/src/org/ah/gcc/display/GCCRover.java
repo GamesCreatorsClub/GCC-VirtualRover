@@ -29,10 +29,10 @@ public class GCCRover extends Rover {
         this.color = color;
         transform = new Matrix4();
         try {
-            body = new ModelInstance(modelFactory.loadModel("Rover.obj"), 0, 0, 0);
-//            top = new ModelInstance(modelFactory.getTop(), 0, 0, 0);
-//            top.materials.get(0).set(ColorAttribute.createDiffuse(color));
-//            body.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
+            body = new ModelInstance(modelFactory.getBody(), 0, 0, 0);
+            top = new ModelInstance(modelFactory.getTop(), 0, 0, 0);
+            top.materials.get(0).set(ColorAttribute.createDiffuse(color));
+            body.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
 
             pinoon = new ModelInstance(modelFactory.getPiNoon(), 0, 0, 0);
             body.materials.get(0).set(ColorAttribute.createDiffuse(Color.GRAY));
@@ -56,9 +56,9 @@ public class GCCRover extends Rover {
             } else if (i.rotateRight()) {
                 steer(-5);
             } else if (i.moveLeft()) {
-                drive(-1.7f, 135);
+                drive(1.7f, 45);
             } else if (i.moveRight()) {
-                drive(-1.7f, 45);
+                drive(1.7f, 135);
             } else {
                 drive(-3, 0);
             }
@@ -68,9 +68,9 @@ public class GCCRover extends Rover {
             } else if (i.rotateRight()) {
                 steerBack(-5);
             } else if (i.moveLeft()) {
-                drive(1.7f, 45);
+                drive(-1.7f, 135);
             } else if (i.moveRight()) {
-                drive(1.7f, 135);
+                drive(-1.7f, 45);
             } else {
                 drive(3, 0);
             }
@@ -101,7 +101,7 @@ public class GCCRover extends Rover {
         bl.getTransform().set(transform);
 
         pinoon.transform.set(transform);
-//        top.transform.set(transform);
+        top.transform.set(transform);
         body.transform.set(transform);
         fl.getTransform().translate(1f, -5.5f, 0f);
         fr.getTransform().translate(1f, -5.5f, -15f);
@@ -119,7 +119,7 @@ public class GCCRover extends Rover {
         pinoon.transform.translate(-10f, 8f, -66f);
         pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 
-//        top.transform.scale(0.16f, 0.16f, 0.16f);
+        top.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.scale(0.16f, 0.16f, 0.16f);
 
     }
@@ -141,7 +141,7 @@ public class GCCRover extends Rover {
         fr.render(batch, environment);
         batch.render(pinoon, environment);
 
-//        batch.render(top, environment);
+        batch.render(top, environment);
         batch.render(body, environment);
 
     }
@@ -200,10 +200,10 @@ public class GCCRover extends Rover {
             br.setDegrees(0);
             getTransform().translate(new Vector3(speed, 0, 0));
         } else if (angle == 135) {
-            fl.setDegrees(135);
-            fr.setDegrees(135);
-            bl.setDegrees(135);
-            br.setDegrees(135);
+            fl.setDegrees(180 + 135);
+            fr.setDegrees(180 + 135);
+            bl.setDegrees(180 + 135);
+            br.setDegrees(180 + 135);
             getTransform().translate(new Vector3(speed, 0, -speed));
 
         }
