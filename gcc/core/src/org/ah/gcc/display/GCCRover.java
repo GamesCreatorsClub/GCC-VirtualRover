@@ -30,7 +30,6 @@ public class GCCRover extends Rover {
 
     public GCCRoverWheel fl;
 
-
     public long a = 0;
 
     private Matrix4 transform;
@@ -52,6 +51,8 @@ public class GCCRover extends Rover {
     private boolean hasBallon1 = true;
     private boolean hasBallon2 = true;
     private boolean hasBallon3 = true;
+
+    private boolean doingPiNoon = false;
 
     private int id = 0;
 
@@ -84,7 +85,6 @@ public class GCCRover extends Rover {
             balloon2 = new ModelInstance(modelFactory.getBaloon(), 0, 0, 0);
             balloon2.materials.get(0).set(ColorAttribute.createDiffuse(color));
             balloon2.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-
 
             balloon3 = new ModelInstance(modelFactory.getBaloon(), 0, 0, 0);
             balloon3.materials.get(0).set(ColorAttribute.createDiffuse(color));
@@ -149,7 +149,6 @@ public class GCCRover extends Rover {
         }
     }
 
-
     @Override
     public void update() {
         a++;
@@ -165,7 +164,6 @@ public class GCCRover extends Rover {
         balloon1.transform.set(transform);
         balloon2.transform.set(transform);
         balloon3.transform.set(transform);
-
 
         fl.getTransform().translate(1f, -5.5f, 0f);
         fr.getTransform().translate(1f, -5.5f, -15f);
@@ -186,19 +184,17 @@ public class GCCRover extends Rover {
         top.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.scale(0.16f, 0.16f, 0.16f);
 
-
-
         balloon1.transform.scale(0.16f, 0.16f, 0.16f);
         balloon2.transform.scale(0.16f, 0.16f, 0.16f);
         balloon3.transform.scale(0.16f, 0.16f, 0.16f);
 
         balloon1.transform.translate(0f, 158f, -50f);
         balloon2.transform.translate(-15f, 178f, -64f);
-        balloon3.transform.translate(-15f, 178f, -36f);
+        balloon3.transform.translate(0f, 178f, -70f);
 
-        balloon1.transform.rotate(new Vector3(1, 1, 0), (float) (30 + (Math.sin(a / (Math.random()*4f + 60f)) * 5f)));
-        balloon2.transform.rotate(new Vector3(0, 0, 1), (float) (45 + (Math.cos(a / (Math.random()*4f + 60f)) * 5f)));
-        balloon3.transform.rotate(new Vector3(1, 1, 0), (float) (270 + (Math.sin(a / (Math.random()*4f + 60f)) * 5f)));
+        balloon1.transform.rotate(new Vector3(1, 1, 0), (float) (30 + (Math.sin(a / (Math.random() * 4f + 60f)) * 5f)));
+        balloon2.transform.rotate(new Vector3(0, 0, 1), (float) (45 + (Math.cos(a / (Math.random() * 4f + 60f)) * 5f)));
+        balloon3.transform.rotate(new Vector3(1, 1, 0), (float) (-50 + (Math.sin(a / (Math.random() * 4f + 60f)) * 5f)));
 
         for (Robot robot : robots) {
             if (getBallon1().contains(robot.sharpPoint())) {
@@ -217,9 +213,8 @@ public class GCCRover extends Rover {
             }
         }
 
-//        main.setMarkerPosition(sharpPoint(), 1, false);
-//        balloon2.transform.translate(-1, -1, -1).rotate(new Vector3(0, 1, 0), 120).translate(1, 1, 1);
-
+        // main.setMarkerPosition(sharpPoint(), 1, false);
+        // balloon2.transform.translate(-1, -1, -1).rotate(new Vector3(0, 1, 0), 120).translate(1, 1, 1);
 
     }
 
@@ -238,22 +233,25 @@ public class GCCRover extends Rover {
         br.render(batch, environment);
         fl.render(batch, environment);
         fr.render(batch, environment);
-        batch.render(pinoon, environment);
 
-        if (hasBallon1) {
-            batch.render(balloon1, environment);
-        }
-        if (hasBallon2) {
-            batch.render(balloon2, environment);
-        }
-        if (hasBallon3) {
-            batch.render(balloon3, environment);
-        }
+        if (doingPiNoon) {
+            batch.render(pinoon, environment);
 
+            if (hasBallon1) {
+                batch.render(balloon1, environment);
+            }
+            if (hasBallon2) {
+                batch.render(balloon2, environment);
+            }
+            if (hasBallon3) {
+                batch.render(balloon3, environment);
+            }
+        }
         batch.render(top, environment);
         batch.render(body, environment);
 
     }
+
     public boolean collidesWithRover(Matrix4 move, Robot rover) {
         boolean collision = Intersector.overlapConvexPolygons(getPolygon(move), rover.getPolygon());
 
@@ -273,19 +271,14 @@ public class GCCRover extends Rover {
         Vector3 frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f));
         Vector3 frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f));
 
-
         float maxX = 250 * GCCRoverDisplay.SCALE;
         float maxZ = 210 * GCCRoverDisplay.SCALE;
         float minX = -215 * GCCRoverDisplay.SCALE;
         float minZ = -255 * GCCRoverDisplay.SCALE;
 
-
-
-        if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ
-                || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
-                || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ
-                || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX || frontright.z < minZ
-                ) {
+        if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
+                || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX
+                || frontright.z < minZ) {
             return true;
         }
 
@@ -330,7 +323,6 @@ public class GCCRover extends Rover {
         }
 
     }
-
 
     public void drive(float speed, int angle) {
         Matrix4 t = new Matrix4(transform);
@@ -424,7 +416,6 @@ public class GCCRover extends Rover {
         }
     }
 
-
     public void steerBack(int d) {
         Matrix4 t = new Matrix4(transform);
 
@@ -497,8 +488,7 @@ public class GCCRover extends Rover {
         Vector3 frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f));
         Vector3 frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f));
 
-
-        Polygon poly = new Polygon(new float[] {backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z});
+        Polygon poly = new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
         return poly;
     }
 
@@ -518,19 +508,15 @@ public class GCCRover extends Rover {
     public Circle getBallon1() {
         balloon1.transform.getTranslation(ballonPosition1);
 
-        float radius = 8  * GCCRoverDisplay.SCALE;
-
+        float radius = 8 * GCCRoverDisplay.SCALE;
         Circle c = new Circle(ballonPosition1.x, ballonPosition1.z, radius);
-
         return c;
     }
-
-
 
     public Circle getBallon2() {
         balloon2.transform.getTranslation(ballonPosition2);
 
-        float radius = 8  * GCCRoverDisplay.SCALE;
+        float radius = 8 * GCCRoverDisplay.SCALE;
 
         Circle c = new Circle(ballonPosition2.x, ballonPosition2.z, radius);
 
@@ -540,7 +526,7 @@ public class GCCRover extends Rover {
     public Circle getBallon3() {
         balloon3.transform.getTranslation(ballonPosition3);
 
-        float radius =  8 * GCCRoverDisplay.SCALE;
+        float radius = 8 * GCCRoverDisplay.SCALE;
 
         Circle c = new Circle(ballonPosition3.x, ballonPosition3.y, radius);
 
@@ -553,5 +539,37 @@ public class GCCRover extends Rover {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public boolean hasBallon1() {
+        return hasBallon1;
+    }
+
+    public void hasBallon1(boolean hasBallon1) {
+        this.hasBallon1 = hasBallon1;
+    }
+
+    public boolean hasBallon2() {
+        return hasBallon2;
+    }
+
+    public void hasBallon2(boolean hasBallon2) {
+        this.hasBallon2 = hasBallon2;
+    }
+
+    public boolean hasBallon3() {
+        return hasBallon3;
+    }
+
+    public void hasBallon3(boolean hasBallon3) {
+        this.hasBallon3 = hasBallon3;
+    }
+
+    public boolean isDoingPiNoon() {
+        return doingPiNoon;
+    }
+
+    public void setDoingPiNoon(boolean doingPiNoon) {
+        this.doingPiNoon = doingPiNoon;
     }
 }

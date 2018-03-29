@@ -11,6 +11,8 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -58,21 +60,30 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private ModelInstance marker1;
     private ModelInstance marker2;
 
+    private SpriteBatch spriteBatch;
+    private BitmapFont font;
+
+    private long a = 0;
+
+    private int state = 0;
+    private String winner = "NONE";
+
     @Override
     public void create() {
+        font = new BitmapFont(Gdx.files.internal("basic.fnt"), Gdx.files.internal("basic.png"), false);
+        spriteBatch = new SpriteBatch();
         modelFactory = new ModelFactory();
         modelFactory.load();
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, -480f * SCALE, 300f * SCALE);
-//        camera.rotateAround(new Vector3(0,0,0), new Vector3(0,1,0), -45);
+        // camera.rotateAround(new Vector3(0,0,0), new Vector3(0,1,0), -45);
         camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), 165f);
-//        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), 85f);
+        // camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), 85f);
         camera.lookAt(0f, 0f, 0f);
 
         camera.near = 0.02f;
         camera.far = 1000f;
-
 
         camController = new CameraInputController(camera);
 
@@ -103,7 +114,6 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
         instances.add(arena);
 
-
         Model marker = modelFactory.loadModel("model.g3db");
         marker1 = new ModelInstance(marker);
         marker1.transform.scale(0.05f, 0.05f, 0.05f);
@@ -114,8 +124,8 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         marker2.transform.scale(SCALE, SCALE, SCALE);
         marker2.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLUE));
 
-        instances.add(marker1);
-        instances.add(marker2);
+//        instances.add(marker1);
+//        instances.add(marker2);
 
         boxes = new ArrayList<BoundingBox>();
         float wallWidth = 0.1f;
@@ -125,18 +135,15 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((-200 + wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
         boxes.add(new BoundingBox(new Vector3(200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((200 - wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
 
-        //
-        // BoundingBox box = new BoundingBox();
-        // arena.calculateBoundingBox(box);
-        // box.mul(arena.transform);
-        // boxes.add(box);
-
         rover = new GCCRover("rover1", modelFactory, Color.GREEN, this);
         rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
         rover.getTransform().scale(SCALE, SCALE, SCALE);
         rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
         rover.update();
         rover.setId(1);
+        rover.setDoingPiNoon(false);
+
+
 
         rover2 = new GCCRover("rover1", modelFactory, Color.BLUE, this);
         rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
@@ -146,7 +153,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         rover.addOtherRover(rover2);
         rover2.addOtherRover(rover);
         rover2.setId(2);
-
+        rover2.setDoingPiNoon(false);
 
         environment = new Environment();
 
@@ -161,6 +168,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
     @Override
     public void render() {
+        a++;
 
         rover.setWorldCollision(boxes);
         rover2.setWorldCollision(boxes);
@@ -174,7 +182,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
         if (cameratype == 0) {
-            Vector3 pos = new Vector3(0, 0,0 );
+            Vector3 pos = new Vector3(0, 0, 0);
             camController.target.set(pos);
 
             camera.lookAt(pos);
@@ -224,7 +232,6 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
         rover.processInput(i);
 
-
         rover2.update();
         Inputs i2 = Inputs.create();
         i2.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
@@ -235,6 +242,34 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         i2.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
 
         rover2.processInput(i2);
+
+        int margin = 64;
+
+        spriteBatch.begin();
+
+        if (state == 0) {
+            if (Math.floor(a / 20) % 2 == 0) {
+                font.draw(spriteBatch, "Press space to start", margin, margin);
+            }
+        } else if (state == 2) {
+            font.draw(spriteBatch, winner + " wins!", margin, margin + 40);
+            if (Math.floor(a / 20) % 2 == 0) {
+                font.draw(spriteBatch, "Press space to restart!", margin, margin);
+            }
+
+        }
+
+        spriteBatch.end();
+
+        if (state == 1) {
+            if (!rover.hasBallon1() && !rover.hasBallon2() && !rover.hasBallon3()) {
+                state = 2;
+                winner = "Blue";
+            } else if (!rover2.hasBallon1() && !rover2.hasBallon2() && !rover2.hasBallon3()) {
+                state = 2;
+                winner = "Green";
+            }
+        }
     }
 
     @Override
@@ -260,6 +295,31 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
             }
 
+        }
+
+        if (keycode == Input.Keys.SPACE) {
+            if (state == 0 || state == 2) {
+                state = 1;
+
+                rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+                rover.update();
+
+
+
+                rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
+                rover2.update();
+                rover2.setId(2);
+
+                rover.hasBallon1(true);
+                rover.hasBallon2(true);
+                rover.hasBallon3(true);
+                rover.setDoingPiNoon(true);
+                rover2.hasBallon1(true);
+                rover2.hasBallon2(true);
+                rover2.hasBallon3(true);
+                rover2.setDoingPiNoon(true);
+
+            }
         }
 
         if (keycode == Input.Keys.A) {
@@ -368,16 +428,15 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         if (marker == 1) {
             marker1.transform.setToTranslation(v);
             marker1.transform.scale(SCALE * 1.0f, SCALE * 1.0f, SCALE * 1.0f);
-//            marker1.calculateTransforms();
+            // marker1.calculateTransforms();
 
         }
         if (marker == 2) {
             marker2.transform.setToTranslation(v);
             marker2.transform.scale(SCALE * 1.0f, SCALE * 1.0f, SCALE * 1.0f);
-//            marker2.calculateTransforms();
+            // marker2.calculateTransforms();
 
         }
     }
-
 
 }
