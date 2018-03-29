@@ -11,7 +11,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-public class GCCRoverPlanetRunServer {
+public class GCCRoverRunServer {
 
     public static void main(String[] args) throws Exception {
         File path;

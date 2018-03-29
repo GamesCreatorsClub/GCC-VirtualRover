@@ -41,6 +41,11 @@ public class GCCRover extends Rover {
     private ModelInstance balloon1;
     private ModelInstance balloon2;
     private ModelInstance balloon3;
+    private Vector3 ballonPosition1 = new Vector3();
+    private Vector3 ballonPosition2 = new Vector3();
+    private Vector3 ballonPosition3 = new Vector3();
+    private Vector3 roverPosition1 = new Vector3();
+    private Vector3 roverPosition2 = new Vector3();
 
     private List<Robot> robots = new ArrayList<Robot>();
 
@@ -501,26 +506,21 @@ public class GCCRover extends Rover {
     public Vector2 sharpPoint() {
         Matrix4 m = new Matrix4(transform);
 
-       m.translate(-21f, 24f, -9f);
+        m.translate(-21f, 24f, -9f);
 
         Vector3 pos = new Vector3();
         pos = m.getTranslation(pos);
         main.setMarkerPosition(pos, id, false);
+
         return new Vector2(pos.x, pos.z);
     }
 
     public Circle getBallon1() {
-        Matrix4 m = new Matrix4(transform);
+        balloon1.transform.getTranslation(ballonPosition1);
 
-        m.translate(-2f, 30f, -3f);
+        float radius = 8  * GCCRoverDisplay.SCALE;
 
-        Vector3 pos = new Vector3();
-        pos = m.getTranslation(pos);
-
-
-        float radius = 4  * GCCRoverDisplay.SCALE;
-
-        Circle c = new Circle(pos.x, pos.y, radius);
+        Circle c = new Circle(ballonPosition1.x, ballonPosition1.z, radius);
 
         return c;
     }
@@ -528,33 +528,21 @@ public class GCCRover extends Rover {
 
 
     public Circle getBallon2() {
-        Matrix4 m = new Matrix4(transform);
-
-        m.translate(-12f, 30f, -9f);
-
-        Vector3 pos = new Vector3();
-        pos = m.getTranslation(pos);
-
+        balloon2.transform.getTranslation(ballonPosition2);
 
         float radius = 8  * GCCRoverDisplay.SCALE;
 
-        Circle c = new Circle(pos.x, pos.y, radius);
+        Circle c = new Circle(ballonPosition2.x, ballonPosition2.z, radius);
 
         return c;
     }
 
     public Circle getBallon3() {
-        Matrix4 m = new Matrix4(transform);
+        balloon3.transform.getTranslation(ballonPosition3);
 
-        m.translate(2f, 30f, -14f);
+        float radius =  8 * GCCRoverDisplay.SCALE;
 
-        Vector3 pos = new Vector3();
-        pos = m.getTranslation(pos);
-
-
-        float radius =  6 * GCCRoverDisplay.SCALE;
-
-        Circle c = new Circle(pos.x, pos.y, radius);
+        Circle c = new Circle(ballonPosition3.x, ballonPosition3.y, radius);
 
         return c;
     }
