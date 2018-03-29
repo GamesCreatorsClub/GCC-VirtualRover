@@ -11,8 +11,8 @@ public class DesktopLauncher {
         // config.width = 320;
         // config.height = 256;
 
-        config.width = 720;
-        config.height = 480;
+        config.width = 1440;
+        config.height = 960;
         new LwjglApplication(new GCCRoverDisplay(), config);
     }
 }

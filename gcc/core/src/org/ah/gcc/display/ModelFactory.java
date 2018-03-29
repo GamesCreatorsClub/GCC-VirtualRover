@@ -39,7 +39,7 @@ public class ModelFactory {
             m = g3Modelloader.loadModel(f);
 
         } else {
-            m = objModelloader.loadModel(f);
+            m = objModelloader.loadModel(f, true);
 
         }
         return m;

@@ -26,6 +26,7 @@ public class GCCRoverWheel {
     private float lastAngle = 0;
     private Color color;
 
+
     public GCCRoverWheel(ModelFactory f, float degreeOffset, Color color) {
         this.degreeOffset = degreeOffset;
         this.color = color;
@@ -56,13 +57,17 @@ public class GCCRoverWheel {
     }
 
     public void update() {
+        update(getTransform());
+    }
+
+    public void update(Matrix4 transform) {
         float x = -1f;
         float y = 0;
         float z = 1.5f;
-        getTransform().translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
+        transform.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
 
-        wheel.transform.set(getTransform());
-        motor.transform.set(getTransform());
+        wheel.transform.set(transform);
+        motor.transform.set(transform);
 
 
 
@@ -103,7 +108,21 @@ public class GCCRoverWheel {
     }
 
     public Vector3 getPosition() {
-        return position;
+        Vector3 pos = new Vector3();
+        pos = transform.getTranslation(pos);
+        return pos;
+    }
+
+    public Vector3 getPosition(Matrix4 move) {
+        float x = -1f;
+        float y = 0;
+        float z = 1.5f;
+//        move.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
+
+        Vector3 pos = new Vector3();
+        pos = move.getTranslation(pos);
+
+        return pos;
     }
 
     public void setPosition(Vector3 position) {

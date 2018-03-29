@@ -1,5 +1,8 @@
 package org.ah.gcc.display;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -18,6 +21,7 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 
 public class GCCRoverDisplay extends ApplicationAdapter implements InputProcessor {
@@ -43,9 +47,16 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
     private GCCRover rover;
+    private GCCRover rover2;
     private GCCRoverWheel wheel;
 
     private int cameratype = 0;
+
+    public static final float SCALE = 0.01f;
+
+    private List<BoundingBox> boxes;
+    private ModelInstance marker1;
+    private ModelInstance marker2;
 
     @Override
     public void create() {
@@ -53,10 +64,15 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         modelFactory.load();
 
         camera = new PerspectiveCamera(45, 800, 480);
-        camera.position.set(240f, 0f, 240f);
+        camera.position.set(300f * SCALE, -480f * SCALE, 300f * SCALE);
+//        camera.rotateAround(new Vector3(0,0,0), new Vector3(0,1,0), -45);
+        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), 165f);
+//        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), 85f);
         camera.lookAt(0f, 0f, 0f);
+
         camera.near = 0.02f;
         camera.far = 1000f;
+
 
         camController = new CameraInputController(camera);
 
@@ -79,26 +95,64 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
 
         Model arenaModel = modelFactory.loadModel("arena.obj");
-//        ModelBuilder modelBuilder = new ModelBuilder();
-//        Model arenaModel = modelBuilder.createBox(4000f, 5f, 4000f,
-//            new Material(ColorAttribute.createDiffuse(Color.RED)),
-//            Usage.Position | Usage.Normal);
 
         ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.translate(-200, -16, -200);
+        arena.transform.translate(-200 * SCALE, -12 * SCALE, -200 * SCALE);
         arena.transform.scale(0.16f, 0.16f, 0.16f);
-//        arena.materials.get(0).set(ColorAttribute.createDiffuse(Color.RED));
-
+        arena.transform.scale(SCALE, SCALE, SCALE);
+        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
         instances.add(arena);
 
-        rover = new GCCRover("rover1", modelFactory, Color.RED);
+
+        Model marker = modelFactory.loadModel("model.g3db");
+        marker1 = new ModelInstance(marker);
+        marker1.transform.scale(0.05f, 0.05f, 0.05f);
+        marker1.transform.scale(SCALE, SCALE, SCALE);
+        marker1.materials.get(0).set(ColorAttribute.createDiffuse(Color.GREEN));
+        marker2 = new ModelInstance(marker);
+        marker2.transform.scale(0.05f, 0.05f, 0.05f);
+        marker2.transform.scale(SCALE, SCALE, SCALE);
+        marker2.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLUE));
+
+        instances.add(marker1);
+        instances.add(marker2);
+
+        boxes = new ArrayList<BoundingBox>();
+        float wallWidth = 0.1f;
+        boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3(200 * SCALE, 10 * SCALE, (-200 + wallWidth) * SCALE)));
+        boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, 200 * SCALE), new Vector3(200 * SCALE, 10 * SCALE, (200 - wallWidth) * SCALE)));
+
+        boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((-200 + wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
+        boxes.add(new BoundingBox(new Vector3(200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((200 - wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
+
+        //
+        // BoundingBox box = new BoundingBox();
+        // arena.calculateBoundingBox(box);
+        // box.mul(arena.transform);
+        // boxes.add(box);
+
+        rover = new GCCRover("rover1", modelFactory, Color.GREEN, this);
+        rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+        rover.getTransform().scale(SCALE, SCALE, SCALE);
+        rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
+        rover.update();
+        rover.setId(1);
+
+        rover2 = new GCCRover("rover1", modelFactory, Color.BLUE, this);
+        rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
+        rover2.getTransform().scale(SCALE, SCALE, SCALE);
+        rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
+        rover2.update();
+        rover.addOtherRover(rover2);
+        rover2.addOtherRover(rover);
+        rover2.setId(2);
+
 
         environment = new Environment();
 
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.1f, 0.1f, 0.1f, 1f));
         DirectionalLight light = new DirectionalLight();
-        environment.add(light.set(1f, 1f, 1f, new Vector3(0f, -20f, 0f)));
-        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), -45f);
+        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -20f * SCALE, 0f * SCALE)));
 
         ModelBuilder mb = new ModelBuilder();
         mb.begin();
@@ -108,6 +162,8 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     @Override
     public void render() {
 
+        rover.setWorldCollision(boxes);
+        rover2.setWorldCollision(boxes);
         // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
         Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
 
@@ -117,11 +173,10 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         Gdx.gl.glEnable(Gdx.gl20.GL_POLYGON_OFFSET_FILL);
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
-
         if (cameratype == 0) {
-            Vector3 pos = new Vector3();
-            pos = rover.getTransform().getTranslation(pos);
+            Vector3 pos = new Vector3(0, 0,0 );
             camController.target.set(pos);
+
             camera.lookAt(pos);
             camera.up.set(new Vector3(0, 1, 0));
 
@@ -139,7 +194,8 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
             camera.up.set(new Vector3(0, 1, 0));
 
-            camera.fieldOfView = 120f;;
+            camera.fieldOfView = 120f;
+            ;
         } else if (cameratype == 2) {
             Vector3 pos = new Vector3();
             pos = rover.getTransform().getTranslation(pos);
@@ -154,6 +210,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         batch.begin(camera);
         batch.render(instances, environment);
         rover.render(batch, environment);
+        rover2.render(batch, environment);
         batch.end();
 
         rover.update();
@@ -166,6 +223,18 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         i.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
 
         rover.processInput(i);
+
+
+        rover2.update();
+        Inputs i2 = Inputs.create();
+        i2.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
+        i2.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
+        i2.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
+        i2.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
+        i2.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
+        i2.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+
+        rover2.processInput(i2);
     }
 
     @Override
@@ -289,5 +358,26 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     public boolean scrolled(int amount) {
         return false;
     }
+
+    public void setMarkerPosition(Vector3 p, int marker, boolean useScale) {
+
+        Vector3 v = new Vector3(p.x * SCALE, p.y * SCALE, p.z * SCALE);
+        if (!useScale) {
+            v.set(new Vector3(p.x, p.y, p.z));
+        }
+        if (marker == 1) {
+            marker1.transform.setToTranslation(v);
+            marker1.transform.scale(SCALE * 1.0f, SCALE * 1.0f, SCALE * 1.0f);
+//            marker1.calculateTransforms();
+
+        }
+        if (marker == 2) {
+            marker2.transform.setToTranslation(v);
+            marker2.transform.scale(SCALE * 1.0f, SCALE * 1.0f, SCALE * 1.0f);
+//            marker2.calculateTransforms();
+
+        }
+    }
+
 
 }
