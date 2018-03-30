@@ -528,7 +528,7 @@ public class GCCRover extends Rover {
 
         float radius = 8 * GCCRoverDisplay.SCALE;
 
-        Circle c = new Circle(ballonPosition3.x, ballonPosition3.y, radius);
+        Circle c = new Circle(ballonPosition3.x, ballonPosition3.z, radius);
 
         return c;
     }

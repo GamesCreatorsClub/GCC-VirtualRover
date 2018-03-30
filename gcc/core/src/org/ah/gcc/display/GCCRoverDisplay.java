@@ -8,9 +8,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -27,6 +29,10 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 
 public class GCCRoverDisplay extends ApplicationAdapter implements InputProcessor {
+
+    private AssetManager assetManager;
+    private boolean loadingAssets = true;
+
     private ModelBatch batch;
     private PerspectiveCamera camera;
     private Model tpModel;
@@ -63,14 +69,20 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private SpriteBatch spriteBatch;
     private BitmapFont font;
 
-    private long a = 0;
+    private long a = 1;
 
     private int state = 0;
     private String winner = "NONE";
+    private Texture gccLogo;
 
     @Override
     public void create() {
-        font = new BitmapFont(Gdx.files.internal("basic.fnt"), Gdx.files.internal("basic.png"), false);
+//        font = new BitmapFont(Gdx.files.internal("basic.fnt"), Gdx.files.internal("basic.png"), false);
+        assetManager = new AssetManager();
+
+        assetManager.load("font/basic.fnt", BitmapFont.class);
+        assetManager.load("GCC_full.png", Texture.class);
+
         spriteBatch = new SpriteBatch();
         modelFactory = new ModelFactory();
         modelFactory.load();
@@ -165,109 +177,120 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         mb.begin();
 
     }
+    private void finishLoading() {
+        loadingAssets = false;
+        font = assetManager.get("font/basic.fnt");
+        gccLogo = assetManager.get("GCC_full.png");
+    }
 
     @Override
     public void render() {
-        a++;
-
-        rover.setWorldCollision(boxes);
-        rover2.setWorldCollision(boxes);
-        // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
-        Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
-
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
-        Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
-        Gdx.gl.glEnable(Gdx.gl20.GL_POLYGON_OFFSET_FILL);
-        Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
-
-        if (cameratype == 0) {
-            Vector3 pos = new Vector3(0, 0, 0);
-            camController.target.set(pos);
-
-            camera.lookAt(pos);
-            camera.up.set(new Vector3(0, 1, 0));
-
-        } else if (cameratype == 1) {
-            Vector3 pos = new Vector3();
-            pos = rover.getTransform().getTranslation(pos);
-            pos.y = 10f;
-
-            camera.position.set(pos);
-
-            Quaternion q = new Quaternion();
-            q = rover.getTransform().getRotation(q);
-            camera.direction.set(new Vector3(0.1f, 0, 0));
-            camera.direction.rotate(new Vector3(0, 1, 0), 180 + q.getAngleAround(new Vector3(0, 1, 0)));
-
-            camera.up.set(new Vector3(0, 1, 0));
-
-            camera.fieldOfView = 120f;
-            ;
-        } else if (cameratype == 2) {
-            Vector3 pos = new Vector3();
-            pos = rover.getTransform().getTranslation(pos);
-            camera.lookAt(pos);
-            camera.position.set(240f, 0f, 10f);
-            camera.up.set(new Vector3(0, 1, 0));
-
+        if (loadingAssets && assetManager.update()) {
+            finishLoading();
         }
 
-        camera.update();
+        if (!loadingAssets) {
+            a++;
 
-        batch.begin(camera);
-        batch.render(instances, environment);
-        rover.render(batch, environment);
-        rover2.render(batch, environment);
-        batch.end();
+            rover.setWorldCollision(boxes);
+            rover2.setWorldCollision(boxes);
+            // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
+            Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
 
-        rover.update();
-        Inputs i = Inputs.create();
-        i.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
-        i.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
-        i.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
-        i.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
-        i.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
-        i.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+            Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+            Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
+            Gdx.gl.glEnable(Gdx.gl20.GL_POLYGON_OFFSET_FILL);
+            Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
-        rover.processInput(i);
+            if (cameratype == 0) {
+                Vector3 pos = new Vector3(0, 0, 0);
+                camController.target.set(pos);
 
-        rover2.update();
-        Inputs i2 = Inputs.create();
-        i2.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
-        i2.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
-        i2.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
-        i2.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
-        i2.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
-        i2.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+                camera.lookAt(pos);
+                camera.up.set(new Vector3(0, 1, 0));
 
-        rover2.processInput(i2);
+            } else if (cameratype == 1) {
+                Vector3 pos = new Vector3();
+                pos = rover.getTransform().getTranslation(pos);
+                pos.y = 10f;
 
-        int margin = 64;
+                camera.position.set(pos);
 
-        spriteBatch.begin();
+                Quaternion q = new Quaternion();
+                q = rover.getTransform().getRotation(q);
+                camera.direction.set(new Vector3(0.1f, 0, 0));
+                camera.direction.rotate(new Vector3(0, 1, 0), 180 + q.getAngleAround(new Vector3(0, 1, 0)));
 
-        if (state == 0) {
-            if (Math.floor(a / 20) % 2 == 0) {
-                font.draw(spriteBatch, "Press space to start", margin, margin);
+                camera.up.set(new Vector3(0, 1, 0));
+
+                camera.fieldOfView = 120f;
+                ;
+            } else if (cameratype == 2) {
+                Vector3 pos = new Vector3();
+                pos = rover.getTransform().getTranslation(pos);
+                camera.lookAt(pos);
+                camera.position.set(240f, 0f, 10f);
+                camera.up.set(new Vector3(0, 1, 0));
+
             }
-        } else if (state == 2) {
-            font.draw(spriteBatch, winner + " wins!", margin, margin + 40);
-            if (Math.floor(a / 20) % 2 == 0) {
-                font.draw(spriteBatch, "Press space to restart!", margin, margin);
+
+            camera.update();
+
+            batch.begin(camera);
+            batch.render(instances, environment);
+            rover.render(batch, environment);
+            rover2.render(batch, environment);
+            batch.end();
+
+            rover.update();
+            Inputs i = Inputs.create();
+            i.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
+            i.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
+            i.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
+            i.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
+            i.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
+            i.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+
+            rover.processInput(i);
+
+            rover2.update();
+            Inputs i2 = Inputs.create();
+            i2.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
+            i2.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
+            i2.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
+            i2.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
+            i2.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
+            i2.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+
+            rover2.processInput(i2);
+
+            int margin = 64;
+
+            spriteBatch.begin();
+
+            if (state == 0) {
+                if (Math.floor(a / 20) % 2 == 0) {
+                    font.draw(spriteBatch, "Press space to start", margin, margin);
+                }
+            } else if (state == 2) {
+                font.draw(spriteBatch, winner + " wins!", margin, margin + 40);
+                if (Math.floor(a / 20) % 2 == 0) {
+                    font.draw(spriteBatch, "Press space to restart!", margin, margin);
+                }
+
             }
+            spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+            spriteBatch.end();
 
-        }
-
-        spriteBatch.end();
-
-        if (state == 1) {
-            if (!rover.hasBallon1() && !rover.hasBallon2() && !rover.hasBallon3()) {
-                state = 2;
-                winner = "Blue";
-            } else if (!rover2.hasBallon1() && !rover2.hasBallon2() && !rover2.hasBallon3()) {
-                state = 2;
-                winner = "Green";
+            if (state == 1) {
+                if (!rover.hasBallon1() && !rover.hasBallon2() && !rover.hasBallon3()) {
+                    state = 2;
+                    winner = "Blue";
+                } else if (!rover2.hasBallon1() && !rover2.hasBallon2() && !rover2.hasBallon3()) {
+                    state = 2;
+                    winner = "Green";
+                }
             }
         }
     }
