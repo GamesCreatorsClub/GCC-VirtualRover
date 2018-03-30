@@ -35,20 +35,13 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
     private ModelBatch batch;
     private PerspectiveCamera camera;
-    private Model tpModel;
-    private ModelInstance modelInstance;
     private Environment environment;
-    private boolean moveleft = false;
-    private boolean moveright = false;
-    private boolean moveup = false;
-    private boolean movedown = false;
 
     private int mouseX = 0;
     private int mouseY = 0;
     private float rotSpeed = 0.1f;
 
     private boolean mouse = false;
-    private Model roverModel;
     private CameraInputController camController;
 
     public Array<ModelInstance> instances;
@@ -56,7 +49,6 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private ModelFactory modelFactory;
     private GCCRover rover;
     private GCCRover rover2;
-    private GCCRoverWheel wheel;
 
     private int cameratype = 0;
 
@@ -77,7 +69,6 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
     @Override
     public void create() {
-//        font = new BitmapFont(Gdx.files.internal("basic.fnt"), Gdx.files.internal("basic.png"), false);
         assetManager = new AssetManager();
 
         assetManager.load("font/basic.fnt", BitmapFont.class);
@@ -108,14 +99,14 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
         instances = new Array<ModelInstance>();
 
-        tpModel = modelFactory.loadModel("model.g3db");
-        try {
-            roverModel = modelFactory.getBaloon();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
+//        tpModel = modelFactory.loadModel("model.g3db");
+//        try {
+//            roverModel = modelFactory.getBaloon();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
 
         Model arenaModel = modelFactory.loadModel("arena.obj");
 
@@ -192,15 +183,12 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         if (!loadingAssets) {
             a++;
 
-            rover.setWorldCollision(boxes);
-            rover2.setWorldCollision(boxes);
-            // modelInstance.transform.rotate(new Vector3(0f, 1f, 0f), 1f);
             Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
 
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
             Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
             Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
-            Gdx.gl.glEnable(Gdx.gl20.GL_POLYGON_OFFSET_FILL);
+            Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
             Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
             if (cameratype == 0) {
@@ -298,7 +286,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     @Override
     public void dispose() {
         batch.dispose();
-        tpModel.dispose();
+//        tpModel.dispose();
     }
 
     @Override
@@ -345,35 +333,34 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             }
         }
 
-        if (keycode == Input.Keys.A) {
-            moveleft = true;
-        } else if (keycode == Input.Keys.D) {
-            moveright = true;
-
-        } else if (keycode == Input.Keys.W) {
-            moveup = true;
-
-        } else if (keycode == Input.Keys.S) {
-            movedown = true;
-        } else if (keycode == Input.Keys.TAB) {
+        if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 4f;
+//        } else {if (keycode == Input.Keys.A) {
+//            moveleft = true;
+//        } else if (keycode == Input.Keys.D) {
+//            moveright = true;
+//
+//        } else if (keycode == Input.Keys.W) {
+//            moveup = true;
+//
+//        } else if (keycode == Input.Keys.S) {
+//            movedown = true;
         }
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        if (keycode == Input.Keys.A) {
-            moveleft = false;
-        } else if (keycode == Input.Keys.D) {
-            moveright = false;
-        } else if (keycode == Input.Keys.W) {
-            moveup = false;
-        } else if (keycode == Input.Keys.S) {
-            movedown = false;
-        } else if (keycode == Input.Keys.TAB) {
+        if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 45f;
-
+//        } else if (keycode == Input.Keys.A) {
+//            moveleft = false;
+//        } else if (keycode == Input.Keys.D) {
+//            moveright = false;
+//        } else if (keycode == Input.Keys.W) {
+//            moveup = false;
+//        } else if (keycode == Input.Keys.S) {
+//            movedown = false;
         }
         return false;
     }

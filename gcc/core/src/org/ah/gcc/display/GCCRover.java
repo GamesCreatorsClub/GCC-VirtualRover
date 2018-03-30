@@ -34,8 +34,9 @@ public class GCCRover extends Rover {
 
     private Matrix4 transform;
     private ModelInstance top;
+    @SuppressWarnings("unused")
     private Color color;
-    private List<BoundingBox> world;
+//    private List<BoundingBox> world;
     private GCCRoverDisplay main;
     private ModelInstance balloon1;
     private ModelInstance balloon2;
@@ -43,8 +44,6 @@ public class GCCRover extends Rover {
     private Vector3 ballonPosition1 = new Vector3();
     private Vector3 ballonPosition2 = new Vector3();
     private Vector3 ballonPosition3 = new Vector3();
-    private Vector3 roverPosition1 = new Vector3();
-    private Vector3 roverPosition2 = new Vector3();
 
     private List<Robot> robots = new ArrayList<Robot>();
 
@@ -92,11 +91,6 @@ public class GCCRover extends Rover {
         } catch (Exception e) {
             // TODO: handle exception
         }
-
-    }
-
-    public void setWorldCollision(List<BoundingBox> boxes) {
-        this.world = boxes;
 
     }
 
@@ -199,23 +193,17 @@ public class GCCRover extends Rover {
         for (Robot robot : robots) {
             if (getBallon1().contains(robot.sharpPoint())) {
                 hasBallon1 = false;
-                System.out.println("hit 1");
+//                System.out.println("hit 1");
             }
             if (getBallon2().contains(robot.sharpPoint())) {
                 hasBallon2 = false;
-                System.out.println("hit 2");
-
+//                System.out.println("hit 2");
             }
             if (getBallon3().contains(robot.sharpPoint())) {
                 hasBallon3 = false;
-                System.out.println("hit 3");
-
+//                System.out.println("hit 3");
             }
         }
-
-        // main.setMarkerPosition(sharpPoint(), 1, false);
-        // balloon2.transform.translate(-1, -1, -1).rotate(new Vector3(0, 1, 0), 120).translate(1, 1, 1);
-
     }
 
     public Matrix4 getTransform() {
@@ -445,18 +433,6 @@ public class GCCRover extends Rover {
         }
     }
 
-    private double sideAngleFront(double dist) {
-        double x = Math.atan2(69.0, dist - 36.5);
-
-        return Math.toDegrees(x);
-    }
-
-    private double sideAngleBack(double dist) {
-        double x = Math.atan2(69.0, dist + 36.5);
-
-        return Math.toDegrees(x);
-    }
-
     public void setWheelSpeeds(int speed) {
         fl.setSpeed(speed);
         fr.setSpeed(speed);
@@ -473,7 +449,6 @@ public class GCCRover extends Rover {
 
     @Override
     public Polygon getPolygon() {
-
         return getPolygon(transform);
     }
 
