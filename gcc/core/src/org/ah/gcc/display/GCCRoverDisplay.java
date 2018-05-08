@@ -11,18 +11,25 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -57,6 +64,11 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private List<BoundingBox> boxes;
     private ModelInstance marker1;
     private ModelInstance marker2;
+    private Mesh backgroundMesh;
+    private ShaderProgram backgroundShaderProgram;
+    private RenderContext renderContext;
+    private Renderable renderable;
+    private DefaultShader shader;
 
     private SpriteBatch spriteBatch;
     private BitmapFont font;
@@ -107,6 +119,29 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 //        }
 //
 //        wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
+
+//        backgroundShaderProgram = new ShaderProgram(Gdx.files.internal("rog.vs"), Gdx.files.internal("rog.fs"));
+        backgroundMesh = createRect(0, 0, 120, 120);
+        renderable = new Renderable();
+        renderable.meshPart.mesh = backgroundMesh;
+        renderable.meshPart.primitiveType = GL20.GL_TRIANGLES;
+        // renderable.meshPart.size = mesh.getNumVertices() * mesh.getVertexSize();
+        renderable.meshPart.size = backgroundMesh.getNumIndices();
+        renderable.material = null;
+        renderable.worldTransform.idt();
+
+        String vertexProgram = Gdx.files.internal("background.vs").readString();
+        String fragmentProgram = Gdx.files.internal("background.fs").readString();
+
+        shader = new DefaultShader(renderable, new DefaultShader.Config(vertexProgram, fragmentProgram));
+        shader.init();
+        if (!shader.program.isCompiled()) {
+            Gdx.app.log("Shader error: ", shader.program.getLog());
+            System.out.println("Shader error" + shader.program.getLog());
+//            System.exit(-1);
+        }
+
+        renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
 
         Model arenaModel = modelFactory.loadModel("arena.obj");
 
@@ -184,6 +219,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             a++;
 
             Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
+            // Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1f);
 
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
             Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
@@ -225,7 +261,22 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
             camera.update();
 
+            Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
+            Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            renderContext.begin();
+            shader.begin(camera, renderContext);
+            shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
+            shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
+            shader.program.setUniformf("u_time", a);
+            shader.render(renderable);
+
+            shader.end();
+            renderContext.end();
+
+
             batch.begin(camera);
+
             batch.render(instances, environment);
             rover.render(batch, environment);
             rover2.render(batch, environment);
@@ -447,6 +498,24 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             // marker2.calculateTransforms();
 
         }
+    }
+
+    public static Mesh createRect(float x, float y, float width, float height) {
+        Mesh mesh = new Mesh(true, 4, 6,
+                VertexAttribute.Position(),
+                VertexAttribute.ColorUnpacked(),
+                VertexAttribute.TexCoords(0));
+
+        mesh.setVertices(new float[] {
+                -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0,
+                 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0,
+                 1 * width + x, -1,  1 * height + y, 1, 0, 1, 1, 1, 1,
+                -1 * width + x, -1,  1 * height + y, 1, 0, 1, 1, 0, 1
+           });
+
+//        mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
+        mesh.setIndices(new short[] {2, 1, 0, 0, 3, 2});
+        return mesh;
     }
 
 }
