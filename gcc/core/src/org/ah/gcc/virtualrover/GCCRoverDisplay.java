@@ -55,7 +55,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
     private CBiSRover rover;
-    private CBiSRover rover2;
+    private GCCRover rover2;
     private GCCRoverWheel wheel;
 
     private int cameratype = 0;
@@ -184,7 +184,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
 
 
-        rover2 = new CBiSRover("rover1", modelFactory, Color.BLUE, this);
+        rover2 = new GCCRover("rover2", modelFactory, Color.BLUE, this);
         rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
         rover2.getTransform().scale(SCALE, SCALE, SCALE);
         rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
@@ -196,9 +196,9 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
         environment = new Environment();
 
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.1f, 0.1f, 0.1f, 1f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         DirectionalLight light = new DirectionalLight();
-        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -20f * SCALE, 0f * SCALE)));
+        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -10f * SCALE, 0f * SCALE)));
 
         ModelBuilder mb = new ModelBuilder();
         mb.begin();
@@ -265,15 +265,15 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
             Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-            renderContext.begin();
-            shader.begin(camera, renderContext);
-            shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
-            shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
-            shader.program.setUniformf("u_time", a);
-            shader.render(renderable);
-
-            shader.end();
-            renderContext.end();
+//            renderContext.begin();
+//            shader.begin(camera, renderContext);
+//            shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
+//            shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
+//            shader.program.setUniformf("u_time", a);
+//            shader.render(renderable);
+//
+//            shader.end();
+//            renderContext.end();
 
 
             batch.begin(camera);

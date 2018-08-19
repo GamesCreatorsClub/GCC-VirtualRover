@@ -51,7 +51,7 @@ public class CBiSRover extends Rover {
     private boolean doingPiNoon = false;
 
     private int id = 0;
-    private float scale = 16;
+    private float scale = 26;
 
     public CBiSRover(String name, ModelFactory modelFactory, Color color, GCCRoverDisplay main) {
         super(name);
@@ -100,15 +100,15 @@ public class CBiSRover extends Rover {
 
     @Override
     public void processInput(Inputs i) {
-        if (i.moveUp()) {
-            drive(1.7f);
-        } else if (i.moveDown()) {
-            drive(-1.7f);
-
-        } else if (i.moveLeft()) {
+        if (i.moveLeft()) {
             rotate(3);
         } else if (i.moveRight()) {
             rotate(-3);
+        } else if (i.moveUp()) {
+            drive(2.7f);
+        } else if (i.moveDown()) {
+            drive(-2.7f);
+
         } else if (i.rotateLeft()) {
         } else if (i.rotateRight()) {
         } else {
@@ -133,10 +133,10 @@ public class CBiSRover extends Rover {
         balloon3.transform.set(transform);
 
         fl.getTransform().translate(1f, -5.5f, 0f);
-        fr.getTransform().translate(1f, -5.5f, -15f);
+        fr.getTransform().translate(0f, -5.5f, -20f);
 
-        bl.getTransform().translate(24f, -5.5f, 0f);
-        br.getTransform().translate(24f, -5.5f, -15f);
+        bl.getTransform().translate(27f, -5.5f, 0f);
+        br.getTransform().translate(26f, -5.5f, -20f);
 
         fr.update();
         fl.update();
@@ -148,11 +148,13 @@ public class CBiSRover extends Rover {
         pinoon.transform.translate(-10f, 8f, -66f);
         pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 
-        pinoon.transform.rotate(new Vector3(0, 1, 0), 90);
 
         body.transform.scale(scale, scale, scale);
+        body.transform.translate(1.2f, -0.3f, 0f);
+
 
         body.transform.scale(0.16f, 0.16f, 0.16f);
+        body.transform.rotate(new Vector3(0, 1, 0), 90);
 
         balloon1.transform.scale(0.16f, 0.16f, 0.16f);
         balloon2.transform.scale(0.16f, 0.16f, 0.16f);
