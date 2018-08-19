@@ -20,6 +20,9 @@ public class ModelFactory {
     private String errorMessage = "No model found: try load()";
     private Model motorholder;
     private Model fullwheel;
+    private Model cBody;
+    private Model bigWheel;
+    private Model bigTyre;
 
     public ModelFactory() {
         UBJsonReader jsonreader = new UBJsonReader();
@@ -52,6 +55,11 @@ public class ModelFactory {
         top = loadModel("Top.obj");
         tyre = loadModel("Tyre.obj");
         fullwheel = loadModel("FullWheel.obj");
+
+        cBody = loadModel("cBody.obj");
+        setBigWheel(loadModel("cwheel.obj"));
+        bigTyre = loadModel("cTyre.obj");
+
 
         wheel = loadModel("Wheel.obj");
         motorholder = loadModel("MotorHolder.obj");
@@ -113,5 +121,29 @@ public class ModelFactory {
             throw (new Exception(errorMessage));
         }
         return wheel;
+    }
+
+    public Model getcBody() {
+        return cBody;
+    }
+
+    public void setcBody(Model cBody) {
+        this.cBody = cBody;
+    }
+
+    public Model getBigTyre() {
+        return bigTyre;
+    }
+
+    public void setBigTyre(Model bigTyre) {
+        this.bigTyre = bigTyre;
+    }
+
+    public Model getBigWheel() {
+        return bigWheel;
+    }
+
+    public void setBigWheel(Model bigWheel) {
+        this.bigWheel = bigWheel;
     }
 }

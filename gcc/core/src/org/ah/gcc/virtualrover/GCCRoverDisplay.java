@@ -54,8 +54,9 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     public Array<ModelInstance> instances;
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
-    private GCCRover rover;
-    private GCCRover rover2;
+    private CBiSRover rover;
+    private CBiSRover rover2;
+    private GCCRoverWheel wheel;
 
     private int cameratype = 0;
 
@@ -173,7 +174,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((-200 + wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
         boxes.add(new BoundingBox(new Vector3(200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((200 - wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
 
-        rover = new GCCRover("rover1", modelFactory, Color.GREEN, this);
+        rover = new CBiSRover("rover1", modelFactory, Color.GREEN, this);
         rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
         rover.getTransform().scale(SCALE, SCALE, SCALE);
         rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
@@ -183,7 +184,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
 
 
-        rover2 = new GCCRover("rover1", modelFactory, Color.BLUE, this);
+        rover2 = new CBiSRover("rover1", modelFactory, Color.BLUE, this);
         rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
         rover2.getTransform().scale(SCALE, SCALE, SCALE);
         rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
