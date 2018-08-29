@@ -7,8 +7,8 @@ gwt {
     minHeapSize="1G"
 
     src = files(file("src/")) // Needs to be in front of "modules" below.
-    modules 'org.ah.gcc.display.GdxDefinition'
-    devModules 'org.ah.gcc.display.GdxDefinitionSuperdev'
+    modules 'org.ah.gcc.virtualrover.GdxDefinition'
+    devModules 'org.ah.gcc.virtualrover.GdxDefinitionSuperdev'
     project.webAppDirName = 'webapp'
 
     compiler {
