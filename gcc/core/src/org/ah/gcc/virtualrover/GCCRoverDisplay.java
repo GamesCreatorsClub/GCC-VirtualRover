@@ -3,6 +3,8 @@ package org.ah.gcc.virtualrover;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ah.gcc.display.CBiSRover;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
