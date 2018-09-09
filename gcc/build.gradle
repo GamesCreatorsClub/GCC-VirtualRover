@@ -19,12 +19,13 @@ allprojects {
     version = '1.0'
     ext {
         appName = "gcc-ap-display"
-        gdxVersion = '1.9.8'
+        gdxVersion = '1.9.6'
         roboVMVersion = '2.3.0'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
         themvsusVersion = '0.0.1-SNAPSHOT'
+        gdxWebSocketsVersion='1.9'
     }
 
     repositories {
@@ -107,6 +108,12 @@ project(":html") {
         compile "org.ah.themvsus:engine-common:$themvsusVersion:sources"
         compile "org.ah.themvsus:engine-client:$themvsusVersion:sources"
         compile "org.ah.gcc.virtualrover:gcc-common:$themvsusVersion:sources"
+        compile "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersion"
+        compile "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersion:sources"
+        compile "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersion"
+        compile "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersion:sources"
+        compile "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersion"
+        compile "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersion:sources"
     }
 }
 

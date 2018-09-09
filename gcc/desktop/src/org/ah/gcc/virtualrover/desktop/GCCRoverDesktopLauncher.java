@@ -17,6 +17,6 @@ public class GCCRoverDesktopLauncher {
 
         config.width = 1440;
         config.height = 960;
-        new LwjglApplication(new MainGame(), config);
+        new LwjglApplication(new MainGame(new DesktopPlatformSpecific()), config);
     }
 }

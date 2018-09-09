@@ -4,6 +4,8 @@ import java.util.Properties;
 
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.themvsus.engine.common.game.GameObject;
+import org.ah.themvsus.engine.common.input.GCCPlayerInputs;
+import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.message.MessageFactory;
 import org.ah.themvsus.server.authentication.ThemVsUsAuthentication;
 import org.ah.themvsus.server.engine.ClientSession;
@@ -23,6 +25,11 @@ public class GCCServerEngine extends ServerEngine<GCCGame> {
     @Override
     public ClientSession createNewSession() {
         return super.createNewSession();
+    }
+
+    @Override
+    protected PlayerInputs createPlayerInputs() {
+        return new GCCPlayerInputs();
     }
 
     @Override

@@ -71,7 +71,7 @@ public class GCCRoverHtmlLauncher extends GwtApplication {
 
     @Override
     public ApplicationListener createApplicationListener() {
-        gccRoverDisplay = new MainGame();
+        gccRoverDisplay = new MainGame(new GCCHtmlPlatformSpecific());
         return gccRoverDisplay;
     }
 

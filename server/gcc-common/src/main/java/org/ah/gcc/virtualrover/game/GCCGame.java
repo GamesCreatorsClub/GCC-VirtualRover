@@ -2,6 +2,7 @@ package org.ah.gcc.virtualrover.game;
 
 
 import org.ah.themvsus.engine.common.game.Game;
+import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.Player;
 
 public class GCCGame extends Game {
@@ -17,4 +18,8 @@ public class GCCGame extends Game {
         return player;
     }
 
+    @Override
+    protected GameObjectFactory createGameFactory() {
+        return new GCCGameObjectFactory();
+    }
 }

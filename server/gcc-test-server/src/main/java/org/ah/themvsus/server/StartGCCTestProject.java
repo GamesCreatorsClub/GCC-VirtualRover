@@ -8,11 +8,10 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import org.ah.gcc.virtualrover.PlatformSpecific.ServerCommunicationAdapterCreatedCallback;
+import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncher;
 import org.ah.gcc.virtualrover.server.engine.GCCServerEngineModule;
-import org.ah.themvsus.PlatformSpecific.ServerCommunicationAdapterCreatedCallback;
-import org.ah.themvsus.ServerCommunicationAdapter;
-import org.ah.themvsus.desktop.ThemVsUsDesktopLauncher;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
 import org.ah.themvsus.engine.common.debug.Debug;
 import org.ah.themvsus.security.BCrypt;
@@ -150,7 +149,7 @@ public class StartGCCTestProject {
 
         logger.info("  Set server engine debug.");
         DEBUG.setServerEngine(serverEngineModule.getServerEngine());
-        ThemVsUsDesktopLauncher.platformSpecific.setServerCommunicationAdapterCreatedCallback(new ServerCommunicationAdapterCreatedCallback() {
+        GCCRoverDesktopLauncher.platformSpecific.setServerCommunicationAdapterCreatedCallback(new ServerCommunicationAdapterCreatedCallback() {
             @Override public void created(ServerCommunicationAdapter serverCommunicationAdapter) {
                 serverCommunicationAdapter.addGameReadyCallback(new GameReadyCallback() {
                     @Override public void gameReady() {

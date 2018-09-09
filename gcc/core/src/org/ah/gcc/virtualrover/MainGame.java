@@ -3,6 +3,13 @@ package org.ah.gcc.virtualrover;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ah.gcc.virtualrover.message.GCCMessageFactory;
+import org.ah.gcc.virtualrover.view.ChatColor;
+import org.ah.gcc.virtualrover.view.ChatListener;
+import org.ah.gcc.virtualrover.view.Console;
+import org.ah.themvsus.engine.client.ServerCommunication;
+import org.ah.themvsus.engine.common.game.Player;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -12,6 +19,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
@@ -35,7 +43,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 
-public class MainGame extends ApplicationAdapter implements InputProcessor {
+public class MainGame extends ApplicationAdapter implements InputProcessor, ChatListener {
 
     private AssetManager assetManager;
     private boolean loadingAssets = true;
@@ -105,15 +113,14 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
     public GameState currentState = GameState.MENU;
 
     public Array<ModelInstance> instances;
+
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
 
-    private Robot rover;
+    private Robot rover1;
     private Robot rover2;
 
-    private GCCRoverWheel wheel;
-
-    private int cameratype = 0;
+    private int cameratype = 3;
 
     public static final float SCALE = 0.01f;
 
@@ -129,12 +136,33 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
     private SpriteBatch spriteBatch;
     private BitmapFont font;
 
+    private OrthographicCamera hudCamera;
+    private Console console;
+
+    private PlatformSpecific platformSpecific;
+    private ServerCommunication serverCommunication;
+
     private long a = 1;
 
     private String winner = "NONE";
     private Texture gccLogo;
+
     private Inputs rover1Inputs;
     private Inputs rover2Inputs;
+
+    private ServerCommunicationAdapter serverCommunicationAdapter;
+    private GCCMessageFactory messageFactory;
+
+    private boolean renderBackground = false;
+
+    private Vector3 pos1 = new Vector3();
+    private Vector3 pos2 = new Vector3();
+    private Vector3 midpoint = new Vector3();
+    private float distance;
+
+    public MainGame(PlatformSpecific platformSpecific) {
+        this.platformSpecific = platformSpecific;
+    }
 
     @Override
     public void create() {
@@ -145,6 +173,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
         assetManager = new AssetManager();
 
         assetManager.load("font/basic.fnt", BitmapFont.class);
+        assetManager.load("font/copper18.fnt", BitmapFont.class);
         assetManager.load("GCC_full.png", Texture.class);
 
         spriteBatch = new SpriteBatch();
@@ -152,9 +181,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
         modelFactory.load();
 
         camera = new PerspectiveCamera(45, 800, 480);
-        camera.position.set(300f * SCALE, -480f * SCALE, 300f * SCALE);
+        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
         // camera.rotateAround(new Vector3(0,0,0), new Vector3(0,1,0), -45);
-        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), 165f);
+//        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), 165f);
         // camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), 85f);
         camera.lookAt(0f, 0f, 0f);
 
@@ -198,7 +227,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
         shader.init();
         if (!shader.program.isCompiled()) {
             Gdx.app.log("Shader error: ", shader.program.getLog());
-            System.out.println("Shader error" + shader.program.getLog());
+//            System.out.println("Shader error" + shader.program.getLog());
             // System.exit(-1);
         }
 
@@ -233,6 +262,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
 
         boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((-200 + wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
         boxes.add(new BoundingBox(new Vector3(200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((200 - wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
+
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         DirectionalLight light = new DirectionalLight();
@@ -241,12 +271,28 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
         ModelBuilder mb = new ModelBuilder();
         mb.begin();
 
+        hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        hudCamera.setToOrtho(true);
+
+        messageFactory = new GCCMessageFactory();
+        serverCommunication = platformSpecific.getServerCommunication();
+        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
     }
 
     private void finishLoading() {
         loadingAssets = false;
         font = assetManager.get("font/basic.fnt");
         gccLogo = assetManager.get("GCC_full.png");
+
+        console = new Console();
+        console.raw("Welcome to PiWars Virtual PiNoon v.0.6");
+        console.raw("Games Creators Club (GCC) Virtual Rover");
+        console.raw("(c) Creative Sphere Limited");
+        console.addListener(this);
+
+        console.setCamera(hudCamera);
+
+//        serverCommunicationAdapter.startEngine("arena");
     }
 
     @Override
@@ -268,21 +314,19 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
             Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
             if (cameratype == 0) {
-                Vector3 pos = new Vector3(0, 0, 0);
-                camController.target.set(pos);
+                camController.target.set(pos1);
 
-                camera.lookAt(pos);
+                camera.lookAt(pos1);
                 camera.up.set(new Vector3(0, 1, 0));
 
             } else if (cameratype == 1) {
-                Vector3 pos = new Vector3();
-                pos = rover.getTransform().getTranslation(pos);
-                pos.y = 10f;
+                pos1 = rover1.getTransform().getTranslation(pos1);
+                pos1.y = 10f;
 
-                camera.position.set(pos);
+                camera.position.set(pos1);
 
                 Quaternion q = new Quaternion();
-                q = rover.getTransform().getRotation(q);
+                q = rover1.getTransform().getRotation(q);
                 camera.direction.set(new Vector3(0.1f, 0, 0));
                 camera.direction.rotate(new Vector3(0, 1, 0), 180 + q.getAngleAround(new Vector3(0, 1, 0)));
 
@@ -291,12 +335,27 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
                 camera.fieldOfView = 120f;
                 ;
             } else if (cameratype == 2) {
-                Vector3 pos = new Vector3();
-                pos = rover.getTransform().getTranslation(pos);
-                camera.lookAt(pos);
-                camera.position.set(240f, 0f, 10f);
+                pos1 = rover1.getTransform().getTranslation(pos1);
+                camera.lookAt(pos1);
+                camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
                 camera.up.set(new Vector3(0, 1, 0));
-
+            } else if (cameratype == 3) {
+                float distanceBetweeRovers = 0f;
+                distance = 450f;
+                if (rover1 != null && rover2 != null) {
+                    pos1 = rover1.getTransform().getTranslation(pos1);
+                    pos2 = rover2.getTransform().getTranslation(pos2);
+                    distanceBetweeRovers = pos1.dst(pos2);
+                    midpoint.set(pos1).add(pos2).scl(0.5f);
+                    distance = (-midpoint.dst(300f * SCALE, 0f, -300f * SCALE)) / SCALE;
+                    distance = (distanceBetweeRovers) / SCALE;
+                    distance = 350f + (distanceBetweeRovers * 0.5f - midpoint.dst(300f * SCALE, 0f, -300f * SCALE) * 0.6f) / SCALE;
+                } else {
+                    pos1.set(0f, 0f, 0f);
+                }
+                camera.lookAt(midpoint);
+                camera.position.set(distance * SCALE, (200f + distanceBetweeRovers * 40f) * SCALE, -distance * SCALE);
+                camera.up.set(new Vector3(0, 1, 0));
             }
 
             rover2Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
@@ -318,28 +377,30 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
             Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
             Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-            // renderContext.begin();
-            // shader.begin(camera, renderContext);
-            // shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
-            // shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
-            // shader.program.setUniformf("u_time", a);
-            // shader.render(renderable);
-            //
-            // shader.end();
-            // renderContext.end();
+            if (renderBackground) {
+                renderContext.begin();
+                shader.begin(camera, renderContext);
+                shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
+                shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
+                shader.program.setUniformf("u_time", a);
+                shader.render(renderable);
+
+                shader.end();
+                renderContext.end();
+            }
 
             batch.begin(camera);
 
             batch.render(instances, environment);
             breakTime--;
 
-            if (rover != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
+            if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
 
-                rover.render(batch, environment);
+                rover1.render(batch, environment);
                 rover2.render(batch, environment);
 
-                rover.update();
-                rover.processInput(rover1Inputs);
+                rover1.update();
+                rover1.processInput(rover1Inputs);
                 rover2.update();
                 rover2.processInput(rover2Inputs);
 
@@ -349,7 +410,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
                         resetRobots();
                     }
                 }
-
             }
 
             batch.end();
@@ -359,9 +419,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
 
             spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
 
+            font.draw(spriteBatch, Float.toString(distance) + ", " + Float.toString(pos1.x / SCALE) + ", " + Float.toString(pos1.z / SCALE),
+                    Gdx.graphics.getWidth() - 1020, Gdx.graphics.getHeight() - 40);
+
             if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
                 font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
-
             }
 
             if (currentState == GameState.SELECTION) {
@@ -373,12 +435,12 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
 
             } else if (currentState == GameState.MENU) {
                 if (Math.floor(a / 20) % 2 == 0) {
-                    font.draw(spriteBatch, "Press space to start", margin, margin);
+                    font.draw(spriteBatch, "Press space to start", margin, margin * 2);
                 }
             } else if (currentState == GameState.END) {
                 font.draw(spriteBatch, winner + " wins! " + player1score + " - " + player2score, margin, margin + 40);
                 if (Math.floor(a / 20) % 2 == 0) {
-                    font.draw(spriteBatch, "Press space to return to menu!", margin, margin);
+                    font.draw(spriteBatch, "Press space to return to menu!", margin, margin * 2);
                 }
 
             } else if (currentState == GameState.BREAK) {
@@ -403,7 +465,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
                 }
 
                 boolean end = false;
-                if (!rover.hasBallon1() && !rover.hasBallon2() && !rover.hasBallon3()) {
+                if (!rover1.hasBallon1() && !rover1.hasBallon2() && !rover1.hasBallon3()) {
                     end = true;
                     player1score++;
                     winner = "Green";
@@ -430,6 +492,18 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
 
             spriteBatch.end();
 
+            console.render();
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        if (console != null) {
+            console.setConsoleWidth(width);
+        }
+        if (hudCamera != null) {
+            hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            hudCamera.update();
         }
     }
 
@@ -442,9 +516,15 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.F1) {
-            cameratype = 0;
+            cameratype++;
+            if (cameratype > 3) {
+                cameratype = 0;
+            }
         } else if (keycode == Input.Keys.F2) {
-            cameratype = 1;
+            cameratype--;
+            if (cameratype < 0) {
+                cameratype = 3;
+            }
         }
         if (keycode == Input.Keys.ESCAPE) {
             mouse = !mouse;
@@ -461,42 +541,42 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
 
             if (keycode == Input.Keys.D) {
                 playerSelection1 = playerSelection1.getNext();
-                System.out.println("next");
+//                System.out.println("next");
             } else if (keycode == Input.Keys.A) {
                 playerSelection1 = playerSelection1.getPrevious();
             }
 
             if (keycode == Input.Keys.L) {
                 playerSelection2 = playerSelection2.getNext();
-                System.out.println("next");
+//                System.out.println("next");
             } else if (keycode == Input.Keys.J) {
                 playerSelection2 = playerSelection2.getPrevious();
             }
 
             if (keycode == Input.Keys.SPACE) {
-                rover = makeRobot(playerSelection1, "1", Color.BLUE);
-                rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
-                rover.getTransform().scale(SCALE, SCALE, SCALE);
-                rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
-                rover.update();
-                rover.setId(1);
-                rover.setDoingPiNoon(false);
+                rover1 = makeRobot(playerSelection1, "1", Color.BLUE);
+                rover1.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+                rover1.getTransform().scale(SCALE, SCALE, SCALE);
+                rover1.getTransform().rotate(new Vector3(0, 1, 0), -45);
+                rover1.update();
+                rover1.setId(1);
+                rover1.setDoingPiNoon(false);
 
                 rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
                 rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
                 rover2.getTransform().scale(SCALE, SCALE, SCALE);
                 rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
                 rover2.update();
-                rover.addOtherRover(rover2);
-                rover2.addOtherRover(rover);
+                rover1.addOtherRover(rover2);
+                rover2.addOtherRover(rover1);
                 rover2.setId(2);
 
                 resetRobots();
 
-                rover.hasBallon1(false);
-                rover.hasBallon2(false);
-                rover.hasBallon3(false);
-                rover.setDoingPiNoon(false);
+                rover1.hasBallon1(false);
+                rover1.hasBallon2(false);
+                rover1.hasBallon3(false);
+                rover1.setDoingPiNoon(false);
 
                 rover2.hasBallon1(false);
                 rover2.hasBallon2(false);
@@ -508,7 +588,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
                 currentState = GameState.BREAK;
                 breakTime = BREAK + 100;
                 winner = "NONE";
-                System.out.println("game");
             }
         }
 
@@ -621,8 +700,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
     public static Mesh createRect(float x, float y, float width, float height) {
         Mesh mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
 
-        mesh.setVertices(new float[] { -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0, 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0, 1 * width + x, -1,
-                1 * height + y, 1, 0, 1, 1, 1, 1, -1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 0, 1 });
+        mesh.setVertices(new float[] { -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0, 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0,
+                1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 1, 1, -1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 0, 1 });
 
         // mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
         mesh.setIndices(new short[] { 2, 1, 0, 0, 3, 2 });
@@ -641,21 +720,62 @@ public class MainGame extends ApplicationAdapter implements InputProcessor {
     }
 
     public void resetRobots() {
-        rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
-        rover.update();
+        rover1.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+        rover1.update();
 
         rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
         rover2.update();
         rover2.setId(2);
 
-        rover.hasBallon1(true);
-        rover.hasBallon2(true);
-        rover.hasBallon3(true);
-        rover.setDoingPiNoon(true);
+        rover1.hasBallon1(true);
+        rover1.hasBallon2(true);
+        rover1.hasBallon3(true);
+        rover1.setDoingPiNoon(true);
         rover2.hasBallon1(true);
         rover2.hasBallon2(true);
         rover2.hasBallon3(true);
         rover2.setDoingPiNoon(true);
     }
 
+    @Override
+    public void onCommand(Player from, String cmdName, String[] args) {
+        if ("hello".equals(cmdName)) {
+            console.chat("Bot", "Hello", ChatColor.PURPLE);
+        } else if ("help".equals(cmdName)) {
+            console.raw(ChatColor.PURPLE + "/hello" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "says hello");
+            console.raw(ChatColor.PURPLE + "/time" + ChatColor.GREEN + "gives current time in millis");
+            console.raw(ChatColor.PURPLE + "/help" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "Shows this");
+            console.raw(ChatColor.PURPLE + "/cpu" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "Shows this");
+        } else if ("colors".equals(cmdName)) {
+            console.raw(ChatColor.RED + "o" + ChatColor.ORANGE + "o" + ChatColor.YELLOW + "o" + ChatColor.GREEN + "o" + ChatColor.BLUE + "o" + ChatColor.INDIGO
+                    + "o" + ChatColor.PURPLE + "o" + ChatColor.GRAY + "o" + ChatColor.BLACK + "o");
+        } else if ("time".equals(cmdName)) {
+            console.info(ChatColor.INDIGO + "millis: " + ChatColor.GREEN + System.currentTimeMillis());
+//        } else if ("memory".equals(cmdName)) {
+//            Runtime runtime = Runtime.getRuntime();
+//
+//            NumberFormat format = NumberFormat.getInstance();
+//
+//            long maxMemory = runtime.maxMemory();
+//            long allocatedMemory = runtime.totalMemory();
+//            long freeMemory = runtime.freeMemory();
+//
+//            float memoryPercent = ((allocatedMemory) / (maxMemory)) * 100f;
+//
+//            console.info(ChatColor.YELLOW + "memory usage: " + ChatColor.GREEN + format.format(memoryPercent) + "%");
+        } else {
+            console.error("Unknow command, type /help for list");
+
+        }
+    }
+
+    @Override
+    public void onChat(String playerName, String text) {
+
+    }
+
+    @Override
+    public void onText(String text) {
+
+    }
 }

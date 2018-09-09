@@ -1,6 +1,8 @@
 package org.ah.gcc.virtualrover;
 
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.message.GCCMessageFactory;
+import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ClientEngine;
@@ -22,6 +24,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private IntMap<VisibleObject> sprites = new IntMap<VisibleObject>();
 
+    protected GCCPlayerInputMessage playerInputMessage;
+
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
             MessageFactory messageFactory,
@@ -37,11 +41,20 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         this.console = console;
 
         serverCommunication.setReceiver(this);
+
+        playerInputMessage = ((GCCMessageFactory)messageFactory).createPlayerInputCommand();
     }
 
     public IntMap<VisibleObject> getSprites() {
         return sprites;
     }
+
+    public void setPlayerInput(int currentFrameNo, float speed, float direction) {
+        playerInputMessage.addInputs(sessionId, currentFrameNo, speed, direction);
+
+        sendPlayerInput(playerInputMessage);
+    }
+
 
     @Override
     protected void processChatMessage(ChatMessage chatMessage) {
@@ -71,7 +84,6 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     public void gameObjectRemoved(GameObject gameObject) {
         gameObject.setLinkBack(null);
         sprites.remove(gameObject.getId());
-        System.out.println("removedObject");
     }
 
     @Override
