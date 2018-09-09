@@ -1,6 +1,6 @@
 package org.ah.gcc.virtualrover.client;
 
-import org.ah.gcc.virtualrover.GCCRoverDisplay;
+import org.ah.gcc.virtualrover.MainGame;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class GCCRoverHtmlLauncher extends GwtApplication {
 
-    private GCCRoverDisplay gccRoverDisplay;
+    private MainGame gccRoverDisplay;
     private GwtApplicationConfiguration config;
 
     @Override
@@ -71,7 +71,7 @@ public class GCCRoverHtmlLauncher extends GwtApplication {
 
     @Override
     public ApplicationListener createApplicationListener() {
-        gccRoverDisplay = new GCCRoverDisplay();
+        gccRoverDisplay = new MainGame();
         return gccRoverDisplay;
     }
 

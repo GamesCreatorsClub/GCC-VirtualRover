@@ -1,6 +1,4 @@
-package org.ah.gcc.display;
-
-import org.ah.gcc.virtualrover.ModelFactory;
+package org.ah.gcc.virtualrover;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;

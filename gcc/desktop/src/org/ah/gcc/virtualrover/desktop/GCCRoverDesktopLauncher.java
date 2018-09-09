@@ -1,6 +1,6 @@
 package org.ah.gcc.virtualrover.desktop;
 
-import org.ah.gcc.virtualrover.GCCRoverDisplay;
+import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.PlatformSpecific;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -17,6 +17,6 @@ public class GCCRoverDesktopLauncher {
 
         config.width = 1440;
         config.height = 960;
-        new LwjglApplication(new GCCRoverDisplay(), config);
+        new LwjglApplication(new MainGame(), config);
     }
 }

@@ -1,6 +1,6 @@
 package org.ah.gcc.display;
 
-import org.ah.gcc.virtualrover.GCCRoverDisplay;
+import org.ah.gcc.virtualrover.MainGame;
 import org.robovm.apple.foundation.NSAutoreleasePool;
 import org.robovm.apple.uikit.UIApplication;
 
@@ -11,7 +11,7 @@ public class IOSLauncher extends IOSApplication.Delegate {
     @Override
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
-        return new IOSApplication(new GCCRoverDisplay(), config);
+        return new IOSApplication(new MainGame(), config);
     }
 
     public static void main(String[] argv) {

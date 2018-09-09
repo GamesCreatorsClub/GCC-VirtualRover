@@ -37,7 +37,7 @@ public class GCCRover extends Rover {
     @SuppressWarnings("unused")
     private Color color;
 //    private List<BoundingBox> world;
-    private GCCRoverDisplay main;
+    private MainGame main;
     private ModelInstance balloon1;
     private ModelInstance balloon2;
     private ModelInstance balloon3;
@@ -55,7 +55,7 @@ public class GCCRover extends Rover {
 
     private int id = 0;
 
-    public GCCRover(String name, ModelFactory modelFactory, Color color, GCCRoverDisplay main) {
+    public GCCRover(String name, ModelFactory modelFactory, Color color, MainGame main) {
         super(name);
         this.color = color;
         this.main = main;
@@ -259,10 +259,10 @@ public class GCCRover extends Rover {
         Vector3 frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f));
         Vector3 frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f));
 
-        float maxX = 250 * GCCRoverDisplay.SCALE;
-        float maxZ = 210 * GCCRoverDisplay.SCALE;
-        float minX = -215 * GCCRoverDisplay.SCALE;
-        float minZ = -255 * GCCRoverDisplay.SCALE;
+        float maxX = 250 * MainGame.SCALE;
+        float maxZ = 210 * MainGame.SCALE;
+        float minX = -215 * MainGame.SCALE;
+        float minZ = -255 * MainGame.SCALE;
 
         if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
                 || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX
@@ -483,7 +483,7 @@ public class GCCRover extends Rover {
     public Circle getBallon1() {
         balloon1.transform.getTranslation(ballonPosition1);
 
-        float radius = 8 * GCCRoverDisplay.SCALE;
+        float radius = 8 * MainGame.SCALE;
         Circle c = new Circle(ballonPosition1.x, ballonPosition1.z, radius);
         return c;
     }
@@ -491,7 +491,7 @@ public class GCCRover extends Rover {
     public Circle getBallon2() {
         balloon2.transform.getTranslation(ballonPosition2);
 
-        float radius = 8 * GCCRoverDisplay.SCALE;
+        float radius = 8 * MainGame.SCALE;
 
         Circle c = new Circle(ballonPosition2.x, ballonPosition2.z, radius);
 
@@ -501,7 +501,7 @@ public class GCCRover extends Rover {
     public Circle getBallon3() {
         balloon3.transform.getTranslation(ballonPosition3);
 
-        float radius = 8 * GCCRoverDisplay.SCALE;
+        float radius = 8 * MainGame.SCALE;
 
         Circle c = new Circle(ballonPosition3.x, ballonPosition3.z, radius);
 

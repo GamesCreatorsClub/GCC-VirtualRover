@@ -3,8 +3,6 @@ package org.ah.gcc.virtualrover;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ah.gcc.display.CBiSRover;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -37,10 +35,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 
-public class GCCRoverDisplay extends ApplicationAdapter implements InputProcessor {
+public class MainGame extends ApplicationAdapter implements InputProcessor {
 
     private AssetManager assetManager;
     private boolean loadingAssets = true;
+
+    public static final long BREAK = 300;
 
     private ModelBatch batch;
     private PerspectiveCamera camera;
@@ -53,11 +53,64 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     private boolean mouse = false;
     private CameraInputController camController;
 
+    private long breakTime = 0;
+
+    private enum GameState {
+        MENU, SELECTION, GAME, BREAK, END
+    }
+
+    private enum RoverType {
+        GCC(0, "GCC Rover"), CBIS(1, "CBiS-Education");
+
+        private int id;
+        private String nom;
+
+        private RoverType(int id, String nom) {
+            this.id = id;
+            this.nom = nom;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public static RoverType getById(int id) {
+            for (RoverType e : values()) {
+                if (e.getId() == id) {
+                    return e;
+                }
+            }
+            return RoverType.GCC;
+        }
+
+        public RoverType getNext() {
+            return getById((getId() + 1) % values().length);
+        }
+
+        public RoverType getPrevious() {
+            return getById((getId() - 1) % values().length);
+        }
+
+        public String getName() {
+            return nom;
+        }
+
+    }
+
+    public RoverType playerSelection1 = RoverType.GCC;
+    public RoverType playerSelection2 = RoverType.CBIS;
+    public int player1score = 0;
+    public int player2score = 0;
+
+    public GameState currentState = GameState.MENU;
+
     public Array<ModelInstance> instances;
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
-    private CBiSRover rover;
-    private GCCRover rover2;
+
+    private Robot rover;
+    private Robot rover2;
+
     private GCCRoverWheel wheel;
 
     private int cameratype = 0;
@@ -78,12 +131,17 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
     private long a = 1;
 
-    private int state = 0;
     private String winner = "NONE";
     private Texture gccLogo;
+    private Inputs rover1Inputs;
+    private Inputs rover2Inputs;
 
     @Override
     public void create() {
+
+        rover1Inputs = Inputs.create();
+        rover2Inputs = Inputs.create();
+
         assetManager = new AssetManager();
 
         assetManager.load("font/basic.fnt", BitmapFont.class);
@@ -114,16 +172,16 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
         instances = new Array<ModelInstance>();
 
-//        tpModel = modelFactory.loadModel("model.g3db");
-//        try {
-//            roverModel = modelFactory.getBaloon();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
+        // tpModel = modelFactory.loadModel("model.g3db");
+        // try {
+        // roverModel = modelFactory.getBaloon();
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        //
+        // wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
 
-//        backgroundShaderProgram = new ShaderProgram(Gdx.files.internal("rog.vs"), Gdx.files.internal("rog.fs"));
+        // backgroundShaderProgram = new ShaderProgram(Gdx.files.internal("rog.vs"), Gdx.files.internal("rog.fs"));
         backgroundMesh = createRect(0, 0, 120, 120);
         renderable = new Renderable();
         renderable.meshPart.mesh = backgroundMesh;
@@ -141,7 +199,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         if (!shader.program.isCompiled()) {
             Gdx.app.log("Shader error: ", shader.program.getLog());
             System.out.println("Shader error" + shader.program.getLog());
-//            System.exit(-1);
+            // System.exit(-1);
         }
 
         renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
@@ -165,8 +223,8 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         marker2.transform.scale(SCALE, SCALE, SCALE);
         marker2.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLUE));
 
-//        instances.add(marker1);
-//        instances.add(marker2);
+        // instances.add(marker1);
+        // instances.add(marker2);
 
         boxes = new ArrayList<BoundingBox>();
         float wallWidth = 0.1f;
@@ -175,29 +233,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
         boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((-200 + wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
         boxes.add(new BoundingBox(new Vector3(200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((200 - wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
-
-        rover = new CBiSRover("rover1", modelFactory, Color.GREEN, this);
-        rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
-        rover.getTransform().scale(SCALE, SCALE, SCALE);
-        rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
-        rover.update();
-        rover.setId(1);
-        rover.setDoingPiNoon(false);
-
-
-
-        rover2 = new GCCRover("rover2", modelFactory, Color.BLUE, this);
-        rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
-        rover2.getTransform().scale(SCALE, SCALE, SCALE);
-        rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
-        rover2.update();
-        rover.addOtherRover(rover2);
-        rover2.addOtherRover(rover);
-        rover2.setId(2);
-        rover2.setDoingPiNoon(false);
-
         environment = new Environment();
-
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         DirectionalLight light = new DirectionalLight();
         environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -10f * SCALE, 0f * SCALE)));
@@ -206,6 +242,7 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
         mb.begin();
 
     }
+
     private void finishLoading() {
         loadingAssets = false;
         font = assetManager.get("font/basic.fnt");
@@ -262,85 +299,144 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
 
             }
 
+            rover2Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
+            rover2Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
+            rover2Inputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
+            rover2Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
+            rover2Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
+            rover2Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+
+            rover1Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
+            rover1Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
+            rover1Inputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
+            rover1Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
+            rover1Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
+            rover1Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+
             camera.update();
 
             Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
             Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-//            renderContext.begin();
-//            shader.begin(camera, renderContext);
-//            shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
-//            shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
-//            shader.program.setUniformf("u_time", a);
-//            shader.render(renderable);
-//
-//            shader.end();
-//            renderContext.end();
-
+            // renderContext.begin();
+            // shader.begin(camera, renderContext);
+            // shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
+            // shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
+            // shader.program.setUniformf("u_time", a);
+            // shader.render(renderable);
+            //
+            // shader.end();
+            // renderContext.end();
 
             batch.begin(camera);
 
             batch.render(instances, environment);
-            rover.render(batch, environment);
-            rover2.render(batch, environment);
+            breakTime--;
+
+            if (rover != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
+
+                rover.render(batch, environment);
+                rover2.render(batch, environment);
+
+                rover.update();
+                rover.processInput(rover1Inputs);
+                rover2.update();
+                rover2.processInput(rover2Inputs);
+
+                if (currentState == GameState.BREAK) {
+                    if (breakTime < 0) {
+                        currentState = GameState.GAME;
+                        resetRobots();
+                    }
+                }
+
+            }
+
             batch.end();
 
-            rover.update();
-            Inputs i = Inputs.create();
-            i.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
-            i.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
-            i.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
-            i.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
-            i.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
-            i.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
-
-            rover.processInput(i);
-
-            rover2.update();
-            Inputs i2 = Inputs.create();
-            i2.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
-            i2.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
-            i2.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
-            i2.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
-            i2.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
-            i2.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
-
-            rover2.processInput(i2);
-
             int margin = 64;
-
             spriteBatch.begin();
 
-            if (state == 0) {
+            spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+
+            if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
+                font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+
+            }
+
+            if (currentState == GameState.SELECTION) {
+                font.draw(spriteBatch, playerSelection1.getName(), margin, Gdx.graphics.getHeight() / 2 + margin);
+                font.draw(spriteBatch, playerSelection2.getName(), margin + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                if (Math.floor(a / 20) % 2 == 0) {
+                    font.draw(spriteBatch, "Press space to begin", margin, margin);
+                }
+
+            } else if (currentState == GameState.MENU) {
                 if (Math.floor(a / 20) % 2 == 0) {
                     font.draw(spriteBatch, "Press space to start", margin, margin);
                 }
-            } else if (state == 2) {
-                font.draw(spriteBatch, winner + " wins!", margin, margin + 40);
+            } else if (currentState == GameState.END) {
+                font.draw(spriteBatch, winner + " wins! " + player1score + " - " + player2score, margin, margin + 40);
                 if (Math.floor(a / 20) % 2 == 0) {
-                    font.draw(spriteBatch, "Press space to restart!", margin, margin);
+                    font.draw(spriteBatch, "Press space to return to menu!", margin, margin);
                 }
 
+            } else if (currentState == GameState.BREAK) {
+                if (!winner.equals("NONE")) {
+                    font.draw(spriteBatch, winner + " won that round!", margin, margin);
+
+                }
+                if (breakTime < 60) {
+                    font.draw(spriteBatch, "1", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                } else if (breakTime < 120) {
+                    font.draw(spriteBatch, "2", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                } else if (breakTime < 180) {
+                    font.draw(spriteBatch, "3", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                } else if (breakTime < 240) {
+                    font.draw(spriteBatch, "round " + (player1score + player2score + 1), Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                }
+
+            } else if (currentState == GameState.GAME) {
+
+                if (breakTime > -60) {
+                    font.draw(spriteBatch, "GO!", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                }
+
+                boolean end = false;
+                if (!rover.hasBallon1() && !rover.hasBallon2() && !rover.hasBallon3()) {
+                    end = true;
+                    player1score++;
+                    winner = "Green";
+                } else if (!rover2.hasBallon1() && !rover2.hasBallon2() && !rover2.hasBallon3()) {
+                    end = true;
+                    player2score++;
+                    winner = "Blue";
+                }
+                if (end) {
+                    if (player1score + player2score >= 3) {
+                        currentState = GameState.END;
+                        if (player1score > player2score) {
+                            winner = "Green";
+                        } else if (player1score < player2score) {
+                            winner = "Blue";
+                        }
+                    } else {
+
+                        currentState = GameState.BREAK;
+                        breakTime = BREAK;
+                    }
+                }
             }
-            spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+
             spriteBatch.end();
 
-            if (state == 1) {
-                if (!rover.hasBallon1() && !rover.hasBallon2() && !rover.hasBallon3()) {
-                    state = 2;
-                    winner = "Blue";
-                } else if (!rover2.hasBallon1() && !rover2.hasBallon2() && !rover2.hasBallon3()) {
-                    state = 2;
-                    winner = "Green";
-                }
-            }
         }
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-//        tpModel.dispose();
+        // tpModel.dispose();
     }
 
     @Override
@@ -361,44 +457,71 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
             }
 
         }
+        if (currentState == GameState.SELECTION) {
 
-        if (keycode == Input.Keys.SPACE) {
-            if (state == 0 || state == 2) {
-                state = 1;
+            if (keycode == Input.Keys.D) {
+                playerSelection1 = playerSelection1.getNext();
+                System.out.println("next");
+            } else if (keycode == Input.Keys.A) {
+                playerSelection1 = playerSelection1.getPrevious();
+            }
 
+            if (keycode == Input.Keys.L) {
+                playerSelection2 = playerSelection2.getNext();
+                System.out.println("next");
+            } else if (keycode == Input.Keys.J) {
+                playerSelection2 = playerSelection2.getPrevious();
+            }
+
+            if (keycode == Input.Keys.SPACE) {
+                rover = makeRobot(playerSelection1, "1", Color.BLUE);
                 rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+                rover.getTransform().scale(SCALE, SCALE, SCALE);
+                rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
                 rover.update();
+                rover.setId(1);
+                rover.setDoingPiNoon(false);
 
-
-
+                rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
                 rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
+                rover2.getTransform().scale(SCALE, SCALE, SCALE);
+                rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
                 rover2.update();
+                rover.addOtherRover(rover2);
+                rover2.addOtherRover(rover);
                 rover2.setId(2);
 
-                rover.hasBallon1(true);
-                rover.hasBallon2(true);
-                rover.hasBallon3(true);
-                rover.setDoingPiNoon(true);
-                rover2.hasBallon1(true);
-                rover2.hasBallon2(true);
-                rover2.hasBallon3(true);
-                rover2.setDoingPiNoon(true);
+                resetRobots();
 
+                rover.hasBallon1(false);
+                rover.hasBallon2(false);
+                rover.hasBallon3(false);
+                rover.setDoingPiNoon(false);
+
+                rover2.hasBallon1(false);
+                rover2.hasBallon2(false);
+                rover2.hasBallon3(false);
+                rover2.setDoingPiNoon(false);
+
+                player1score = 0;
+                player2score = 0;
+                currentState = GameState.BREAK;
+                breakTime = BREAK + 100;
+                winner = "NONE";
+                System.out.println("game");
+            }
+        }
+
+        if (keycode == Input.Keys.SPACE) {
+            if (currentState == GameState.END) {
+                currentState = GameState.MENU;
+            } else if (currentState == GameState.MENU) {
+                currentState = GameState.SELECTION;
             }
         }
 
         if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 4f;
-//        } else {if (keycode == Input.Keys.A) {
-//            moveleft = true;
-//        } else if (keycode == Input.Keys.D) {
-//            moveright = true;
-//
-//        } else if (keycode == Input.Keys.W) {
-//            moveup = true;
-//
-//        } else if (keycode == Input.Keys.S) {
-//            movedown = true;
         }
         return false;
     }
@@ -407,14 +530,6 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 45f;
-//        } else if (keycode == Input.Keys.A) {
-//            moveleft = false;
-//        } else if (keycode == Input.Keys.D) {
-//            moveright = false;
-//        } else if (keycode == Input.Keys.W) {
-//            moveup = false;
-//        } else if (keycode == Input.Keys.S) {
-//            movedown = false;
         }
         return false;
     }
@@ -504,21 +619,43 @@ public class GCCRoverDisplay extends ApplicationAdapter implements InputProcesso
     }
 
     public static Mesh createRect(float x, float y, float width, float height) {
-        Mesh mesh = new Mesh(true, 4, 6,
-                VertexAttribute.Position(),
-                VertexAttribute.ColorUnpacked(),
-                VertexAttribute.TexCoords(0));
+        Mesh mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
 
-        mesh.setVertices(new float[] {
-                -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0,
-                 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0,
-                 1 * width + x, -1,  1 * height + y, 1, 0, 1, 1, 1, 1,
-                -1 * width + x, -1,  1 * height + y, 1, 0, 1, 1, 0, 1
-           });
+        mesh.setVertices(new float[] { -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0, 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0, 1 * width + x, -1,
+                1 * height + y, 1, 0, 1, 1, 1, 1, -1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 0, 1 });
 
-//        mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
-        mesh.setIndices(new short[] {2, 1, 0, 0, 3, 2});
+        // mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
+        mesh.setIndices(new short[] { 2, 1, 0, 0, 3, 2 });
         return mesh;
+    }
+
+    public Rover makeRobot(RoverType t, String name, Color color) {
+        Rover r;
+        if (t == RoverType.CBIS) {
+            r = new CBiSRover(name, modelFactory, color, this);
+        } else {
+            r = new GCCRover(name, modelFactory, color, this);
+
+        }
+        return r;
+    }
+
+    public void resetRobots() {
+        rover.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+        rover.update();
+
+        rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
+        rover2.update();
+        rover2.setId(2);
+
+        rover.hasBallon1(true);
+        rover.hasBallon2(true);
+        rover.hasBallon3(true);
+        rover.setDoingPiNoon(true);
+        rover2.hasBallon1(true);
+        rover2.hasBallon2(true);
+        rover2.hasBallon3(true);
+        rover2.setDoingPiNoon(true);
     }
 
 }
