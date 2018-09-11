@@ -1,6 +1,7 @@
-package org.ah.themvsus.engine.common.input;
+package org.ah.gcc.virtualrover.input;
 
 import org.ah.themvsus.engine.common.factory.AbstractPoolFactory;
+import org.ah.themvsus.engine.common.input.PlayerInput;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public class GCCPlayerInput extends PlayerInput {

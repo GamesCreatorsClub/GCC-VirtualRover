@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.AuthenticatedCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameMapCallback;
@@ -13,7 +14,6 @@ import org.ah.themvsus.engine.client.DesktopServerCommunication;
 import org.ah.themvsus.engine.client.HeadlessClientServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 import org.ah.themvsus.engine.common.message.MessageFactory;
-import org.ah.themvsus.engine.common.message.ThemVsUsMessageFactory;
 
 public class HeadlessClient implements Runnable, AuthenticatedCallback, GameReadyCallback, GameMapCallback {
 
@@ -41,7 +41,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
     public void init() {
         serverCommunication = new DesktopServerCommunication();
 
-        messageFactory = new ThemVsUsMessageFactory();
+        messageFactory = new GCCMessageFactory();
 
         Thread thread = new Thread(this);
         thread.setName("Headless client; " + alias);

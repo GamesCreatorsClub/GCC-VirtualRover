@@ -5,7 +5,7 @@
 	<inherits name='com.github.czyzby.websocket.GdxWebSocket' />
 	<inherits name='com.github.czyzby.websocket.GdxWebSocketGwt' />
 	<inherits name='com.github.czyzby.websocket.GdxWebSocketSerialization' />
-	<inherits name='org.ah.themvsus.engine.common' />
+
 	<entry-point class='org.ah.gcc.virtualrover.client.GCCRoverHtmlLauncher' />
 	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>
 	<set-configuration-property name="gdx.assetpath" value="../android/assets" />

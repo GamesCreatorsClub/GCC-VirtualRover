@@ -1,12 +1,12 @@
 package org.ah.gcc.virtualrover.game;
 
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCPlayerServerUpdateMessage;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.Player;
-import org.ah.themvsus.engine.common.input.GCCPlayerInput;
 import org.ah.themvsus.engine.common.input.PlayerInput;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.transfer.Serializer;

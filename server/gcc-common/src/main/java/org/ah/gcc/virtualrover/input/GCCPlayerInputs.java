@@ -1,4 +1,6 @@
-package org.ah.themvsus.engine.common.input;
+package org.ah.gcc.virtualrover.input;
+
+import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 public class GCCPlayerInputs extends PlayerInputs {
 

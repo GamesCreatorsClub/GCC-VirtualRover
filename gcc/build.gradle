@@ -15,7 +15,9 @@ buildscript {
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
+    apply plugin: "maven"
 
+    group = 'org.ah.gcc.virtualrover.client'
     version = '1.0'
     ext {
         appName = "gcc-ap-display"
@@ -25,6 +27,7 @@ allprojects {
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
         themvsusVersion = '0.0.1-SNAPSHOT'
+        gccVersion = '0.0.1-SNAPSHOT'
         gdxWebSocketsVersion='1.9'
     }
 
@@ -103,11 +106,9 @@ project(":html") {
         compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
         compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources"
-        compile "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
         compile "org.ah.themvsus:engine-common:$themvsusVersion:sources"
         compile "org.ah.themvsus:engine-client:$themvsusVersion:sources"
-        compile "org.ah.gcc.virtualrover:gcc-common:$themvsusVersion:sources"
+        compile "org.ah.gcc.virtualrover:gcc-common:$gccVersion:sources"
         compile "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersion"
         compile "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersion:sources"
         compile "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersion"
@@ -123,11 +124,9 @@ project(":core") {
 
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
         compile "org.ah.themvsus:engine-common:$themvsusVersion"
         compile "org.ah.themvsus:engine-client:$themvsusVersion"
-        compile "org.ah.gcc.virtualrover:gcc-common:$themvsusVersion"
+        compile "org.ah.gcc.virtualrover:gcc-common:$gccVersion"
     }
 }
 

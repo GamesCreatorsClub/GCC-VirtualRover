@@ -13,8 +13,7 @@ import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncher;
 import org.ah.gcc.virtualrover.server.engine.GCCServerEngineModule;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
-import org.ah.themvsus.engine.common.debug.Debug;
-import org.ah.themvsus.security.BCrypt;
+import org.ah.themvsus.engine.common.security.BCrypt;
 import org.ah.themvsus.server.authentication.ThemVsUsSimpleFileRegistrationModule;
 import org.ah.themvsus.server.log.LogHelper;
 import org.ah.themvsus.server.mail.MailModule;
@@ -92,7 +91,7 @@ public class StartGCCTestProject {
         logger.info("    HTTPS context path '" + httpsContextPath + "'");
         logger.info("    local files in dir '" + filesDir + "'");
 
-        Debug.DEBUG.setPauseIsAllowed(true);
+        DEBUG.setPauseIsAllowed(true);
 
         VertxFactory factory = ServiceHelper.loadFactory(VertxFactory.class);
         final Vertx vertx = factory.vertx();
