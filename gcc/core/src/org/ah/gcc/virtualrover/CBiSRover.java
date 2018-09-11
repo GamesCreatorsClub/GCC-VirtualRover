@@ -94,6 +94,7 @@ public class CBiSRover extends Rover {
 
     }
 
+    @Override
     public void addOtherRover(Robot robot) {
         robots.add(robot);
     }
@@ -171,16 +172,16 @@ public class CBiSRover extends Rover {
         for (Robot robot : robots) {
             if (getBallon1().contains(robot.sharpPoint())) {
                 hasBallon1 = false;
-                System.out.println("hit 1");
+                // System.out.println("hit 1");
             }
             if (getBallon2().contains(robot.sharpPoint())) {
                 hasBallon2 = false;
-                System.out.println("hit 2");
+                // System.out.println("hit 2");
 
             }
             if (getBallon3().contains(robot.sharpPoint())) {
                 hasBallon3 = false;
-                System.out.println("hit 3");
+                // System.out.println("hit 3");
 
             }
         }
@@ -190,6 +191,7 @@ public class CBiSRover extends Rover {
 
     }
 
+    @Override
     public Matrix4 getTransform() {
         return transform;
     }
@@ -429,30 +431,37 @@ public class CBiSRover extends Rover {
         return id;
     }
 
+    @Override
     public void setId(int id) {
         this.id = id;
     }
 
+    @Override
     public boolean hasBallon1() {
         return hasBallon1;
     }
 
+    @Override
     public void hasBallon1(boolean hasBallon1) {
         this.hasBallon1 = hasBallon1;
     }
 
+    @Override
     public boolean hasBallon2() {
         return hasBallon2;
     }
 
+    @Override
     public void hasBallon2(boolean hasBallon2) {
         this.hasBallon2 = hasBallon2;
     }
 
+    @Override
     public boolean hasBallon3() {
         return hasBallon3;
     }
 
+    @Override
     public void hasBallon3(boolean hasBallon3) {
         this.hasBallon3 = hasBallon3;
     }
@@ -461,6 +470,7 @@ public class CBiSRover extends Rover {
         return doingPiNoon;
     }
 
+    @Override
     public void setDoingPiNoon(boolean doingPiNoon) {
         this.doingPiNoon = doingPiNoon;
     }
