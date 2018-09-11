@@ -22,21 +22,19 @@ public class BigWheel {
     private Matrix4 transform;
     private ModelInstance tyre;
 
-    private float lastAngle = 0;
-    private Color color;
+    private Color colour;
     private float scale;
 
-
-    public BigWheel(ModelFactory f, float degreeOffset, Color color, float scale) {
+    public BigWheel(ModelFactory f, float degreeOffset, Color colour, float scale) {
         this.degreeOffset = degreeOffset;
-        this.color = color;
+        this.colour = colour;
         this.scale = scale;
 
         position = new Vector3();
-        setTransform(new Matrix4());
+        transform = new Matrix4();
         try {
             wheel = new ModelInstance(f.getBigWheel(), 0, 0, 0);
-            wheel.materials.get(0).set(ColorAttribute.createDiffuse(color));
+            wheel.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
             tyre = new ModelInstance(f.getBigTyre(), 0, 0, 0);
             tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
@@ -53,6 +51,10 @@ public class BigWheel {
 
         cache.end();
 
+    }
+
+    public Color getColour() {
+        return colour;
     }
 
     public void update() {
@@ -111,19 +113,14 @@ public class BigWheel {
     }
 
     public Vector3 getPosition(Matrix4 move) {
-        float x = -1f;
-        float y = 0;
-        float z = 1.5f;
+//        float x = -1f;
+//        float y = 0;
+//        float z = 1.5f;
 //        move.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
 
-        Vector3 pos = new Vector3();
-        pos = move.getTranslation(pos);
+        position = move.getTranslation(position);
 
-        return pos;
-    }
-
-    public void setPosition(Vector3 position) {
-        this.position = position;
+        return position;
     }
 
     public Matrix4 getTransform() {
@@ -133,6 +130,4 @@ public class BigWheel {
     public void setTransform(Matrix4 transform) {
         this.transform = transform;
     }
-
-
 }

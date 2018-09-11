@@ -23,6 +23,7 @@ public class ModelFactory {
     private Model cBody;
     private Model bigWheel;
     private Model bigTyre;
+    private Model marker;
 
     public ModelFactory() {
         UBJsonReader jsonreader = new UBJsonReader();
@@ -40,10 +41,8 @@ public class ModelFactory {
 
         if (filename.endsWith(".g3db")) {
             m = g3Modelloader.loadModel(f);
-
         } else {
             m = objModelloader.loadModel(f, true);
-
         }
         return m;
     }
@@ -64,6 +63,7 @@ public class ModelFactory {
         wheel = loadModel("Wheel.obj");
         motorholder = loadModel("MotorHolder.obj");
 
+        marker = loadModel("teapot.g3db");
     }
 
     public Model getBaloon() throws Exception {
@@ -121,6 +121,14 @@ public class ModelFactory {
             throw (new Exception(errorMessage));
         }
         return wheel;
+    }
+
+    public Model getMarker() throws Exception {
+        if (marker == null) {
+
+            throw (new Exception(errorMessage));
+        }
+        return marker;
     }
 
     public Model getcBody() {

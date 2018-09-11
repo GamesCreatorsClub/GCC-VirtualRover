@@ -37,7 +37,6 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -49,6 +48,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private boolean loadingAssets = true;
 
     public static final long BREAK = 300;
+    public static final boolean SHOW_MARKER = true;
+    public static final float SCALE = 0.01f;
 
     private ModelBatch batch;
     private PerspectiveCamera camera;
@@ -122,13 +123,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     private int cameratype = 3;
 
-    public static final float SCALE = 0.01f;
 
     private List<BoundingBox> boxes;
     private ModelInstance marker1;
     private ModelInstance marker2;
     private Mesh backgroundMesh;
-    private ShaderProgram backgroundShaderProgram;
     private RenderContext renderContext;
     private Renderable renderable;
     private DefaultShader shader;
@@ -153,7 +152,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private ServerCommunicationAdapter serverCommunicationAdapter;
     private GCCMessageFactory messageFactory;
 
-    private boolean renderBackground = false;
+    private boolean renderBackground = true;
 
     private Vector3 pos1 = new Vector3();
     private Vector3 pos2 = new Vector3();
@@ -241,19 +240,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         arena.transform.scale(SCALE, SCALE, SCALE);
         arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
         instances.add(arena);
-
-        Model marker = modelFactory.loadModel("model.g3db");
-        marker1 = new ModelInstance(marker);
-        marker1.transform.scale(0.05f, 0.05f, 0.05f);
-        marker1.transform.scale(SCALE, SCALE, SCALE);
-        marker1.materials.get(0).set(ColorAttribute.createDiffuse(Color.GREEN));
-        marker2 = new ModelInstance(marker);
-        marker2.transform.scale(0.05f, 0.05f, 0.05f);
-        marker2.transform.scale(SCALE, SCALE, SCALE);
-        marker2.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLUE));
-
-        // instances.add(marker1);
-        // instances.add(marker2);
 
         boxes = new ArrayList<BoundingBox>();
         float wallWidth = 0.1f;
@@ -419,8 +405,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
 
-            font.draw(spriteBatch, Float.toString(distance) + ", " + Float.toString(pos1.x / SCALE) + ", " + Float.toString(pos1.z / SCALE),
-                    Gdx.graphics.getWidth() - 1020, Gdx.graphics.getHeight() - 40);
+//            font.draw(spriteBatch, Float.toString(distance) + ", " + Float.toString(pos1.x / SCALE) + ", " + Float.toString(pos1.z / SCALE),
+//                    Gdx.graphics.getWidth() - 1020, Gdx.graphics.getHeight() - 40);
 
             if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
                 font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
@@ -615,25 +601,21 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     @Override
     public boolean keyTyped(char character) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -677,26 +659,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         return false;
     }
 
-    public void setMarkerPosition(Vector3 p, int marker, boolean useScale) {
-
-        Vector3 v = new Vector3(p.x * SCALE, p.y * SCALE, p.z * SCALE);
-        if (!useScale) {
-            v.set(new Vector3(p.x, p.y, p.z));
-        }
-        if (marker == 1) {
-            marker1.transform.setToTranslation(v);
-            marker1.transform.scale(SCALE * 1.0f, SCALE * 1.0f, SCALE * 1.0f);
-            // marker1.calculateTransforms();
-
-        }
-        if (marker == 2) {
-            marker2.transform.setToTranslation(v);
-            marker2.transform.scale(SCALE * 1.0f, SCALE * 1.0f, SCALE * 1.0f);
-            // marker2.calculateTransforms();
-
-        }
-    }
-
     public static Mesh createRect(float x, float y, float width, float height) {
         Mesh mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
 
@@ -711,9 +673,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     public Rover makeRobot(RoverType t, String name, Color color) {
         Rover r;
         if (t == RoverType.CBIS) {
-            r = new CBiSRover(name, modelFactory, color, this);
+            r = new CBiSRover(name, modelFactory, color);
         } else {
-            r = new GCCRover(name, modelFactory, color, this);
+            r = new GCCRover(name, modelFactory, color);
 
         }
         return r;
