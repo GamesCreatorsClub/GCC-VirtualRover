@@ -1,38 +1,37 @@
 package org.ah.gcc.virtualrover;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
 
-public abstract class Rover implements Robot {
+public interface Rover {
+    void processInput(Inputs i);
 
-    private String name;
-    private Color colour;
+    void render(ModelBatch batch, Environment environment, boolean hasBalloons);
 
-    private int balloons = 3;
+    void update();
 
-    public Rover(String name, Color colour) {
-        this.name = name;
-        this.colour = colour;
-        setBalloons(3);
-    }
+    Polygon getPolygon();
 
-    public String getName() {
-        return name;
-    }
+    Vector2 sharpPoint();
 
-    public Color getColour() {
-        return colour;
-    }
+    Matrix4 getTransform();
 
-    public int getBalloons() {
-        return balloons;
-    }
+    void setId(int i);
 
-    public void setBalloons(int balloons) {
-        this.balloons = balloons;
-    }
+    void addOtherRover(Rover rover2);
 
-    public void popBaloon() {
-        balloons -= 1;
-    }
+    boolean hasBallon1();
 
+    boolean hasBallon2();
+
+    boolean hasBallon3();
+
+    void hasBallon1(boolean b);
+
+    void hasBallon2(boolean b);
+
+    void hasBallon3(boolean b);
 }

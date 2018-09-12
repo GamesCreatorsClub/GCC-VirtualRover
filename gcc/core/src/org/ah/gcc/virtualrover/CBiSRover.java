@@ -1,103 +1,49 @@
 package org.ah.gcc.virtualrover;
 
-import static org.ah.gcc.virtualrover.MainGame.SCALE;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NoSuchElementException;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
-public class CBiSRover extends Rover {
+public class CBiSRover extends AbstractRover {
     public ModelInstance body;
-    public ModelInstance pinoon;
-    public ModelInstance marker;
 
     public BigWheel fr;
     public BigWheel br;
     public BigWheel bl;
     public BigWheel fl;
 
-    public long balloonPeriod = 0;
+    private static float ROVER_SCALE = 26;
 
-    private Matrix4 transform;
-    private ModelInstance balloon1;
-    private ModelInstance balloon2;
-    private ModelInstance balloon3;
-    private Vector3 ballonPosition1 = new Vector3();
-    private Vector3 ballonPosition2 = new Vector3();
-    private Vector3 ballonPosition3 = new Vector3();
+    private Matrix4 blm = new Matrix4();
+    private Matrix4 frm = new Matrix4();
+    private Matrix4 brm = new Matrix4();
+    private Matrix4 flm = new Matrix4();
 
-    private List<Robot> robots = new ArrayList<Robot>();
+    private Vector3 backleft = new Vector3();
+    private Vector3 backright = new Vector3();
+    private Vector3 frontleft = new Vector3();
+    private Vector3 frontright = new Vector3();
 
-    private boolean hasBallon1 = true;
-    private boolean hasBallon2 = true;
-    private boolean hasBallon3 = true;
+    public CBiSRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+        super(name, modelFactory, colour);
 
-    private boolean doingPiNoon = false;
+        body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
+        body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
-    private int id = 0;
-    private float scale = 26;
+        marker.transform.scale(0.05f, 0.05f, 0.05f);
 
-    private Matrix4 sharpPointMatrix;
-    private Vector2 sharpPoint;
-    private Vector3 sharpPointPos;
-
-    public CBiSRover(String name, ModelFactory modelFactory, Color colour) {
-        super(name, colour);
-        transform = new Matrix4();
-        sharpPointMatrix = new Matrix4();
-        sharpPoint = new Vector2();
-        sharpPointPos = new Vector3();
-
-        try {
-            body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
-            body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
-
-            pinoon = new ModelInstance(modelFactory.getPiNoon(), 0, 0, 0);
-            pinoon.materials.get(0).set(ColorAttribute.createDiffuse(Color.GRAY));
-
-            marker = new ModelInstance(modelFactory.getMarker(), 0, 0, 0);
-            marker.transform.scale(0.05f, 0.05f, 0.05f);
-            marker.materials.get(0).set(ColorAttribute.createDiffuse(colour));
-
-            fr = new BigWheel(modelFactory, 270, Color.YELLOW, scale);
-            fl = new BigWheel(modelFactory, 90, Color.YELLOW, scale);
-            br = new BigWheel(modelFactory, 270, Color.YELLOW, scale);
-            bl = new BigWheel(modelFactory, 90, Color.YELLOW, scale );
-
-            colour.a = 0.7f;
-            balloon1 = new ModelInstance(modelFactory.getBaloon(), 0, 0, 0);
-            balloon1.materials.get(0).set(ColorAttribute.createDiffuse(colour));
-            balloon1.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-
-            balloon2 = new ModelInstance(modelFactory.getBaloon(), 0, 0, 0);
-            balloon2.materials.get(0).set(ColorAttribute.createDiffuse(colour));
-            balloon2.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-
-            balloon3 = new ModelInstance(modelFactory.getBaloon(), 0, 0, 0);
-            balloon3.materials.get(0).set(ColorAttribute.createDiffuse(colour));
-            balloon3.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-    }
-
-    @Override
-    public void addOtherRover(Robot robot) {
-        robots.add(robot);
+        fr = new BigWheel(modelFactory, 270, Color.YELLOW, ROVER_SCALE);
+        fl = new BigWheel(modelFactory, 90, Color.YELLOW, ROVER_SCALE);
+        br = new BigWheel(modelFactory, 270, Color.YELLOW, ROVER_SCALE);
+        bl = new BigWheel(modelFactory, 90, Color.YELLOW, ROVER_SCALE );
     }
 
     @Override
@@ -110,9 +56,10 @@ public class CBiSRover extends Rover {
             drive(2.7f);
         } else if (i.moveDown()) {
             drive(-2.7f);
-
         } else if (i.rotateLeft()) {
+            rotate(3);
         } else if (i.rotateRight()) {
+            rotate(-3);
         } else {
             stop();
         }
@@ -126,12 +73,7 @@ public class CBiSRover extends Rover {
         br.getTransform().set(transform);
         bl.getTransform().set(transform);
 
-        pinoon.transform.set(transform);
         body.transform.set(transform);
-
-        balloon1.transform.set(transform);
-        balloon2.transform.set(transform);
-        balloon3.transform.set(transform);
 
         fl.getTransform().translate(1f, -5.5f, 0f);
         fr.getTransform().translate(0f, -5.5f, -20f);
@@ -144,108 +86,43 @@ public class CBiSRover extends Rover {
         br.update();
         bl.update();
 
-        pinoon.transform.scale(0.16f, 0.16f, 0.16f);
-
-        pinoon.transform.translate(-10f, 8f, -66f);
-        pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
-
-
-        body.transform.scale(scale, scale, scale);
+        body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
         body.transform.translate(1.2f, -0.3f, 0f);
-
 
         body.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
 
-        balloon1.transform.scale(0.16f, 0.16f, 0.16f);
-        balloon2.transform.scale(0.16f, 0.16f, 0.16f);
-        balloon3.transform.scale(0.16f, 0.16f, 0.16f);
-
-        balloon1.transform.translate(0f, 158f, -50f);
-        balloon2.transform.translate(-15f, 178f, -64f);
-        balloon3.transform.translate(0f, 178f, -70f);
-
-        balloon1.transform.rotate(new Vector3(1, 1, 0), (float) (30 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
-        balloon2.transform.rotate(new Vector3(0, 0, 1), (float) (45 + (Math.cos(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
-        balloon3.transform.rotate(new Vector3(1, 1, 0), (float) (-50 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
-
-        for (Robot robot : robots) {
-            Vector2 robotSharpPoint = robot.sharpPoint();
-            if (getBallon1().contains(robotSharpPoint)) {
-                hasBallon1 = false;
-                // System.out.println("hit 1");
-            }
-            if (getBallon2().contains(robotSharpPoint)) {
-                hasBallon2 = false;
-                // System.out.println("hit 2");
-            }
-            if (getBallon3().contains(robotSharpPoint)) {
-                hasBallon3 = false;
-                // System.out.println("hit 3");
-            }
-        }
-
-        if (MainGame.SHOW_MARKER) {
-            marker.transform.setToTranslation(sharpPointPos);
-            marker.transform.scale(SCALE, SCALE, SCALE);
-        }
+        updatePiNoon();
+        updateBalloons();
+        checkForBalloonPopped();
+        updateMarkerTransform();
     }
 
     @Override
-    public Matrix4 getTransform() {
-        return transform;
-    }
-
-    public void setTransform(Matrix4 transform) {
-        this.transform = transform;
-    }
-
-    @Override
-    public void render(ModelBatch batch, Environment environment) {
+    public void render(ModelBatch batch, Environment environment, boolean hasBalloons) {
         // update();
         bl.render(batch, environment);
         br.render(batch, environment);
         fl.render(batch, environment);
         fr.render(batch, environment);
 
-        if (doingPiNoon) {
-            batch.render(pinoon, environment);
-
-            if (hasBallon1) {
-                batch.render(balloon1, environment);
-            }
-            if (hasBallon2) {
-                batch.render(balloon2, environment);
-            }
-            if (hasBallon3) {
-                batch.render(balloon3, environment);
-            }
-
-            if (MainGame.SHOW_MARKER) {
-                batch.render(marker, environment);
-            }
+        if (hasBalloons) {
+            renderBalloons(batch, environment);
         }
         batch.render(body, environment);
-
-    }
-
-    public boolean collidesWithRover(Matrix4 move, Robot rover) {
-        boolean collision = Intersector.overlapConvexPolygons(getPolygon(move), rover.getPolygon());
-
-        return collision;
     }
 
     public boolean collides(Matrix4 move) {
         // box.set(t, t);
-        Matrix4 blm = new Matrix4(move);
-        Matrix4 frm = new Matrix4(move);
-        Matrix4 brm = new Matrix4(move);
-        Matrix4 flm = new Matrix4(move);
+        blm.set(move);
+        frm.set(move);
+        brm.set(move);
+        flm.set(move);
 
-        Vector3 backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f));
-        Vector3 backright = br.getPosition(brm.translate(24f, -5.5f, -15f));
-        Vector3 frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f));
-        Vector3 frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f));
+        backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f), backleft);
+        backright = br.getPosition(brm.translate(24f, -5.5f, -15f), backright);
+        frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
+        frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
 
         float maxX = 250 * MainGame.SCALE;
         float maxZ = 210 * MainGame.SCALE;
@@ -258,7 +135,7 @@ public class CBiSRover extends Rover {
             return true;
         }
 
-        for (Robot robot : robots) {
+        for (Rover robot : robots) {
             if (collidesWithRover(move, robot)) {
                 return true;
             }
@@ -279,9 +156,6 @@ public class CBiSRover extends Rover {
         if (!collides(move)) {
             transform.set(move);
         }
-    }
-
-    public void checkBalloons(Robot robot) {
     }
 
     public void rotate(float angle) {
@@ -352,109 +226,23 @@ public class CBiSRover extends Rover {
     }
 
     @Override
-    public Polygon getPolygon() {
-        return getPolygon(transform);
-    }
-
     public Polygon getPolygon(Matrix4 move) {
-        Matrix4 blm = new Matrix4(move);
-        Matrix4 frm = new Matrix4(move);
-        Matrix4 brm = new Matrix4(move);
-        Matrix4 flm = new Matrix4(move);
+        blm.set(move);
+        frm.set(move);
+        brm.set(move);
+        flm.set(move);
 
-        Vector3 backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f));
-        Vector3 backright = br.getPosition(brm.translate(24f, -5.5f, -15f));
-        Vector3 frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f));
-        Vector3 frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f));
+        backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f), backleft);
+        backright = br.getPosition(brm.translate(24f, -5.5f, -15f), backright);
+        frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
+        frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
 
         Polygon poly = new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
         return poly;
     }
 
     @Override
-    public Vector2 sharpPoint() {
-        sharpPointMatrix.set(transform);
+    protected void translateSharpPoint(Matrix4 sharpPointMatrix) {
         sharpPointMatrix.translate(-21f, 24f, -9f);
-
-        sharpPointPos = sharpPointMatrix.getTranslation(sharpPointPos);
-
-        sharpPoint.set(sharpPointPos.x, sharpPointPos.z);
-        return sharpPoint;
-    }
-
-    public Circle getBallon1() {
-        balloon1.transform.getTranslation(ballonPosition1);
-
-        float radius = 8 * MainGame.SCALE;
-        Circle c = new Circle(ballonPosition1.x, ballonPosition1.z, radius);
-        return c;
-    }
-
-    public Circle getBallon2() {
-        balloon2.transform.getTranslation(ballonPosition2);
-
-        float radius = 8 * MainGame.SCALE;
-
-        Circle c = new Circle(ballonPosition2.x, ballonPosition2.z, radius);
-
-        return c;
-    }
-
-    public Circle getBallon3() {
-        balloon3.transform.getTranslation(ballonPosition3);
-
-        float radius = 8 * MainGame.SCALE;
-
-        Circle c = new Circle(ballonPosition3.x, ballonPosition3.y, radius);
-
-        return c;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public boolean hasBallon1() {
-        return hasBallon1;
-    }
-
-    @Override
-    public void hasBallon1(boolean hasBallon1) {
-        this.hasBallon1 = hasBallon1;
-    }
-
-    @Override
-    public boolean hasBallon2() {
-        return hasBallon2;
-    }
-
-    @Override
-    public void hasBallon2(boolean hasBallon2) {
-        this.hasBallon2 = hasBallon2;
-    }
-
-    @Override
-    public boolean hasBallon3() {
-        return hasBallon3;
-    }
-
-    @Override
-    public void hasBallon3(boolean hasBallon3) {
-        this.hasBallon3 = hasBallon3;
-    }
-
-    public boolean isDoingPiNoon() {
-        return doingPiNoon;
-    }
-
-    @Override
-    public void setDoingPiNoon(boolean doingPiNoon) {
-        this.doingPiNoon = doingPiNoon;
     }
 }

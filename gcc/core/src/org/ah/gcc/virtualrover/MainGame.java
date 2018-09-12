@@ -118,8 +118,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
 
-    private Robot rover1;
-    private Robot rover2;
+    private Rover rover1;
+    private Rover rover2;
 
     private int cameratype = 3;
 
@@ -350,6 +350,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             rover2Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
             rover2Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
             rover2Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+            rover1Inputs.straightenWheels(Gdx.input.isKeyPressed(Input.Keys.N));
+            rover1Inputs.slantWheels(Gdx.input.isKeyPressed(Input.Keys.M));
 
             rover1Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
             rover1Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
@@ -357,6 +359,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             rover1Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
             rover1Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
             rover1Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+            rover1Inputs.straightenWheels(Gdx.input.isKeyPressed(Input.Keys.Z));
+            rover1Inputs.slantWheels(Gdx.input.isKeyPressed(Input.Keys.X));
 
             camera.update();
 
@@ -382,8 +386,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
 
-                rover1.render(batch, environment);
-                rover2.render(batch, environment);
+                rover1.render(batch, environment, currentState == GameState.GAME);
+                rover2.render(batch, environment, currentState == GameState.GAME);
 
                 rover1.update();
                 rover1.processInput(rover1Inputs);
@@ -546,7 +550,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 rover1.getTransform().rotate(new Vector3(0, 1, 0), -45);
                 rover1.update();
                 rover1.setId(1);
-                rover1.setDoingPiNoon(false);
 
                 rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
                 rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
@@ -562,12 +565,10 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 rover1.hasBallon1(false);
                 rover1.hasBallon2(false);
                 rover1.hasBallon3(false);
-                rover1.setDoingPiNoon(false);
 
                 rover2.hasBallon1(false);
                 rover2.hasBallon2(false);
                 rover2.hasBallon3(false);
-                rover2.setDoingPiNoon(false);
 
                 player1score = 0;
                 player2score = 0;
@@ -670,8 +671,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         return mesh;
     }
 
-    public Rover makeRobot(RoverType t, String name, Color color) {
-        Rover r;
+    public AbstractRover makeRobot(RoverType t, String name, Color color) {
+        AbstractRover r;
         if (t == RoverType.CBIS) {
             r = new CBiSRover(name, modelFactory, color);
         } else {
@@ -692,11 +693,10 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         rover1.hasBallon1(true);
         rover1.hasBallon2(true);
         rover1.hasBallon3(true);
-        rover1.setDoingPiNoon(true);
+
         rover2.hasBallon1(true);
         rover2.hasBallon2(true);
         rover2.hasBallon3(true);
-        rover2.setDoingPiNoon(true);
     }
 
     @Override

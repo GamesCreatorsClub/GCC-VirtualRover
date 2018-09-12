@@ -7,11 +7,13 @@ public class Inputs {
     private boolean moveUp = false;
     private boolean moveDown = false;
 
-
     private boolean rotateLeft = false;
     private boolean rotateRight = false;
     private boolean rotateUp = false;
     private boolean rotateDown = false;
+
+    private boolean straightenWheels = false;
+    private boolean slantWheels = false;
 
     public static Inputs create() {
         return new Inputs();
@@ -37,7 +39,6 @@ public class Inputs {
     public Inputs moveRight(boolean moveRight) {
         this.moveRight = moveRight;
         return this;
-
     }
 
     public boolean moveUp() {
@@ -47,7 +48,6 @@ public class Inputs {
     public Inputs moveUp(boolean moveUp) {
         this.moveUp = moveUp;
         return this;
-
     }
 
     public boolean moveDown() {
@@ -95,5 +95,21 @@ public class Inputs {
         return this;
     }
 
+    public Inputs straightenWheels(boolean straightenWheels) {
+        this.straightenWheels = straightenWheels;
+        return this;
+    }
 
+    public boolean straightenWheels() {
+        return straightenWheels;
+    }
+
+    public Inputs slantWheels(boolean slantWheels) {
+        this.slantWheels = slantWheels;
+        return this;
+    }
+
+    public boolean slantWheels() {
+        return slantWheels;
+    }
 }

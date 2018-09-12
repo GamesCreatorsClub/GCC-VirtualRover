@@ -1,5 +1,7 @@
 package org.ah.gcc.virtualrover;
 
+import java.util.NoSuchElementException;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -17,7 +19,6 @@ public class ModelFactory {
     private Model tyre;
     private Model wheel;
 
-    private String errorMessage = "No model found: try load()";
     private Model motorholder;
     private Model fullwheel;
     private Model cBody;
@@ -59,74 +60,77 @@ public class ModelFactory {
         setBigWheel(loadModel("cwheel.obj"));
         bigTyre = loadModel("cTyre.obj");
 
-
         wheel = loadModel("Wheel.obj");
         motorholder = loadModel("MotorHolder.obj");
 
         marker = loadModel("teapot.g3db");
     }
 
-    public Model getBaloon() throws Exception {
+    private Exception resourceDoesNotExists(String name) throws NoSuchElementException {
+        throw new NoSuchElementException("No model found for " + name + ": try load()");
+    }
+
+    public Model getBaloon() throws NoSuchElementException {
         if (baloon == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("balloon");
         }
         return baloon;
     }
 
-    public Model getMotorHolder() throws Exception {
+    public Model getMotorHolder() throws NoSuchElementException {
         if (motorholder == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("motor holder");
         }
         return motorholder;
     }
 
-    public Model getFullWheel() throws Exception {
+    public Model getFullWheel() throws NoSuchElementException {
         if (fullwheel == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("full wheel");
         }
         return fullwheel;
     }
 
-    public Model getBody() throws Exception {
+    public Model getBody() throws NoSuchElementException {
         if (body == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("body");
         }
         return body;
     }
 
-    public Model getPiNoon() throws Exception {
+    public Model getPiNoon() throws NoSuchElementException {
         if (pinoon == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("pinoon");
         }
         return pinoon;
     }
 
-    public Model getTop() throws Exception {
+    public Model getTop() throws NoSuchElementException {
         if (top == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("top");
         }
         return top;
     }
 
-    public Model getTyre() throws Exception {
+    public Model getTyre() throws NoSuchElementException {
         if (tyre == null) {
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("tyre");
         }
         return tyre;
     }
 
-    public Model getWheel() throws Exception {
+    public Model getWheel() throws NoSuchElementException {
         if (wheel == null) {
 
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("wheel");
         }
         return wheel;
     }
 
-    public Model getMarker() throws Exception {
+    public Model getMarker() throws NoSuchElementException {
         if (marker == null) {
 
-            throw (new Exception(errorMessage));
+            resourceDoesNotExists("worker");
         }
         return marker;
     }

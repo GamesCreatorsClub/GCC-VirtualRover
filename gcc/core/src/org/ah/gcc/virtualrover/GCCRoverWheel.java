@@ -15,45 +15,40 @@ public class GCCRoverWheel {
     private float degrees = 0;
     private float degreeOffset = 0;
 
-    private Vector3 position;
+    // private Vector3 position = new Vector3();
     private ModelInstance wheel;
     private ModelInstance motor;
-    private ModelCache cache;
+    private ModelCache cache = new ModelCache();
 
-    private Matrix4 transform;
+    private Matrix4 transform = new Matrix4();
     private ModelInstance tyre;
 
-    private float lastAngle = 0;
-    private Color color;
+    private Color colour;
 
+    private static final Vector3 WHEEL_ORIENTATION_AXIS = new Vector3(0f, 0f, 1f);
+    private static final Vector3 WHEEL_ROTATION_AXIS = new Vector3(0f, 1f, 0f);
 
     public GCCRoverWheel(ModelFactory f, float degreeOffset, Color color) {
         this.degreeOffset = degreeOffset;
-        this.color = color;
+        this.colour = color;
 
-        position = new Vector3();
-        setTransform(new Matrix4());
-        try {
-            motor = new ModelInstance(f.getMotorHolder(), 0, 0, 0);
-            motor.materials.get(0).set(ColorAttribute.createDiffuse(color));
+        motor = new ModelInstance(f.getMotorHolder(), 0, 0, 0);
+        motor.materials.get(0).set(ColorAttribute.createDiffuse(color));
 
-            wheel = new ModelInstance(f.getWheel(), 0, 0, 0);
-            wheel.materials.get(0).set(ColorAttribute.createDiffuse(color));
+        wheel = new ModelInstance(f.getWheel(), 0, 0, 0);
+        wheel.materials.get(0).set(ColorAttribute.createDiffuse(color));
 
-            tyre = new ModelInstance(f.getTyre(), 0, 0, 0);
-            tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
+        tyre = new ModelInstance(f.getTyre(), 0, 0, 0);
+        tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        cache = new ModelCache();
         cache.begin();
         cache.add(motor);
         cache.add(wheel);
         cache.end();
+    }
 
+    public Color getColour() {
+        return colour;
     }
 
     public void update() {
@@ -69,17 +64,13 @@ public class GCCRoverWheel {
         wheel.transform.set(transform);
         motor.transform.set(transform);
 
-
-
         motor.transform.scale(4f, 4f, 4f);
         wheel.transform.scale(0.16f, 0.16f, 0.16f);
 
-
-        wheel.transform.rotate(new Vector3(0f, 0f, 1f), -90f);
+        wheel.transform.rotate(WHEEL_ORIENTATION_AXIS, -90f);
         wheel.transform.translate(-4f, -4f, -10f);
         wheelangle += speed;
-        wheel.transform.rotate(new Vector3(0f, 1f, 0f), wheelangle);
-
+        wheel.transform.rotate(WHEEL_ROTATION_AXIS, wheelangle);
 
         tyre.transform.set(wheel.transform);
     }
@@ -113,29 +104,16 @@ public class GCCRoverWheel {
         return pos;
     }
 
-    public Vector3 getPosition(Matrix4 move) {
-        float x = -1f;
-        float y = 0;
-        float z = 1.5f;
+    public Vector3 getPosition(Matrix4 move, Vector3 result) {
+//        float x = -1f;
+//        float y = 0;
+//        float z = 1.5f;
 //        move.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
 
-        Vector3 pos = new Vector3();
-        pos = move.getTranslation(pos);
-
-        return pos;
-    }
-
-    public void setPosition(Vector3 position) {
-        this.position = position;
+        return move.getTranslation(result);
     }
 
     public Matrix4 getTransform() {
         return transform;
     }
-
-    public void setTransform(Matrix4 transform) {
-        this.transform = transform;
-    }
-
-
 }

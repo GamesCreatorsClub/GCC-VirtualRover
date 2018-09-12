@@ -15,42 +15,35 @@ public class BigWheel {
     private float degrees = 0;
     private float degreeOffset = 0;
 
-    private Vector3 position;
+    // private Vector3 position = new Vector3();
     private ModelInstance wheel;
-    private ModelCache cache;
+    private ModelCache cache = new ModelCache();
 
-    private Matrix4 transform;
+    private Matrix4 transform = new Matrix4();
     private ModelInstance tyre;
 
     private Color colour;
     private float scale;
+
+    private static final Vector3 WHEEL_ORIENTATION_AXIS = new Vector3(0f, 1f, 0f);
+    private static final Vector3 WHEEL_ROTATION_AXIS = new Vector3(0f, 0f, 1f);
 
     public BigWheel(ModelFactory f, float degreeOffset, Color colour, float scale) {
         this.degreeOffset = degreeOffset;
         this.colour = colour;
         this.scale = scale;
 
-        position = new Vector3();
-        transform = new Matrix4();
-        try {
-            wheel = new ModelInstance(f.getBigWheel(), 0, 0, 0);
-            wheel.materials.get(0).set(ColorAttribute.createDiffuse(colour));
+        wheel = new ModelInstance(f.getBigWheel(), 0, 0, 0);
+        wheel.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
-            tyre = new ModelInstance(f.getBigTyre(), 0, 0, 0);
-            tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
+        tyre = new ModelInstance(f.getBigTyre(), 0, 0, 0);
+        tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-
-        cache = new ModelCache();
         cache.begin();
         cache.add(wheel);
         cache.add(wheel);
 
         cache.end();
-
     }
 
     public Color getColour() {
@@ -71,15 +64,11 @@ public class BigWheel {
 
         wheel.transform.scale(scale, scale, scale);
 
-
         wheel.transform.scale(0.16f, 0.16f, 0.16f);
-
-
-        wheel.transform.rotate(new Vector3(0f, 1f, 0f), 90f);
+        wheel.transform.rotate(WHEEL_ORIENTATION_AXIS, 90f);
         wheel.transform.translate(.5f, 0f, 0);
         wheelangle += speed;
-        wheel.transform.rotate(new Vector3(0f, 0f, 1f), wheelangle * -15);
-
+        wheel.transform.rotate(WHEEL_ROTATION_AXIS, wheelangle * -15);
 
         tyre.transform.set(wheel.transform);
     }
@@ -112,22 +101,16 @@ public class BigWheel {
         return pos;
     }
 
-    public Vector3 getPosition(Matrix4 move) {
+    public Vector3 getPosition(Matrix4 move, Vector3 result) {
 //        float x = -1f;
 //        float y = 0;
 //        float z = 1.5f;
 //        move.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
 
-        position = move.getTranslation(position);
-
-        return position;
+        return move.getTranslation(result);
     }
 
     public Matrix4 getTransform() {
         return transform;
-    }
-
-    public void setTransform(Matrix4 transform) {
-        this.transform = transform;
     }
 }
