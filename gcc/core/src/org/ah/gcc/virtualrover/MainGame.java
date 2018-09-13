@@ -1,4 +1,4 @@
-package org.ah.gcc.virtualrover;
+    package org.ah.gcc.virtualrover;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private enum GameState {
         MENU, SELECTION, GAME, BREAK, END
     }
-
     private enum RoverType {
         GCC(0, "GCC Rover"), CBIS(1, "CBiS-Education");
 
