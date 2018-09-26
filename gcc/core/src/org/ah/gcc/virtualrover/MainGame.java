@@ -1,4 +1,4 @@
-    package org.ah.gcc.virtualrover;
+package org.ah.gcc.virtualrover;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,8 +124,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
 
     private List<BoundingBox> boxes;
-    private ModelInstance marker1;
-    private ModelInstance marker2;
+
     private Mesh backgroundMesh;
     private RenderContext renderContext;
     private Renderable renderable;
@@ -151,7 +150,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private ServerCommunicationAdapter serverCommunicationAdapter;
     private GCCMessageFactory messageFactory;
 
-    private boolean renderBackground = true;
+    private boolean renderBackground = false;
 
     private Vector3 pos1 = new Vector3();
     private Vector3 pos2 = new Vector3();
@@ -349,8 +348,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             rover2Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
             rover2Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
             rover2Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
-            rover1Inputs.straightenWheels(Gdx.input.isKeyPressed(Input.Keys.N));
-            rover1Inputs.slantWheels(Gdx.input.isKeyPressed(Input.Keys.M));
 
             rover1Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
             rover1Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
@@ -358,8 +355,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             rover1Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
             rover1Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
             rover1Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
-            rover1Inputs.straightenWheels(Gdx.input.isKeyPressed(Input.Keys.Z));
-            rover1Inputs.slantWheels(Gdx.input.isKeyPressed(Input.Keys.X));
 
             camera.update();
 
@@ -712,18 +707,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                     + "o" + ChatColor.PURPLE + "o" + ChatColor.GRAY + "o" + ChatColor.BLACK + "o");
         } else if ("time".equals(cmdName)) {
             console.info(ChatColor.INDIGO + "millis: " + ChatColor.GREEN + System.currentTimeMillis());
-//        } else if ("memory".equals(cmdName)) {
-//            Runtime runtime = Runtime.getRuntime();
-//
-//            NumberFormat format = NumberFormat.getInstance();
-//
-//            long maxMemory = runtime.maxMemory();
-//            long allocatedMemory = runtime.totalMemory();
-//            long freeMemory = runtime.freeMemory();
-//
-//            float memoryPercent = ((allocatedMemory) / (maxMemory)) * 100f;
-//
-//            console.info(ChatColor.YELLOW + "memory usage: " + ChatColor.GREEN + format.format(memoryPercent) + "%");
         } else {
             console.error("Unknow command, type /help for list");
 

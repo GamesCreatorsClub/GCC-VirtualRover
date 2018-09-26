@@ -88,12 +88,6 @@ public class GCCRover extends AbstractRover {
         } else {
             stop();
         }
-
-        if (i.straightenWheels()) {
-            straightenWheels();
-        } else if (i.slantWheels()) {
-            slantWheels();
-        }
     }
 
     @Override

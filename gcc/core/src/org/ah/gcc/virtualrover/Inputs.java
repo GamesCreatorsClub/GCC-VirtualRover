@@ -12,8 +12,6 @@ public class Inputs {
     private boolean rotateUp = false;
     private boolean rotateDown = false;
 
-    private boolean straightenWheels = false;
-    private boolean slantWheels = false;
 
     public static Inputs create() {
         return new Inputs();
@@ -93,23 +91,5 @@ public class Inputs {
     public Inputs rotateDown(boolean rotateDown) {
         this.rotateDown = rotateDown;
         return this;
-    }
-
-    public Inputs straightenWheels(boolean straightenWheels) {
-        this.straightenWheels = straightenWheels;
-        return this;
-    }
-
-    public boolean straightenWheels() {
-        return straightenWheels;
-    }
-
-    public Inputs slantWheels(boolean slantWheels) {
-        this.slantWheels = slantWheels;
-        return this;
-    }
-
-    public boolean slantWheels() {
-        return slantWheels;
     }
 }
