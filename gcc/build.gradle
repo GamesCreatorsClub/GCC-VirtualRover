@@ -1,29 +1,29 @@
 buildscript {
+
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.0'
+        classpath 'org.wisepersist:gwt-gradle-plugin:1.0.9'
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.7'
     }
 }
 
 allprojects {
-    apply plugin: "eclipse"
-    apply plugin: "idea"
-    apply plugin: "maven"
 
     group = 'org.ah.gcc.virtualrover.client'
     version = '1.0'
     ext {
-        appName = "gcc-ap-display"
-        gdxVersionRPi = '1.9.11.rpi-SNAPSHOT'
+        appName = "gcc-virtual-rover"
+        gdxVersion = '1.9.11.rpi-SNAPSHOT'
         gdxVersionForczyzby = '1.9.6'
-        roboVMVersion = '2.3.0'
+        roboVMVersion = '2.3.7'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
@@ -35,6 +35,8 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        jcenter()
+        google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url "https://raw.githubusercontent.com/natdan/libgdx/mvn-repo" }
@@ -43,16 +45,15 @@ allprojects {
 }
 
 project(":desktop") {
-    apply plugin: "java"
+    apply plugin: "java-library"
 
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersionRPi"
-        compile "com.badlogicgames.gdx:gdx-backend-jogamp:$gdxVersionRPi"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-desktop"
-        compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-desktop"
-        compile "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-desktop"
+        implementation project(":core")
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-backend-jogamp:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
     }
 }
 
@@ -62,78 +63,71 @@ project(":android") {
     configurations { natives }
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-android:$gdxVersionRPi"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-x86_64"
-        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersionRPi"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-x86_64"
-        compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersionRPi"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-armeabi"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-x86_64"
+        implementation project(":core")
+        api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi"
+        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
+        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
+        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
+        natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
     }
 }
 
 project(":ios") {
-    apply plugin: "java"
+    apply plugin: "java-library"
     apply plugin: "robovm"
 
 
     dependencies {
-        compile project(":core")
-        compile "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
-        compile "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
-        compile "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersionRPi"
-        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersionRPi:natives-ios"
-        compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersionRPi:natives-ios"
-        compile "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersionRPi:natives-ios"
+        implementation project(":core")
+        api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
+        api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
+        api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
+        api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-ios"
     }
 }
 
 project(":html") {
+    apply plugin: "java-library"
     apply plugin: "gwt"
     apply plugin: "war"
 
 
     dependencies {
-        compile project(":core")
-        compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersionRPi"
-        compile "com.badlogicgames.gdx:gdx:$gdxVersionRPi:sources"
-        compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersionRPi:sources"
-        compile "org.ah.themvsus:engine-common:$themvsusVersion:sources"
-        compile "org.ah.themvsus:engine-client:$themvsusVersion:sources"
-        compile "org.ah.gcc.virtualrover:gcc-common:$gccVersion:sources"
-        compile "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersionForczyzby"
-        compile "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
-        compile "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersionForczyzby"
-        compile "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
-        compile "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersionForczyzby"
-        compile "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
+        implementation project(":core")
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
+        api "org.ah.themvsus:engine-common:$themvsusVersion:sources"
+        api "org.ah.themvsus:engine-client:$themvsusVersion:sources"
+        api "org.ah.gcc.virtualrover:gcc-common:$gccVersion:sources"
+        api "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersionForczyzby"
+        api "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
+        api "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersionForczyzby"
+        api "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
+        api "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersionForczyzby"
+        api "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
     }
 }
 
 project(":core") {
-    apply plugin: "java"
+    apply plugin: "java-library"
 
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx:$gdxVersionRPi"
-        compile "org.ah.themvsus:engine-common:$themvsusVersion"
-        compile "org.ah.themvsus:engine-client:$themvsusVersion"
-        compile "org.ah.gcc.virtualrover:gcc-common:$gccVersion"
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        api "org.ah.themvsus:engine-common:$themvsusVersion"
+        api "org.ah.themvsus:engine-client:$themvsusVersion"
+        api "org.ah.gcc.virtualrover:gcc-common:$gccVersion"
     }
-}
-
-tasks.eclipse.doLast {
-    delete ".project"
 }
