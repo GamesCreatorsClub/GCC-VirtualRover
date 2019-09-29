@@ -59,10 +59,10 @@ public class GCCRoverRunServer {
             String path = exchange.getRequestURI().getPath();
             File file = new File(dir, path);
 
-            if (!file.exists()) {
-                exchange.sendResponseHeaders(404, 0);
-                exchange.close();
-            } else if (file.isDirectory()) {
+//            if (!file.exists()) {
+//                exchange.sendResponseHeaders(404, 0);
+//                exchange.close();
+            if (file.isDirectory()) {
                 File index = new File(file, "index.html");
                 if (!index.exists()) {
                     StringWriter res = new StringWriter();
@@ -77,30 +77,48 @@ public class GCCRoverRunServer {
                     os.write(response.toString().getBytes());
                     os.close();
                 } else {
-                    sendFile(exchange, index);
+                    if (path.endsWith("/")) {
+                        path = path + "index.html";
+                    } else {
+                        path = path + "/index.html";
+                    }
+                    sendFile(exchange, path);
                 }
             } else {
-                sendFile(exchange, file);
+                sendFile(exchange, path);
             }
         }
 
-        private void sendFile(HttpExchange exchange, File file) throws IOException {
-            exchange.sendResponseHeaders(200, file.length());
-//            exchange.sendResponseHeaders(200, 0);
-            OutputStream os = exchange.getResponseBody();
-            FileInputStream fis = new FileInputStream(file);
-            try {
-                byte[] buffer = new byte[10240];
-                int r = fis.read(buffer);
-                while (r > 0) {
-                    os.write(buffer, 0, r);
-                    r = fis.read(buffer);
-                }
-            } finally {
-                fis.close();
+        private void sendFile(HttpExchange exchange, String path) throws IOException {
+            if (path.startsWith("/")) {
+                path = path.substring(1);
             }
-            os.close();
-//            exchange.close();
+            File file = new File(dir, path);
+            boolean exists = file.exists();
+            if (!exists && path.startsWith("html/")) {
+                file = new File(dir.getParentFile(), "build/gwt/out/" + path);
+                exists = file.exists();
+            }
+            if (!exists) {
+                System.out.println("Cannot find " + path + "; file=" + file.getAbsolutePath());
+                exchange.sendResponseHeaders(404, 0);
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(200, file.length());
+                OutputStream os = exchange.getResponseBody();
+                FileInputStream fis = new FileInputStream(file);
+                try {
+                    byte[] buffer = new byte[10240];
+                    int r = fis.read(buffer);
+                    while (r > 0) {
+                        os.write(buffer, 0, r);
+                        r = fis.read(buffer);
+                    }
+                } finally {
+                    fis.close();
+                }
+                os.close();
+            }
         }
 
         private String makePath(String path, String file) {
