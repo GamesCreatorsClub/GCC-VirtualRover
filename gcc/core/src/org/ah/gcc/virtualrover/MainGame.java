@@ -367,7 +367,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
             Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-            if (renderBackground) {
+            if (false && renderBackground) {
                 renderContext.begin();
                 shader.begin(camera, renderContext);
                 shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
