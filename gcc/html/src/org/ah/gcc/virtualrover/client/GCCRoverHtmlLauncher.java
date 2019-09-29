@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.client;
 
+import com.google.gwt.user.client.Window;
 import org.ah.gcc.virtualrover.MainGame;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -22,51 +23,58 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class GCCRoverHtmlLauncher extends GwtApplication {
 
+    private static final int PADDING = 0;
+    private GwtApplicationConfiguration cfg;
+
     private MainGame gccRoverDisplay;
-    private GwtApplicationConfiguration config;
 
     @Override
     public GwtApplicationConfiguration getConfig() {
-        int height = com.google.gwt.user.client.Window.getClientHeight();
-        int width = com.google.gwt.user.client.Window.getClientWidth();
+        int w = Window.getClientWidth() - PADDING;
+        int h = Window.getClientHeight() - PADDING;
+        cfg = new GwtApplicationConfiguration(w, h);
+        Window.enableScrolling(false);
+        Window.setMargin("0");
+        Window.addResizeHandler(new ResizeListener());
+        cfg.preferFlash = false;
+        return cfg;
+    }
 
-        gccRoverDisplay.resize(width, height);
-
-        com.google.gwt.user.client.Window.enableScrolling(false);
-        com.google.gwt.user.client.Window.setMargin("0");
-
-        config = new GwtApplicationConfiguration(width, height);
-        return config;
+    class ResizeListener implements ResizeHandler {
+        @Override
+        public void onResize(ResizeEvent event) {
+            int width = event.getWidth() - PADDING;
+            int height = event.getHeight() - PADDING;
+            getRootPanel().setWidth("" + width + "px");
+            getRootPanel().setHeight("" + height + "px");
+            getApplicationListener().resize(width, height);
+            Gdx.graphics.setWindowedMode(width, height);
+        }
     }
 
     @Override
     public ApplicationListener getApplicationListener() {
-        // littlePlanets = new LittlePlanets();
         return gccRoverDisplay;
     }
 
-    @Override
-    public void onModuleLoad() {
-        super.onModuleLoad();
-        com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-                int width = event.getWidth();
-                int height = event.getHeight();
-                // Gdx.graphics.setDisplayMode(width, height, false);
-                // Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-                Gdx.gl.glViewport(0, 0, width, height);
-                gccRoverDisplay.resize(width, height);
-
-                com.google.gwt.user.client.Window.scrollTo((config.width - width) / 2, (config.height - height) / 2);
-
-                // Gdx.graphics.setDisplayMode(ev.getWidth(), ev.getHeight(), false);
-            }
-        });
-    }
 //    @Override
-//    public GwtApplicationConfiguration getConfig() {
-//        return new GwtApplicationConfiguration(480, 320);
+//    public void onModuleLoad() {
+//        super.onModuleLoad();
+//        com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
+//            @Override
+//            public void onResize(ResizeEvent event) {
+//                int width = event.getWidth();
+//                int height = event.getHeight();
+//                // Gdx.graphics.setDisplayMode(width, height, false);
+//                // Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+//                Gdx.gl.glViewport(0, 0, width, height);
+//                gccRoverDisplay.resize(width, height);
+//
+//                com.google.gwt.user.client.Window.scrollTo((cfg.width - width) / 2, (cfg.height - height) / 2);
+//
+//                // Gdx.graphics.setDisplayMode(ev.getWidth(), ev.getHeight(), false);
+//            }
+//        });
 //    }
 
     @Override
@@ -97,17 +105,15 @@ public class GCCRoverHtmlLauncher extends GwtApplication {
         preloaderPanel.add(meterPanel);
         getRootPanel().add(preloaderPanel);
         return new PreloaderCallback() {
-
-                @Override
-                public void error (String file) {
+            @Override
+            public void error (String file) {
                         System.out.println("error: " + file);
                 }
 
-                @Override
-                public void update (PreloaderState state) {
+            @Override
+            public void update (PreloaderState state) {
                         meterStyle.setWidth(100f * state.getProgress(), Unit.PCT);
                 }
-
         };
    }
 }
