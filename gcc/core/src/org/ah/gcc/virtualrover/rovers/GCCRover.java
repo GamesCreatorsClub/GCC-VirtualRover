@@ -1,4 +1,4 @@
-package org.ah.gcc.virtualrover;
+package org.ah.gcc.virtualrover.rovers;
 
 import java.util.NoSuchElementException;
 
@@ -7,20 +7,19 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import org.ah.gcc.virtualrover.*;
 
 public class GCCRover extends AbstractRover {
     public ModelInstance body;
 
-    public GCCRoverWheel fr;
-    public GCCRoverWheel br;
-    public GCCRoverWheel bl;
-
-    public GCCRoverWheel fl;
+    private GCCRoverWheel fr;
+    private GCCRoverWheel br;
+    private GCCRoverWheel bl;
+    private GCCRoverWheel fl;
 
     private ModelInstance top;
 
@@ -33,6 +32,8 @@ public class GCCRover extends AbstractRover {
     private Vector3 backright = new Vector3();
     private Vector3 frontleft = new Vector3();
     private Vector3 frontright = new Vector3();
+
+    private Matrix4 nextPos = new Matrix4();
 
     public GCCRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, modelFactory, colour);
@@ -52,39 +53,39 @@ public class GCCRover extends AbstractRover {
     }
 
     @Override
-    public void processInput(Inputs i) {
+    public void processInput(Inputs i, Rover[] rovers) {
         if (i.moveUp()) {
             if (i.rotateLeft()) {
-                steer(5);
+                testAndMove(steer(5), rovers);
             } else if (i.rotateRight()) {
-                steer(-5);
+                testAndMove(steer(-5), rovers);
             } else if (i.moveLeft()) {
-                drive(-1.7f, 135);
+                testAndMove(drive(-1.7f, 135), rovers);
             } else if (i.moveRight()) {
-                drive(-1.7f, 45);
+                testAndMove(drive(-1.7f, 45), rovers);
             } else {
-                drive(-3, 0);
+                testAndMove(drive(-3, 0), rovers);
             }
         } else if (i.moveDown()) {
             if (i.rotateLeft()) {
-                steerBack(5);
+                testAndMove(steerBack(5), rovers);
             } else if (i.rotateRight()) {
-                steerBack(-5);
+                testAndMove(steerBack(-5), rovers);
             } else if (i.moveLeft()) {
-                drive(1.7f, 45);
+                testAndMove(drive(1.7f, 45), rovers);
             } else if (i.moveRight()) {
-                drive(1.7f, 135);
+                testAndMove(drive(1.7f, 135), rovers);
             } else {
-                drive(3, 0);
+                testAndMove(drive(3, 0), rovers);
             }
         } else if (i.moveLeft()) {
-            drive(3, 90);
+            testAndMove(drive(3, 90), rovers);
         } else if (i.moveRight()) {
-            drive(-3, 90);
+            testAndMove(drive(-3, 90), rovers);
         } else if (i.rotateLeft()) {
-            rotate(3);
+            testAndMove(rotate(3), rovers);
         } else if (i.rotateRight()) {
-            rotate(-3);
+            testAndMove(rotate(-3), rovers);
         } else {
             stop();
         }
@@ -92,7 +93,6 @@ public class GCCRover extends AbstractRover {
 
     @Override
     public void update() {
-        balloonPeriod++;
         fr.getTransform().set(transform);
         fl.getTransform().set(transform);
         br.getTransform().set(transform);
@@ -115,10 +115,7 @@ public class GCCRover extends AbstractRover {
         top.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.scale(0.16f, 0.16f, 0.16f);
 
-        updatePiNoon();
-        updateBalloons();
-        checkForBalloonPopped();
-        updateMarkerTransform();
+        super.update();
     }
 
     @Override
@@ -137,15 +134,7 @@ public class GCCRover extends AbstractRover {
         batch.render(body, environment);
     }
 
-    @Override
-    public boolean collidesWithRover(Matrix4 move, Rover rover) {
-        boolean collision = Intersector.overlapConvexPolygons(getPolygon(move), rover.getPolygon());
-
-        return collision;
-    }
-
-    public boolean collides(Matrix4 move) {
-        // box.set(t, t);
+    protected boolean collides(Matrix4 move, Rover[] rovers) {
         blm.set(move);
         frm.set(move);
         brm.set(move);
@@ -167,46 +156,34 @@ public class GCCRover extends AbstractRover {
             return true;
         }
 
-        for (Rover robot : robots) {
-            if (collidesWithRover(move, robot)) {
+        for (Rover rover : rovers) {
+            if (this != rover && collidesWithRover(move, rover)) {
                 return true;
             }
         }
         return false;
     }
 
-    public void straightenWheels() {
+    private void straightenWheels() {
         fl.setDegrees(0);
         fr.setDegrees(0);
         bl.setDegrees(0);
         br.setDegrees(0);
     }
 
-    public void slantWheels() {
+    private void slantWheels() {
         fl.setDegrees(-60);
         fr.setDegrees(60);
         bl.setDegrees(+60);
         br.setDegrees(-60);
     }
 
-    public void stop() {
+    private void stop() {
         setWheelSpeeds(0);
     }
 
-    public void drive(int speed) {
-        Matrix4 move = new Matrix4(transform);
-
-        straightenWheels();
-        setWheelSpeeds(speed);
-        move.translate(new Vector3(-speed, 0, 0));
-
-        if (!collides(move)) {
-            transform.set(move);
-        }
-    }
-
-    public void drive(float speed, int angle) {
-        Matrix4 t = new Matrix4(transform);
+    private Matrix4 drive(float speed, int angle) {
+        nextPos.set(transform);
 
         straightenWheels();
         setWheelSpeeds((int) speed);
@@ -220,50 +197,47 @@ public class GCCRover extends AbstractRover {
             bl.setDegrees(90);
             br.setDegrees(90);
 
-            t.translate(new Vector3(0, 0, speed));
+            nextPos.translate(new Vector3(0, 0, speed));
         } else if (angle == 45) {
             fl.setDegrees(135);
             fr.setDegrees(135);
             bl.setDegrees(135);
             br.setDegrees(135);
-            t.translate(new Vector3(speed, 0, speed));
 
+            nextPos.translate(new Vector3(speed, 0, speed));
         } else if (angle == 0) {
             fl.setDegrees(0);
             fr.setDegrees(0);
             bl.setDegrees(0);
             br.setDegrees(0);
-            t.translate(new Vector3(speed, 0, 0));
+
+            nextPos.translate(new Vector3(speed, 0, 0));
         } else if (angle == 135) {
             fl.setDegrees(180 + 45);
             fr.setDegrees(180 + 45);
             bl.setDegrees(180 + 45);
             br.setDegrees(180 + 45);
-            t.translate(new Vector3(speed, 0, -speed));
 
+            nextPos.translate(new Vector3(speed, 0, -speed));
         }
 
-        if (!collides(t)) {
-            transform.set(t);
-        } else {
-
-        }
+        return nextPos;
     }
 
-    public void rotate(float angle) {
-        Matrix4 t = new Matrix4(transform);
+    private Matrix4 rotate(float angle) {
+        nextPos.set(transform);
         float x = -12f;
         float y = 0;
         float z = 8f;
-        t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
+        nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
         slantWheels();
         setWheelSpeeds(3);
 
-        transform.set(t);
+        return nextPos;
     }
 
-    public void steer(int d) {
-        Matrix4 t = new Matrix4(transform);
+    private Matrix4 steer(int d) {
+        nextPos.set(transform);
 
         setWheelSpeeds(d);
 
@@ -275,7 +249,7 @@ public class GCCRover extends AbstractRover {
             float x = -12f;
             float y = 0;
             float z = -4f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
+            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
         } else {
             fl.setDegrees(360 - 45);
             fr.setDegrees(360 - 45);
@@ -284,15 +258,13 @@ public class GCCRover extends AbstractRover {
             float x = -12f;
             float y = 0;
             float z = 30f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
+            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
         }
-        if (!collides(t)) {
-            transform.set(t);
-        }
+        return nextPos;
     }
 
-    public void steerBack(int d) {
-        Matrix4 t = new Matrix4(transform);
+    private Matrix4 steerBack(int d) {
+        nextPos.set(transform);
 
         setWheelSpeeds(d);
 
@@ -304,7 +276,7 @@ public class GCCRover extends AbstractRover {
             float x = -12f;
             float y = 0;
             float z = -4f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
+            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
         } else {
             fl.setDegrees(360 - 45);
             fr.setDegrees(360 - 45);
@@ -313,14 +285,13 @@ public class GCCRover extends AbstractRover {
             float x = -12f;
             float y = 0;
             float z = 30f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
+            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
         }
-        if (!collides(t)) {
-            transform.set(t);
-        }
+
+        return nextPos;
     }
 
-    public void setWheelSpeeds(int speed) {
+    private void setWheelSpeeds(int speed) {
         fl.setSpeed(speed);
         fr.setSpeed(speed);
         bl.setSpeed(speed);

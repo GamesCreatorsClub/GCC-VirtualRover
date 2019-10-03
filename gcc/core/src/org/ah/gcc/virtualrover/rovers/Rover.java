@@ -1,13 +1,14 @@
-package org.ah.gcc.virtualrover;
+package org.ah.gcc.virtualrover.rovers;
 
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import org.ah.gcc.virtualrover.Inputs;
 
 public interface Rover {
-    void processInput(Inputs i);
+    void processInput(Inputs i, Rover[] rovers);
 
     void render(ModelBatch batch, Environment environment, boolean hasBalloons);
 
@@ -21,17 +22,9 @@ public interface Rover {
 
     void setId(int i);
 
-    void addOtherRover(Rover rover2);
+    void removeBalloons();
 
-    boolean hasBallon1();
+    void resetBalloons();
 
-    boolean hasBallon2();
-
-    boolean hasBallon3();
-
-    void hasBallon1(boolean b);
-
-    void hasBallon2(boolean b);
-
-    void hasBallon3(boolean b);
+    int checkIfBalloonsPopped(Vector2 robotSharpPoint);
 }

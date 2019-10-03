@@ -1,4 +1,4 @@
-package org.ah.gcc.virtualrover;
+package org.ah.gcc.virtualrover.rovers;
 
 import java.util.NoSuchElementException;
 
@@ -11,14 +11,15 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import org.ah.gcc.virtualrover.*;
 
 public class CBiSRover extends AbstractRover {
     public ModelInstance body;
 
-    public BigWheel fr;
-    public BigWheel br;
-    public BigWheel bl;
-    public BigWheel fl;
+    private BigWheel fr;
+    private BigWheel br;
+    private BigWheel bl;
+    private BigWheel fl;
 
     private static float ROVER_SCALE = 26;
 
@@ -32,13 +33,13 @@ public class CBiSRover extends AbstractRover {
     private Vector3 frontleft = new Vector3();
     private Vector3 frontright = new Vector3();
 
+    private Matrix4 nextPos = new Matrix4();
+
     public CBiSRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, modelFactory, colour);
 
         body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
         body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
-
-        marker.transform.scale(0.05f, 0.05f, 0.05f);
 
         fr = new BigWheel(modelFactory, 270, Color.YELLOW, ROVER_SCALE);
         fl = new BigWheel(modelFactory, 90, Color.YELLOW, ROVER_SCALE);
@@ -47,19 +48,19 @@ public class CBiSRover extends AbstractRover {
     }
 
     @Override
-    public void processInput(Inputs i) {
+    public void processInput(Inputs i, Rover[] rovers) {
         if (i.moveLeft()) {
-            rotate(3);
+            testAndMove(rotate(3), rovers);
         } else if (i.moveRight()) {
-            rotate(-3);
+            testAndMove(rotate(-3), rovers);
         } else if (i.moveUp()) {
-            drive(2.7f);
+            testAndMove(drive(2.7f), rovers);
         } else if (i.moveDown()) {
-            drive(-2.7f);
+            testAndMove(drive(-2.7f), rovers);
         } else if (i.rotateLeft()) {
-            rotate(3);
+            testAndMove(rotate(3), rovers);
         } else if (i.rotateRight()) {
-            rotate(-3);
+            testAndMove(rotate(-3), rovers);
         } else {
             stop();
         }
@@ -67,7 +68,6 @@ public class CBiSRover extends AbstractRover {
 
     @Override
     public void update() {
-        balloonPeriod++;
         fr.getTransform().set(transform);
         fl.getTransform().set(transform);
         br.getTransform().set(transform);
@@ -92,15 +92,11 @@ public class CBiSRover extends AbstractRover {
         body.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
 
-        updatePiNoon();
-        updateBalloons();
-        checkForBalloonPopped();
-        updateMarkerTransform();
+        super.update();
     }
 
     @Override
     public void render(ModelBatch batch, Environment environment, boolean hasBalloons) {
-        // update();
         bl.render(batch, environment);
         br.render(batch, environment);
         fl.render(batch, environment);
@@ -112,8 +108,7 @@ public class CBiSRover extends AbstractRover {
         batch.render(body, environment);
     }
 
-    public boolean collides(Matrix4 move) {
-        // box.set(t, t);
+    protected boolean collides(Matrix4 move, Rover[] rovers) {
         blm.set(move);
         frm.set(move);
         brm.set(move);
@@ -135,83 +130,39 @@ public class CBiSRover extends AbstractRover {
             return true;
         }
 
-        for (Rover robot : robots) {
-            if (collidesWithRover(move, robot)) {
+        for (Rover rover : rovers) {
+            if (this != rover && collidesWithRover(move, rover)) {
                 return true;
             }
         }
         return false;
     }
 
-    public void stop() {
+    private void stop() {
         setWheelSpeeds(0);
     }
 
-    public void drive(float f) {
-        Matrix4 move = new Matrix4(transform);
+    private Matrix4 drive(float f) {
+        nextPos.set(transform);
 
         setWheelSpeeds(f);
-        move.translate(new Vector3(-f, 0, 0));
+        nextPos.translate(new Vector3(-f, 0, 0));
 
-        if (!collides(move)) {
-            transform.set(move);
-        }
+        return nextPos;
     }
 
-    public void rotate(float angle) {
-        Matrix4 t = new Matrix4(transform);
+    private Matrix4 rotate(float angle) {
+        nextPos.set(transform);
         float x = -12f;
         float y = 0;
         float z = 8f;
-        t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
+        nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
         setWheelSpeeds(3);
 
-        transform.set(t);
+        return nextPos;
     }
 
-    public void steer(int d) {
-        Matrix4 t = new Matrix4(transform);
-
-        setWheelSpeeds(d);
-
-        if (d > 0) {
-            float x = -12f;
-            float y = 0;
-            float z = -4f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
-        } else {
-            float x = -12f;
-            float y = 0;
-            float z = 30f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
-        }
-        if (!collides(t)) {
-            transform.set(t);
-        }
-    }
-
-    public void steerBack(int d) {
-        Matrix4 t = new Matrix4(transform);
-
-        setWheelSpeeds(d);
-
-        if (d > 0) {
-            float x = -12f;
-            float y = 0;
-            float z = -4f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
-        } else {
-            float x = -12f;
-            float y = 0;
-            float z = 30f;
-            t.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
-        }
-        if (!collides(t)) {
-            transform.set(t);
-        }
-    }
-
-    public void setWheelSpeeds(float f) {
+    private void setWheelSpeeds(float f) {
         fl.setSpeed((int) f);
         fr.setSpeed((int) f);
         bl.setSpeed((int) f);
@@ -237,8 +188,7 @@ public class CBiSRover extends AbstractRover {
         frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
         frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
 
-        Polygon poly = new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
-        return poly;
+        return new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
     }
 
     @Override

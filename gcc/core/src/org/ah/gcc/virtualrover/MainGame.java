@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
+import org.ah.gcc.virtualrover.rovers.AbstractRover;
+import org.ah.gcc.virtualrover.rovers.CBiSRover;
+import org.ah.gcc.virtualrover.rovers.GCCRover;
+import org.ah.gcc.virtualrover.rovers.Rover;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
@@ -67,6 +71,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private enum GameState {
         MENU, SELECTION, GAME, BREAK, END
     }
+
     private enum RoverType {
         GCC(0, "GCC Rover"), CBIS(1, "CBiS-Education");
 
@@ -119,6 +124,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     private Rover rover1;
     private Rover rover2;
+    private Rover[] rovers;
 
     private int cameratype = 3;
 
@@ -361,7 +367,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
             Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-            if (false && renderBackground) {
+            if (renderBackground) {
                 renderContext.begin();
                 shader.begin(camera, renderContext);
                 shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
@@ -380,13 +386,13 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
 
-                rover1.render(batch, environment, currentState == GameState.GAME);
-                rover2.render(batch, environment, currentState == GameState.GAME);
+                rover1.render(batch, environment, true); // currentState == GameState.GAME);
+                rover2.render(batch, environment, true); // currentState == GameState.GAME);
 
                 rover1.update();
-                rover1.processInput(rover1Inputs);
+                rover1.processInput(rover1Inputs, rovers);
                 rover2.update();
-                rover2.processInput(rover2Inputs);
+                rover2.processInput(rover2Inputs, rovers);
 
                 if (currentState == GameState.BREAK) {
                     if (breakTime < 0) {
@@ -413,17 +419,17 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             if (currentState == GameState.SELECTION) {
                 font.draw(spriteBatch, playerSelection1.getName(), margin, Gdx.graphics.getHeight() / 2 + margin);
                 font.draw(spriteBatch, playerSelection2.getName(), margin + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-                if (Math.floor(a / 20) % 2 == 0) {
+                if (Math.floor(a / 20.0) % 2 == 0) {
                     font.draw(spriteBatch, "Press space to begin", margin, margin);
                 }
 
             } else if (currentState == GameState.MENU) {
-                if (Math.floor(a / 20) % 2 == 0) {
+                if (Math.floor(a / 20.0) % 2 == 0) {
                     font.draw(spriteBatch, "Press space to start", margin, margin * 2);
                 }
             } else if (currentState == GameState.END) {
                 font.draw(spriteBatch, winner + " wins! " + player1score + " - " + player2score, margin, margin + 40);
-                if (Math.floor(a / 20) % 2 == 0) {
+                if (Math.floor(a / 20.0) % 2 == 0) {
                     font.draw(spriteBatch, "Press space to return to menu!", margin, margin * 2);
                 }
 
@@ -449,11 +455,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 }
 
                 boolean end = false;
-                if (!rover1.hasBallon1() && !rover1.hasBallon2() && !rover1.hasBallon3()) {
+                if (rover1.checkIfBalloonsPopped(rover2.sharpPoint()) == 0) {
                     end = true;
                     player1score++;
                     winner = "Green";
-                } else if (!rover2.hasBallon1() && !rover2.hasBallon2() && !rover2.hasBallon3()) {
+                } else if (rover2.checkIfBalloonsPopped(rover1.sharpPoint()) == 0) {
                     end = true;
                     player2score++;
                     winner = "Blue";
@@ -517,9 +523,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 Gdx.input.setInputProcessor(this);
             } else {
                 Gdx.input.setInputProcessor(cameraInputMultiplexer);
-
             }
-
         }
         if (currentState == GameState.SELECTION) {
 
@@ -550,19 +554,15 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 rover2.getTransform().scale(SCALE, SCALE, SCALE);
                 rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
                 rover2.update();
-                rover1.addOtherRover(rover2);
-                rover2.addOtherRover(rover1);
                 rover2.setId(2);
+
+                rovers = new Rover[]{ rover1, rover2 };
 
                 resetRobots();
 
-                rover1.hasBallon1(false);
-                rover1.hasBallon2(false);
-                rover1.hasBallon3(false);
+                rover1.removeBalloons();
 
-                rover2.hasBallon1(false);
-                rover2.hasBallon2(false);
-                rover2.hasBallon3(false);
+                rover2.removeBalloons();
 
                 player1score = 0;
                 player2score = 0;
@@ -677,20 +677,21 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     }
 
     public void resetRobots() {
-        rover1.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
+        rover1.getTransform().idt();
+        rover1.getTransform().setTranslation(160 * SCALE, 0, 160 * SCALE);
+        rover1.getTransform().scale(SCALE, SCALE, SCALE);
+        rover1.getTransform().rotate(new Vector3(0, 1, 0), -45);
         rover1.update();
 
-        rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
+        rover2.getTransform().idt();
+        rover2.getTransform().setTranslation(-160 * SCALE, 0, -160 * SCALE);
+        rover2.getTransform().scale(SCALE, SCALE, SCALE);
+        rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
         rover2.update();
         rover2.setId(2);
 
-        rover1.hasBallon1(true);
-        rover1.hasBallon2(true);
-        rover1.hasBallon3(true);
-
-        rover2.hasBallon1(true);
-        rover2.hasBallon2(true);
-        rover2.hasBallon3(true);
+        rover1.resetBalloons();
+        rover2.resetBalloons();
     }
 
     @Override
