@@ -110,14 +110,14 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     }
 
-    public RoverType playerSelection1 = RoverType.GCC;
-    public RoverType playerSelection2 = RoverType.CBIS;
-    public int player1score = 0;
-    public int player2score = 0;
+    private RoverType playerSelection1 = RoverType.GCC;
+    private RoverType playerSelection2 = RoverType.CBIS;
+    private int player1score = 0;
+    private int player2score = 0;
 
-    public GameState currentState = GameState.MENU;
+    private GameState currentState = GameState.MENU;
 
-    public Array<ModelInstance> instances;
+    private Array<ModelInstance> instances;
 
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
@@ -127,7 +127,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private Rover[] rovers;
 
     private int cameratype = 3;
-
 
     private List<BoundingBox> boxes;
 

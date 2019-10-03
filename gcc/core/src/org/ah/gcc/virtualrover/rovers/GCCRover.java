@@ -298,13 +298,6 @@ public class GCCRover extends AbstractRover {
         br.setSpeed(speed);
     }
 
-    public BoundingBox getBoundingBox() {
-        BoundingBox box = new BoundingBox();
-        body.calculateBoundingBox(box);
-        box.mul(transform);
-        return box;
-    }
-
     @Override
     public Polygon getPolygon(Matrix4 move) {
         blm.set(move);

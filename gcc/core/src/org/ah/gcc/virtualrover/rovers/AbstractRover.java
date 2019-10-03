@@ -33,7 +33,7 @@ public abstract class AbstractRover implements Rover {
 
     protected Balloons balloons;
 
-    public AbstractRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+    protected AbstractRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         this.name = name;
         this.colour = colour;
 
