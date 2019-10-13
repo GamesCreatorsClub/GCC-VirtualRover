@@ -13,7 +13,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <gdxVersion>1.9.6</gdxVersion>
+    <gdxVersion>1.9.11.rpi-SNAPSHOT</gdxVersion>
     <gdxWebSocketsVersion>1.9</gdxWebSocketsVersion>
   </properties>
   <dependencies>

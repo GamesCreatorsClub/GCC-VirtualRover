@@ -45,6 +45,7 @@ allprojects {
 }
 
 project(":desktop") {
+    apply plugin: "maven"
     apply plugin: "java-library"
 
 
@@ -120,6 +121,7 @@ project(":html") {
 }
 
 project(":core") {
+    apply plugin: "maven"
     apply plugin: "java-library"
 
 
