@@ -1,7 +1,5 @@
 package org.ah.gcc.virtualrover.desktop;
 
-//import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-//import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.PlatformSpecific;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplication;
@@ -18,41 +16,25 @@ public class GCCRoverDesktopLauncherJOGL {
         // To get /dev/dsp
         //
         //
-        //
-        //
-        //
-        //
-        //
 
-//        LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        // config.width = 320;
-        // config.height = 256;
+        Parameters parameters = new Parameters();
+        parameters.parseArgs(args);
 
-//        config.width = 1440;
-//        config.height = 960;
-//        new LwjglApplication(new MainGame(new DesktopPlatformSpecific()), config);
-
-        int width = 1440;
-        int height = 960;
-
-        if (args.length > 0) {
-            int i = args[0].indexOf("x");
-            if (i > 0) {
-                width = Integer.parseInt(args[0].substring(0, i));
-                height = Integer.parseInt(args[0].substring(i + 1));
-            }
-        }
-
-        System.out.println("Setting up display as " + width + "x" + height);
-        System.out.println("Use <width>x<height> as parameter to change it");
+        System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
+        System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");
 
         JoglNewtApplicationConfiguration config = new JoglNewtApplicationConfiguration();
         config.useGL30 = true;
-        config.width = width;
-        config.height = height;
-        config.x = 0;
-        config.y = 0;
-        new JoglNewtApplication(new MainGame(new DesktopPlatformSpecific()), config);
+        config.x = parameters.getX();
+        config.y = parameters.getY();
+        config.width = parameters.getWidth();
+        config.height = parameters.getHeight();
+        config.undecorated = parameters.isUndecorated();
+
+        DesktopPlatformSpecific desktopSpecific = new DesktopPlatformSpecific();
+        desktopSpecific.setHasSound(parameters.hasSound());
+
+        new JoglNewtApplication(new MainGame(desktopSpecific), config);
 
     }
 }
