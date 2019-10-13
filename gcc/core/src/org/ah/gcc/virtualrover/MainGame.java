@@ -165,6 +165,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     private Sound ready1;
     private Sound fight1;
+    private boolean readySoundPlayed = false;
+    private boolean fightSoundPlayed = false;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -193,9 +195,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
-        // camera.rotateAround(new Vector3(0,0,0), new Vector3(0,1,0), -45);
-//        camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(1f, 0f, 0f), 165f);
-        // camera.rotateAround(new Vector3(0f, 0f, 0f), new Vector3(0f, 1f, 0f), 85f);
         camera.lookAt(0f, 0f, 0f);
 
         camera.near = 0.02f;
@@ -212,21 +211,10 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
         instances = new Array<ModelInstance>();
 
-        // tpModel = modelFactory.loadModel("model.g3db");
-        // try {
-        // roverModel = modelFactory.getBaloon();
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        //
-        // wheel = new GCCRoverWheel(modelFactory, 90, Color.GREEN);
-
-        // backgroundShaderProgram = new ShaderProgram(Gdx.files.internal("rog.vs"), Gdx.files.internal("rog.fs"));
         backgroundMesh = createRect(0, 0, 120, 120);
         renderable = new Renderable();
         renderable.meshPart.mesh = backgroundMesh;
         renderable.meshPart.primitiveType = GL20.GL_TRIANGLES;
-        // renderable.meshPart.size = mesh.getNumVertices() * mesh.getVertexSize();
         renderable.meshPart.size = backgroundMesh.getNumIndices();
         renderable.material = null;
         renderable.worldTransform.idt();
@@ -238,8 +226,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         shader.init();
         if (!shader.program.isCompiled()) {
             Gdx.app.log("Shader error: ", shader.program.getLog());
-//            System.out.println("Shader error" + shader.program.getLog());
-            // System.exit(-1);
+            System.out.println("Shader error" + shader.program.getLog());
+            System.exit(-1);
         }
 
         renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
@@ -294,7 +282,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         console.addListener(this);
 
         console.setCamera(hudCamera);
-
 //        serverCommunicationAdapter.startEngine("arena");
     }
 
@@ -308,7 +295,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             a++;
 
             Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
-            // Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1f);
 
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
             Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
@@ -410,6 +396,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 if (currentState == GameState.BREAK) {
                     if (breakTime < 0) {
                         currentState = GameState.GAME;
+                        fightSoundPlayed = false;
                         resetRobots();
                     }
                 }
@@ -421,9 +408,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             spriteBatch.begin();
 
             spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
-
-//            font.draw(spriteBatch, Float.toString(distance) + ", " + Float.toString(pos1.x / SCALE) + ", " + Float.toString(pos1.z / SCALE),
-//                    Gdx.graphics.getWidth() - 1020, Gdx.graphics.getHeight() - 40);
 
             if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
                 font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
@@ -456,8 +440,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 } else if (breakTime < 120) {
                     font.draw(spriteBatch, "2", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
                 } else if (breakTime < 180) {
-                    if (platformSpecific.hasSound()) {
+                    if (platformSpecific.hasSound() && !readySoundPlayed) {
                         ready1.play();
+                        readySoundPlayed = true;
                     }
                     font.draw(spriteBatch, "3", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
                 } else if (breakTime < 240) {
@@ -468,8 +453,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
                 if (breakTime > -60) {
                     font.draw(spriteBatch, "GO!", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-                    if (platformSpecific.hasSound()) {
+                    if (platformSpecific.hasSound() && !fightSoundPlayed) {
                         fight1.play();
+                        fightSoundPlayed = true;
                     }
                 }
 
@@ -494,6 +480,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                     } else {
 
                         currentState = GameState.BREAK;
+                        readySoundPlayed = false;
                         breakTime = BREAK;
                     }
                 }
@@ -519,7 +506,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     @Override
     public void dispose() {
         batch.dispose();
-        // tpModel.dispose();
     }
 
     @Override
@@ -548,14 +534,12 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             if (keycode == Input.Keys.D) {
                 playerSelection1 = playerSelection1.getNext();
-//                System.out.println("next");
             } else if (keycode == Input.Keys.A) {
                 playerSelection1 = playerSelection1.getPrevious();
             }
 
             if (keycode == Input.Keys.L) {
                 playerSelection2 = playerSelection2.getNext();
-//                System.out.println("next");
             } else if (keycode == Input.Keys.J) {
                 playerSelection2 = playerSelection2.getPrevious();
             }
@@ -586,6 +570,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 player1score = 0;
                 player2score = 0;
                 currentState = GameState.BREAK;
+                readySoundPlayed = false;
                 breakTime = BREAK + 100;
                 winner = "NONE";
             }
@@ -679,7 +664,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         mesh.setVertices(new float[] { -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0, 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0,
                 1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 1, 1, -1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 0, 1 });
 
-        // mesh.setIndices(new short[] {0, 1, 2, 2, 3, 0});
         mesh.setIndices(new short[] { 2, 1, 0, 0, 3, 2 });
         return mesh;
     }
@@ -729,7 +713,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             console.info(ChatColor.INDIGO + "millis: " + ChatColor.GREEN + System.currentTimeMillis());
         } else {
             console.error("Unknow command, type /help for list");
-
         }
     }
 

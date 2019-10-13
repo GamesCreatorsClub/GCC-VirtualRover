@@ -10,7 +10,9 @@ import java.util.logging.Logger;
 
 import org.ah.gcc.virtualrover.PlatformSpecific.ServerCommunicationAdapterCreatedCallback;
 import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
-import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncher;
+import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncherJOGL;
+import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncherLWJGL;
+import org.ah.gcc.virtualrover.desktop.Parameters;
 import org.ah.gcc.virtualrover.server.engine.GCCServerEngineModule;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
 import org.ah.themvsus.engine.common.security.BCrypt;
@@ -136,19 +138,33 @@ public class StartGCCTestProject {
 
         startHeadlessClient("test1", "123");
         startHeadlessClient("test2", "123");
-        startHeadlessClient("test3", "123");
-        startHeadlessClient("test4", "123");
-        startHeadlessClient("test5", "123");
+//        startHeadlessClient("test3", "123");
+//        startHeadlessClient("test4", "123");
+//        startHeadlessClient("test5", "123");
 
-        GCCRoverDesktopLauncher.platformSpecific = new TestDesktopPlatformSpecific();
-        GCCRoverDesktopLauncher.main(args);
+        final boolean isArm = "arm".equals(System.getProperty("os.arch"));
+
+        Parameters parameters = new Parameters();
+        parameters.parseArgs(args);
+
+        TestDesktopPlatformSpecific desktopSpecific = new TestDesktopPlatformSpecific();
+        desktopSpecific.setHasSound(parameters.hasSound());
+
+        System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
+        System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");
+
+        if (isArm) {
+            GCCRoverDesktopLauncherJOGL.run(parameters, desktopSpecific);
+        } else {
+            GCCRoverDesktopLauncherLWJGL.run(parameters, desktopSpecific);
+        }
 
         logger.info("");
         logger.info("Setting up debug run...");
 
         logger.info("  Set server engine debug.");
         DEBUG.setServerEngine(serverEngineModule.getServerEngine());
-        GCCRoverDesktopLauncher.platformSpecific.setServerCommunicationAdapterCreatedCallback(new ServerCommunicationAdapterCreatedCallback() {
+        desktopSpecific.setServerCommunicationAdapterCreatedCallback(new ServerCommunicationAdapterCreatedCallback() {
             @Override public void created(ServerCommunicationAdapter serverCommunicationAdapter) {
                 serverCommunicationAdapter.addGameReadyCallback(new GameReadyCallback() {
                     @Override public void gameReady() {
@@ -172,9 +188,9 @@ public class StartGCCTestProject {
     private static void createTestAccounts(ThemVsUsSimpleFileRegistrationModule authenticationModule) {
         ensureUser(authenticationModule, "test1", "123");
         ensureUser(authenticationModule, "test2", "123");
-        ensureUser(authenticationModule, "test3", "123");
-        ensureUser(authenticationModule, "test4", "123");
-        ensureUser(authenticationModule, "test5", "123");
+//        ensureUser(authenticationModule, "test3", "123");
+//        ensureUser(authenticationModule, "test4", "123");
+//        ensureUser(authenticationModule, "test5", "123");
     }
 
     private static void ensureUser(ThemVsUsSimpleFileRegistrationModule authenticationModule, String alias, String pass) {

@@ -20,9 +20,16 @@ public class GCCRoverDesktopLauncherJOGL {
         Parameters parameters = new Parameters();
         parameters.parseArgs(args);
 
+        DesktopPlatformSpecific desktopSpecific = new DesktopPlatformSpecific();
+        desktopSpecific.setHasSound(parameters.hasSound());
+
         System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
         System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");
 
+        run(parameters, desktopSpecific);
+    }
+
+    public static void run(Parameters parameters, PlatformSpecific desktopSpecific) {
         JoglNewtApplicationConfiguration config = new JoglNewtApplicationConfiguration();
         config.useGL30 = true;
         config.x = parameters.getX();
@@ -30,9 +37,6 @@ public class GCCRoverDesktopLauncherJOGL {
         config.width = parameters.getWidth();
         config.height = parameters.getHeight();
         config.undecorated = parameters.isUndecorated();
-
-        DesktopPlatformSpecific desktopSpecific = new DesktopPlatformSpecific();
-        desktopSpecific.setHasSound(parameters.hasSound());
 
         new JoglNewtApplication(new MainGame(desktopSpecific), config);
 
