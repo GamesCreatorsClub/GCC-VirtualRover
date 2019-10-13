@@ -3,6 +3,7 @@ package org.ah.gcc.virtualrover;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.audio.Sound;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.rovers.AbstractRover;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
@@ -162,6 +163,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private Vector3 midpoint = new Vector3();
     private float distance;
 
+    private Sound ready1;
+    private Sound fight1;
+
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
     }
@@ -177,6 +181,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         assetManager.load("font/basic.fnt", BitmapFont.class);
         assetManager.load("font/copper18.fnt", BitmapFont.class);
         assetManager.load("GCC_full.png", Texture.class);
+
+        if (platformSpecific.hasSound()) {
+            assetManager.load("sounds/ready1.wav", Sound.class);
+            assetManager.load("sounds/fight1.wav", Sound.class);
+        }
 
         spriteBatch = new SpriteBatch();
         modelFactory = new ModelFactory();
@@ -272,6 +281,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         loadingAssets = false;
         font = assetManager.get("font/basic.fnt");
         gccLogo = assetManager.get("GCC_full.png");
+
+        if (platformSpecific.hasSound()) {
+            ready1 = assetManager.get("sounds/ready1.wav");
+            fight1 = assetManager.get("sounds/fight1.wav");
+        }
 
         console = new Console();
         console.raw("Welcome to PiWars Virtual PiNoon v.0.6");
@@ -442,6 +456,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 } else if (breakTime < 120) {
                     font.draw(spriteBatch, "2", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
                 } else if (breakTime < 180) {
+                    if (platformSpecific.hasSound()) {
+                        ready1.play();
+                    }
                     font.draw(spriteBatch, "3", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
                 } else if (breakTime < 240) {
                     font.draw(spriteBatch, "round " + (player1score + player2score + 1), Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
@@ -451,6 +468,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
                 if (breakTime > -60) {
                     font.draw(spriteBatch, "GO!", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+                    if (platformSpecific.hasSound()) {
+                        fight1.play();
+                    }
                 }
 
                 boolean end = false;

@@ -11,6 +11,7 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     private String preferredServerAddress;
     private int preferredServerPort;
     private ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback;
+    private boolean hasSound = true;
 
     @Override
     public void setPreferredServerDetails(String socketAddress, int port) {
@@ -70,5 +71,13 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     @Override
     public void setServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback) {
         this.serverCommunicationAdapterCreatedCallback = serverCommunicationAdapterCreatedCallback;
+    }
+
+    public void setHasSound(boolean hasSound) {
+        this.hasSound = hasSound;
+    }
+
+    public boolean hasSound() {
+        return this.hasSound;
     }
 }

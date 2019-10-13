@@ -27,6 +27,8 @@ public interface PlatformSpecific {
 
     boolean needOnScreenKeyboard();
 
+    boolean hasSound();
+
     void fireServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapter serverCommunicationAdapter);
 
     void setServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback);
