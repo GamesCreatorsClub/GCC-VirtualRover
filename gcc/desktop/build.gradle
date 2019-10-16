@@ -1,4 +1,5 @@
 apply plugin: "java"
+apply plugin: "maven"
 
 sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/" ]
@@ -36,3 +37,14 @@ task dist(type: Jar) {
 
 
 dist.dependsOn classes
+
+task createPom  {
+    pom {
+        project {
+            groupId 'org.ah.gcc.virtualrover'
+            artifactId 'desktop'
+            version '1.0.0-SNAPSHOT'
+
+        }
+    }.writeTo("pom.xml")
+}
