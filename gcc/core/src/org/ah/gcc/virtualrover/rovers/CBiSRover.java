@@ -75,11 +75,11 @@ public class CBiSRover extends AbstractRover {
 
         body.transform.set(transform);
 
-        fl.getTransform().translate(1f, -5.5f, 0f);
-        fr.getTransform().translate(0f, -5.5f, -20f);
+        fl.getTransform().translate(42f, -27f, 0f);
+        fr.getTransform().translate(20f, -30f, -145f);
 
-        bl.getTransform().translate(27f, -5.5f, 0f);
-        br.getTransform().translate(26f, -5.5f, -20f);
+        bl.getTransform().translate(180f, -27f, 0f);
+        br.getTransform().translate(155f, -27f, -145f);
 
         fr.update();
         fl.update();
@@ -87,7 +87,7 @@ public class CBiSRover extends AbstractRover {
         bl.update();
 
         body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
-        body.transform.translate(1.2f, -0.3f, 0f);
+        body.transform.translate(7.8f, -1.6f, 0f);
 
         // body.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
@@ -114,15 +114,15 @@ public class CBiSRover extends AbstractRover {
         brm.set(move);
         flm.set(move);
 
-        backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f), backleft);
-        backright = br.getPosition(brm.translate(24f, -5.5f, -15f), backright);
-        frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
+        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
+        backright = br.getPosition(brm.translate(160f, -36.7f, -100f), backright);
+        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
+        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -100f), frontright);
 
-        float maxX = 250 * MainGame.SCALE;
-        float maxZ = 210 * MainGame.SCALE;
-        float minX = -215 * MainGame.SCALE;
-        float minZ = -255 * MainGame.SCALE;
+        float maxX = 1000 * MainGame.SCALE;
+        float maxZ = 1000 * MainGame.SCALE;
+        float minX = -1000 * MainGame.SCALE;
+        float minZ = -1000 * MainGame.SCALE;
 
         if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
                 || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX
@@ -153,9 +153,9 @@ public class CBiSRover extends AbstractRover {
 
     private Matrix4 rotate(float angle) {
         nextPos.set(transform);
-        float x = -12f;
+        float x = -100f;
         float y = 0;
-        float z = 8f;
+        float z = 75f;
         nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
         setWheelSpeeds(3);
 
@@ -176,16 +176,16 @@ public class CBiSRover extends AbstractRover {
         brm.set(move);
         flm.set(move);
 
-        backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f), backleft);
-        backright = br.getPosition(brm.translate(24f, -5.5f, -15f), backright);
-        frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
+        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
+        backright = br.getPosition(brm.translate(160f, -36.7f, -100f), backright);
+        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
+        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -100f), frontright);
 
         return new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
     }
 
     @Override
     protected void translateSharpPoint(Matrix4 sharpPointMatrix) {
-        sharpPointMatrix.translate(-21f, 24f, -9f);
+        sharpPointMatrix.translate(-136.7f, 160f, -58.5f);
     }
 }

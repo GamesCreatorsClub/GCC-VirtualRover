@@ -100,19 +100,16 @@ public class GCCRover extends AbstractRover {
         top.transform.set(transform);
         body.transform.set(transform);
 
-        fl.getTransform().translate(1f, -5.5f, 0f);
-        fr.getTransform().translate(1f, -5.5f, -15f);
+        fl.getTransform().translate(25f, -36.7f, -10f);
+        fr.getTransform().translate(10f, -36.7f, -100f);
 
-        bl.getTransform().translate(24f, -5.5f, 0f);
-        br.getTransform().translate(24f, -5.5f, -15f);
+        bl.getTransform().translate(150f, -36.7f, -10f);
+        br.getTransform().translate(132f, -36.7f, -100f);
 
         fr.update();
         fl.update();
         br.update();
         bl.update();
-
-//        top.transform.scale(0.16f, 0.16f, 0.16f);
-//        body.transform.scale(0.16f, 0.16f, 0.16f);
 
         super.update();
     }
@@ -139,15 +136,15 @@ public class GCCRover extends AbstractRover {
         brm.set(move);
         flm.set(move);
 
-        backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f), backleft);
-        backright = br.getPosition(brm.translate(24f, -5.5f, -15f), backright);
-        frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
+        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
+        backright = br.getPosition(brm.translate(160f, -36.7f, -160f), backright);
+        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
+        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -160f), frontright);
 
-        float maxX = 250 * MainGame.SCALE;
-        float maxZ = 210 * MainGame.SCALE;
-        float minX = -215 * MainGame.SCALE;
-        float minZ = -255 * MainGame.SCALE;
+        float maxX = 1000 * MainGame.SCALE;
+        float maxZ = 1000 * MainGame.SCALE;
+        float minX = -1000 * MainGame.SCALE;
+        float minZ = -1000 * MainGame.SCALE;
 
         if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
                 || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX
@@ -225,9 +222,9 @@ public class GCCRover extends AbstractRover {
 
     private Matrix4 rotate(float angle) {
         nextPos.set(transform);
-        float x = -12f;
+        float x = -80f;
         float y = 0;
-        float z = 8f;
+        float z = 60f;
         nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
         slantWheels();
         setWheelSpeeds(3);
@@ -304,10 +301,10 @@ public class GCCRover extends AbstractRover {
         brm.set(move);
         flm.set(move);
 
-        backleft = bl.getPosition(blm.translate(24f, -5.5f, 0f), backleft);
-        backright = br.getPosition(brm.translate(24f, -5.5f, -15f), backright);
-        frontleft = fl.getPosition(flm.translate(1f, -5.5f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(1f, -5.5f, -15f), frontright);
+        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
+        backright = br.getPosition(brm.translate(160f, -36.7f, -100f), backright);
+        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
+        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -100f), frontright);
 
         Polygon poly = new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
         return poly;
@@ -315,7 +312,6 @@ public class GCCRover extends AbstractRover {
 
     @Override
     protected void translateSharpPoint(Matrix4 sharpPointMatrix) {
-        sharpPointMatrix.translate(-21f, 24f, -9f);
+        sharpPointMatrix.translate(-136.6f, 160f, -58.5f);
     }
-
 }

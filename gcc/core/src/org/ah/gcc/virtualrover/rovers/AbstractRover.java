@@ -20,7 +20,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
-import org.ah.gcc.virtualrover.rovers.Rover;
 
 public abstract class AbstractRover implements Rover {
 

@@ -56,7 +56,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     public static final long BREAK = 300;
     public static final boolean SHOW_MARKER = true;
-    public static final float SCALE = 0.01f;
+    public static final float SCALE = 0.0015f;
 
     private ModelBatch batch;
     private PerspectiveCamera camera;
@@ -212,19 +212,17 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         Model arenaModel = modelFactory.loadModel("arena.obj");
 
         ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.translate(-200 * SCALE, -12 * SCALE, -200 * SCALE);
-        // arena.transform.scale(0.16f, 0.16f, 0.16f);
-        arena.transform.scale(SCALE, SCALE, SCALE);
+        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
         arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
         instances.add(arena);
 
         boxes = new ArrayList<BoundingBox>();
         float wallWidth = 0.1f;
-        boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3(200 * SCALE, 10 * SCALE, (-200 + wallWidth) * SCALE)));
-        boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, 200 * SCALE), new Vector3(200 * SCALE, 10 * SCALE, (200 - wallWidth) * SCALE)));
+        boxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3(1000 * SCALE, 100 * SCALE, (-1000 + wallWidth) * SCALE)));
+        boxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, 1000 * SCALE), new Vector3(1000 * SCALE, 100 * SCALE, (1000 - wallWidth) * SCALE)));
 
-        boxes.add(new BoundingBox(new Vector3(-200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((-200 + wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
-        boxes.add(new BoundingBox(new Vector3(200 * SCALE, 10 * SCALE, -200 * SCALE), new Vector3((200 - wallWidth) * SCALE, 10 * SCALE, 200 * SCALE)));
+        boxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((-1000 + wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
+        boxes.add(new BoundingBox(new Vector3(1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((1000 - wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -285,6 +283,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
                 camera.lookAt(pos1);
                 camera.up.set(new Vector3(0, 1, 0));
+                camera.fieldOfView = 45;
 
             } else if (cameratype == 1) {
                 pos1 = rover1.getTransform().getTranslation(pos1);
@@ -304,8 +303,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             } else if (cameratype == 2) {
                 pos1 = rover1.getTransform().getTranslation(pos1);
                 camera.lookAt(pos1);
-                camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+                camera.position.set(1500f * SCALE, 2400f * SCALE, 1500f * SCALE);
                 camera.up.set(new Vector3(0, 1, 0));
+                camera.fieldOfView = 120f;
             } else if (cameratype == 3) {
                 float distanceBetweeRovers = 0f;
                 distance = 450f;
@@ -314,15 +314,16 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                     pos2 = rover2.getTransform().getTranslation(pos2);
                     distanceBetweeRovers = pos1.dst(pos2);
                     midpoint.set(pos1).add(pos2).scl(0.5f);
-                    distance = (-midpoint.dst(300f * SCALE, 0f, -300f * SCALE)) / SCALE;
-                    distance = (distanceBetweeRovers) / SCALE;
-                    distance = 350f + (distanceBetweeRovers * 0.5f - midpoint.dst(300f * SCALE, 0f, -300f * SCALE) * 0.6f) / SCALE;
+                    // distance = (-midpoint.dst(300f * SCALE, 0f, -300f * SCALE)) / SCALE;
+                    // distance = (distanceBetweeRovers) / SCALE;
+                    distance = 350f + (distanceBetweeRovers * 0.5f - midpoint.dst(1500f * SCALE, 0f, -1500f * SCALE) * 0.6f) / SCALE;
                 } else {
                     pos1.set(0f, 0f, 0f);
                 }
                 camera.lookAt(midpoint);
-                camera.position.set(distance * SCALE, (200f + distanceBetweeRovers * 40f) * SCALE, -distance * SCALE);
+                camera.position.set(distance * SCALE, (1000f + distanceBetweeRovers * 200f) * SCALE, -distance * SCALE);
                 camera.up.set(new Vector3(0, 1, 0));
+                camera.fieldOfView = 45;
             }
 
             rover2Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
@@ -355,13 +356,13 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
 
+                rover1.processInput(rover1Inputs, rovers);
+                rover1.update();
+                rover2.processInput(rover2Inputs, rovers);
+                rover2.update();
+
                 rover1.render(batch, environment, true); // currentState == GameState.GAME);
                 rover2.render(batch, environment, true); // currentState == GameState.GAME);
-
-                rover1.update();
-                rover1.processInput(rover1Inputs, rovers);
-                rover2.update();
-                rover2.processInput(rover2Inputs, rovers);
 
                 if (currentState == GameState.BREAK) {
                     if (breakTime < 0) {
@@ -480,9 +481,9 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         modelFactory.dispose();
         spriteBatch.dispose();
         font.dispose();
-        console.dispose();
-        ready1.dispose();
-        fight1.dispose();
+        if (console != null) { console.dispose(); }
+        if (ready1 != null) { ready1.dispose(); }
+        if (fight1 != null) { fight1.dispose(); }
         background.dispose();
     }
 
@@ -524,18 +525,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             if (keycode == Input.Keys.SPACE) {
                 rover1 = makeRobot(playerSelection1, "1", Color.BLUE);
-                rover1.getTransform().setTranslation(180 * SCALE, 0, 180 * SCALE);
-                rover1.getTransform().scale(SCALE, SCALE, SCALE);
-                rover1.getTransform().rotate(new Vector3(0, 1, 0), -45);
-                rover1.update();
-                rover1.setId(1);
-
                 rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
-                rover2.getTransform().setTranslation(-180 * SCALE, 0, -180 * SCALE);
-                rover2.getTransform().scale(SCALE, SCALE, SCALE);
-                rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
-                rover2.update();
-                rover2.setId(2);
 
                 rovers = new Rover[]{ rover1, rover2 };
 
@@ -649,14 +639,12 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     public void resetRobots() {
         rover1.getTransform().idt();
-        rover1.getTransform().setTranslation(160 * SCALE, 0, 160 * SCALE);
-        rover1.getTransform().scale(SCALE, SCALE, SCALE);
+        rover1.getTransform().setToTranslationAndScaling(700 * SCALE, 0, 700 * SCALE, SCALE, SCALE, SCALE);
         rover1.getTransform().rotate(new Vector3(0, 1, 0), -45);
         rover1.update();
 
         rover2.getTransform().idt();
-        rover2.getTransform().setTranslation(-160 * SCALE, 0, -160 * SCALE);
-        rover2.getTransform().scale(SCALE, SCALE, SCALE);
+        rover2.getTransform().setToTranslationAndScaling(-700 * SCALE, 0, -700 * SCALE, SCALE, SCALE, SCALE);
         rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
         rover2.update();
         rover2.setId(2);

@@ -64,8 +64,7 @@ public class GCCRoverWheel {
         wheel.transform.set(transform);
         motor.transform.set(transform);
 
-        motor.transform.scale(4f, 4f, 4f);
-        // wheel.transform.scale(0.16f, 0.16f, 0.16f);
+        motor.transform.scale(25f, 25f, 25f);
 
         wheel.transform.rotate(WHEEL_ORIENTATION_AXIS, -90f);
         wheel.transform.translate(-4f, -4f, -10f);
