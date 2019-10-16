@@ -14,7 +14,7 @@ import org.ah.gcc.virtualrover.utils.MeshUtils;
 
 import static org.ah.gcc.virtualrover.utils.MeshUtils.createRect;
 
-public class PerlinNoiseBackground {
+public class PerlinNoiseBackground implements Background {
 
     private Renderable renderable;
     private DefaultShader shader;
