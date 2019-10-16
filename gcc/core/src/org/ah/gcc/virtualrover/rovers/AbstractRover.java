@@ -56,7 +56,6 @@ public abstract class AbstractRover implements Rover {
         return transform;
     }
 
-
     public int getId() {
         return id;
     }

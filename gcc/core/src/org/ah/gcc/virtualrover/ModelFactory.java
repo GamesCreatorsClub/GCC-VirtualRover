@@ -66,6 +66,22 @@ public class ModelFactory {
         marker = loadModel("teapot.g3db");
     }
 
+    public void dispose() {
+        baloon.dispose();
+        body.dispose();
+        pinoon.dispose();
+        top.dispose();
+        tyre.dispose();
+        wheel.dispose();
+
+        motorholder.dispose();
+        fullwheel.dispose();
+        cBody.dispose();
+        bigWheel.dispose();
+        bigTyre.dispose();
+        marker.dispose();
+    }
+
     private Exception resourceDoesNotExists(String name) throws NoSuchElementException {
         throw new NoSuchElementException("No model found for " + name + ": try load()");
     }

@@ -163,7 +163,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private Vector3 midpoint = new Vector3();
     private float distance;
 
-    private Sound ready1;
+    private Sound ready1; // TODO move to 'soundmanager'
     private Sound fight1;
     private boolean readySoundPlayed = false;
     private boolean fightSoundPlayed = false;
@@ -226,8 +226,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         shader.init();
         if (!shader.program.isCompiled()) {
             Gdx.app.log("Shader error: ", shader.program.getLog());
-            System.out.println("Shader error" + shader.program.getLog());
-            System.exit(-1);
+            Gdx.app.exit();
         }
 
         renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
@@ -505,7 +504,16 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     @Override
     public void dispose() {
+        assetManager.dispose();
         batch.dispose();
+        modelFactory.dispose();
+        backgroundMesh.dispose();
+        shader.dispose();
+        spriteBatch.dispose();
+        font.dispose();
+        console.dispose();
+        ready1.dispose();
+        fight1.dispose();
     }
 
     @Override

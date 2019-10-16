@@ -53,6 +53,12 @@ public class Console {
         consoleWidth = Gdx.graphics.getWidth();
     }
 
+    public void dispose() {
+        font.dispose();
+        shapeRenderer.dispose();
+        batch.dispose();
+    }
+
     public void setCamera(OrthographicCamera camera) {
         this.camera = camera;
     }

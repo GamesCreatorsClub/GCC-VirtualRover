@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import org.ah.gcc.virtualrover.Inputs;
 
 public interface Rover {
+
     void processInput(Inputs i, Rover[] rovers);
 
     void render(ModelBatch batch, Environment environment, boolean hasBalloons);
