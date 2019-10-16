@@ -130,3 +130,4 @@ Thumbs.db
 core/pom.xml
 desktop/pom.xml
 **/target
+out/
