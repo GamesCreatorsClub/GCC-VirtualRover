@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.audio.Sound;
+import org.ah.gcc.virtualrover.backgrounds.Background;
+import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.rovers.AbstractRover;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
@@ -131,11 +133,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     private List<BoundingBox> boxes;
 
-    private Mesh backgroundMesh;
-    private RenderContext renderContext;
-    private Renderable renderable;
-    private DefaultShader shader;
-
     private SpriteBatch spriteBatch;
     private BitmapFont font;
 
@@ -144,8 +141,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     private PlatformSpecific platformSpecific;
     private ServerCommunication serverCommunication;
-
-    private long a = 1;
 
     private String winner = "NONE";
     private Texture gccLogo;
@@ -167,6 +162,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private Sound fight1;
     private boolean readySoundPlayed = false;
     private boolean fightSoundPlayed = false;
+
+    private Background background;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -211,26 +208,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
         instances = new Array<ModelInstance>();
 
-        backgroundMesh = createRect(0, 0, 120, 120);
-        renderable = new Renderable();
-        renderable.meshPart.mesh = backgroundMesh;
-        renderable.meshPart.primitiveType = GL20.GL_TRIANGLES;
-        renderable.meshPart.size = backgroundMesh.getNumIndices();
-        renderable.material = null;
-        renderable.worldTransform.idt();
-
-        String vertexProgram = Gdx.files.internal("background.vs").readString();
-        String fragmentProgram = Gdx.files.internal("background.fs").readString();
-
-        shader = new DefaultShader(renderable, new DefaultShader.Config(vertexProgram, fragmentProgram));
-        shader.init();
-        if (!shader.program.isCompiled()) {
-            Gdx.app.log("Shader error: ", shader.program.getLog());
-            Gdx.app.exit();
-        }
-
-        renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
-
         Model arenaModel = modelFactory.loadModel("arena.obj");
 
         ModelInstance arena = new ModelInstance(arenaModel);
@@ -262,6 +239,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         messageFactory = new GCCMessageFactory();
         serverCommunication = platformSpecific.getServerCommunication();
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
+
+        background = new PerlinNoiseBackground();
     }
 
     private void finishLoading() {
@@ -291,8 +270,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         }
 
         if (!loadingAssets) {
-            a++;
-
             Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
 
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -366,15 +343,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
             if (renderBackground) {
-                renderContext.begin();
-                shader.begin(camera, renderContext);
-                shader.program.setUniformMatrix("u_projViewTrans", camera.combined);
-                shader.program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
-                shader.program.setUniformf("u_time", a);
-                shader.render(renderable);
-
-                shader.end();
-                renderContext.end();
+                background.render(camera, batch, environment);
             }
 
             batch.begin(camera);
@@ -507,13 +476,12 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         assetManager.dispose();
         batch.dispose();
         modelFactory.dispose();
-        backgroundMesh.dispose();
-        shader.dispose();
         spriteBatch.dispose();
         font.dispose();
         console.dispose();
         ready1.dispose();
         fight1.dispose();
+        background.dispose();
     }
 
     @Override
@@ -664,16 +632,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     @Override
     public boolean scrolled(int amount) {
         return false;
-    }
-
-    public static Mesh createRect(float x, float y, float width, float height) {
-        Mesh mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
-
-        mesh.setVertices(new float[] { -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0, 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0,
-                1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 1, 1, -1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 0, 1 });
-
-        mesh.setIndices(new short[] { 2, 1, 0, 0, 3, 2 });
-        return mesh;
     }
 
     public AbstractRover makeRobot(RoverType t, String name, Color color) {
