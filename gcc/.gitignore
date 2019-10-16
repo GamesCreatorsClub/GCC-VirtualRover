@@ -129,3 +129,4 @@ Thumbs.db
 ## Easier development
 core/pom.xml
 desktop/pom.xml
+**/target
