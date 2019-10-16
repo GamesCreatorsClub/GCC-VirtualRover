@@ -151,7 +151,7 @@ public abstract class AbstractRover implements Rover {
 
             for (Balloon balloon : this.balloons) {
                 balloon.balloon.transform.set(roverTransform);
-                balloon.balloon.transform.scale(0.16f, 0.16f, 0.16f);
+                // balloon.balloon.transform.scale(0.16f, 0.16f, 0.16f);
             }
 
             balloons[0].balloon.transform.translate(0f, 158f, -50f);
@@ -163,7 +163,7 @@ public abstract class AbstractRover implements Rover {
             balloons[2].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (-50 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
 
             pinoon.transform.set(roverTransform);
-            pinoon.transform.scale(0.16f, 0.16f, 0.16f);
+            // pinoon.transform.scale(0.16f, 0.16f, 0.16f);
             pinoon.transform.translate(-10f, 8f, -66f);
             pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 

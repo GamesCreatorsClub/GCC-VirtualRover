@@ -64,7 +64,7 @@ public class BigWheel {
 
         wheel.transform.scale(scale, scale, scale);
 
-        wheel.transform.scale(0.16f, 0.16f, 0.16f);
+        // wheel.transform.scale(0.16f, 0.16f, 0.16f);
         wheel.transform.rotate(WHEEL_ORIENTATION_AXIS, 90f);
         wheel.transform.translate(.5f, 0f, 0);
         wheelangle += speed;

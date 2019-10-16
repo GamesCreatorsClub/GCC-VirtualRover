@@ -70,6 +70,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private CameraInputController camController;
 
     private long breakTime = 0;
+    private int a = 0;
 
     private enum GameState {
         MENU, SELECTION, GAME, BREAK, END
@@ -212,7 +213,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
         ModelInstance arena = new ModelInstance(arenaModel);
         arena.transform.translate(-200 * SCALE, -12 * SCALE, -200 * SCALE);
-        arena.transform.scale(0.16f, 0.16f, 0.16f);
+        // arena.transform.scale(0.16f, 0.16f, 0.16f);
         arena.transform.scale(SCALE, SCALE, SCALE);
         arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
         instances.add(arena);
@@ -270,6 +271,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         }
 
         if (!loadingAssets) {
+            a++;
             Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
 
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);

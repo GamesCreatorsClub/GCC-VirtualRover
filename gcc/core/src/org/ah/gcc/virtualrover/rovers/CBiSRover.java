@@ -89,7 +89,7 @@ public class CBiSRover extends AbstractRover {
         body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
         body.transform.translate(1.2f, -0.3f, 0f);
 
-        body.transform.scale(0.16f, 0.16f, 0.16f);
+        // body.transform.scale(0.16f, 0.16f, 0.16f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
 
         super.update();

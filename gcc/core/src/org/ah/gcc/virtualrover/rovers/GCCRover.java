@@ -46,7 +46,6 @@ public class GCCRover extends AbstractRover {
         top.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
         fr = new GCCRoverWheel(modelFactory, 270, Color.ORANGE);
-
         fl = new GCCRoverWheel(modelFactory, 90, Color.ORANGE);
         br = new GCCRoverWheel(modelFactory, 270, Color.ORANGE);
         bl = new GCCRoverWheel(modelFactory, 90, Color.ORANGE);
@@ -112,8 +111,8 @@ public class GCCRover extends AbstractRover {
         br.update();
         bl.update();
 
-        top.transform.scale(0.16f, 0.16f, 0.16f);
-        body.transform.scale(0.16f, 0.16f, 0.16f);
+//        top.transform.scale(0.16f, 0.16f, 0.16f);
+//        body.transform.scale(0.16f, 0.16f, 0.16f);
 
         super.update();
     }
@@ -126,12 +125,12 @@ public class GCCRover extends AbstractRover {
         fl.render(batch, environment);
         fr.render(batch, environment);
 
+        batch.render(top, environment);
+        batch.render(body, environment);
+
         if (hasBalloons) {
             renderBalloons(batch, environment);
         }
-
-        batch.render(top, environment);
-        batch.render(body, environment);
     }
 
     protected boolean collides(Matrix4 move, Rover[] rovers) {
