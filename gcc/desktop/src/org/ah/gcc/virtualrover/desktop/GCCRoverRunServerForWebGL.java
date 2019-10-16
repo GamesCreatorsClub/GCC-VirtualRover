@@ -93,6 +93,13 @@ public class GCCRoverRunServerForWebGL {
             boolean exists = file.exists();
             if (!exists && path.startsWith("html/")) {
                 file = new File(dir.getParentFile(), "build/gwt/out/" + path);
+                if (!file.exists()) {
+                    File alternative = new File(dir.getParentFile(), "war/assets/" + path.substring(5));
+                    if (alternative.exists()) {
+                        System.out.println("Got alternative path for " + path + " -> " + alternative.getAbsolutePath());
+                        file = alternative;
+                    }
+                }
                 exists = file.exists();
             }
             if (!exists) {
