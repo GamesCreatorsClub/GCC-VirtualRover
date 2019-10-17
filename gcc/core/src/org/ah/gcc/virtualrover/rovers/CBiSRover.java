@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.*;
 
 public class CBiSRover extends AbstractRover {
@@ -43,57 +42,30 @@ public class CBiSRover extends AbstractRover {
         body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
         body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
-        fr = new BigWheel(modelFactory, 270, Color.YELLOW, ROVER_SCALE);
-        fl = new BigWheel(modelFactory, 90, Color.YELLOW, ROVER_SCALE);
-        br = new BigWheel(modelFactory, 270, Color.YELLOW, ROVER_SCALE);
-        bl = new BigWheel(modelFactory, 90, Color.YELLOW, ROVER_SCALE );
-    }
-
-    @Override
-    public void processInput(Inputs i, Rover[] rovers) {
-        float speed = calcSpeedMillimetresInFrame(roverSpeed);
-        if (i.moveLeft()) {
-            testAndMove(rotate(speed), rovers);
-        } else if (i.moveRight()) {
-            testAndMove(rotate(-speed), rovers);
-        } else if (i.moveUp()) {
-            testAndMove(drive(speed * 0.9f), rovers);
-        } else if (i.moveDown()) {
-            testAndMove(drive(-speed * 0.9f), rovers);
-        } else if (i.rotateLeft()) {
-            testAndMove(rotate(speed), rovers);
-        } else if (i.rotateRight()) {
-            testAndMove(rotate(-speed), rovers);
-        } else {
-            stop();
-        }
+        fr = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 20f, -27f, -145f, 270);
+        fl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 42f, -27f, 0f, 90);
+        br = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 165f, -27f, -145f, 270);
+        bl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 190f, -27f, 0f, 90);
     }
 
     @Override
     public void update() {
+        body.transform.set(transform);
+
+        body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
+        body.transform.translate(7.8f, -1.6f, 0f);
+        body.transform.rotate(new Vector3(0, 1, 0), 90);
+
+
         fr.getTransform().set(transform);
         fl.getTransform().set(transform);
         br.getTransform().set(transform);
         bl.getTransform().set(transform);
 
-        body.transform.set(transform);
-
-        fl.getTransform().translate(42f, -27f, 0f);
-        fr.getTransform().translate(20f, -30f, -145f);
-
-        bl.getTransform().translate(180f, -27f, 0f);
-        br.getTransform().translate(155f, -27f, -145f);
-
         fr.update();
         fl.update();
         br.update();
         bl.update();
-
-        body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
-        body.transform.translate(7.8f, -1.6f, 0f);
-
-        // body.transform.scale(0.16f, 0.16f, 0.16f);
-        body.transform.rotate(new Vector3(0, 1, 0), 90);
 
         super.update();
     }
@@ -139,6 +111,26 @@ public class CBiSRover extends AbstractRover {
             }
         }
         return false;
+    }
+
+    @Override
+    public void processInput(Inputs i, Rover[] rovers) {
+        float speed = calcSpeedMillimetresInFrame(roverSpeed);
+        if (i.moveLeft()) {
+            testAndMove(rotate(speed), rovers);
+        } else if (i.moveRight()) {
+            testAndMove(rotate(-speed), rovers);
+        } else if (i.moveUp()) {
+            testAndMove(drive(speed * 0.9f), rovers);
+        } else if (i.moveDown()) {
+            testAndMove(drive(-speed * 0.9f), rovers);
+        } else if (i.rotateLeft()) {
+            testAndMove(rotate(speed), rovers);
+        } else if (i.rotateRight()) {
+            testAndMove(rotate(-speed), rovers);
+        } else {
+            stop();
+        }
     }
 
     private void stop() {

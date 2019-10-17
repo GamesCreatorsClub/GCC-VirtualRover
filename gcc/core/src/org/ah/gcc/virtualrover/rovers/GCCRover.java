@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.*;
 
 public class GCCRover extends AbstractRover {
@@ -47,50 +46,10 @@ public class GCCRover extends AbstractRover {
 
         top.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
-        fr = new GCCRoverWheel(modelFactory, 270, Color.ORANGE);
-        fl = new GCCRoverWheel(modelFactory, 90, Color.ORANGE);
-        br = new GCCRoverWheel(modelFactory, 270, Color.ORANGE);
-        bl = new GCCRoverWheel(modelFactory, 90, Color.ORANGE);
-    }
-
-    @Override
-    public void processInput(Inputs i, Rover[] rovers) {
-        float speed = calcSpeedMillimetresInFrame(roverSpeed);
-        if (i.moveUp()) {
-            if (i.rotateLeft()) {
-                testAndMove(steer(speed * 1.05f), rovers);
-            } else if (i.rotateRight()) {
-                testAndMove(steer(-speed * 1.05f), rovers);
-            } else if (i.moveLeft()) {
-                testAndMove(drive(-speed * 0.5f, 135), rovers);
-            } else if (i.moveRight()) {
-                testAndMove(drive(-speed * 0.5f, 45), rovers);
-            } else {
-                testAndMove(drive(-speed, 0), rovers);
-            }
-        } else if (i.moveDown()) {
-            if (i.rotateLeft()) {
-                testAndMove(steerBack(speed * 1.05f), rovers);
-            } else if (i.rotateRight()) {
-                testAndMove(steerBack(-speed * 1.05f), rovers);
-            } else if (i.moveLeft()) {
-                testAndMove(drive(speed * 0.5f, 45), rovers);
-            } else if (i.moveRight()) {
-                testAndMove(drive(speed * 0.5f, 135), rovers);
-            } else {
-                testAndMove(drive(speed, 0), rovers);
-            }
-        } else if (i.moveLeft()) {
-            testAndMove(drive(speed, 90), rovers);
-        } else if (i.moveRight()) {
-            testAndMove(drive(-speed, 90), rovers);
-        } else if (i.rotateLeft()) {
-            testAndMove(rotate(speed), rovers);
-        } else if (i.rotateRight()) {
-            testAndMove(rotate(-speed), rovers);
-        } else {
-            stop();
-        }
+        fr = new GCCRoverWheel(modelFactory, Color.ORANGE, 10f, -36.7f, -100f, 270);
+        fl = new GCCRoverWheel(modelFactory, Color.ORANGE, 25f, -36.7f, -10f, 90);
+        br = new GCCRoverWheel(modelFactory, Color.ORANGE, 132f, -36.7f, -100f, 270);
+        bl = new GCCRoverWheel(modelFactory, Color.ORANGE, 150f, -36.7f, -10f, 90);
     }
 
     @Override
@@ -102,12 +61,6 @@ public class GCCRover extends AbstractRover {
 
         top.transform.set(transform);
         body.transform.set(transform);
-
-        fl.getTransform().translate(25f, -36.7f, -10f);
-        fr.getTransform().translate(10f, -36.7f, -100f);
-
-        bl.getTransform().translate(150f, -36.7f, -10f);
-        br.getTransform().translate(132f, -36.7f, -100f);
 
         fr.update();
         fl.update();
@@ -161,6 +114,47 @@ public class GCCRover extends AbstractRover {
             }
         }
         return false;
+    }
+
+    @Override
+    public void processInput(Inputs i, Rover[] rovers) {
+        float speed = calcSpeedMillimetresInFrame(roverSpeed);
+        if (i.moveUp()) {
+            if (i.rotateLeft()) {
+                testAndMove(steer(speed * 1.05f), rovers);
+            } else if (i.rotateRight()) {
+                testAndMove(steer(-speed * 1.05f), rovers);
+            } else if (i.moveLeft()) {
+                testAndMove(drive(-speed * 0.5f, 135), rovers);
+            } else if (i.moveRight()) {
+                testAndMove(drive(-speed * 0.5f, 45), rovers);
+            } else {
+                testAndMove(drive(-speed, 0), rovers);
+            }
+        } else if (i.moveDown()) {
+            if (i.rotateLeft()) {
+                testAndMove(steerBack(speed * 1.05f), rovers);
+            } else if (i.rotateRight()) {
+                testAndMove(steerBack(-speed * 1.05f), rovers);
+            } else if (i.moveLeft()) {
+                testAndMove(drive(speed * 0.5f, 45), rovers);
+            } else if (i.moveRight()) {
+                testAndMove(drive(speed * 0.5f, 135), rovers);
+            } else {
+                testAndMove(drive(speed, 0), rovers);
+            }
+        } else if (i.moveLeft()) {
+            testAndMove(drive(speed, 90), rovers);
+        } else if (i.moveRight()) {
+            testAndMove(drive(-speed, 90), rovers);
+        } else if (i.rotateLeft()) {
+            testAndMove(rotate(speed), rovers);
+        } else if (i.rotateRight()) {
+            testAndMove(rotate(-speed), rovers);
+        } else {
+            stop();
+            update();
+        }
     }
 
     private void straightenWheels() {

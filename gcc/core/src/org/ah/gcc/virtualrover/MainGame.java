@@ -280,9 +280,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
                 rover1.processInput(rover1Inputs, rovers);
-                rover1.update();
                 rover2.processInput(rover2Inputs, rovers);
-                rover2.update();
 
                 rover1.render(batch, environment, true); // currentState == GameState.GAME);
                 rover2.render(batch, environment, true); // currentState == GameState.GAME);
@@ -450,6 +448,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             if (keycode == Input.Keys.SPACE) {
                 rover1 = makeRobot(playerSelection1, "1", Color.BLUE);
                 rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
+                rover2.setId(2);
 
                 rovers = new Rover[]{ rover1, rover2 };
 
@@ -571,7 +570,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         rover2.getTransform().setToTranslationAndScaling(-700 * SCALE, 0, -700 * SCALE, SCALE, SCALE, SCALE);
         rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
         rover2.update();
-        rover2.setId(2);
 
         rover1.resetBalloons();
         rover2.resetBalloons();

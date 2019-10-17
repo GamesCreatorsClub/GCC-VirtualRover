@@ -82,6 +82,7 @@ public abstract class AbstractRover implements Rover {
     protected void testAndMove(Matrix4 nextPos, Rover[] rovers) {
         if (!collides(nextPos, rovers)) {
             transform.set(nextPos);
+            update();
         }
 	}
 
