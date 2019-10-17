@@ -153,9 +153,9 @@ public abstract class AbstractRover implements Rover {
                 // balloon.balloon.transform.scale(0.16f, 0.16f, 0.16f);
             }
 
-            balloons[0].balloon.transform.translate(0f, 158f, -50f);
-            balloons[1].balloon.transform.translate(-15f, 178f, -64f);
-            balloons[2].balloon.transform.translate(0f, 178f, -70f);
+            balloons[0].balloon.transform.translate(15f, 158f, -30f);
+            balloons[1].balloon.transform.translate(-15f, 178f, -50f);
+            balloons[2].balloon.transform.translate(15f, 178f, -70f);
 
             balloons[0].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (30 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
             balloons[1].balloon.transform.rotate(new Vector3(0, 0, 1), (float) (45 + (Math.cos(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
@@ -197,7 +197,7 @@ public abstract class AbstractRover implements Rover {
         }
 
         public int checkIfBalloonsPopped(Vector2 sharpPoint) {
-            float radius = 8 * MainGame.SCALE;
+            float radius = 40 * MainGame.SCALE;
 
             int notPoppedBalloons = 0;
             for (Balloon balloon : balloons) {
