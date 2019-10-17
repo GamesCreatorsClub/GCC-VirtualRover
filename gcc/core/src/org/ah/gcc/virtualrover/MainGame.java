@@ -1,11 +1,23 @@
 package org.ah.gcc.virtualrover;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
+import org.ah.gcc.virtualrover.challenges.Challenge;
+import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.rovers.AbstractRover;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
@@ -16,38 +28,6 @@ import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Player;
-
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import com.badlogic.gdx.utils.Array;
 
 public class MainGame extends ApplicationAdapter implements InputProcessor, ChatListener {
 
@@ -76,52 +56,12 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         MENU, SELECTION, GAME, BREAK, END
     }
 
-    private enum RoverType {
-        GCC(0, "GCC Rover"), CBIS(1, "CBiS-Education");
-
-        private int id;
-        private String nom;
-
-        private RoverType(int id, String nom) {
-            this.id = id;
-            this.nom = nom;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public static RoverType getById(int id) {
-            for (RoverType e : values()) {
-                if (e.getId() == id) {
-                    return e;
-                }
-            }
-            return RoverType.GCC;
-        }
-
-        public RoverType getNext() {
-            return getById((getId() + 1) % values().length);
-        }
-
-        public RoverType getPrevious() {
-            return getById((getId() - 1) % values().length);
-        }
-
-        public String getName() {
-            return nom;
-        }
-
-    }
-
     private RoverType playerSelection1 = RoverType.GCC;
     private RoverType playerSelection2 = RoverType.CBIS;
     private int player1score = 0;
     private int player2score = 0;
 
     private GameState currentState = GameState.MENU;
-
-    private Array<ModelInstance> instances;
 
     private InputMultiplexer cameraInputMultiplexer;
     private ModelFactory modelFactory;
@@ -131,8 +71,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private Rover[] rovers;
 
     private int cameratype = 3;
-
-    private List<BoundingBox> boxes;
 
     private SpriteBatch spriteBatch;
     private BitmapFont font;
@@ -164,6 +102,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private boolean readySoundPlayed = false;
     private boolean fightSoundPlayed = false;
 
+    private Challenge challenge;
     private Background background;
 
     public MainGame(PlatformSpecific platformSpecific) {
@@ -207,22 +146,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         Gdx.input.setCursorCatched(mouse);
         batch = new ModelBatch();
 
-        instances = new Array<ModelInstance>();
-
-        Model arenaModel = modelFactory.loadModel("arena.obj");
-
-        ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
-        instances.add(arena);
-
-        boxes = new ArrayList<BoundingBox>();
-        float wallWidth = 0.1f;
-        boxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3(1000 * SCALE, 100 * SCALE, (-1000 + wallWidth) * SCALE)));
-        boxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, 1000 * SCALE), new Vector3(1000 * SCALE, 100 * SCALE, (1000 - wallWidth) * SCALE)));
-
-        boxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((-1000 + wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
-        boxes.add(new BoundingBox(new Vector3(1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((1000 - wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
+        challenge = new PiNoonArena(modelFactory);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -351,11 +275,10 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
             batch.begin(camera);
 
-            batch.render(instances, environment);
+            challenge.render(batch, environment);
             breakTime--;
 
             if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
-
                 rover1.processInput(rover1Inputs, rovers);
                 rover1.update();
                 rover2.processInput(rover2Inputs, rovers);
@@ -484,6 +407,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         if (console != null) { console.dispose(); }
         if (ready1 != null) { ready1.dispose(); }
         if (fight1 != null) { fight1.dispose(); }
+        challenge.dispose();
         background.dispose();
     }
 
@@ -680,5 +604,42 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     @Override
     public void onText(String text) {
 
+    }
+
+    private enum RoverType {
+        GCC(0, "GCC Rover"), CBIS(1, "CBiS-Education");
+
+        private int id;
+        private String nom;
+
+        private RoverType(int id, String nom) {
+            this.id = id;
+            this.nom = nom;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public static RoverType getById(int id) {
+            for (RoverType e : values()) {
+                if (e.getId() == id) {
+                    return e;
+                }
+            }
+            return RoverType.GCC;
+        }
+
+        public RoverType getNext() {
+            return getById((getId() + 1) % values().length);
+        }
+
+        public RoverType getPrevious() {
+            return getById((getId() - 1) % values().length);
+        }
+
+        public String getName() {
+            return nom;
+        }
     }
 }
