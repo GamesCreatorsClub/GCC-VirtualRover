@@ -10,12 +10,11 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 public class GCCRoverWheel {
-    private int speed = 0;
+    private float speed = 0;
     private float wheelangle = 0;
     private float degrees = 0;
     private float degreeOffset = 0;
 
-    // private Vector3 position = new Vector3();
     private ModelInstance wheel;
     private ModelInstance motor;
     private ModelCache cache = new ModelCache();
@@ -81,11 +80,11 @@ public class GCCRoverWheel {
         batch.render(motor, environment);
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(float speed) {
         this.speed = speed;
     }
 
@@ -104,11 +103,6 @@ public class GCCRoverWheel {
     }
 
     public Vector3 getPosition(Matrix4 move, Vector3 result) {
-//        float x = -1f;
-//        float y = 0;
-//        float z = 1.5f;
-//        move.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
-
         return move.getTranslation(result);
     }
 

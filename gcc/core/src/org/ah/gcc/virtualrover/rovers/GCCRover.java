@@ -14,7 +14,9 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.*;
 
 public class GCCRover extends AbstractRover {
-    public ModelInstance body;
+    private static float roverSpeed = 0.4f; // metre per second
+
+    private ModelInstance body;
 
     private GCCRoverWheel fr;
     private GCCRoverWheel br;
@@ -53,38 +55,39 @@ public class GCCRover extends AbstractRover {
 
     @Override
     public void processInput(Inputs i, Rover[] rovers) {
+        float speed = calcSpeedMillimetresInFrame(roverSpeed);
         if (i.moveUp()) {
             if (i.rotateLeft()) {
-                testAndMove(steer(5), rovers);
+                testAndMove(steer(speed * 1.05f), rovers);
             } else if (i.rotateRight()) {
-                testAndMove(steer(-5), rovers);
+                testAndMove(steer(-speed * 1.05f), rovers);
             } else if (i.moveLeft()) {
-                testAndMove(drive(-1.7f, 135), rovers);
+                testAndMove(drive(-speed * 0.5f, 135), rovers);
             } else if (i.moveRight()) {
-                testAndMove(drive(-1.7f, 45), rovers);
+                testAndMove(drive(-speed * 0.5f, 45), rovers);
             } else {
-                testAndMove(drive(-3, 0), rovers);
+                testAndMove(drive(-speed, 0), rovers);
             }
         } else if (i.moveDown()) {
             if (i.rotateLeft()) {
-                testAndMove(steerBack(5), rovers);
+                testAndMove(steerBack(speed * 1.05f), rovers);
             } else if (i.rotateRight()) {
-                testAndMove(steerBack(-5), rovers);
+                testAndMove(steerBack(-speed * 1.05f), rovers);
             } else if (i.moveLeft()) {
-                testAndMove(drive(1.7f, 45), rovers);
+                testAndMove(drive(speed * 0.5f, 45), rovers);
             } else if (i.moveRight()) {
-                testAndMove(drive(1.7f, 135), rovers);
+                testAndMove(drive(speed * 0.5f, 135), rovers);
             } else {
-                testAndMove(drive(3, 0), rovers);
+                testAndMove(drive(speed, 0), rovers);
             }
         } else if (i.moveLeft()) {
-            testAndMove(drive(3, 90), rovers);
+            testAndMove(drive(speed, 90), rovers);
         } else if (i.moveRight()) {
-            testAndMove(drive(-3, 90), rovers);
+            testAndMove(drive(-speed, 90), rovers);
         } else if (i.rotateLeft()) {
-            testAndMove(rotate(3), rovers);
+            testAndMove(rotate(speed), rovers);
         } else if (i.rotateRight()) {
-            testAndMove(rotate(-3), rovers);
+            testAndMove(rotate(-speed), rovers);
         } else {
             stop();
         }
@@ -182,7 +185,7 @@ public class GCCRover extends AbstractRover {
         nextPos.set(transform);
 
         straightenWheels();
-        setWheelSpeeds((int) speed);
+        setWheelSpeeds(speed);
         if (angle < 0) {
             angle += 360;
         }
@@ -232,7 +235,7 @@ public class GCCRover extends AbstractRover {
         return nextPos;
     }
 
-    private Matrix4 steer(int d) {
+    private Matrix4 steer(float d) {
         nextPos.set(transform);
 
         setWheelSpeeds(d);
@@ -259,7 +262,7 @@ public class GCCRover extends AbstractRover {
         return nextPos;
     }
 
-    private Matrix4 steerBack(int d) {
+    private Matrix4 steerBack(float d) {
         nextPos.set(transform);
 
         setWheelSpeeds(d);
@@ -287,7 +290,7 @@ public class GCCRover extends AbstractRover {
         return nextPos;
     }
 
-    private void setWheelSpeeds(int speed) {
+    private void setWheelSpeeds(float speed) {
         fl.setSpeed(speed);
         fr.setSpeed(speed);
         bl.setSpeed(speed);

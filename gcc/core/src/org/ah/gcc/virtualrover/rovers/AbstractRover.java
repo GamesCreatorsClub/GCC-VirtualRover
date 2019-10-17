@@ -4,6 +4,7 @@ import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
 import java.util.NoSuchElementException;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -110,6 +111,10 @@ public abstract class AbstractRover implements Rover {
         balloons.update(transform);
     }
 
+    protected static float calcSpeedMillimetresInFrame(float speedMPS) {
+        return speedMPS * Gdx.graphics.getDeltaTime() * 1000; // in millimetres
+    }
+
     protected static class Balloons {
         private ModelInstance pinoon;
         private ModelInstance marker;
@@ -121,6 +126,7 @@ public abstract class AbstractRover implements Rover {
         private Vector3 sharpPointPos = new Vector3();
 
         private long balloonPeriod = 0;
+        private long previousTime;
 
         public Balloons(ModelFactory modelFactory, Color roverColour, Color balloonTransparentColour) {
             marker = new ModelInstance(modelFactory.getMarker(), 0, 0, 0);

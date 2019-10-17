@@ -14,7 +14,9 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.*;
 
 public class CBiSRover extends AbstractRover {
-    public ModelInstance body;
+    private static float roverSpeed = 0.4f; // metre per second
+
+    private ModelInstance body;
 
     private BigWheel fr;
     private BigWheel br;
@@ -49,18 +51,19 @@ public class CBiSRover extends AbstractRover {
 
     @Override
     public void processInput(Inputs i, Rover[] rovers) {
+        float speed = calcSpeedMillimetresInFrame(roverSpeed);
         if (i.moveLeft()) {
-            testAndMove(rotate(3), rovers);
+            testAndMove(rotate(speed), rovers);
         } else if (i.moveRight()) {
-            testAndMove(rotate(-3), rovers);
+            testAndMove(rotate(-speed), rovers);
         } else if (i.moveUp()) {
-            testAndMove(drive(2.7f), rovers);
+            testAndMove(drive(speed * 0.9f), rovers);
         } else if (i.moveDown()) {
-            testAndMove(drive(-2.7f), rovers);
+            testAndMove(drive(-speed * 0.9f), rovers);
         } else if (i.rotateLeft()) {
-            testAndMove(rotate(3), rovers);
+            testAndMove(rotate(speed), rovers);
         } else if (i.rotateRight()) {
-            testAndMove(rotate(-3), rovers);
+            testAndMove(rotate(-speed), rovers);
         } else {
             stop();
         }
