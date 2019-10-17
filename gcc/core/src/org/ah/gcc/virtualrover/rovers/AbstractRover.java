@@ -124,7 +124,7 @@ public abstract class AbstractRover implements Rover {
 
         public Balloons(ModelFactory modelFactory, Color roverColour, Color balloonTransparentColour) {
             marker = new ModelInstance(modelFactory.getMarker(), 0, 0, 0);
-            marker.transform.scale(0.05f, 0.05f, 0.05f);
+            marker.transform.scale(5f, 5f, 5f);
 
             marker.materials.get(0).set(ColorAttribute.createDiffuse(roverColour));
 
@@ -145,7 +145,7 @@ public abstract class AbstractRover implements Rover {
             balloonPeriod++;
 
             sharpPointMatrix.set(roverTransform);
-            sharpPointMatrix.translate(-21f, 24f, -9f);
+            sharpPointMatrix.translate(-139f, 159f, -56.25f);
             sharpPointPos = sharpPointMatrix.getTranslation(sharpPointPos);
 
             for (Balloon balloon : this.balloons) {
@@ -167,8 +167,9 @@ public abstract class AbstractRover implements Rover {
             pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 
             if (MainGame.SHOW_MARKER) {
+                // marker.transform.setToTranslationAndScaling(0.01f, 0.01f, 0.01f, sharpPointPos.x, sharpPointPos.y, sharpPointPos.z);
                 marker.transform.setToTranslation(sharpPointPos);
-                marker.transform.scale(SCALE, SCALE, SCALE);
+                marker.transform.scale(0.003f, 0.003f, 0.003f);
             }
         }
 
