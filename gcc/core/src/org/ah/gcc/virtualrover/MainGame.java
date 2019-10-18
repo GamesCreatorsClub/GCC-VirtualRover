@@ -22,11 +22,16 @@ import org.ah.gcc.virtualrover.rovers.AbstractRover;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
+import org.ah.gcc.virtualrover.utils.MeshUtils;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Player;
+
+import java.util.List;
+
+import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class MainGame extends ApplicationAdapter implements InputProcessor, ChatListener {
 
@@ -300,10 +305,10 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                         rover2.update();
                     }
 
-                    Polygon rover1Poligon = rover1.getPolygon();
-                    Polygon rover2Poligon = rover2.getPolygon();
+                    List<Polygon> rover1Poligons = rover1.getPolygons();
+                    List<Polygon> rover2Poligons = rover2.getPolygons();
 
-                    boolean roversCollide = Intersector.intersectPolygons(rover1Poligon, rover2Poligon, null);
+                    boolean roversCollide = polygonsOverlap(rover1Poligons, rover2Poligons);
 
                     if (roversCollide) {
                         if (rover1Moves) {
@@ -315,11 +320,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                             rover2.update();
                         }
                     } else {
-                        if (rover1Moves && challenge.collides(rover1Poligon)) {
+                        if (rover1Moves && challenge.collides(rover1Poligons)) {
                             rover1.getTransform().set(rover1Position);
                             rover1.update();
                         }
-                        if (rover2Moves && challenge.collides(rover2Poligon)) {
+                        if (rover2Moves && challenge.collides(rover2Poligons)) {
                             rover2.getTransform().set(rover2Position);
                             rover2.update();
                         }

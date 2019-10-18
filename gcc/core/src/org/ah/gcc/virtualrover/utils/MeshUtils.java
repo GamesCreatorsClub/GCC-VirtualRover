@@ -3,9 +3,12 @@ package org.ah.gcc.virtualrover.utils;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+
+import java.util.List;
 
 public class MeshUtils {
 
@@ -38,7 +41,18 @@ public class MeshUtils {
                 maxX, maxZ,
                 maxX, minZ };
         Polygon polygon = new Polygon(polygonVertices);
-        // polygon.setOrigin((maxX + minX)  / 2, (minZ + maxZ) / 2);
+        polygon.setOrigin((maxX + minX)  / 2, (minZ + maxZ) / 2);
         return polygon;
+    }
+
+    public static boolean polygonsOverlap(List<Polygon> ps1, List<Polygon> ps2) {
+        for (int i = 0; i < ps1.size(); i++) {
+            for (int j = 0; j < ps2.size(); j++) {
+                if (Intersector.overlapConvexPolygons(ps1.get(i), ps2.get(j))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

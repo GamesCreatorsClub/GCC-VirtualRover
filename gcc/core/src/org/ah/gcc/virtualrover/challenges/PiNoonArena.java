@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonFromBoundingBox;
+import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class PiNoonArena implements Challenge {
 
@@ -47,13 +48,8 @@ public class PiNoonArena implements Challenge {
         }
     }
 
-    public boolean collides(Polygon polygon) {
-        for (Polygon p : polygons) {
-            if (Intersector.intersectPolygons(polygon, p, null)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean collides(List<Polygon> polygons) {
+        return polygonsOverlap(this.polygons, polygons);
     }
 
     public void dispose() {

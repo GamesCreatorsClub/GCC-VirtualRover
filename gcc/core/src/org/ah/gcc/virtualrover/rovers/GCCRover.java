@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.rovers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -40,6 +41,7 @@ public class GCCRover extends AbstractRover {
 
     private float[] polygonVertices = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
     private Polygon polygon = new Polygon(polygonVertices);
+    private List<Polygon> polygons = new ArrayList<Polygon>();
 
     public GCCRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, modelFactory, colour);
@@ -55,6 +57,8 @@ public class GCCRover extends AbstractRover {
         fl = new GCCRoverWheel(modelFactory, Color.ORANGE, 25f, -36.7f, -10f, 90);
         br = new GCCRoverWheel(modelFactory, Color.ORANGE, 132f, -36.7f, -100f, 270);
         bl = new GCCRoverWheel(modelFactory, Color.ORANGE, 150f, -36.7f, -10f, 90);
+
+        polygons.add(polygon);
     }
 
     @Override
@@ -268,7 +272,7 @@ public class GCCRover extends AbstractRover {
     }
 
     @Override
-    public Polygon getPolygon() {
+    public List<Polygon> getPolygons() {
         backleft = bl.getPosition(backleft);
         backright = br.getPosition(backright);
         frontleft = fl.getPosition(frontleft);
@@ -284,7 +288,7 @@ public class GCCRover extends AbstractRover {
         polygonVertices[7] = backright.z;
 
         polygon.dirty();
-        return polygon;
+        return polygons;
     }
 
     @Override

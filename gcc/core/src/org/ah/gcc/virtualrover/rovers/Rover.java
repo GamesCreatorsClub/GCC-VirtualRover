@@ -18,7 +18,7 @@ public interface Rover {
 
     void update();
 
-    Polygon getPolygon();
+    List<Polygon> getPolygons();
 
     Vector2 sharpPoint();
 

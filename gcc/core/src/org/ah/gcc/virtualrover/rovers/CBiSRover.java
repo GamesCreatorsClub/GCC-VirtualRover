@@ -1,5 +1,7 @@
 package org.ah.gcc.virtualrover.rovers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.badlogic.gdx.graphics.Color;
@@ -38,6 +40,7 @@ public class CBiSRover extends AbstractRover {
 
     private float[] polygonVertices = new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z };
     private Polygon polygon = new Polygon(polygonVertices);
+    private List<Polygon> polygons = new ArrayList<Polygon>();
 
     public CBiSRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, modelFactory, colour);
@@ -49,6 +52,8 @@ public class CBiSRover extends AbstractRover {
         fl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 42f, -27f, 0f, 90);
         br = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 165f, -27f, -145f, 270);
         bl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 190f, -27f, 0f, 90);
+
+        polygons.add(polygon);
     }
 
     @Override
@@ -140,7 +145,7 @@ public class CBiSRover extends AbstractRover {
     }
 
     @Override
-    public Polygon getPolygon() {
+    public List<Polygon> getPolygons() {
         backleft = bl.getPosition(backleft);
         backright = br.getPosition(backright);
         frontleft = fl.getPosition(frontleft);
@@ -156,7 +161,7 @@ public class CBiSRover extends AbstractRover {
         polygonVertices[7] = backright.z;
 
         polygon.dirty();
-        return polygon;
+        return polygons;
     }
 
     @Override
