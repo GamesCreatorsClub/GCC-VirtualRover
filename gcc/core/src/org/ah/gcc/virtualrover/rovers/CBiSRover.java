@@ -163,9 +163,4 @@ public class CBiSRover extends AbstractRover {
         polygon.dirty();
         return polygons;
     }
-
-    @Override
-    protected void translateSharpPoint(Matrix4 sharpPointMatrix) {
-        sharpPointMatrix.translate(-136.7f, 160f, -58.5f);
-    }
 }

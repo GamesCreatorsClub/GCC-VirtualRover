@@ -1,9 +1,5 @@
 package org.ah.gcc.virtualrover.rovers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -12,8 +8,12 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-import org.ah.gcc.virtualrover.*;
+import org.ah.gcc.virtualrover.Inputs;
+import org.ah.gcc.virtualrover.ModelFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class GCCRover extends AbstractRover {
     private static float roverSpeed = 0.4f; // metre per second
@@ -289,10 +289,5 @@ public class GCCRover extends AbstractRover {
 
         polygon.dirty();
         return polygons;
-    }
-
-    @Override
-    protected void translateSharpPoint(Matrix4 sharpPointMatrix) {
-        sharpPointMatrix.translate(-136.6f, 160f, -58.5f);
     }
 }

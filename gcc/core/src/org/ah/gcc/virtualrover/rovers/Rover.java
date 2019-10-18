@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.rovers;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
@@ -7,6 +8,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.Inputs;
+import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
 import java.util.List;
 
@@ -18,19 +20,17 @@ public interface Rover {
 
     void update();
 
-    List<Polygon> getPolygons();
-
-    Vector2 sharpPoint();
+    Color getColour();
 
     Matrix4 getTransform();
 
-    Matrix4 getPreviousTransform();
+    Matrix4 getPreviousTransform(); // TODO this is not quite right. Incorporate somehow in processInput
 
     void setId(int i);
 
-    void removeBalloons();
+    List<Polygon> getPolygons();
 
-    void resetBalloons();
+    Attachment getAttachemnt();
 
-    int checkIfBalloonsPopped(Vector2 robotSharpPoint);
+    void setAttachment(Attachment attachment);
 }

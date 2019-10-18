@@ -22,6 +22,7 @@ import org.ah.gcc.virtualrover.rovers.AbstractRover;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
+import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.utils.MeshUtils;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
@@ -401,15 +402,19 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 }
 
                 boolean end = false;
-                if (rover1.checkIfBalloonsPopped(rover2.sharpPoint()) == 0) {
+                PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)rover1.getAttachemnt();
+                PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)rover2.getAttachemnt();
+
+                if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint(rover2.getTransform())) == 0) {
                     end = true;
                     player1score++;
                     winner = "Green";
-                } else if (rover2.checkIfBalloonsPopped(rover1.sharpPoint()) == 0) {
+                } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint(rover1.getTransform())) == 0) {
                     end = true;
                     player2score++;
                     winner = "Blue";
                 }
+
                 if (end) {
                     if (player1score + player2score >= 3) {
                         currentState = GameState.END;
@@ -498,14 +503,16 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 rover1 = makeRobot(playerSelection1, "1", Color.BLUE);
                 rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
                 rover2.setId(2);
+                rover1.setAttachment(new PiNoonAttachment(modelFactory, rover1.getColour()));
+                rover2.setAttachment(new PiNoonAttachment(modelFactory, rover2.getColour()));
 
                 rovers = new Rover[]{ rover1, rover2 };
 
                 resetRobots();
 
-                rover1.removeBalloons();
+                ((PiNoonAttachment)rover1.getAttachemnt()).removeBalloons();
 
-                rover2.removeBalloons();
+                ((PiNoonAttachment)rover2.getAttachemnt()).removeBalloons();
 
                 player1score = 0;
                 player2score = 0;
@@ -620,8 +627,8 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         rover2.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
         rover2.update();
 
-        rover1.resetBalloons();
-        rover2.resetBalloons();
+        ((PiNoonAttachment)rover1.getAttachemnt()).resetBalloons();
+        ((PiNoonAttachment)rover2.getAttachemnt()).resetBalloons();
     }
 
     @Override
