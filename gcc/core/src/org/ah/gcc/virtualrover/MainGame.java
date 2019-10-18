@@ -26,6 +26,7 @@ import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
+import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
@@ -38,23 +39,44 @@ import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class MainGame extends ApplicationAdapter implements InputProcessor, ChatListener {
 
-    private AssetManager assetManager;
-    private boolean loadingAssets = true;
-
     public static final long BREAK = 300;
     public static final boolean SHOW_MARKER = true;
     public static final float SCALE = 0.0015f;
 
+    private PlatformSpecific platformSpecific;
+
+    private ServerCommunication serverCommunication;
+    private ServerCommunicationAdapter serverCommunicationAdapter;
+    private GCCMessageFactory messageFactory;
+
+    private AssetManager assetManager;
+    private boolean loadingAssets = true;
+    private SoundManager soundManager;
+    private ModelFactory modelFactory;
+
     private ModelBatch batch;
-    private PerspectiveCamera camera;
     private Environment environment;
+
+    private OrthographicCamera hudCamera;
+    private SpriteBatch spriteBatch;
+    private BitmapFont font;
+
+    private Console console;
+
+    private PerspectiveCamera camera;
+    private CameraInputController camController;
+    private InputMultiplexer cameraInputMultiplexer;
+    private int cameratype = 3;
+    private Vector3 pos1 = new Vector3();
+    private Vector3 pos2 = new Vector3();
+    private Vector3 midpoint = new Vector3();
+    private float distance;
 
     private int mouseX = 0;
     private int mouseY = 0;
     private float rotSpeed = 0.1f;
 
     private boolean mouse = false;
-    private CameraInputController camController;
 
     private long breakTime = 0;
     private int a = 0;
@@ -62,54 +84,26 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     private enum GameState {
         MENU, SELECTION, GAME, BREAK, END
     }
+    private GameState currentState = GameState.MENU;
+    private boolean readySoundPlayed = false;
+    private boolean fightSoundPlayed = false;
 
     private RoverType playerSelection1 = RoverType.GCC;
     private RoverType playerSelection2 = RoverType.CBIS;
-    private int player1score = 0;
-    private int player2score = 0;
-
-    private GameState currentState = GameState.MENU;
-
-    private InputMultiplexer cameraInputMultiplexer;
-    private ModelFactory modelFactory;
-
     private Rover rover1;
     private Rover rover2;
-
-    private int cameratype = 3;
-
-    private SpriteBatch spriteBatch;
-    private BitmapFont font;
-
-    private OrthographicCamera hudCamera;
-    private Console console;
-
-    private PlatformSpecific platformSpecific;
-    private ServerCommunication serverCommunication;
+    private Inputs rover1Inputs;
+    private Inputs rover2Inputs;
+    private int player1score = 0;
+    private int player2score = 0;
 
     private String winner = "NONE";
     private Texture gccLogo;
 
-    private Inputs rover1Inputs;
-    private Inputs rover2Inputs;
-
-    private ServerCommunicationAdapter serverCommunicationAdapter;
-    private GCCMessageFactory messageFactory;
-
-    private boolean renderBackground = false;
-
-    private Vector3 pos1 = new Vector3();
-    private Vector3 pos2 = new Vector3();
-    private Vector3 midpoint = new Vector3();
-    private float distance;
-
-    private Sound ready1; // TODO move to 'soundmanager'
-    private Sound fight1;
-    private boolean readySoundPlayed = false;
-    private boolean fightSoundPlayed = false;
-
     private Challenge challenge;
     private Background background;
+
+    private boolean renderBackground = false;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -118,23 +112,39 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     @Override
     public void create() {
 
-        rover1Inputs = Inputs.create();
-        rover2Inputs = Inputs.create();
-
         assetManager = new AssetManager();
 
         assetManager.load("font/basic.fnt", BitmapFont.class);
         assetManager.load("font/copper18.fnt", BitmapFont.class);
         assetManager.load("GCC_full.png", Texture.class);
 
-        if (platformSpecific.hasSound()) {
-            assetManager.load("sounds/ready1.wav", Sound.class);
-            assetManager.load("sounds/fight1.wav", Sound.class);
-        }
+        soundManager = new SoundManager(!platformSpecific.hasSound());
+        soundManager.requestAssets(assetManager);
 
+        batch = new ModelBatch();
         spriteBatch = new SpriteBatch();
         modelFactory = new ModelFactory();
         modelFactory.load();
+
+        environment = new Environment();
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+        DirectionalLight light = new DirectionalLight();
+        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -10f * SCALE, 0f * SCALE)));
+
+        hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        hudCamera.setToOrtho(true);
+
+        messageFactory = new GCCMessageFactory();
+        serverCommunication = platformSpecific.getServerCommunication();
+        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
+
+
+        background = new PerlinNoiseBackground();
+        challenge = new PiNoonArena(modelFactory);
+
+        rover1Inputs = Inputs.create();
+        rover2Inputs = Inputs.create();
+
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
@@ -150,26 +160,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         cameraInputMultiplexer.addProcessor(camController);
         Gdx.input.setInputProcessor(cameraInputMultiplexer);
         Gdx.input.setCursorCatched(mouse);
-        batch = new ModelBatch();
-
-        challenge = new PiNoonArena(modelFactory);
-
-        environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        DirectionalLight light = new DirectionalLight();
-        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -10f * SCALE, 0f * SCALE)));
-
-        ModelBuilder mb = new ModelBuilder();
-        mb.begin();
-
-        hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        hudCamera.setToOrtho(true);
-
-        messageFactory = new GCCMessageFactory();
-        serverCommunication = platformSpecific.getServerCommunication();
-        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
-
-        background = new PerlinNoiseBackground();
     }
 
     private void finishLoading() {
@@ -177,10 +167,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         font = assetManager.get("font/basic.fnt");
         gccLogo = assetManager.get("GCC_full.png");
 
-        if (platformSpecific.hasSound()) {
-            ready1 = assetManager.get("sounds/ready1.wav");
-            fight1 = assetManager.get("sounds/fight1.wav");
-        }
+        soundManager.fetchSounds(assetManager);
 
         console = new Console();
         console.raw("Welcome to PiWars Virtual PiNoon v.0.6");
@@ -383,7 +370,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                     font.draw(spriteBatch, "2", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
                 } else if (breakTime < 180) {
                     if (platformSpecific.hasSound() && !readySoundPlayed) {
-                        ready1.play();
+                        soundManager.playReady();
                         readySoundPlayed = true;
                     }
                     font.draw(spriteBatch, "3", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
@@ -396,7 +383,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 if (breakTime > -60) {
                     font.draw(spriteBatch, "GO!", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
                     if (platformSpecific.hasSound() && !fightSoundPlayed) {
-                        fight1.play();
+                        soundManager.playFight();
                         fightSoundPlayed = true;
                     }
                 }
@@ -452,13 +439,12 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
     @Override
     public void dispose() {
         assetManager.dispose();
+        soundManager.dispose();
         batch.dispose();
         modelFactory.dispose();
         spriteBatch.dispose();
         font.dispose();
         if (console != null) { console.dispose(); }
-        if (ready1 != null) { ready1.dispose(); }
-        if (fight1 != null) { fight1.dispose(); }
         challenge.dispose();
         background.dispose();
     }
