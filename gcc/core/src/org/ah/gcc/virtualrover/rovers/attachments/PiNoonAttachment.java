@@ -16,6 +16,8 @@ import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 
 public class PiNoonAttachment extends AbstractAttachment {
+    private static final boolean SHOW_MARKER = true;
+
     private ModelInstance pinoon;
     private ModelInstance marker;
 
@@ -74,7 +76,7 @@ public class PiNoonAttachment extends AbstractAttachment {
         pinoon.transform.translate(-10f, 8f, -66f);
         pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 
-        if (MainGame.SHOW_MARKER) {
+        if (SHOW_MARKER) {
             // marker.transform.setToTranslationAndScaling(0.01f, 0.01f, 0.01f, sharpPointPos.x, sharpPointPos.y, sharpPointPos.z);
             marker.transform.setToTranslation(sharpPointPos);
             marker.transform.scale(0.003f, 0.003f, 0.003f);
@@ -99,7 +101,7 @@ public class PiNoonAttachment extends AbstractAttachment {
             balloon.render(batch, environment);
         }
 
-        if (MainGame.SHOW_MARKER) {
+        if (SHOW_MARKER) {
             batch.render(marker, environment);
         }
     }

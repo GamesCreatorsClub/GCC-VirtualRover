@@ -194,6 +194,10 @@ public class Console {
         listeners.add(listener);
     }
 
+    public void removeListener(ChatListener listener) {
+        listeners.remove(listener);
+    }
+
     public void keyTyped(char character) {
         if (typing) {
             typingtext = typingtext + character;
