@@ -32,11 +32,8 @@ public class BigWheel extends AbstractWheel {
         tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
     }
 
-    public void update(Matrix4 transform) {
-        float x = -1f;
-        float y = -1f;
-        float z = 1.5f;
-        transform.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), degreeOffset + degrees).translate(x, y, z);
+    public void internalUpdate() {
+        transform.rotate(WHEEL_ORIENTATION_AXIS, degreeOffset + degrees);
 
         wheel.transform.set(transform);
         wheel.transform.scale(scale, scale, scale);

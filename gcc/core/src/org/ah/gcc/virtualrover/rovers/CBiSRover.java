@@ -36,6 +36,9 @@ public class CBiSRover extends AbstractRover {
 
     private Matrix4 nextPos = new Matrix4();
 
+    private float[] polygonVertices = new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z };
+    private Polygon polygon = new Polygon(polygonVertices);
+
     public CBiSRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, modelFactory, colour);
 
@@ -83,54 +86,26 @@ public class CBiSRover extends AbstractRover {
         batch.render(body, environment);
     }
 
-    protected boolean collides(Matrix4 move, Rover[] rovers) {
-        blm.set(move);
-        frm.set(move);
-        brm.set(move);
-        flm.set(move);
-
-        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
-        backright = br.getPosition(brm.translate(160f, -36.7f, -100f), backright);
-        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -100f), frontright);
-
-        float maxX = 1000 * MainGame.SCALE;
-        float maxZ = 1000 * MainGame.SCALE;
-        float minX = -1000 * MainGame.SCALE;
-        float minZ = -1000 * MainGame.SCALE;
-
-        if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
-                || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX
-                || frontright.z < minZ) {
-            return true;
-        }
-
-        for (Rover rover : rovers) {
-            if (this != rover && collidesWithRover(move, rover)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
-    public void processInput(Inputs i, Rover[] rovers) {
+    public Matrix4 processInput(Inputs i) {
+        previousTransform.set(transform);
         float speed = calcSpeedMillimetresInFrame(roverSpeed);
         if (i.moveLeft()) {
-            testAndMove(rotate(speed), rovers);
+            return rotate(speed);
         } else if (i.moveRight()) {
-            testAndMove(rotate(-speed), rovers);
+            return rotate(-speed);
         } else if (i.moveUp()) {
-            testAndMove(drive(speed * 0.9f), rovers);
+            return drive(speed * 0.9f);
         } else if (i.moveDown()) {
-            testAndMove(drive(-speed * 0.9f), rovers);
+            return drive(-speed * 0.9f);
         } else if (i.rotateLeft()) {
-            testAndMove(rotate(speed), rovers);
+            return rotate(speed);
         } else if (i.rotateRight()) {
-            testAndMove(rotate(-speed), rovers);
+            return rotate(-speed);
         } else {
             stop();
         }
+        return null;
     }
 
     private void stop() {
@@ -165,18 +140,23 @@ public class CBiSRover extends AbstractRover {
     }
 
     @Override
-    public Polygon getPolygon(Matrix4 move) {
-        blm.set(move);
-        frm.set(move);
-        brm.set(move);
-        flm.set(move);
+    public Polygon getPolygon() {
+        backleft = bl.getPosition(backleft);
+        backright = br.getPosition(backright);
+        frontleft = fl.getPosition(frontleft);
+        frontright = fr.getPosition(frontright);
 
-        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
-        backright = br.getPosition(brm.translate(160f, -36.7f, -100f), backright);
-        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -100f), frontright);
+        polygonVertices[0] = frontright.x;
+        polygonVertices[1] = frontright.z;
+        polygonVertices[2] = frontleft.x;
+        polygonVertices[3] = frontleft.z;
+        polygonVertices[4] = backleft.x;
+        polygonVertices[5] = backleft.z;
+        polygonVertices[6] = backright.x;
+        polygonVertices[7] = backright.z;
 
-        return new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
+        polygon.dirty();
+        return polygon;
     }
 
     @Override

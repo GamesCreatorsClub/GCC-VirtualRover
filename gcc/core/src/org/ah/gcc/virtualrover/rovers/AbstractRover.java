@@ -30,6 +30,7 @@ public abstract class AbstractRover implements Rover {
     private Color colour;
 
     protected Matrix4 transform = new Matrix4();
+    protected Matrix4 previousTransform = new Matrix4();
 
     protected Balloons balloons;
 
@@ -56,6 +57,11 @@ public abstract class AbstractRover implements Rover {
         return transform;
     }
 
+    @Override
+    public Matrix4 getPreviousTransform() {
+        return previousTransform;
+    }
+
     public int getId() {
         return id;
     }
@@ -76,26 +82,6 @@ public abstract class AbstractRover implements Rover {
     protected void renderBalloons(ModelBatch batch, Environment environment) {
         balloons.render(batch, environment);
     }
-
-    protected abstract boolean collides(Matrix4 move, Rover[] rovers);
-
-    protected void testAndMove(Matrix4 nextPos, Rover[] rovers) {
-        if (!collides(nextPos, rovers)) {
-            transform.set(nextPos);
-            update();
-        }
-	}
-
-    protected boolean collidesWithRover(Matrix4 move, Rover rover) {
-        return Intersector.overlapConvexPolygons(getPolygon(move), rover.getPolygon());
-    }
-
-    @Override
-    public Polygon getPolygon() {
-        return getPolygon(transform);
-    }
-
-    protected abstract Polygon getPolygon(Matrix4 move);
 
     @Override
     public Vector2 sharpPoint() {

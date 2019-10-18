@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.rovers;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.badlogic.gdx.graphics.Color;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.*;
 
 public class GCCRover extends AbstractRover {
@@ -35,6 +37,9 @@ public class GCCRover extends AbstractRover {
     private Vector3 frontright = new Vector3();
 
     private Matrix4 nextPos = new Matrix4();
+
+    private float[] polygonVertices = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+    private Polygon polygon = new Polygon(polygonVertices);
 
     public GCCRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, modelFactory, colour);
@@ -86,75 +91,46 @@ public class GCCRover extends AbstractRover {
         }
     }
 
-    protected boolean collides(Matrix4 move, Rover[] rovers) {
-        blm.set(move);
-        frm.set(move);
-        brm.set(move);
-        flm.set(move);
-
-        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
-        backright = br.getPosition(brm.translate(160f, -36.7f, -160f), backright);
-        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -160f), frontright);
-
-        float maxX = 1000 * MainGame.SCALE;
-        float maxZ = 1000 * MainGame.SCALE;
-        float minX = -1000 * MainGame.SCALE;
-        float minZ = -1000 * MainGame.SCALE;
-
-        if (backleft.x > maxX || backleft.z > maxZ || backleft.x < minX || backleft.z < minZ || backright.x > maxX || backright.z > maxZ || backright.x < minX || backright.z < minZ
-                || frontleft.x > maxX || frontleft.z > maxZ || frontleft.x < minX || frontleft.z < minZ || frontright.x > maxX || frontright.z > maxZ || frontright.x < minX
-                || frontright.z < minZ) {
-            return true;
-        }
-
-        for (Rover rover : rovers) {
-            if (this != rover && collidesWithRover(move, rover)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
-    public void processInput(Inputs i, Rover[] rovers) {
+    public Matrix4 processInput(Inputs i) {
+        previousTransform.set(transform);
         float speed = calcSpeedMillimetresInFrame(roverSpeed);
         if (i.moveUp()) {
             if (i.rotateLeft()) {
-                testAndMove(steer(speed * 1.05f), rovers);
+                return steer(speed * 1.05f);
             } else if (i.rotateRight()) {
-                testAndMove(steer(-speed * 1.05f), rovers);
+                return steer(-speed * 1.05f);
             } else if (i.moveLeft()) {
-                testAndMove(drive(-speed * 0.5f, 135), rovers);
+                return drive(-speed * 0.5f, 135);
             } else if (i.moveRight()) {
-                testAndMove(drive(-speed * 0.5f, 45), rovers);
+                return drive(-speed * 0.5f, 45);
             } else {
-                testAndMove(drive(-speed, 0), rovers);
+                return drive(-speed, 0);
             }
         } else if (i.moveDown()) {
             if (i.rotateLeft()) {
-                testAndMove(steerBack(speed * 1.05f), rovers);
+                return steerBack(speed * 1.05f);
             } else if (i.rotateRight()) {
-                testAndMove(steerBack(-speed * 1.05f), rovers);
+                return steerBack(-speed * 1.05f);
             } else if (i.moveLeft()) {
-                testAndMove(drive(speed * 0.5f, 45), rovers);
+                return drive(speed * 0.5f, 45);
             } else if (i.moveRight()) {
-                testAndMove(drive(speed * 0.5f, 135), rovers);
+                return drive(speed * 0.5f, 135);
             } else {
-                testAndMove(drive(speed, 0), rovers);
+                return drive(speed, 0);
             }
         } else if (i.moveLeft()) {
-            testAndMove(drive(speed, 90), rovers);
+            return drive(speed, 90);
         } else if (i.moveRight()) {
-            testAndMove(drive(-speed, 90), rovers);
+            return drive(-speed, 90);
         } else if (i.rotateLeft()) {
-            testAndMove(rotate(speed), rovers);
+            return rotate(speed);
         } else if (i.rotateRight()) {
-            testAndMove(rotate(-speed), rovers);
+            return rotate(-speed);
         } else {
             stop();
-            update();
         }
+        return null;
     }
 
     private void straightenWheels() {
@@ -292,19 +268,23 @@ public class GCCRover extends AbstractRover {
     }
 
     @Override
-    public Polygon getPolygon(Matrix4 move) {
-        blm.set(move);
-        frm.set(move);
-        brm.set(move);
-        flm.set(move);
+    public Polygon getPolygon() {
+        backleft = bl.getPosition(backleft);
+        backright = br.getPosition(backright);
+        frontleft = fl.getPosition(frontleft);
+        frontright = fr.getPosition(frontright);
 
-        backleft = bl.getPosition(blm.translate(160f, -36.7f, 0f), backleft);
-        backright = br.getPosition(brm.translate(160f, -36.7f, -100f), backright);
-        frontleft = fl.getPosition(flm.translate(6.7f, -36.7f, 0f), frontleft);
-        frontright = fr.getPosition(frm.translate(6.7f, -36.7f, -100f), frontright);
+        polygonVertices[0] = frontright.x;
+        polygonVertices[1] = frontright.z;
+        polygonVertices[2] = frontleft.x;
+        polygonVertices[3] = frontleft.z;
+        polygonVertices[4] = backleft.x;
+        polygonVertices[5] = backleft.z;
+        polygonVertices[6] = backright.x;
+        polygonVertices[7] = backright.z;
 
-        Polygon poly = new Polygon(new float[] { backleft.x, backleft.z, backright.x, backright.z, frontleft.x, frontleft.z, frontright.x, frontright.z });
-        return poly;
+        polygon.dirty();
+        return polygon;
     }
 
     @Override

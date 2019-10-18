@@ -3,12 +3,13 @@ package org.ah.gcc.virtualrover.rovers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.ModelFactory;
+
+import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonFromModelInstance;
 
 public class GCCRoverWheel extends AbstractWheel {
 
@@ -32,14 +33,8 @@ public class GCCRoverWheel extends AbstractWheel {
         tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
     }
 
-    public void update(Matrix4 transform) {
-        float x = -1f;
-        float y = 0;
-        float z = 1.5f;
-        transform
-                .translate(-x, -y, -z)
-                .rotate(new Vector3(0, 1, 0), degreeOffset + degrees)
-                .translate(x, y, z);
+    protected void internalUpdate() {
+        transform.rotate(WHEEL_ROTATION_AXIS, degreeOffset + degrees);
 
         wheel.transform.set(transform);
         motor.transform.set(transform);

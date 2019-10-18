@@ -12,8 +12,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.challenges.Challenge;
@@ -279,8 +278,53 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
             breakTime--;
 
             if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
-                rover1.processInput(rover1Inputs, rovers);
-                rover2.processInput(rover2Inputs, rovers);
+                Matrix4 newRover1Position = rover1.processInput(rover1Inputs);
+                Matrix4 newRover2Position = rover2.processInput(rover2Inputs);
+
+                boolean rover1Moves = newRover1Position != null;
+                boolean rover2Moves = newRover2Position != null;
+
+                if (rover1Moves || rover2Moves) {
+                    Matrix4 rover1Position = rover1.getPreviousTransform();
+                    Matrix4 rover2Position = rover2.getPreviousTransform();
+                    if (newRover1Position == null) { newRover1Position = rover1Position; }
+                    if (newRover2Position == null) { newRover2Position = rover2Position; }
+
+                    if (rover1Moves) {
+                        rover1.getTransform().set(newRover1Position);
+                        rover1.update();
+                    }
+
+                    if (rover2Moves) {
+                        rover2.getTransform().set(newRover2Position);
+                        rover2.update();
+                    }
+
+                    Polygon rover1Poligon = rover1.getPolygon();
+                    Polygon rover2Poligon = rover2.getPolygon();
+
+                    boolean roversCollide = Intersector.intersectPolygons(rover1Poligon, rover2Poligon, null);
+
+                    if (roversCollide) {
+                        if (rover1Moves) {
+                            rover1.getTransform().set(rover1Position);
+                            rover1.update();
+                        }
+                        if (rover2Moves) {
+                            rover2.getTransform().set(rover2Position);
+                            rover2.update();
+                        }
+                    } else {
+                        if (rover1Moves && challenge.collides(rover1Poligon)) {
+                            rover1.getTransform().set(rover1Position);
+                            rover1.update();
+                        }
+                        if (rover2Moves && challenge.collides(rover2Poligon)) {
+                            rover2.getTransform().set(rover2Position);
+                            rover2.update();
+                        }
+                    }
+                }
 
                 rover1.render(batch, environment, true); // currentState == GameState.GAME);
                 rover2.render(batch, environment, true); // currentState == GameState.GAME);

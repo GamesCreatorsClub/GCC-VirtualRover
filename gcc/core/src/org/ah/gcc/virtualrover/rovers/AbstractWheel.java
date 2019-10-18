@@ -2,6 +2,7 @@ package org.ah.gcc.virtualrover.rovers;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 
 public abstract class AbstractWheel {
@@ -42,8 +43,8 @@ public abstract class AbstractWheel {
         this.degrees = degrees;
     }
 
-    public Vector3 getPosition(Matrix4 move, Vector3 result) {
-        return move.getTranslation(result);
+    public Vector3 getPosition(Vector3 result) {
+        return transform.getTranslation(result);
     }
 
     public Matrix4 getTransform() {
@@ -53,8 +54,8 @@ public abstract class AbstractWheel {
     public void update() {
         wheelangle += speed;
         transform.translate(relativePosition);
-        update(transform);
+        internalUpdate();
     }
 
-    public abstract void update(Matrix4 transform);
+    protected abstract void internalUpdate();
 }
