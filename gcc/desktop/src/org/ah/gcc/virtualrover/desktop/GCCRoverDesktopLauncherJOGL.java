@@ -7,8 +7,6 @@ import com.badlogic.gdx.backends.jogamp.JoglNewtApplicationConfiguration;
 
 public class GCCRoverDesktopLauncherJOGL {
 
-    public static PlatformSpecific platformSpecific;
-
     public static void main(String[] args) {
         //
         // $ sudo modprobe snd_pcm_oss

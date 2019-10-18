@@ -34,7 +34,7 @@ public class GCCRoverRunServerForWebGL {
         startServer(path, 8088);
     }
 
-    private static void startServer(File path, int port) throws IOException {
+    public static void startServer(File path, int port) throws IOException {
         System.out.println("Starting server, path: " + path.getPath());
         System.out.println("  on url http://localhost:" + port);
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -55,14 +55,12 @@ public class GCCRoverRunServerForWebGL {
             String path = exchange.getRequestURI().getPath();
             File file = new File(dir, path);
 
-//            if (!file.exists()) {
-//                exchange.sendResponseHeaders(404, 0);
-//                exchange.close();
             if (file.isDirectory()) {
                 File index = new File(file, "index.html");
                 if (!index.exists()) {
                     StringWriter res = new StringWriter();
                     res.append("<html><body><ul>\n");
+                    //noinspection ConstantConditions
                     for (String f : file.list()) {
                         res.append("<li><a href=\"" + makePath(path, f) + "\">" + makePath(path, f) + "</a></li>\n");
                     }
@@ -70,7 +68,7 @@ public class GCCRoverRunServerForWebGL {
                     String response = res.toString();
                     exchange.sendResponseHeaders(200, response.length());
                     OutputStream os = exchange.getResponseBody();
-                    os.write(response.toString().getBytes());
+                    os.write(response.getBytes());
                     os.close();
                 } else {
                     if (path.endsWith("/")) {
@@ -109,16 +107,13 @@ public class GCCRoverRunServerForWebGL {
             } else {
                 exchange.sendResponseHeaders(200, file.length());
                 OutputStream os = exchange.getResponseBody();
-                FileInputStream fis = new FileInputStream(file);
-                try {
+                try (FileInputStream fis = new FileInputStream(file)) {
                     byte[] buffer = new byte[10240];
                     int r = fis.read(buffer);
                     while (r > 0) {
                         os.write(buffer, 0, r);
                         r = fis.read(buffer);
                     }
-                } finally {
-                    fis.close();
                 }
                 os.close();
             }

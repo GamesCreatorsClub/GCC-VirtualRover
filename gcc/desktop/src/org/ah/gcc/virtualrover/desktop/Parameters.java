@@ -53,7 +53,7 @@ public class Parameters {
                 } else if ("--help".equals(args[i]) || "-h".equals(args[i]) || "-?".equals(args[i])) {
                     i++;
                     System.out.println("Possible arguments:");
-                    System.out.println("");
+                    System.out.println();
                     System.out.println("--position or -p         position in XxY format (0x0 or 100x40). Default 0x0.");
                     System.out.println("--resollution or -r      resolution in XxY format (1280x800). Default 1440x960.");
                     System.out.println("--decorated or -d        if specified created window will have decoration. Default undecorated.");

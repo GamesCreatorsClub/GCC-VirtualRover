@@ -8,8 +8,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 public class GCCRoverDesktopLauncherLWJGL {
 
-    public static PlatformSpecific platformSpecific;
-
     public static void main(String[] args) {
         Parameters parameters = new Parameters();
         parameters.parseArgs(args);

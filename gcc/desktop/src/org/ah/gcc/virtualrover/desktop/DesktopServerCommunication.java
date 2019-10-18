@@ -26,22 +26,19 @@ public class DesktopServerCommunication extends AbstractServerCommunication {
         datagramChannel = DatagramChannel.open();
         // datagramChannel.socket().bind(serverSocketAddress);
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                setConnected(true);
-                callback.successful();
+        Thread thread = new Thread(() -> {
+            setConnected(true);
+            callback.successful();
 
-                while (true) {
-                    try {
-                        BufferSerializer serializer = bufferSerializerFactory.obtain();
-                        ByteBuffer buffer = serializer.getBuffer();
-                        datagramChannel.receive(buffer);
-                        buffer.flip();
-                        receiver.onMessage(serializer);
-                    } catch (IOException e) {
-                        Gdx.app.error("DesktopServerCommunication", "Error receiving datagram", e);
-                    }
+            while (true) {
+                try {
+                    BufferSerializer serializer = bufferSerializerFactory.obtain();
+                    ByteBuffer buffer = serializer.getBuffer();
+                    datagramChannel.receive(buffer);
+                    buffer.flip();
+                    receiver.onMessage(serializer);
+                } catch (IOException e) {
+                    Gdx.app.error("DesktopServerCommunication", "Error receiving datagram", e);
                 }
             }
         });
