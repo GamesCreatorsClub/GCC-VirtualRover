@@ -44,7 +44,7 @@ public class PiNoonAttachment extends AbstractAttachment {
         this.balloons[2] = new Balloon(modelFactory.getBaloon(), balloonTransparentColour);
     }
 
-    public Vector2 getSharpPoint(Matrix4 roverTransform) {
+    public Vector2 getSharpPoint() {
         sharpPoint.set(sharpPointPos.x, sharpPointPos.z);
         return sharpPoint;
     }

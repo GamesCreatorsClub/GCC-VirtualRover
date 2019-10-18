@@ -26,11 +26,6 @@ public class CBiSRover extends AbstractRover {
 
     private static float ROVER_SCALE = 26;
 
-    private Matrix4 blm = new Matrix4();
-    private Matrix4 frm = new Matrix4();
-    private Matrix4 brm = new Matrix4();
-    private Matrix4 flm = new Matrix4();
-
     private Vector3 backleft = new Vector3();
     private Vector3 backright = new Vector3();
     private Vector3 frontleft = new Vector3();
@@ -43,7 +38,7 @@ public class CBiSRover extends AbstractRover {
     private List<Polygon> polygons = new ArrayList<Polygon>();
 
     public CBiSRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
-        super(name, modelFactory, colour);
+        super(name, colour);
 
         body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
         body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
@@ -86,7 +81,7 @@ public class CBiSRover extends AbstractRover {
         fr.render(batch, environment);
 
         if (hasBalloons) {
-            renderBalloons(batch, environment);
+            renderAttachment(batch, environment);
         }
         batch.render(body, environment);
     }

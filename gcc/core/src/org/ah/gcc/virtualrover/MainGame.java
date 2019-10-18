@@ -12,7 +12,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.challenges.Challenge;
@@ -23,7 +26,6 @@ import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
-import org.ah.gcc.virtualrover.utils.MeshUtils;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
@@ -73,7 +75,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
 
     private Rover rover1;
     private Rover rover2;
-    private Rover[] rovers;
 
     private int cameratype = 3;
 
@@ -228,7 +229,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 camera.up.set(new Vector3(0, 1, 0));
 
                 camera.fieldOfView = 120f;
-                ;
             } else if (cameratype == 2) {
                 pos1 = rover1.getTransform().getTranslation(pos1);
                 camera.lookAt(pos1);
@@ -405,11 +405,11 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)rover1.getAttachemnt();
                 PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)rover2.getAttachemnt();
 
-                if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint(rover2.getTransform())) == 0) {
+                if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint()) == 0) {
                     end = true;
                     player1score++;
                     winner = "Green";
-                } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint(rover1.getTransform())) == 0) {
+                } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint()) == 0) {
                     end = true;
                     player2score++;
                     winner = "Blue";
@@ -505,8 +505,6 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
                 rover2.setId(2);
                 rover1.setAttachment(new PiNoonAttachment(modelFactory, rover1.getColour()));
                 rover2.setAttachment(new PiNoonAttachment(modelFactory, rover2.getColour()));
-
-                rovers = new Rover[]{ rover1, rover2 };
 
                 resetRobots();
 
@@ -666,7 +664,7 @@ public class MainGame extends ApplicationAdapter implements InputProcessor, Chat
         private int id;
         private String nom;
 
-        private RoverType(int id, String nom) {
+        RoverType(int id, String nom) {
             this.id = id;
             this.nom = nom;
         }

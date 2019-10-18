@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.gcc.virtualrover.Inputs;
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 

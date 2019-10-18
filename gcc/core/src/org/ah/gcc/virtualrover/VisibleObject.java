@@ -1,8 +1,7 @@
 package org.ah.gcc.virtualrover;
 
-import org.ah.themvsus.engine.common.game.GameObject;
-
 import com.badlogic.gdx.graphics.g2d.Batch;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 public interface VisibleObject {
 

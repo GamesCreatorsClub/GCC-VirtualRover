@@ -1,16 +1,13 @@
 package org.ah.gcc.virtualrover.rovers;
 
-import java.util.NoSuchElementException;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
-import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
-import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
+
+import java.util.NoSuchElementException;
 
 public abstract class AbstractRover implements Rover {
 
@@ -24,12 +21,9 @@ public abstract class AbstractRover implements Rover {
 
     protected Attachment attachment;
 
-    protected AbstractRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+    protected AbstractRover(String name, Color colour) throws NoSuchElementException {
         this.name = name;
         this.colour = colour;
-
-        Color balloonTransparentColour = new Color(colour);
-        balloonTransparentColour.a = 0.7f;
     }
 
     public String getName() {
@@ -68,7 +62,7 @@ public abstract class AbstractRover implements Rover {
         attachment.update(transform);
     }
 
-    protected void renderBalloons(ModelBatch batch, Environment environment) {
+    protected void renderAttachment(ModelBatch batch, Environment environment) {
         if (attachment != null) {
             attachment.render(batch, environment);
         }

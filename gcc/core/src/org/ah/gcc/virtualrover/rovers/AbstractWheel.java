@@ -2,7 +2,6 @@ package org.ah.gcc.virtualrover.rovers;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 
 public abstract class AbstractWheel {

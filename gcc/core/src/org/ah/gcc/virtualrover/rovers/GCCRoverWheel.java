@@ -5,11 +5,8 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.ModelFactory;
-
-import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonFromModelInstance;
 
 public class GCCRoverWheel extends AbstractWheel {
 

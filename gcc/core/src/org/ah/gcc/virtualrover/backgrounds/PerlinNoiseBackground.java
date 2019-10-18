@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
-import org.ah.gcc.virtualrover.utils.MeshUtils;
 
 import static org.ah.gcc.virtualrover.utils.MeshUtils.createRect;
 

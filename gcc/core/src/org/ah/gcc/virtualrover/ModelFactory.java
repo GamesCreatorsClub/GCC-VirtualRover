@@ -82,7 +82,7 @@ public class ModelFactory {
         marker.dispose();
     }
 
-    private Exception resourceDoesNotExists(String name) throws NoSuchElementException {
+    private void resourceDoesNotExists(String name) throws NoSuchElementException {
         throw new NoSuchElementException("No model found for " + name + ": try load()");
     }
 
