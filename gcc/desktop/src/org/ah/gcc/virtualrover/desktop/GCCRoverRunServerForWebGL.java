@@ -90,7 +90,16 @@ public class GCCRoverRunServerForWebGL {
             File file = new File(dir, path);
             boolean exists = file.exists();
             if (!exists && path.startsWith("html/")) {
-                file = new File(dir.getParentFile(), "build/gwt/out/" + path);
+                File distDir = new File(dir.getParentFile(), "build/dist");
+                if (distDir.exists()) {
+                    file = new File(distDir, path.substring(5));
+                }
+                if (!file.exists()) {
+                    File gwtDir = new File(dir.getParentFile(), "build/gwt");
+                    if (gwtDir.exists()) {
+                        file = new File(gwtDir, "out/" + path);
+                    }
+                }
                 if (!file.exists()) {
                     File alternative = new File(dir.getParentFile(), "war/assets/" + path.substring(5));
                     if (alternative.exists()) {
