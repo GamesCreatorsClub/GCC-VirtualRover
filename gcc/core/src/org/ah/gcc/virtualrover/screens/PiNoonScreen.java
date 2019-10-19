@@ -517,7 +517,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
             @Override public void enter(PiNoonScreen s) {
                 timer = 60;
-                s.resetRovers();
                 s.setMiddleMessage("round " + (s.player1score + s.player2score + 1), false);
             }
 
@@ -537,7 +536,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
             @Override public void enter(PiNoonScreen s) {
                 timer = 60;
-                s.resetRovers();
                 s.setMiddleMessage(Integer.toString(s.countdown), false);
                 if (s.countdown == 2) {
                     s.soundManager.playReady();
