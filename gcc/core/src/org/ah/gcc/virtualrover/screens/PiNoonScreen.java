@@ -42,11 +42,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private Vector3 pos2 = new Vector3();
     private Vector3 midpoint = new Vector3();
     private float distance;
-
     private int mouseX = 0;
     private int mouseY = 0;
     private float rotSpeed = 0.1f;
-
     private boolean mouse = false;
 
     private StateMachine<PiNoonScreen, GameState> stateMachine;
@@ -189,6 +187,18 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         if (stateMachine.getCurrentState().shouldMoveRovers()) {
             moveRovers();
+            if (stateMachine.isState(GameState.GAME)) {
+                PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)rover1.getAttachemnt();
+                PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)rover2.getAttachemnt();
+
+                if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment) == 0) {
+                    player1score++;
+                    winner = "Green";
+                } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment) == 0) {
+                    player2score++;
+                    winner = "Blue";
+                }
+            }
             rover1.render(batch, environment, true); // currentState == GameState.GAME);
             rover2.render(batch, environment, true); // currentState == GameState.GAME);
         }
@@ -484,7 +494,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             @Override public void enter(PiNoonScreen s) {
                 s.setBottomMessage(null, false);
                 if (s.winner != null) {
-                    timer = 120;
+                    timer = 180;
                     s.setMiddleMessage(s.winner + " won that round!", false);
                 } else {
                     timer = 60;
@@ -568,21 +578,12 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                     s.setMiddleMessage(null, false);
                 }
 
+
                 boolean end = false;
                 PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)s.rover1.getAttachemnt();
                 PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)s.rover2.getAttachemnt();
 
-                if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint()) == 0) {
-                    end = true;
-                    s.player1score++;
-                    s.winner = "Green";
-                } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint()) == 0) {
-                    end = true;
-                    s.player2score++;
-                    s.winner = "Blue";
-                }
-
-                if (end) {
+                if (rover1PiNoonAttachment.getUnpoppedBalloonsCount() == 0 || rover2PiNoonAttachment.getUnpoppedBalloonsCount() == 0) {
                     if (s.player1score + s.player2score >= 3) {
                         if (s.player1score > s.player2score) {
                             s.winner = "Green";
@@ -591,11 +592,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                         }
                         s.stateMachine.toState(GameState.END, s);
                     } else {
-                        timer = 300;
                         s.stateMachine.toState(GameState.BREAK, s);
                     }
                 }
-
             }
         },
 

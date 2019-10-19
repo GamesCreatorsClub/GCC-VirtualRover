@@ -106,7 +106,19 @@ public class PiNoonAttachment extends AbstractAttachment {
         }
     }
 
-    public int checkIfBalloonsPopped(Vector2 sharpPoint) {
+    public int getUnpoppedBalloonsCount() {
+        int notPoppedBalloons = 0;
+        for (Balloon balloon : balloons) {
+            if (!balloon.popped) {
+                notPoppedBalloons++;
+            }
+        }
+        return notPoppedBalloons;
+    }
+
+    public int checkIfBalloonsPopped(PiNoonAttachment otherPiNoonAttachment) {
+        Vector2 sharpPoint = otherPiNoonAttachment.getSharpPoint();
+
         float radius = 40 * MainGame.SCALE;
 
         int notPoppedBalloons = 0;
