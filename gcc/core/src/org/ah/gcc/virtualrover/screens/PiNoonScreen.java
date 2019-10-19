@@ -8,7 +8,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
@@ -21,6 +20,8 @@ import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.rovers.*;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
+import org.ah.gcc.virtualrover.statemachine.State;
+import org.ah.gcc.virtualrover.statemachine.StateMachine;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 
@@ -31,7 +32,7 @@ import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
-    private static final long BREAK = 300;
+    private static final int BREAK = 300;
 
     private PerspectiveCamera camera;
     private CameraInputController camController;
@@ -48,13 +49,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     private boolean mouse = false;
 
-    private long breakTime = 0;
-
-    private GameState currentState = GameState.MENU;
-    private boolean readySoundPlayed = false;
-    private boolean fightSoundPlayed = false;
-
-    private String winner = "NONE";
+    private StateMachine<PiNoonScreen, GameState> stateMachine;
+    private String winner = null;
+    private int countdown;
 
     private RoverType playerSelection1 = RoverType.GCC;
     private RoverType playerSelection2 = RoverType.CBIS;
@@ -96,6 +93,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraInputMultiplexer.addProcessor(camController);
         Gdx.input.setInputProcessor(cameraInputMultiplexer);
         Gdx.input.setCursorCatched(mouse);
+
+        stateMachine = new StateMachine<PiNoonScreen, GameState>();
+        stateMachine.toState(GameState.SELECTION, this);
     }
 
     @Override
@@ -173,6 +173,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         }
 
         camera.update();
+        stateMachine.update(this);
 
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
         Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -183,109 +184,53 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         batch.begin(camera);
 
+
         challenge.render(batch, environment);
 
-
-
-        int margin = 64;
-        spriteBatch.begin();
-
-        spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
-
-        if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
-            font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+        if (stateMachine.getCurrentState().shouldMoveRovers()) {
+            moveRovers();
+            rover1.render(batch, environment, true); // currentState == GameState.GAME);
+            rover2.render(batch, environment, true); // currentState == GameState.GAME);
         }
 
-        breakTime--;
-        if (currentState == GameState.SELECTION) {
-            font.draw(spriteBatch, playerSelection1.getName(), margin, Gdx.graphics.getHeight() / 2 + margin);
-            font.draw(spriteBatch, playerSelection2.getName(), margin + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-            setBottomMessage("Press space to begin", true);
-        } else if (currentState == GameState.MENU) {
-            setBottomMessage("Press space to begin", true);
-        } else if (currentState == GameState.END) {
-            moveRovers();
-            setMiddleMessage(winner + " wins! " + player1score + " - " + player2score, false);
-            setBottomMessage("Press space to return to menu!", true);
-        } else if (currentState == GameState.BREAK) {
-            moveRovers();
-            setBottomMessage(null, false);
-
-            if (breakTime < 60) {
-                setMiddleMessage("1", false);
-            } else if (breakTime < 120) {
-                setMiddleMessage("2", false);
-            } else if (breakTime < 180) {
-                setMiddleMessage("3", false);
-                if (!readySoundPlayed) {
-                    soundManager.playReady();
-                    readySoundPlayed = true;
-                }
-            } else if (breakTime < 240) {
-                setMiddleMessage("round " + (player1score + player2score + 1), false);
-            } else {
-                if (!winner.equals("NONE")) {
-                    setMiddleMessage(winner + " won that round!", false);
-                } else {
-                    setMiddleMessage(null, false);
-                }
-            }
-            if (breakTime < 0) {
-                currentState = GameState.GAME;
-                fightSoundPlayed = false;
-                resetRobots();
-            }
-        } else if (currentState == GameState.GAME) {
-            moveRovers();
-            setBottomMessage(null, false);
-
-            if (breakTime > -60) {
-                setMiddleMessage("GO!", false);
-                if (!fightSoundPlayed) {
-                    soundManager.playFight();
-                    fightSoundPlayed = true;
-                }
-            } else {
-                setMiddleMessage(null, false);
-            }
-            boolean end = false;
-            PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)rover1.getAttachemnt();
-            PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)rover2.getAttachemnt();
-
-            if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint()) == 0) {
-                end = true;
-                player1score++;
-                winner = "Green";
-            } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint()) == 0) {
-                end = true;
-                player2score++;
-                winner = "Blue";
-            }
-
-            if (end) {
-                if (player1score + player2score >= 3) {
-                    currentState = GameState.END;
-                    if (player1score > player2score) {
-                        winner = "Green";
-                    } else if (player1score < player2score) {
-                        winner = "Blue";
-                    }
-                } else {
-                    currentState = GameState.BREAK;
-                    readySoundPlayed = false;
-                    breakTime = BREAK;
-                }
-            }
-        }
-
-        spriteBatch.end();
         batch.end();
+
+        spriteBatch.begin();
+        if (stateMachine.getCurrentState().shouldDisplayScore()) {
+            drawScore();
+        }
+        if (stateMachine.getCurrentState().shouldDisplayPlayerSelection()) {
+            drawPlayerSelection();
+        }
+        spriteBatch.end();
 
         drawStandardMessages();
 
         if (console != null) {
             console.render();
         }
+    }
+
+    private void setupRovers() {
+        rover1 = makeRobot(playerSelection1, "1", Color.BLUE);
+        rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
+        rover2.setId(2);
+        rover1.setAttachment(new PiNoonAttachment(modelFactory, rover1.getColour()));
+        rover2.setAttachment(new PiNoonAttachment(modelFactory, rover2.getColour()));
+
+        resetRovers();
+
+        ((PiNoonAttachment)rover1.getAttachemnt()).removeBalloons();
+        ((PiNoonAttachment)rover2.getAttachemnt()).removeBalloons();
+    }
+
+    private void drawScore() {
+        font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+    }
+
+    private void drawPlayerSelection() {
+        font.draw(spriteBatch, playerSelection1.getName(), 64, Gdx.graphics.getHeight() / 2 + 64);
+        font.draw(spriteBatch, playerSelection2.getName(), 64 + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 64);
     }
 
     private void moveRovers() {
@@ -355,9 +300,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                     }
                 }
             }
-
-            rover1.render(batch, environment, true); // currentState == GameState.GAME);
-            rover2.render(batch, environment, true); // currentState == GameState.GAME);
         }
     }
 
@@ -390,7 +332,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 Gdx.input.setInputProcessor(cameraInputMultiplexer);
             }
         }
-        if (currentState == GameState.SELECTION) {
+        if (stateMachine.isState(GameState.SELECTION)) {
 
             if (keycode == Input.Keys.D) {
                 playerSelection1 = playerSelection1.getNext();
@@ -405,32 +347,15 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             }
 
             if (keycode == Input.Keys.SPACE) {
-                rover1 = makeRobot(playerSelection1, "1", Color.BLUE);
-                rover2 = makeRobot(playerSelection2, "2", Color.GREEN);
-                rover2.setId(2);
-                rover1.setAttachment(new PiNoonAttachment(modelFactory, rover1.getColour()));
-                rover2.setAttachment(new PiNoonAttachment(modelFactory, rover2.getColour()));
-
-                resetRobots();
-
-                ((PiNoonAttachment)rover1.getAttachemnt()).removeBalloons();
-
-                ((PiNoonAttachment)rover2.getAttachemnt()).removeBalloons();
-
-                player1score = 0;
-                player2score = 0;
-                currentState = GameState.BREAK;
-                readySoundPlayed = false;
-                breakTime = BREAK + 100;
-                winner = "NONE";
+                stateMachine.toState(GameState.BREAK, this);
             }
         }
 
         if (keycode == Input.Keys.SPACE) {
-            if (currentState == GameState.END) {
-                currentState = GameState.MENU;
-            } else if (currentState == GameState.MENU) {
-                currentState = GameState.SELECTION;
+            if (stateMachine.isState(GameState.END)) {
+                stateMachine.toState(GameState.SELECTION, this);
+            } else if (stateMachine.isState(GameState.SELECTION)) {
+                stateMachine.toState(GameState.SELECTION, this);
             }
         }
 
@@ -439,6 +364,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         }
         return false;
     }
+
 
     @Override
     public boolean keyUp(int keycode) {
@@ -519,7 +445,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         return r;
     }
 
-    public void resetRobots() {
+    public void resetRovers() {
         rover1.getTransform().idt();
         rover1.getTransform().setToTranslationAndScaling(700 * SCALE, 0, 700 * SCALE, SCALE, SCALE, SCALE);
         rover1.getTransform().rotate(new Vector3(0, 1, 0), -45);
@@ -534,7 +460,171 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         ((PiNoonAttachment)rover2.getAttachemnt()).resetBalloons();
     }
 
-    private enum GameState {
-        MENU, SELECTION, GAME, BREAK, END
+    private enum GameState implements State<PiNoonScreen> {
+
+        SELECTION() {
+            @Override public boolean shouldDisplayPlayerSelection() { return true; }
+
+            @Override public void enter(PiNoonScreen s) {
+                s.player1score = 0;
+                s.player2score = 0;
+                s.winner = null;
+                s.setBottomMessage("Select rovers and press space to begin", true);
+            }
+
+            @Override public void exit(PiNoonScreen s) {
+                s.setupRovers();
+            }
+        },
+
+        BREAK() {
+            @Override public boolean shouldMoveRovers() { return true; }
+            @Override public boolean shouldDisplayScore() { return true; }
+
+            @Override public void enter(PiNoonScreen s) {
+                s.setBottomMessage(null, false);
+                if (s.winner != null) {
+                    timer = 120;
+                    s.setMiddleMessage(s.winner + " won that round!", false);
+                } else {
+                    timer = 60;
+                    s.setMiddleMessage(null, false);
+                }
+            }
+
+            @Override public void update(PiNoonScreen s) {
+                super.update(s);
+
+                if (timer == 0) {
+                    s.stateMachine.toState(GameState.ROUND, s);
+                }
+            }
+        },
+
+        ROUND() {
+            @Override public boolean shouldMoveRovers() { return true; }
+            @Override public boolean shouldDisplayScore() { return true; }
+
+            @Override public void enter(PiNoonScreen s) {
+                timer = 60;
+                s.resetRovers();
+                s.setMiddleMessage("round " + (s.player1score + s.player2score + 1), false);
+            }
+
+            @Override public void update(PiNoonScreen s) {
+                super.update(s);
+
+                if (timer == 0) {
+                    s.countdown = 3;
+                    s.stateMachine.toState(GameState.ROUND_COUNTDOWN, s);
+                }
+            }
+        },
+
+        ROUND_COUNTDOWN() {
+            @Override public boolean shouldMoveRovers() { return true; }
+            @Override public boolean shouldDisplayScore() { return true; }
+
+            @Override public void enter(PiNoonScreen s) {
+                timer = 60;
+                s.resetRovers();
+                s.setMiddleMessage(Integer.toString(s.countdown), false);
+                if (s.countdown == 2) {
+                    s.soundManager.playReady();
+                }
+            }
+
+            @Override public void update(PiNoonScreen s) {
+                super.update(s);
+
+                if (timer == 0) {
+                    s.countdown--;
+                    if (s.countdown == 0) {
+                        s.resetRovers();
+                        s.stateMachine.toState(GameState.GAME, s);
+                    } else {
+                        enter(s);
+                    }
+                }
+            }
+        },
+
+        GAME() {
+            @Override public boolean shouldMoveRovers() { return true; }
+            @Override public boolean shouldDisplayScore() { return true; }
+
+            @Override public void enter(PiNoonScreen s) {
+                s.resetRovers();
+                timer = 60;
+                s.setMiddleMessage("GO!", false);
+                s.setBottomMessage(null, false);
+                s.soundManager.playFight();
+            }
+
+            @Override public void update(PiNoonScreen s) {
+                super.update(s);
+
+                if (timer == 0 ) {
+                    s.setMiddleMessage(null, false);
+                }
+
+                boolean end = false;
+                PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)s.rover1.getAttachemnt();
+                PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)s.rover2.getAttachemnt();
+
+                if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint()) == 0) {
+                    end = true;
+                    s.player1score++;
+                    s.winner = "Green";
+                } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint()) == 0) {
+                    end = true;
+                    s.player2score++;
+                    s.winner = "Blue";
+                }
+
+                if (end) {
+                    if (s.player1score + s.player2score >= 3) {
+                        if (s.player1score > s.player2score) {
+                            s.winner = "Green";
+                        } else if (s.player1score < s.player2score) {
+                            s.winner = "Blue";
+                        }
+                        s.stateMachine.toState(GameState.END, s);
+                    } else {
+                        timer = 300;
+                        s.stateMachine.toState(GameState.BREAK, s);
+                    }
+                }
+
+            }
+        },
+
+        END() {
+            @Override public boolean shouldMoveRovers() { return true; }
+            @Override public boolean shouldDisplayScore() { return true; }
+
+            @Override public void enter(PiNoonScreen s) {
+                s.setMiddleMessage(s.winner + " wins! " + s.player1score + " - " + s.player2score, false);
+                s.setBottomMessage("Press space to return to menu!", true);
+            }
+
+            @Override public void exit(PiNoonScreen s) {
+                s.setMiddleMessage(null, false);
+            }
+        };
+
+        int timer;
+
+        @Override public void enter(PiNoonScreen s) {}
+        @Override public void update(PiNoonScreen s) {
+            timer--;
+        }
+        @Override public void exit(PiNoonScreen s) {}
+
+        public boolean shouldMoveRovers() { return false; }
+
+        public boolean shouldDisplayScore() { return false; }
+
+        public boolean shouldDisplayPlayerSelection() { return false; }
     }
 }
