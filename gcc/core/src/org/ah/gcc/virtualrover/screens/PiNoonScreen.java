@@ -1,14 +1,14 @@
 package org.ah.gcc.virtualrover.screens;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
@@ -17,40 +17,21 @@ import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.Inputs;
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
-import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
-import org.ah.gcc.virtualrover.challenges.Challenge;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.rovers.*;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.utils.SoundManager;
-import org.ah.gcc.virtualrover.view.ChatColor;
-import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
-import org.ah.themvsus.engine.common.game.Player;
 
 import java.util.List;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
-public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatListener {
+public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
     private static final long BREAK = 300;
-
-    private MainGame game;
-    private AssetManager assetManager;
-    private SoundManager soundManager;
-    private ModelFactory modelFactory;
-
-    private ModelBatch batch;
-    private Environment environment;
-
-    private OrthographicCamera hudCamera;
-    private SpriteBatch spriteBatch;
-    private BitmapFont font;
-
-    private Console console;
 
     private PerspectiveCamera camera;
     private CameraInputController camController;
@@ -68,18 +49,12 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
     private boolean mouse = false;
 
     private long breakTime = 0;
-    private int a = 0;
 
-    private enum GameState {
-        MENU, SELECTION, GAME, BREAK, END
-    }
     private GameState currentState = GameState.MENU;
     private boolean readySoundPlayed = false;
     private boolean fightSoundPlayed = false;
 
-
     private String winner = "NONE";
-    private Texture gccLogo;
 
     private RoverType playerSelection1 = RoverType.GCC;
     private RoverType playerSelection2 = RoverType.CBIS;
@@ -90,31 +65,18 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
     private int player1score = 0;
     private int player2score = 0;
 
-    private Challenge challenge;
-    private Background background;
-
     private boolean renderBackground = false;
 
     public PiNoonScreen(MainGame game, AssetManager assetManager, SoundManager soundManager, ModelFactory modelFactory, Console console) {
+        super(game, assetManager, soundManager, modelFactory, console);
         this.game = game;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
         this.modelFactory = modelFactory;
         this.console = console;
 
-        batch = new ModelBatch();
-        spriteBatch = new SpriteBatch();
-
-        environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        DirectionalLight light = new DirectionalLight();
-        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -10f * SCALE, 0f * SCALE)));
-
-        hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        hudCamera.setToOrtho(true);
-
-        background = new PerlinNoiseBackground();
-        challenge = new PiNoonArena(modelFactory);
+        setBackground(new PerlinNoiseBackground());
+        setChallenge(new PiNoonArena(modelFactory));
 
         rover1Inputs = Inputs.create();
         rover2Inputs = Inputs.create();
@@ -137,40 +99,24 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
     }
 
     @Override
-    public void show() {
-        if (font == null) {
-            font = assetManager.get("font/basic.fnt");
-        }
-        if (gccLogo == null) {
-            gccLogo = assetManager.get("GCC_full.png");
-        }
+    public void dispose() {
+        // Do our dispose
 
-        if (console != null) {
-            console.setCamera(hudCamera);
-            console.addListener(this);
-        }
+        super.dispose();
+    }
+
+    @Override
+    public void show() {
+        super.show();
     }
 
     @Override
     public void hide() {
-        if (console != null) {
-            console.removeListener(this);
-        }
-    }
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        spriteBatch.dispose();
-        font.dispose();
-        if (console != null) { console.dispose(); }
-        challenge.dispose();
-        background.dispose();
+        super.hide();
     }
 
     @Override
     public void render(float delta) {
-        a++;
         Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -226,20 +172,6 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
             camera.fieldOfView = 45;
         }
 
-        rover2Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
-        rover2Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
-        rover2Inputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
-        rover2Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
-        rover2Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
-        rover2Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
-
-        rover1Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
-        rover1Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
-        rover1Inputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
-        rover1Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
-        rover1Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
-        rover1Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
-
         camera.update();
 
         Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
@@ -252,9 +184,126 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
         batch.begin(camera);
 
         challenge.render(batch, environment);
-        breakTime--;
 
-        if (rover1 != null && rover2 != null && (currentState == GameState.GAME || currentState == GameState.END || currentState == GameState.BREAK)) {
+
+
+        int margin = 64;
+        spriteBatch.begin();
+
+        spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+
+        if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
+            font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+        }
+
+        breakTime--;
+        if (currentState == GameState.SELECTION) {
+            font.draw(spriteBatch, playerSelection1.getName(), margin, Gdx.graphics.getHeight() / 2 + margin);
+            font.draw(spriteBatch, playerSelection2.getName(), margin + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
+            setBottomMessage("Press space to begin", true);
+        } else if (currentState == GameState.MENU) {
+            setBottomMessage("Press space to begin", true);
+        } else if (currentState == GameState.END) {
+            moveRovers();
+            setMiddleMessage(winner + " wins! " + player1score + " - " + player2score, false);
+            setBottomMessage("Press space to return to menu!", true);
+        } else if (currentState == GameState.BREAK) {
+            moveRovers();
+            setBottomMessage(null, false);
+
+            if (breakTime < 60) {
+                setMiddleMessage("1", false);
+            } else if (breakTime < 120) {
+                setMiddleMessage("2", false);
+            } else if (breakTime < 180) {
+                setMiddleMessage("3", false);
+                if (!readySoundPlayed) {
+                    soundManager.playReady();
+                    readySoundPlayed = true;
+                }
+            } else if (breakTime < 240) {
+                setMiddleMessage("round " + (player1score + player2score + 1), false);
+            } else {
+                if (!winner.equals("NONE")) {
+                    setMiddleMessage(winner + " won that round!", false);
+                } else {
+                    setMiddleMessage(null, false);
+                }
+            }
+            if (breakTime < 0) {
+                currentState = GameState.GAME;
+                fightSoundPlayed = false;
+                resetRobots();
+            }
+        } else if (currentState == GameState.GAME) {
+            moveRovers();
+            setBottomMessage(null, false);
+
+            if (breakTime > -60) {
+                setMiddleMessage("GO!", false);
+                if (!fightSoundPlayed) {
+                    soundManager.playFight();
+                    fightSoundPlayed = true;
+                }
+            } else {
+                setMiddleMessage(null, false);
+            }
+            boolean end = false;
+            PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)rover1.getAttachemnt();
+            PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)rover2.getAttachemnt();
+
+            if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint()) == 0) {
+                end = true;
+                player1score++;
+                winner = "Green";
+            } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint()) == 0) {
+                end = true;
+                player2score++;
+                winner = "Blue";
+            }
+
+            if (end) {
+                if (player1score + player2score >= 3) {
+                    currentState = GameState.END;
+                    if (player1score > player2score) {
+                        winner = "Green";
+                    } else if (player1score < player2score) {
+                        winner = "Blue";
+                    }
+                } else {
+                    currentState = GameState.BREAK;
+                    readySoundPlayed = false;
+                    breakTime = BREAK;
+                }
+            }
+        }
+
+        spriteBatch.end();
+        batch.end();
+
+        drawStandardMessages();
+
+        if (console != null) {
+            console.render();
+        }
+    }
+
+    private void moveRovers() {
+        if (rover1 != null && rover2 != null) {
+            rover2Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
+            rover2Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
+            rover2Inputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
+            rover2Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
+            rover2Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
+            rover2Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+
+            rover1Inputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
+            rover1Inputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
+            rover1Inputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
+            rover1Inputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
+            rover1Inputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
+            rover1Inputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+
             Matrix4 newRover1Position = rover1.processInput(rover1Inputs);
             Matrix4 newRover2Position = rover2.processInput(rover2Inputs);
 
@@ -264,8 +313,12 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
             if (rover1Moves || rover2Moves) {
                 Matrix4 rover1Position = rover1.getPreviousTransform();
                 Matrix4 rover2Position = rover2.getPreviousTransform();
-                if (newRover1Position == null) { newRover1Position = rover1Position; }
-                if (newRover2Position == null) { newRover2Position = rover2Position; }
+                if (newRover1Position == null) {
+                    newRover1Position = rover1Position;
+                }
+                if (newRover2Position == null) {
+                    newRover2Position = rover2Position;
+                }
 
                 if (rover1Moves) {
                     rover1.getTransform().set(newRover1Position);
@@ -305,120 +358,14 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
 
             rover1.render(batch, environment, true); // currentState == GameState.GAME);
             rover2.render(batch, environment, true); // currentState == GameState.GAME);
-
-            if (currentState == GameState.BREAK) {
-                if (breakTime < 0) {
-                    currentState = GameState.GAME;
-                    fightSoundPlayed = false;
-                    resetRobots();
-                }
-            }
-        }
-
-        batch.end();
-
-        int margin = 64;
-        spriteBatch.begin();
-
-        spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
-
-        if (currentState == GameState.BREAK || currentState == GameState.GAME || currentState == GameState.END) {
-            font.draw(spriteBatch, player1score + " - " + player2score, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
-        }
-
-        if (currentState == GameState.SELECTION) {
-            font.draw(spriteBatch, playerSelection1.getName(), margin, Gdx.graphics.getHeight() / 2 + margin);
-            font.draw(spriteBatch, playerSelection2.getName(), margin + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-            if (Math.floor(a / 20.0) % 2 == 0) {
-                font.draw(spriteBatch, "Press space to begin", margin, margin);
-            }
-
-        } else if (currentState == GameState.MENU) {
-            if (Math.floor(a / 20.0) % 2 == 0) {
-                font.draw(spriteBatch, "Press space to start", margin, margin * 2);
-            }
-        } else if (currentState == GameState.END) {
-            font.draw(spriteBatch, winner + " wins! " + player1score + " - " + player2score, margin, margin + 40);
-            if (Math.floor(a / 20.0) % 2 == 0) {
-                font.draw(spriteBatch, "Press space to return to menu!", margin, margin * 2);
-            }
-
-        } else if (currentState == GameState.BREAK) {
-            if (!winner.equals("NONE")) {
-                font.draw(spriteBatch, winner + " won that round!", margin, margin);
-
-            }
-            if (breakTime < 60) {
-                font.draw(spriteBatch, "1", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-            } else if (breakTime < 120) {
-                font.draw(spriteBatch, "2", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-            } else if (breakTime < 180) {
-                if (!readySoundPlayed) {
-                    soundManager.playReady();
-                    readySoundPlayed = true;
-                }
-                font.draw(spriteBatch, "3", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-            } else if (breakTime < 240) {
-                font.draw(spriteBatch, "round " + (player1score + player2score + 1), Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-            }
-
-        } else if (currentState == GameState.GAME) {
-
-            if (breakTime > -60) {
-                font.draw(spriteBatch, "GO!", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + margin);
-                if (!fightSoundPlayed) {
-                    soundManager.playFight();
-                    fightSoundPlayed = true;
-                }
-            }
-
-            boolean end = false;
-            PiNoonAttachment rover1PiNoonAttachment = (PiNoonAttachment)rover1.getAttachemnt();
-            PiNoonAttachment rover2PiNoonAttachment = (PiNoonAttachment)rover2.getAttachemnt();
-
-            if (rover1PiNoonAttachment.checkIfBalloonsPopped(rover2PiNoonAttachment.getSharpPoint()) == 0) {
-                end = true;
-                player1score++;
-                winner = "Green";
-            } else if (rover2PiNoonAttachment.checkIfBalloonsPopped(rover1PiNoonAttachment.getSharpPoint()) == 0) {
-                end = true;
-                player2score++;
-                winner = "Blue";
-            }
-
-            if (end) {
-                if (player1score + player2score >= 3) {
-                    currentState = GameState.END;
-                    if (player1score > player2score) {
-                        winner = "Green";
-                    } else if (player1score < player2score) {
-                        winner = "Blue";
-                    }
-                } else {
-
-                    currentState = GameState.BREAK;
-                    readySoundPlayed = false;
-                    breakTime = BREAK;
-                }
-            }
-        }
-
-        spriteBatch.end();
-
-        if (console != null) {
-            console.render();
         }
     }
 
     @Override
     public void resize(int width, int height) {
-        if (console != null) {
-            console.setConsoleWidth(width);
-        }
-        if (hudCamera != null) {
-            hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            hudCamera.update();
-        }
+        super.resize(width, height);
+
+        // TODO add handling of current main camera
     }
 
     @Override
@@ -587,32 +534,7 @@ public class PiNoonScreen extends ScreenAdapter implements InputProcessor, ChatL
         ((PiNoonAttachment)rover2.getAttachemnt()).resetBalloons();
     }
 
-    @Override
-    public void onCommand(Player from, String cmdName, String[] args) {
-        if ("hello".equals(cmdName)) {
-            console.chat("Bot", "Hello", ChatColor.PURPLE);
-        } else if ("help".equals(cmdName)) {
-            console.raw(ChatColor.PURPLE + "/hello" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "says hello");
-            console.raw(ChatColor.PURPLE + "/time" + ChatColor.GREEN + "gives current time in millis");
-            console.raw(ChatColor.PURPLE + "/help" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "Shows this");
-            console.raw(ChatColor.PURPLE + "/cpu" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "Shows this");
-        } else if ("colors".equals(cmdName)) {
-            console.raw(ChatColor.RED + "o" + ChatColor.ORANGE + "o" + ChatColor.YELLOW + "o" + ChatColor.GREEN + "o" + ChatColor.BLUE + "o" + ChatColor.INDIGO
-                    + "o" + ChatColor.PURPLE + "o" + ChatColor.GRAY + "o" + ChatColor.BLACK + "o");
-        } else if ("time".equals(cmdName)) {
-            console.info(ChatColor.INDIGO + "millis: " + ChatColor.GREEN + System.currentTimeMillis());
-        } else {
-            console.error("Unknow command, type /help for list");
-        }
-    }
-
-    @Override
-    public void onChat(String playerName, String text) {
-
-    }
-
-    @Override
-    public void onText(String text) {
-
+    private enum GameState {
+        MENU, SELECTION, GAME, BREAK, END
     }
 }
