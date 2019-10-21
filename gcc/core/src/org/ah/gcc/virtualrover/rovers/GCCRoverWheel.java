@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
+
 import org.ah.gcc.virtualrover.ModelFactory;
 
 public class GCCRoverWheel extends AbstractWheel {
@@ -18,7 +19,7 @@ public class GCCRoverWheel extends AbstractWheel {
     private ModelInstance tyre;
 
     public GCCRoverWheel(ModelFactory f, Color colour, float positionX, float positionY, float positionZ, float degreeOffset) {
-        super(colour, positionX, positionY, positionZ, degreeOffset);
+        super(positionX, positionY, positionZ, degreeOffset);
 
         motor = new ModelInstance(f.getMotorHolder(), 0, 0, 0);
         motor.materials.get(0).set(ColorAttribute.createDiffuse(colour));
@@ -30,6 +31,7 @@ public class GCCRoverWheel extends AbstractWheel {
         tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
     }
 
+    @Override
     protected void internalUpdate() {
         transform.rotate(WHEEL_ROTATION_AXIS, degreeOffset + degrees);
 

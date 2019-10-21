@@ -2,15 +2,11 @@ package org.ah.gcc.virtualrover;
 
 public class Inputs {
 
-    private boolean moveLeft = false;
-    private boolean moveRight = false;
-    private boolean moveUp = false;
-    private boolean moveDown = false;
+    private float moveX = 0f;
+    private float moveY = 0f;
 
-    private boolean rotateLeft = false;
-    private boolean rotateRight = false;
-    private boolean rotateUp = false;
-    private boolean rotateDown = false;
+    private float rotateX = 0f;
+    private float rotateY = 0f;
 
 
     public static Inputs create() {
@@ -21,75 +17,39 @@ public class Inputs {
 
     }
 
-    public boolean moveLeft() {
-        return moveLeft;
+    public float moveX() {
+        return moveX;
     }
 
-    public Inputs moveLeft(boolean moveLeft) {
-        this.moveLeft = moveLeft;
+    public Inputs moveX(float moveX) {
+        this.moveX = moveX;
         return this;
     }
 
-    public boolean moveRight() {
-        return moveRight;
+    public float moveY() {
+        return moveY;
     }
 
-    public Inputs moveRight(boolean moveRight) {
-        this.moveRight = moveRight;
+    public Inputs moveY(float moveY) {
+        this.moveY = moveY;
         return this;
     }
 
-    public boolean moveUp() {
-        return moveUp;
+    public float rotateX() {
+        return rotateX;
     }
 
-    public Inputs moveUp(boolean moveUp) {
-        this.moveUp = moveUp;
+    public Inputs rotateX(float rotateX) {
+        this.rotateX = rotateX;
         return this;
     }
 
-    public boolean moveDown() {
-        return moveDown;
+    public float rotateY() {
+        return rotateY;
     }
 
-    public Inputs moveDown(boolean moveDown) {
-        this.moveDown = moveDown;
-        return this;
-    }
-
-    public boolean rotateLeft() {
-        return rotateLeft;
-    }
-
-    public Inputs rotateLeft(boolean rotateLeft) {
-        this.rotateLeft = rotateLeft;
-        return this;
-    }
-
-    public boolean rotateRight() {
-        return rotateRight;
-    }
-
-    public Inputs rotateRight(boolean rotateRight) {
-        this.rotateRight = rotateRight;
-        return this;
-    }
-
-    public boolean rotateUp() {
-        return rotateUp;
-    }
-
-    public Inputs rotateUp(boolean rotateUp) {
-        this.rotateUp = rotateUp;
-        return this;
-    }
-
-    public boolean rotateDown() {
-        return rotateDown;
-    }
-
-    public Inputs rotateDown(boolean rotateDown) {
-        this.rotateDown = rotateDown;
+    public Inputs rotateUp(float rotateY) {
+        this.rotateY = rotateY;
         return this;
     }
 }

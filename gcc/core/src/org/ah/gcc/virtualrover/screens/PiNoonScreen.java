@@ -198,19 +198,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         Player player2 = players.get(1);
 
         if (player1.rover != null && player2.rover != null) {
-            player2.roverInputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.I));
-            player2.roverInputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.K));
-            player2.roverInputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.J));
-            player2.roverInputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.L));
-            player2.roverInputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.U));
-            player2.roverInputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.O));
+            player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
+            player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? -1f : Gdx.input.isKeyPressed(Input.Keys.L) ? 1f : 0f);
+            player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? -1f : Gdx.input.isKeyPressed(Input.Keys.O) ? 1f : 0f);
 
-            player1.roverInputs.moveUp(Gdx.input.isKeyPressed(Input.Keys.W));
-            player1.roverInputs.moveDown(Gdx.input.isKeyPressed(Input.Keys.S));
-            player1.roverInputs.moveLeft(Gdx.input.isKeyPressed(Input.Keys.A));
-            player1.roverInputs.moveRight(Gdx.input.isKeyPressed(Input.Keys.D));
-            player1.roverInputs.rotateLeft(Gdx.input.isKeyPressed(Input.Keys.Q));
-            player1.roverInputs.rotateRight(Gdx.input.isKeyPressed(Input.Keys.E));
+            player1.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
+            player1.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? -1f : Gdx.input.isKeyPressed(Input.Keys.D) ? 1f : 0f);
+            player1.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? -1f : Gdx.input.isKeyPressed(Input.Keys.E) ? 1f : 0f);
 
             Matrix4 newRover1Position = player1.rover.processInput(player1.roverInputs);
             Matrix4 newRover2Position = player2.rover.processInput(player2.roverInputs);

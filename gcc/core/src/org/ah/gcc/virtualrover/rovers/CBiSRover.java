@@ -1,9 +1,5 @@
 package org.ah.gcc.virtualrover.rovers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -12,7 +8,13 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
-import org.ah.gcc.virtualrover.*;
+
+import org.ah.gcc.virtualrover.Inputs;
+import org.ah.gcc.virtualrover.ModelFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class CBiSRover extends AbstractRover {
     private static float roverSpeed = 0.4f; // metre per second
@@ -90,17 +92,17 @@ public class CBiSRover extends AbstractRover {
     public Matrix4 processInput(Inputs i) {
         previousTransform.set(transform);
         float speed = calcSpeedMillimetresInFrame(roverSpeed);
-        if (i.moveLeft()) {
+        if (i.moveX() < 0f) {
             return rotate(speed);
-        } else if (i.moveRight()) {
+        } else if (i.moveX() > 0f) {
             return rotate(-speed);
-        } else if (i.moveUp()) {
+        } else if (i.moveY() > 0f) {
             return drive(speed * 0.9f);
-        } else if (i.moveDown()) {
+        } else if (i.moveY() < 0f) {
             return drive(-speed * 0.9f);
-        } else if (i.rotateLeft()) {
+        } else if (i.rotateX() < 0f) {
             return rotate(speed);
-        } else if (i.rotateRight()) {
+        } else if (i.rotateX() > 0f) {
             return rotate(-speed);
         } else {
             stop();

@@ -1,6 +1,5 @@
 package org.ah.gcc.virtualrover.rovers;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
@@ -16,10 +15,7 @@ public abstract class AbstractWheel {
 
     private Vector3 relativePosition = new Vector3();
 
-    private Color colour;
-
-    protected AbstractWheel(Color colour, float positionX, float positionY, float positionZ, float degreeeOffset) {
-        this.colour = colour;
+    protected AbstractWheel(float positionX, float positionY, float positionZ, float degreeeOffset) {
         relativePosition.x = positionX;
         relativePosition.y = positionY;
         relativePosition.z = positionZ;

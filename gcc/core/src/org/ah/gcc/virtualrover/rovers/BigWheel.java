@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
+
 import org.ah.gcc.virtualrover.ModelFactory;
 
 public class BigWheel extends AbstractWheel {
@@ -19,7 +20,7 @@ public class BigWheel extends AbstractWheel {
     private float scale;
 
     public BigWheel(ModelFactory f, Color colour, float scale, float positionX, float positionY, float positionZ, float degreeOffset) {
-        super(colour, positionX, positionY, positionZ, degreeOffset);
+        super(positionX, positionY, positionZ, degreeOffset);
 
         this.scale = scale;
 
@@ -30,6 +31,7 @@ public class BigWheel extends AbstractWheel {
         tyre.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
     }
 
+    @Override
     public void internalUpdate() {
         transform.rotate(WHEEL_ORIENTATION_AXIS, degreeOffset + degrees);
 

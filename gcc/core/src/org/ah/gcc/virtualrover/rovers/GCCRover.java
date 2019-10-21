@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
+
 import org.ah.gcc.virtualrover.Inputs;
 import org.ah.gcc.virtualrover.ModelFactory;
 
@@ -94,37 +95,37 @@ public class GCCRover extends AbstractRover {
     public Matrix4 processInput(Inputs i) {
         previousTransform.set(transform);
         float speed = calcSpeedMillimetresInFrame(roverSpeed);
-        if (i.moveUp()) {
-            if (i.rotateLeft()) {
+        if (i.moveY() > 0f) {
+            if (i.rotateX() < 0f) {
                 return steer(speed * 1.05f);
-            } else if (i.rotateRight()) {
+            } else if (i.rotateX() > 0f) {
                 return steer(-speed * 1.05f);
-            } else if (i.moveLeft()) {
+            } else if (i.moveX() < 0f) {
                 return drive(-speed * 0.5f, 135);
-            } else if (i.moveRight()) {
+            } else if (i.moveX() > 0f) {
                 return drive(-speed * 0.5f, 45);
             } else {
                 return drive(-speed, 0);
             }
-        } else if (i.moveDown()) {
-            if (i.rotateLeft()) {
+        } else if (i.moveY() < 0f) {
+            if (i.rotateX() < 0f) {
                 return steerBack(speed * 1.05f);
-            } else if (i.rotateRight()) {
+            } else if (i.rotateX() > 0f) {
                 return steerBack(-speed * 1.05f);
-            } else if (i.moveLeft()) {
+            } else if (i.moveX() < 0f) {
                 return drive(speed * 0.5f, 45);
-            } else if (i.moveRight()) {
+            } else if (i.moveX() > 0f) {
                 return drive(speed * 0.5f, 135);
             } else {
                 return drive(speed, 0);
             }
-        } else if (i.moveLeft()) {
+        } else if (i.moveX() < 0f) {
             return drive(speed, 90);
-        } else if (i.moveRight()) {
+        } else if (i.moveX() > 0f) {
             return drive(-speed, 90);
-        } else if (i.rotateLeft()) {
+        } else if (i.rotateX() < 0f) {
             return rotate(speed);
-        } else if (i.rotateRight()) {
+        } else if (i.rotateX() > 0f) {
             return rotate(-speed);
         } else {
             stop();
