@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
@@ -36,6 +37,8 @@ import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
+    private ServerCommunicationAdapter serverCommunicationAdapter;
+
     private PerspectiveCamera camera;
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
@@ -48,12 +51,18 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     private boolean renderBackground = false;
 
-    public PiNoonScreen(MainGame game, AssetManager assetManager, SoundManager soundManager, ModelFactory modelFactory, Console console) {
+    public PiNoonScreen(MainGame game,
+            AssetManager assetManager,
+            SoundManager soundManager,
+            ModelFactory modelFactory,
+            ServerCommunicationAdapter serverCommunicationAdapter,
+            Console console) {
         super(game, assetManager, soundManager, modelFactory, console);
         this.game = game;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
         this.modelFactory = modelFactory;
+        this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 
         setBackground(new PerlinNoiseBackground());
@@ -146,8 +155,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             }
 
             for (Player player : players) {
-                player.rover.render(batch, environment, true); // currentState == GameState.GAME);
-                player.rover.render(batch, environment, true); // currentState == GameState.GAME);
+                player.rover.render(batch, environment); // currentState == GameState.GAME);
+                player.rover.render(batch, environment); // currentState == GameState.GAME);
             }
         }
 

@@ -15,7 +15,7 @@ public interface Rover {
 
     Matrix4 processInput(GCCPlayerInput i);
 
-    void render(ModelBatch batch, Environment environment, boolean hasBalloons);
+    void render(ModelBatch batch, Environment environment);
 
     void update();
 

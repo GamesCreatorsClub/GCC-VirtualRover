@@ -76,15 +76,14 @@ public class CBiSRover extends AbstractRover {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, boolean hasBalloons) {
+    public void render(ModelBatch batch, Environment environment) {
         bl.render(batch, environment);
         br.render(batch, environment);
         fl.render(batch, environment);
         fr.render(batch, environment);
 
-        if (hasBalloons) {
-            renderAttachment(batch, environment);
-        }
+        renderAttachment(batch, environment);
+
         batch.render(body, environment);
     }
 

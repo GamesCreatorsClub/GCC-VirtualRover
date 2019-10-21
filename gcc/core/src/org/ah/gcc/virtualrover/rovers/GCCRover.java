@@ -76,7 +76,7 @@ public class GCCRover extends AbstractRover {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, boolean hasBalloons) {
+    public void render(ModelBatch batch, Environment environment) {
         // update();
         bl.render(batch, environment);
         br.render(batch, environment);
@@ -86,9 +86,7 @@ public class GCCRover extends AbstractRover {
         batch.render(top, environment);
         batch.render(body, environment);
 
-        if (hasBalloons) {
-            renderAttachment(batch, environment);
-        }
+        renderAttachment(batch, environment);
     }
 
     @Override

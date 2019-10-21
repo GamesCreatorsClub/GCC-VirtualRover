@@ -1,16 +1,20 @@
 package org.ah.gcc.virtualrover.world;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
 import org.ah.gcc.virtualrover.rovers.RoverType;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
+import org.ah.themvsus.engine.common.game.GameObject;
 
-public class Player {
+public class Player implements VisibleObject {
     public int id;
     public String name;
     public Color colour;
@@ -44,5 +48,16 @@ public class Player {
             return (PiNoonAttachment)rover.getAttachemnt();
         }
         return null;
+    }
+
+    @Override
+    public void render(ModelBatch batch, Environment environment) {
+        if (rover != null) {
+            rover.render(batch, environment);
+        }
+    }
+
+    @Override
+    public void update(GameObject gameObject) {
     }
 }

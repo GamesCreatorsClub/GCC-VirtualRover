@@ -52,7 +52,7 @@ public class MainGame extends Game {
 
         messageFactory = new GCCMessageFactory();
         serverCommunication = platformSpecific.getServerCommunication();
-        // serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
+        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
 
         loadingScreen = new LoadingScreen(this, assetManager);
 
@@ -67,7 +67,7 @@ public class MainGame extends Game {
 
         soundManager.fetchSounds(assetManager);
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
-        piNoonScreen = new PiNoonScreen(this, assetManager, soundManager, modelFactory, console);
+        piNoonScreen = new PiNoonScreen(this, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         setScreen(piNoonScreen);
     }
 
