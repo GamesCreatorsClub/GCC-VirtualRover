@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.screens.LoadingScreen;
 import org.ah.gcc.virtualrover.screens.PiNoonScreen;
@@ -64,6 +65,7 @@ public class MainGame extends Game {
         console.raw("Games Creators Club (GCC) Virtual Rover");
         console.raw("(c) Creative Sphere Limited");
 
+        soundManager.fetchSounds(assetManager);
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
         piNoonScreen = new PiNoonScreen(this, assetManager, soundManager, modelFactory, console);
         setScreen(piNoonScreen);

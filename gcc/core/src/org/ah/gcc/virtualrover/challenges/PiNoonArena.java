@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+
 import org.ah.gcc.virtualrover.ModelFactory;
 
 import java.util.ArrayList;
@@ -40,21 +41,24 @@ public class PiNoonArena implements Challenge {
         boundingBoxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((-1000 - wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
         boundingBoxes.add(new BoundingBox(new Vector3(1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((1000 + wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
 
-        polygons = new ArrayList<>();
+        polygons = new ArrayList<Polygon>();
         for (BoundingBox boundingBox : boundingBoxes) {
             Polygon polygon = polygonFromBoundingBox(boundingBox);
             polygons.add(polygon);
         }
     }
 
+    @Override
     public boolean collides(List<Polygon> polygons) {
         return polygonsOverlap(this.polygons, polygons);
     }
 
+    @Override
     public void dispose() {
         // Nothing to do here
     }
 
+    @Override
     public void render(ModelBatch batch, Environment environment) {
         batch.render(arena, environment);
     }
