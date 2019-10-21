@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
+
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
@@ -19,7 +20,6 @@ import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController2;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
-import org.ah.gcc.virtualrover.rovers.Rover;
 import org.ah.gcc.virtualrover.rovers.RoverType;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.statemachine.State;
@@ -36,11 +36,8 @@ import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
-    private static final int BREAK = 300;
-
     private PerspectiveCamera camera;
     private CameraControllersManager cameraControllersManager;
-    private CameraInputController camController;
     private InputMultiplexer cameraInputMultiplexer;
 
     private StateMachine<PiNoonScreen, GameState> stateMachine;
@@ -455,8 +452,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                     s.setMiddleMessage(null, false);
                 }
 
-
-                boolean end = false;
                 PiNoonAttachment rover1PiNoonAttachment = s.players.get(0).getPiNoonAttachment();
                 PiNoonAttachment rover2PiNoonAttachment = s.players.get(1).getPiNoonAttachment();
 
