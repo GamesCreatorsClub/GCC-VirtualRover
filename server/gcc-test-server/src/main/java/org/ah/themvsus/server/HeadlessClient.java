@@ -1,12 +1,6 @@
 package org.ah.themvsus.server;
 
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
-import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.AuthenticatedCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameMapCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
@@ -14,6 +8,10 @@ import org.ah.themvsus.engine.client.DesktopServerCommunication;
 import org.ah.themvsus.engine.client.HeadlessClientServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 import org.ah.themvsus.engine.common.message.MessageFactory;
+
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HeadlessClient implements Runnable, AuthenticatedCallback, GameReadyCallback, GameMapCallback {
 
@@ -25,7 +23,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
 
     private DesktopServerCommunication serverCommunication;
     private MessageFactory messageFactory;
-    private CommonServerCommunicationAdapter<GCCGame> serverCommunicationAdapter;
+    private HeadlessClientServerCommunicationAdapter serverCommunicationAdapter;
     private Properties config;
     private String alias;
     private String pass;

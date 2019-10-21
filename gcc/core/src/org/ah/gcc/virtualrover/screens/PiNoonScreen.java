@@ -21,6 +21,7 @@ import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController2;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
+import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.rovers.RoverType;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.statemachine.State;
@@ -28,6 +29,8 @@ import org.ah.gcc.virtualrover.statemachine.StateMachine;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.Player;
+import org.ah.themvsus.engine.client.ClientEngine;
+import org.ah.themvsus.engine.common.Engine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private List<Player> players = new ArrayList<Player>();
 
     private boolean renderBackground = false;
+    private long nextRun;
+
+    private org.ah.themvsus.engine.common.game.GameState processedGameState;
 
     public PiNoonScreen(MainGame game,
             AssetManager assetManager,
@@ -67,7 +73,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         setBackground(new PerlinNoiseBackground());
         setChallenge(new PiNoonArena(modelFactory));
-
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
@@ -120,6 +125,37 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
         Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
+
+        ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
+        if (engine != null) { // TODO remove this
+            long now = System.currentTimeMillis();
+            if (!engine.isPaused()) {
+                if (engine.isFixedClientFrameNo()) {
+                    engine.resetFixedClientFrameNo();
+                    nextRun = now;
+                }
+                engine.processCommands();
+                while (nextRun <= now) {
+                    engine.processPlayerInputs();
+                    processedGameState = engine.process();
+
+                    nextRun = nextRun + Engine.ENGINE_LOOP_TIME;
+                }
+
+                if (players.size() > 0) {
+                    Player playerOne = players.get(0);
+                    serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1,
+                            playerOne.roverInputs.moveX(), playerOne.roverInputs.moveY(),
+                            playerOne.roverInputs.rotateX(), playerOne.roverInputs.rotateY());
+                }
+                if (players.size() > 1) {
+                    Player playerTwo = players.get(1);
+                    serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1,
+                            playerTwo.roverInputs.moveX(), playerTwo.roverInputs.moveY(),
+                            playerTwo.roverInputs.rotateX(), playerTwo.roverInputs.rotateY());
+                }
+            }
+        }
 
         cameraControllersManager.update();
         camera.update();

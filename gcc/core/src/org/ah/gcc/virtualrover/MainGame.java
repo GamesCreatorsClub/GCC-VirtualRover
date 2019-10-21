@@ -53,6 +53,7 @@ public class MainGame extends Game {
         messageFactory = new GCCMessageFactory();
         serverCommunication = platformSpecific.getServerCommunication();
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console);
+        serverCommunicationAdapter.startLocalEngine("PiNoon"); // TODO this should go after 'loading' screen - at the start of PiNoonScreen!
 
         loadingScreen = new LoadingScreen(this, assetManager);
 

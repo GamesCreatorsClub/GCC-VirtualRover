@@ -3,12 +3,12 @@ package org.ah.gcc.virtualrover;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 
+import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.Console;
-import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
@@ -24,7 +24,10 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private IntMap<VisibleObject> sprites = new IntMap<VisibleObject>();
 
-    protected GCCPlayerInputMessage playerInputMessage;
+    protected GCCPlayerInputMessage playerOneInputMessage;
+    protected GCCPlayerInputMessage playerTwoInputMessage;
+
+    private int playerTwoId;
 
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
@@ -42,17 +45,39 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
         serverCommunication.setReceiver(this);
 
-        playerInputMessage = ((GCCMessageFactory)messageFactory).createPlayerInputCommand();
+        playerOneInputMessage = ((GCCMessageFactory)messageFactory).createPlayerInputCommand();
+        playerTwoInputMessage = ((GCCMessageFactory)messageFactory).createPlayerInputCommand();
+    }
+
+    public void setLocalPlayerIds(int playerOneId, int playerTwoId) {
+        this.sessionId = playerOneId;
+        this.playerTwoId = playerTwoId;
     }
 
     public IntMap<VisibleObject> getSprites() {
         return sprites;
     }
 
-    public void setPlayerInput(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
-        playerInputMessage.addInputs(sessionId, currentFrameNo, moveX, moveY, rotateX, rotateY);
+    public void setPlayerOneInput(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
+        playerOneInputMessage.addInputs(sessionId, currentFrameNo, moveX, moveY, rotateX, rotateY);
 
-        sendPlayerInput(playerInputMessage);
+        if (serverCommunication.isConnected()) {
+            sendPlayerInput(playerOneInputMessage);
+        } else {
+            // Allow shortcut with inputs before
+            engine.receiveMessage(playerOneInputMessage);
+        }
+    }
+
+    public void setPlayerTwoInput(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
+        playerTwoInputMessage.addInputs(sessionId, currentFrameNo, moveX, moveY, rotateX, rotateY);
+
+        if (serverCommunication.isConnected()) {
+            sendPlayerInput(playerTwoInputMessage);
+        } else {
+            // Allow shortcut with inputs before
+            engine.receiveMessage(playerTwoInputMessage);
+        }
     }
 
 
@@ -66,17 +91,27 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         console.chat(origin, chatMessage.getLine(), color);
     }
 
-    @Override
     public void startEngine(String mapId) {
         GCCGame game = new GCCGame();
         game.init();
-        engine = new ClientEngine<GCCGame>(game, sessionId);
+        engine = new GCCClientEngine(game, sessionId, playerTwoId);
 
         engine.getGame().setGameObjectAddedListener(this);
         engine.getGame().setGameObjectRemovedListener(this);
-        engine.setPlayerInputs(playerInputMessage.getInputs());
+        engine.setPlayerInputs(playerOneInputMessage.getInputs());
         sendClientReady();
 
+        fireGameReady();
+    }
+
+    public void startLocalEngine(String mapId) {
+        GCCGame game = new GCCGame();
+        game.init();
+        engine = new GCCClientEngine(game, sessionId, playerTwoId);
+
+        engine.getGame().setGameObjectAddedListener(this);
+        engine.getGame().setGameObjectRemovedListener(this);
+        engine.setPlayerInputs(playerOneInputMessage.getInputs());
         fireGameReady();
     }
 
