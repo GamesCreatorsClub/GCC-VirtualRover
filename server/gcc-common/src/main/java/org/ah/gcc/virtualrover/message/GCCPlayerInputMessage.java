@@ -21,10 +21,10 @@ public class GCCPlayerInputMessage extends PlayerInputMessage {
         return playerInputs;
     }
 
-    public void addInputs(int sessionId, int frameNo, float speed, float direction) {
+    public void addInputs(int sessionId, int frameNo, float moveX, float moveY, float rotateX, float rotateY) {
         this.sessionId = sessionId;
         this.frameNo = frameNo;
 
-        ((GCCPlayerInputs)playerInputs).addInputs(frameNo, speed, direction);
+        ((GCCPlayerInputs)playerInputs).addInputs(frameNo, moveX, moveY, rotateX, rotateY);
     }
 }

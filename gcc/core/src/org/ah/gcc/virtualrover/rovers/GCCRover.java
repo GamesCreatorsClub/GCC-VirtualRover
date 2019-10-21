@@ -9,8 +9,8 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.gcc.virtualrover.Inputs;
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,9 +92,10 @@ public class GCCRover extends AbstractRover {
     }
 
     @Override
-    public Matrix4 processInput(Inputs i) {
+    public Matrix4 processInput(GCCPlayerInput i) {
         previousTransform.set(transform);
         float speed = calcSpeedMillimetresInFrame(roverSpeed);
+        // TODO implement same thing as on real rover...
         if (i.moveY() > 0f) {
             if (i.rotateX() < 0f) {
                 return steer(speed * 1.05f);

@@ -1,5 +1,8 @@
 package org.ah.gcc.virtualrover;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.IntMap;
+
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
@@ -14,9 +17,6 @@ import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.Player;
 import org.ah.themvsus.engine.common.message.ChatMessage;
 import org.ah.themvsus.engine.common.message.MessageFactory;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.IntMap;
 
 public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter<GCCGame> implements GameObjectAddedListener, GameObjectRemovedListener {
 
@@ -49,8 +49,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return sprites;
     }
 
-    public void setPlayerInput(int currentFrameNo, float speed, float direction) {
-        playerInputMessage.addInputs(sessionId, currentFrameNo, speed, direction);
+    public void setPlayerInput(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
+        playerInputMessage.addInputs(sessionId, currentFrameNo, moveX, moveY, rotateX, rotateY);
 
         sendPlayerInput(playerInputMessage);
     }

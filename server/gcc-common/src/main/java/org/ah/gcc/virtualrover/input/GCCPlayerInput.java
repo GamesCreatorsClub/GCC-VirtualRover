@@ -6,36 +6,72 @@ import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public class GCCPlayerInput extends PlayerInput {
 
-    public float speed = 0;
-    public float direction = 0;
+    private float moveX = 0f;
+    private float moveY = 0f;
+
+    private float rotateX = 0f;
+    private float rotateY = 0f;
 
     GCCPlayerInput(AbstractPoolFactory<PlayerInput> factory) {
         super(factory);
     }
 
+    public float moveX() {
+        return moveX;
+    }
+
+    public GCCPlayerInput moveX(float moveX) {
+        this.moveX = moveX;
+        return this;
+    }
+
+    public float moveY() {
+        return moveY;
+    }
+
+    public GCCPlayerInput moveY(float moveY) {
+        this.moveY = moveY;
+        return this;
+    }
+
+    public float rotateX() {
+        return rotateX;
+    }
+
+    public GCCPlayerInput rotateX(float rotateX) {
+        this.rotateX = rotateX;
+        return this;
+    }
+
+    public float rotateY() {
+        return rotateY;
+    }
+
+    public GCCPlayerInput rotateY(float rotateY) {
+        this.rotateY = rotateY;
+        return this;
+    }
+
     @Override
     public void serialize(Serializer serializer) {
-        int i = fitTo6Bits(direction) << 6 | fitTo6Bits(speed);
-        serializer.serializeUnsignedShort(i);
+        serializer.serializeUnsignedShort(fitTo8Bits(moveX) << 8 | fitTo8Bits(moveY));
+        serializer.serializeUnsignedShort(fitTo8Bits(rotateX) << 8 | fitTo8Bits(rotateY));
     }
 
     @Override
     public void deserialize(Serializer deserializer) {
-        int s = deserializer.deserializeUnsignedShort();
-        int directionInt = (s & 0x03f) >> 6;
-        int speedInt = s & 0x3f;
+        int moveXY = deserializer.deserializeUnsignedShort();
+        moveX = (((moveXY >> 8) & 0xff) / 127) - 1;
+        moveY = ((moveXY & 0xff) / 127) - 1;
 
-        direction = (directionInt - 31) * 4;
-
-        speed = (speedInt - 31) * 4;
+        int rotateXY = deserializer.deserializeUnsignedShort();
+        rotateX = (((rotateXY >> 8) & 0xff) / 127) - 1;
+        rotateY = ((rotateXY & 0xff) / 127) - 1;
     }
 
-    static int fitTo6Bits(float speed) {
-        int speedInt = (int)(speed / 4);
-        if (speedInt > 31) { speedInt = 31; }
-        if (speedInt < -31) { speedInt = -31; }
-        speedInt = speedInt + 31;
-        return speedInt;
+    static int fitTo8Bits(float v) {
+        int intValue  = (int)((v + 1) * 127);
+        return intValue;
     }
 
     public static final AbstractPoolFactory<PlayerInput> INPUTS_FACTORY = new InputsFactory();
@@ -47,12 +83,14 @@ public class GCCPlayerInput extends PlayerInput {
     @Override
     public void assignFrom(PlayerInput playerInput) {
         GCCPlayerInput themVsUsPlayerInput = (GCCPlayerInput)playerInput;
-        speed = themVsUsPlayerInput.speed;
-        direction = themVsUsPlayerInput.direction;
+        moveX = themVsUsPlayerInput.moveX;
+        moveY = themVsUsPlayerInput.moveY;
+        rotateX = themVsUsPlayerInput.rotateX;
+        rotateY = themVsUsPlayerInput.rotateY;
     }
 
     @Override public String toString() {
-        return "PlayerInput[" + sequenceNo + "," + speed + "," + direction + "]";
+        return "PlayerInput[" + sequenceNo + "," + moveX + "," + moveY + "," + rotateX + "," + rotateY + "]";
     }
 }
 

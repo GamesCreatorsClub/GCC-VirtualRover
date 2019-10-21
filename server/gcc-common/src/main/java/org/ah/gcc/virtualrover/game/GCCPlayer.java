@@ -27,14 +27,15 @@ public class GCCPlayer extends Player {
     @Override
     public void processPlayerInputs(PlayerInput playerInputs) {
         GCCPlayerInput themVsUsPlayerInput = (GCCPlayerInput)playerInputs;
-        float speed = themVsUsPlayerInput.speed;
-
-        velocity.set(1f, 0f, 0f);
-        velocity.mul(orientation).nor();
-        velocity.scl(speed);
-        this.speed = speed;
-        // velocity.x = (float) Math.cos(bearing * RAD_TO_DEG) * speed;
-        // velocity.y = (float) Math.sin(bearing * RAD_TO_DEG) * speed;
+// TODO
+//        float speed = themVsUsPlayerInput.speed;
+//
+//        velocity.set(1f, 0f, 0f);
+//        velocity.mul(orientation).nor();
+//        velocity.scl(speed);
+//        this.speed = speed;
+//        // velocity.x = (float) Math.cos(bearing * RAD_TO_DEG) * speed;
+//        // velocity.y = (float) Math.sin(bearing * RAD_TO_DEG) * speed;
     }
 
     @Override

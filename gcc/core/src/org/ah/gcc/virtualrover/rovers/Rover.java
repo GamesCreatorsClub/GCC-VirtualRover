@@ -5,14 +5,15 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
-import org.ah.gcc.virtualrover.Inputs;
+
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
 import java.util.List;
 
 public interface Rover {
 
-    Matrix4 processInput(Inputs i);
+    Matrix4 processInput(GCCPlayerInput i);
 
     void render(ModelBatch batch, Environment environment, boolean hasBalloons);
 

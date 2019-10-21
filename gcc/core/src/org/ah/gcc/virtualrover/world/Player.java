@@ -1,8 +1,9 @@
 package org.ah.gcc.virtualrover.world;
 
 import com.badlogic.gdx.graphics.Color;
-import org.ah.gcc.virtualrover.Inputs;
+
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
@@ -15,7 +16,7 @@ public class Player {
     public Color colour;
     public RoverType playerSelection = RoverType.GCC;
     public Rover rover;
-    public Inputs roverInputs = Inputs.create();
+    public GCCPlayerInput roverInputs = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
     public int playerScore = 0;
 
     public Player(RoverType gcc, int id, String name, Color colour) {
