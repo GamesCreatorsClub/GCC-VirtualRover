@@ -1,14 +1,14 @@
-package org.ah.gcc.virtualrover.rovers;
+package org.ah.gcc.virtualrover.game;
 
 public enum RoverType {
     GCC(0, "GCC Rover"), CBIS(1, "CBiS-Education");
 
     private int id;
-    private String nom;
+    private String name;
 
     RoverType(int id, String nom) {
         this.id = id;
-        this.nom = nom;
+        this.name = nom;
     }
 
     public int getId() {
@@ -33,6 +33,6 @@ public enum RoverType {
     }
 
     public String getName() {
-        return nom;
+        return name;
     }
 }

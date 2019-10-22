@@ -6,15 +6,16 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
+import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.RoverType;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.rovers.CBiSRover;
 import org.ah.gcc.virtualrover.rovers.GCCRover;
 import org.ah.gcc.virtualrover.rovers.Rover;
-import org.ah.gcc.virtualrover.rovers.RoverType;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.themvsus.engine.common.game.GameObject;
 
-public class Player implements VisibleObject {
+public class PlayerModel implements VisibleObject {
     public int id;
     public String name;
     public Color colour;
@@ -22,9 +23,11 @@ public class Player implements VisibleObject {
     public Rover rover;
     public GCCPlayerInput roverInputs = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
     public int playerScore = 0;
+    public GCCPlayer gccPlayer;
 
-    public Player(RoverType gcc, int id, String name, Color colour) {
-        this.playerSelection = gcc;
+    public PlayerModel(GCCPlayer gccPlayer, int id, String name, Color colour) {
+        this.gccPlayer = gccPlayer;
+        this.playerSelection = gccPlayer.getRoverType();
         this.id = id;
         this.name = name;
         this.colour = colour;

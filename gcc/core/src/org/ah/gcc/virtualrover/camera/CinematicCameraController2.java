@@ -4,7 +4,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import org.ah.gcc.virtualrover.world.Player;
+import org.ah.gcc.virtualrover.world.PlayerModel;
 
 import java.util.List;
 
@@ -13,11 +13,11 @@ import static org.ah.gcc.virtualrover.MainGame.SCALE;
 public class CinematicCameraController2 extends InputAdapter implements ActiveCamera {
 
     private PerspectiveCamera camera;
-    private final List<Player> players;
+    private final List<PlayerModel> players;
 
     private Vector3 pos1 = new Vector3();
 
-    public CinematicCameraController2(PerspectiveCamera camera, List<Player> players) {
+    public CinematicCameraController2(PerspectiveCamera camera, List<PlayerModel> players) {
         this.camera = camera;
         this.players = players;
     }

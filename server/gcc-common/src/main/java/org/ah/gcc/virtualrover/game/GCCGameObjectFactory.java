@@ -11,7 +11,7 @@ public class GCCGameObjectFactory extends GameObjectFactory {
 
     @Override
     public GCCPlayer newPlayer(int id, String alias) {
-        GCCPlayer player = newPlayer(id, alias);
+        GCCPlayer player = (GCCPlayer)super.newPlayer(id, alias);
 
         return player;
     }

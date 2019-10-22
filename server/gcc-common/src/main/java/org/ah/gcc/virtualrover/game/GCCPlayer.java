@@ -13,15 +13,22 @@ import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public class GCCPlayer extends Player {
 
+    private RoverType roverType = RoverType.GCC;
+
     public GCCPlayer(GameObjectFactory factory, int id) {
         super(factory, id);
     }
 
+    public RoverType getRoverType() {
+        return roverType;
+    }
+
     @Override
     public void process(Game game, Iterable<GameObjectWithPosition> objects) {
-//        long deltaMillis = Engine.ENGINE_LOOP_TIME;
+        // long deltaMillis = Engine.ENGINE_LOOP_TIME;
 
-        super.process(game, objects);
+        // TODO definitively do something own - no way it will work it passed to parent class
+        // super.process(game, objects);
     }
 
     @Override
@@ -51,22 +58,21 @@ public class GCCPlayer extends Player {
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
-
-//        serializer.serializeFloat(turretBearing);
+        serializer.serializeByte((byte)roverType.getId());
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
-
-//        turretBearing = serializer.deserializeFloat();
+        roverType = RoverType.getById(serializer.deserializeByte());
     }
 
     @Override
     protected GameObject copyInt(GameObject newObject) {
         super.copyInt(newObject);
 
-//        GCCPlayer themVsUsPlayer = (GCCPlayer)newObject;
+        GCCPlayer gccPlayer = (GCCPlayer)newObject;
+        gccPlayer.roverType = roverType;
 
         return newObject;
     }

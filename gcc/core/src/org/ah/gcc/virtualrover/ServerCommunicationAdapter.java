@@ -1,20 +1,22 @@
 package org.ah.gcc.virtualrover;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.game.GCCPlayer;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.Console;
+import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
-import org.ah.themvsus.engine.common.game.Player;
 import org.ah.themvsus.engine.common.message.ChatMessage;
 import org.ah.themvsus.engine.common.message.MessageFactory;
 
@@ -91,7 +93,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         console.chat(origin, chatMessage.getLine(), color);
     }
 
-    public void startEngine(String mapId) {
+    public void startEngine(String mapId, boolean local) {
         GCCGame game = new GCCGame();
         game.init();
         engine = new GCCClientEngine(game, sessionId, playerTwoId);
@@ -99,19 +101,10 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         engine.getGame().setGameObjectAddedListener(this);
         engine.getGame().setGameObjectRemovedListener(this);
         engine.setPlayerInputs(playerOneInputMessage.getInputs());
-        sendClientReady();
+        if (!local) {
+            sendClientReady();
+        }
 
-        fireGameReady();
-    }
-
-    public void startLocalEngine(String mapId) {
-        GCCGame game = new GCCGame();
-        game.init();
-        engine = new GCCClientEngine(game, sessionId, playerTwoId);
-
-        engine.getGame().setGameObjectAddedListener(this);
-        engine.getGame().setGameObjectRemovedListener(this);
-        engine.setPlayerInputs(playerOneInputMessage.getInputs());
         fireGameReady();
     }
 
@@ -123,7 +116,21 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     @Override
     public void gameObjectAdded(GameObject gameObject) {
-        if (gameObject instanceof Player) {
+        if (gameObject instanceof GCCPlayer) {
+            GCCPlayer playerObject = (GCCPlayer)gameObject;
+
+            String alias = playerObject.getAlias();
+            Color playerColor = Color.WHITE;
+            if ("Blue".equals(alias)) {
+                playerColor = Color.BLUE;
+            } else if ("Green".equals(alias)) {
+                playerColor = Color.GREEN;
+            }
+
+            PlayerModel playerModel = new PlayerModel(playerObject, gameObject.getId(), playerObject.getAlias(), playerColor);
+            sprites.put(playerObject.getId(), playerModel);
+
+
 //            VisibleObject sprite = new Tank(spriteTextures, gameObject.getId());
 //
 //            gameObject.setLinkBack(sprite);

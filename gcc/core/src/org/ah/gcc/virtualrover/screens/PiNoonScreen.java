@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -16,19 +15,19 @@ import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
+import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController2;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.rovers.RoverType;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.statemachine.State;
 import org.ah.gcc.virtualrover.statemachine.StateMachine;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
-import org.ah.gcc.virtualrover.world.Player;
+import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.Engine;
 
@@ -50,7 +49,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private String winner = null;
     private int countdown;
 
-    private List<Player> players = new ArrayList<Player>();
+    private List<PlayerModel> players = new ArrayList<PlayerModel>();
 
     private boolean renderBackground = false;
     private long nextRun;
@@ -95,8 +94,18 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         stateMachine = new StateMachine<PiNoonScreen, GameState>();
         stateMachine.toState(GameState.SELECTION, this);
 
-        players.add(new Player(RoverType.GCC, 1, "Blue", Color.BLUE));
-        players.add(new Player(RoverType.CBIS, 2, "Green", Color.GREEN));
+
+        serverCommunicationAdapter.getEngine().getGame().spawnPlayer(1, "Blue");
+        serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
+        serverCommunicationAdapter.getEngine().process();
+        // players.add(new PlayerModel(RoverType.GCC, 1, "Blue", Color.BLUE));
+        // players.add(new PlayerModel(RoverType.CBIS, 2, "Green", Color.GREEN));
+        // TODO do something about it... Remove? Do something smarter? Stop using players list?
+        for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
+            if (visibleObject instanceof PlayerModel) {
+                players.add((PlayerModel)visibleObject);
+            }
+        }
     }
 
     @Override
@@ -127,33 +136,33 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
-        if (engine != null) { // TODO remove this
-            long now = System.currentTimeMillis();
-            if (!engine.isPaused()) {
-                if (engine.isFixedClientFrameNo()) {
-                    engine.resetFixedClientFrameNo();
-                    nextRun = now;
-                }
-                engine.processCommands();
-                while (nextRun <= now) {
-                    engine.processPlayerInputs();
-                    processedGameState = engine.process();
+        long now = System.currentTimeMillis();
+        if (!engine.isPaused()) {
+            if (engine.isFixedClientFrameNo()) {
+                engine.resetFixedClientFrameNo();
+                nextRun = now;
+            } else if (nextRun == 0) {
+                nextRun = now;
+            }
+            engine.processCommands();
+            while (nextRun <= now) {
+                engine.processPlayerInputs();
+                processedGameState = engine.process();
 
-                    nextRun = nextRun + Engine.ENGINE_LOOP_TIME;
-                }
+                nextRun = nextRun + Engine.ENGINE_LOOP_TIME;
+            }
 
-                if (players.size() > 0) {
-                    Player playerOne = players.get(0);
-                    serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1,
-                            playerOne.roverInputs.moveX(), playerOne.roverInputs.moveY(),
-                            playerOne.roverInputs.rotateX(), playerOne.roverInputs.rotateY());
-                }
-                if (players.size() > 1) {
-                    Player playerTwo = players.get(1);
-                    serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1,
-                            playerTwo.roverInputs.moveX(), playerTwo.roverInputs.moveY(),
-                            playerTwo.roverInputs.rotateX(), playerTwo.roverInputs.rotateY());
-                }
+            if (players.size() > 0) {
+                PlayerModel playerOne = players.get(0);
+                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1,
+                        playerOne.roverInputs.moveX(), playerOne.roverInputs.moveY(),
+                        playerOne.roverInputs.rotateX(), playerOne.roverInputs.rotateY());
+            }
+            if (players.size() > 1) {
+                PlayerModel playerTwo = players.get(1);
+                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1,
+                        playerTwo.roverInputs.moveX(), playerTwo.roverInputs.moveY(),
+                        playerTwo.roverInputs.rotateX(), playerTwo.roverInputs.rotateY());
             }
         }
 
@@ -173,10 +182,12 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         challenge.render(batch, environment);
 
         if (stateMachine.getCurrentState().shouldMoveRovers()) {
-            moveRovers();
+            if (players.size() > 1) {
+                moveRovers();
+            }
             if (stateMachine.isState(GameState.GAME)) {
-                for (Player player : players) {
-                    for (Player other : players) {
+                for (PlayerModel player : players) {
+                    for (PlayerModel other : players) {
                         if (player != other) {
                             PiNoonAttachment playerPiNoonAttachment = player.getPiNoonAttachment();
                             PiNoonAttachment otherPiNoonAttachment = other.getPiNoonAttachment();
@@ -190,10 +201,15 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 }
             }
 
-            for (Player player : players) {
-                player.rover.render(batch, environment); // currentState == GameState.GAME);
-                player.rover.render(batch, environment); // currentState == GameState.GAME);
+            // TODO remove this!
+            for (PlayerModel player : players) {
+                player.rover.render(batch, environment);
+                player.rover.render(batch, environment);
             }
+        }
+
+        for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
+            visibleObject.render(batch, environment);
         }
 
         batch.end();
@@ -215,32 +231,36 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     }
 
     private void setupRovers() {
-        for (Player player : players) {
+        for (PlayerModel player : players) {
             player.makeRobot(modelFactory);
         }
 
         // TODO reset sets balloons and we have to remove them immediately after. That's not good...
         resetRovers();
-        for (Player player : players) {
+        for (PlayerModel player : players) {
             player.getPiNoonAttachment().removeBalloons();
         }
     }
 
     private void drawScore() {
         // TODO sort out score
-        font.draw(spriteBatch, players.get(0).playerScore + " - " + players.get(1).playerScore, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+        if (players.size() > 0) {
+            font.draw(spriteBatch, players.get(0).playerScore + " - " + players.get(1).playerScore, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+        }
     }
 
     private void drawPlayerSelection() {
         // TODO sort out selection
-        font.draw(spriteBatch, players.get(0).playerSelection.getName(), 64, Gdx.graphics.getHeight() / 2 + 64);
-        font.draw(spriteBatch, players.get(1).playerSelection.getName(), 64 + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 64);
+        if (players.size() > 1) {
+            font.draw(spriteBatch, players.get(0).playerSelection.getName(), 64, Gdx.graphics.getHeight() / 2 + 64);
+            font.draw(spriteBatch, players.get(1).playerSelection.getName(), 64 + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 64);
+        }
     }
 
     private void moveRovers() {
         // TODO move all rovers
-        Player player1 = players.get(0);
-        Player player2 = players.get(1);
+        PlayerModel player1 = players.get(0);
+        PlayerModel player2 = players.get(1);
 
         if (player1.rover != null && player2.rover != null) {
             player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
@@ -363,24 +383,24 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     public void resetRovers() {
         if (players.size() > 0) {
-            Player player = players.get(0);
+            PlayerModel player = players.get(0);
             player.rover.getTransform().idt();
             player.rover.getTransform().setToTranslationAndScaling(700 * SCALE, 0, 700 * SCALE, SCALE, SCALE, SCALE);
             player.rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
         }
         if (players.size() > 0) {
-            Player player = players.get(1);
+            PlayerModel player = players.get(1);
             player.rover.getTransform().idt();
             player.rover.getTransform().setToTranslationAndScaling(-700 * SCALE, 0, -700 * SCALE, SCALE, SCALE, SCALE);
             player.rover.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
         }
-        for (Player player : players) {
+        for (PlayerModel player : players) {
             if (player.rover != null) {
                 player.rover.update();
             }
         }
 
-        for (Player player : players) {
+        for (PlayerModel player : players) {
             player.getPiNoonAttachment().resetBalloons();
         }
     }
@@ -391,7 +411,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             @Override public boolean shouldDisplayPlayerSelection() { return true; }
 
             @Override public void enter(PiNoonScreen s) {
-                for (Player player : s.players) {
+                for (PlayerModel player : s.players) {
                     player.playerScore = 0;
                 }
                 s.winner = null;
