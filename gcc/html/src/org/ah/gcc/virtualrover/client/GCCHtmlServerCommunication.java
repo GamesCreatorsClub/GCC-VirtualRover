@@ -82,6 +82,9 @@ public class GCCHtmlServerCommunication extends AbstractServerCommunication {
 
     @Override
     public boolean isConnected() {
+        if (socket == null) {
+            return false;
+        }
         return socket.isOpen();
     }
 
