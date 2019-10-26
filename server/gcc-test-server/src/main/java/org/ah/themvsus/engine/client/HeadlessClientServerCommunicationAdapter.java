@@ -26,7 +26,6 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
     protected void processChatMessage(ChatMessage chatMessage) {
     }
 
-    @Override
     public void startEngine(String mapId) {
         GCCGame game = new GCCGame();
         game.init();

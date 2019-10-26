@@ -94,13 +94,19 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public void startEngine(String mapId, boolean local) {
+        if (local) {
+            sessionId = 1;
+            playerTwoId = 2;
+        }
         GCCGame game = new GCCGame();
         game.init();
-        engine = new GCCClientEngine(game, sessionId, playerTwoId);
+        GCCClientEngine engine = new GCCClientEngine(game, sessionId, playerTwoId);
+        this.engine = engine;
 
         engine.getGame().setGameObjectAddedListener(this);
         engine.getGame().setGameObjectRemovedListener(this);
         engine.setPlayerInputs(playerOneInputMessage.getInputs());
+        engine.setPlayerTwoInputs(playerTwoInputMessage.getInputs());
         if (!local) {
             sendClientReady();
         }
@@ -127,9 +133,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
                 playerColor = Color.GREEN;
             }
 
-            PlayerModel playerModel = new PlayerModel(playerObject, gameObject.getId(), playerObject.getAlias(), playerColor);
+            PlayerModel playerModel = new PlayerModel(engine.getGame(), playerObject.getRoverType(), gameObject.getId(), playerObject.getAlias(), playerColor);
             sprites.put(playerObject.getId(), playerModel);
-
 
 //            VisibleObject sprite = new Tank(spriteTextures, gameObject.getId());
 //

@@ -1,8 +1,11 @@
 package org.ah.gcc.virtualrover.game;
 
 
+import com.badlogic.gdx.math.Vector3;
+
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
+import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.Player;
 
 public class GCCGame extends Game {
@@ -21,5 +24,35 @@ public class GCCGame extends Game {
     @Override
     protected GameObjectFactory createGameFactory() {
         return new GCCGameObjectFactory();
+    }
+
+    @Override
+    public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
+
+        Vector3 objectPosition = object.getPosition();
+        float x = objectPosition.x;
+        float y = objectPosition.y;
+        if (x + 75 > 2000 || x - 75 < 2000) {
+            return true;
+        }
+        if (y + 75 > 2000 || y - 75 < 2000) {
+            return true;
+        }
+
+        for (GameObjectWithPosition o : objects) {
+            if (o != object) {
+                Vector3 otherPos = o.getPosition();
+                float ox = otherPos.x;
+                float oy = otherPos.y;
+
+                float distancesquared = ((x - ox) * (y - ox)) + ((x - oy) * (y - oy));
+
+                if (distancesquared < (75 * 75)) {
+                    return true;
+                }
+            }
+        }
+
+        return super.checkForCollision(object, objects);
     }
 }

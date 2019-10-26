@@ -11,7 +11,7 @@ public class GCCClientEngine extends ClientEngine<GCCGame> {
 
     public GCCClientEngine(GCCGame game, int playerOneId, int playerTwoId) {
         super(game, playerOneId);
-        this.playerTwoId = playerOneId;
+        this.playerTwoId = playerTwoId;
     }
 
     public GCCClientEngine(GCCGame game, int sessionId) {
@@ -24,5 +24,11 @@ public class GCCClientEngine extends ClientEngine<GCCGame> {
 
     public void setPlayerTwoInputs(PlayerInputs inputs) {
         this.playerTwoInputs = inputs;
+    }
+
+    @Override
+    public void processPlayerInputs() {
+        super.processPlayerInputs();
+        game.processPlayerInputs(playerTwoId, playerTwoInputs);
     }
 }

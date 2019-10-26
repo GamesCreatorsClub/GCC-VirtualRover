@@ -8,9 +8,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -35,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
-import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
@@ -55,6 +52,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private long nextRun;
 
     private org.ah.themvsus.engine.common.game.GameState processedGameState;
+
+    private Quaternion orientation = new Quaternion();
 
     public PiNoonScreen(MainGame game,
             AssetManager assetManager,
@@ -200,12 +199,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                     }
                 }
             }
-
-            // TODO remove this!
-            for (PlayerModel player : players) {
-                player.rover.render(batch, environment);
-                player.rover.render(batch, environment);
-            }
         }
 
         for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
@@ -263,65 +256,38 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         PlayerModel player2 = players.get(1);
 
         if (player1.rover != null && player2.rover != null) {
-            player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
-            player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? -1f : Gdx.input.isKeyPressed(Input.Keys.L) ? 1f : 0f);
-            player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? -1f : Gdx.input.isKeyPressed(Input.Keys.O) ? 1f : 0f);
-
             player1.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
             player1.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? -1f : Gdx.input.isKeyPressed(Input.Keys.D) ? 1f : 0f);
             player1.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? -1f : Gdx.input.isKeyPressed(Input.Keys.E) ? 1f : 0f);
 
-            Matrix4 newRover1Position = player1.rover.processInput(player1.roverInputs);
-            Matrix4 newRover2Position = player2.rover.processInput(player2.roverInputs);
+            player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
+            player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? -1f : Gdx.input.isKeyPressed(Input.Keys.L) ? 1f : 0f);
+            player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? -1f : Gdx.input.isKeyPressed(Input.Keys.O) ? 1f : 0f);
 
-            boolean rover1Moves = newRover1Position != null;
-            boolean rover2Moves = newRover2Position != null;
-
-            if (rover1Moves || rover2Moves) {
-                Matrix4 rover1Position = player1.rover.getPreviousTransform();
-                Matrix4 rover2Position = player2.rover.getPreviousTransform();
-                if (newRover1Position == null) {
-                    newRover1Position = rover1Position;
-                }
-                if (newRover2Position == null) {
-                    newRover2Position = rover2Position;
-                }
-
-                if (rover1Moves) {
-                    player1.rover.getTransform().set(newRover1Position);
-                    player1.rover.update();
-                }
-
-                if (rover2Moves) {
-                    player2.rover.getTransform().set(newRover2Position);
-                    player2.rover.update();
-                }
-
-                List<Polygon> rover1Poligons = player1.rover.getPolygons();
-                List<Polygon> rover2Poligons = player2.rover.getPolygons();
-
-                boolean roversCollide = polygonsOverlap(rover1Poligons, rover2Poligons);
-
-                if (roversCollide) {
-                    if (rover1Moves) {
-                        player1.rover.getTransform().set(rover1Position);
-                        player1.rover.update();
-                    }
-                    if (rover2Moves) {
-                        player2.rover.getTransform().set(rover2Position);
-                        player2.rover.update();
-                    }
-                } else {
-                    if (rover1Moves && challenge.collides(rover1Poligons)) {
-                        player1.rover.getTransform().set(rover1Position);
-                        player1.rover.update();
-                    }
-                    if (rover2Moves && challenge.collides(rover2Poligons)) {
-                        player2.rover.getTransform().set(rover2Position);
-                        player2.rover.update();
-                    }
-                }
-            }
+//                List<Polygon> rover1Poligons = player1.rover.getPolygons();
+//                List<Polygon> rover2Poligons = player2.rover.getPolygons();
+//
+//                boolean roversCollide = polygonsOverlap(rover1Poligons, rover2Poligons);
+//
+//                if (roversCollide) {
+//                    if (rover1Moves) {
+//                        player1.rover.getTransform().set(rover1Position);
+//                        player1.rover.update();
+//                    }
+//                    if (rover2Moves) {
+//                        player2.rover.getTransform().set(rover2Position);
+//                        player2.rover.update();
+//                    }
+//                } else {
+//                    if (rover1Moves && challenge.collides(rover1Poligons)) {
+//                        player1.rover.getTransform().set(rover1Position);
+//                        player1.rover.update();
+//                    }
+//                    if (rover2Moves && challenge.collides(rover2Poligons)) {
+//                        player2.rover.getTransform().set(rover2Position);
+//                        player2.rover.update();
+//                    }
+//                }
         }
     }
 
@@ -384,20 +350,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     public void resetRovers() {
         if (players.size() > 0) {
             PlayerModel player = players.get(0);
-            player.rover.getTransform().idt();
-            player.rover.getTransform().setToTranslationAndScaling(700 * SCALE, 0, 700 * SCALE, SCALE, SCALE, SCALE);
-            player.rover.getTransform().rotate(new Vector3(0, 1, 0), -45);
+            orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
+            player.setGamePlayerPositionAndOrientation(700, 700, orientation);
         }
         if (players.size() > 0) {
             PlayerModel player = players.get(1);
-            player.rover.getTransform().idt();
-            player.rover.getTransform().setToTranslationAndScaling(-700 * SCALE, 0, -700 * SCALE, SCALE, SCALE, SCALE);
-            player.rover.getTransform().rotate(new Vector3(0, 1, 0), 180 - 45);
-        }
-        for (PlayerModel player : players) {
-            if (player.rover != null) {
-                player.rover.update();
-            }
+            orientation.setEulerAnglesRad(0f, 0f, (float)(+ Math.PI / 4f));
+            player.setGamePlayerPositionAndOrientation(-700, -700, orientation);
         }
 
         for (PlayerModel player : players) {
