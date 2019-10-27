@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
+
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
 import java.util.NoSuchElementException;
@@ -30,6 +31,7 @@ public abstract class AbstractRover implements Rover {
         return name;
     }
 
+    @Override
     public Color getColour() {
         return colour;
     }
@@ -53,10 +55,12 @@ public abstract class AbstractRover implements Rover {
         this.id = id;
     }
 
+    @Override
     public Attachment getAttachemnt() {
         return attachment;
     }
 
+    @Override
     public void setAttachment(Attachment attachment) {
         this.attachment = attachment;
         attachment.update(transform);

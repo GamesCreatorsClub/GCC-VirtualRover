@@ -17,7 +17,7 @@ public interface Rover {
 
     void render(ModelBatch batch, Environment environment);
 
-    void update();
+    void update(float x, float y, float z, float orientation);
 
     Color getColour();
 

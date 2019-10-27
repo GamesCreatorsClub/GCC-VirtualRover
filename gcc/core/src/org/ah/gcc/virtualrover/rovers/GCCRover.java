@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.ah.gcc.virtualrover.MainGame.SCALE;
+
 public class GCCRover extends AbstractRover {
     private static float roverSpeed = 0.4f; // metre per second
 
@@ -58,7 +60,11 @@ public class GCCRover extends AbstractRover {
     }
 
     @Override
-    public void update() {
+    public void update(float x, float y, float z, float headingDegs) {
+        transform.setToTranslationAndScaling(x * SCALE, 0, y * SCALE, SCALE, SCALE, SCALE);
+        transform.rotate(new Vector3(0, 1, 0), 180 - headingDegs);
+        transform.translate(-80f, 0, 55f);
+
         fr.getTransform().set(transform);
         fl.getTransform().set(transform);
         br.getTransform().set(transform);

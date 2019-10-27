@@ -2,6 +2,7 @@ package org.ah.gcc.virtualrover.game;
 
 import com.badlogic.gdx.math.Vector3;
 
+import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCPlayerServerUpdateMessage;
 import org.ah.themvsus.engine.common.game.Game;
@@ -88,8 +89,8 @@ public class GCCPlayer extends Player {
             speed = 0f;
         } else {
             speed = moveDistance * desiredForwardSpeed;
-            direction = (float)(Math.atan2(moveX, moveY));
-            turnSpeed = rotateDistance * desiredRotationSpeed;
+            direction = (float)(Math.atan2(moveX, moveY) * 180 / Math.PI);
+            turnSpeed = rotateX * desiredRotationSpeed;
         }
     }
 

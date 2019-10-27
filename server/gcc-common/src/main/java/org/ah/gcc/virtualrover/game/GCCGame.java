@@ -32,10 +32,10 @@ public class GCCGame extends Game {
         Vector3 objectPosition = object.getPosition();
         float x = objectPosition.x;
         float y = objectPosition.y;
-        if (x + 75 > 2000 || x - 75 < 2000) {
+        if (x + 75 > 1000 || x - 75 < -1000) {
             return true;
         }
-        if (y + 75 > 2000 || y - 75 < 2000) {
+        if (y + 75 > 1000 || y - 75 < -1000) {
             return true;
         }
 
