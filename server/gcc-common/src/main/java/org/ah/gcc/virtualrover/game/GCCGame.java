@@ -1,17 +1,33 @@
 package org.ah.gcc.virtualrover.game;
 
 
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Polygon;
 
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.Player;
 
+import java.util.List;
+
+import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonFromBox;
+import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonsOverlap;
+
+import static java.util.Arrays.asList;
+
 public class GCCGame extends Game {
 
-    public GCCGame() {
+    private String mapId;
+
+    private List<Polygon> piNoonPolygons = asList(
+            polygonFromBox(-1000, -1001,  1000, -1000),
+            polygonFromBox(-1001, -1000, -1000,  1000),
+            polygonFromBox(-1000,  1000,  1000,  1001),
+            polygonFromBox( 1000, -1000,  1001,  1000));
+
+    public GCCGame(String mapId) {
         super();
+        this.mapId = mapId;
     }
 
     @Override
@@ -29,26 +45,25 @@ public class GCCGame extends Game {
     @Override
     public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
 
-        Vector3 objectPosition = object.getPosition();
-        float x = objectPosition.x;
-        float y = objectPosition.y;
-        if (x + 80 > 1000 || x - 80 < -1000) {
-            return true;
-        }
-        if (y + 80 > 1000 || y - 80 < -1000) {
-            return true;
+        List<Polygon> roverPolygon = null;
+        if (object instanceof GCCCollidableObject) {
+            roverPolygon = ((GCCCollidableObject)object).getCollisionPolygons();
         }
 
+        if ("PiNoon".equals(mapId)) {
+            if (roverPolygon != null) {
+                if (polygonsOverlap(piNoonPolygons, roverPolygon)) {
+                    return true;
+                }
+            }
+        }
         for (GameObjectWithPosition o : objects) {
             if (o != object) {
-                Vector3 otherPos = o.getPosition();
-                float ox = otherPos.x;
-                float oy = otherPos.y;
-
-                float distancesquared = (x - ox) * (x - ox) + (y - oy) * (y - oy);
-
-                if (distancesquared < (80 * 80)) {
-                    return true;
+                if (roverPolygon != null && object instanceof GCCPlayer) {
+                    List<Polygon> otherRoverPolygon = ((GCCCollidableObject)o).getCollisionPolygons();
+                    if (polygonsOverlap(roverPolygon, otherRoverPolygon)) {
+                        return true;
+                    }
                 }
             }
         }

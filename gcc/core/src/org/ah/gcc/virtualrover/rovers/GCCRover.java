@@ -6,14 +6,10 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
-import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
@@ -30,18 +26,9 @@ public class GCCRover extends AbstractRover {
 
     private ModelInstance top;
 
-    private Vector3 backleft = new Vector3();
-    private Vector3 backright = new Vector3();
-    private Vector3 frontleft = new Vector3();
-    private Vector3 frontright = new Vector3();
-
     private Matrix4 nextPos = new Matrix4();
 
-    private float[] polygonVertices = new float[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-    private Polygon polygon = new Polygon(polygonVertices);
-    private List<Polygon> polygons = new ArrayList<Polygon>();
-
-    public GCCRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+     public GCCRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
 
         body = new ModelInstance(modelFactory.getBody(), 0, 0, 0);
@@ -55,8 +42,6 @@ public class GCCRover extends AbstractRover {
         fl = new GCCRoverWheel(modelFactory, Color.ORANGE, 25f, -36.7f, -10f, 90);
         br = new GCCRoverWheel(modelFactory, Color.ORANGE, 132f, -36.7f, -100f, 270);
         bl = new GCCRoverWheel(modelFactory, Color.ORANGE, 150f, -36.7f, -10f, 90);
-
-        polygons.add(polygon);
     }
 
     @Override
@@ -95,49 +80,6 @@ public class GCCRover extends AbstractRover {
         renderAttachment(batch, environment);
     }
 
-    @Override
-    public Matrix4 processInput(GCCPlayerInput i) {
-        previousTransform.set(transform);
-        float speed = calcSpeedMillimetresInFrame(roverSpeed);
-        // TODO implement same thing as on real rover...
-        if (i.moveY() > 0f) {
-            if (i.rotateX() < 0f) {
-                return steer(speed * 1.05f);
-            } else if (i.rotateX() > 0f) {
-                return steer(-speed * 1.05f);
-            } else if (i.moveX() < 0f) {
-                return drive(-speed * 0.5f, 135);
-            } else if (i.moveX() > 0f) {
-                return drive(-speed * 0.5f, 45);
-            } else {
-                return drive(-speed, 0);
-            }
-        } else if (i.moveY() < 0f) {
-            if (i.rotateX() < 0f) {
-                return steerBack(speed * 1.05f);
-            } else if (i.rotateX() > 0f) {
-                return steerBack(-speed * 1.05f);
-            } else if (i.moveX() < 0f) {
-                return drive(speed * 0.5f, 45);
-            } else if (i.moveX() > 0f) {
-                return drive(speed * 0.5f, 135);
-            } else {
-                return drive(speed, 0);
-            }
-        } else if (i.moveX() < 0f) {
-            return drive(speed, 90);
-        } else if (i.moveX() > 0f) {
-            return drive(-speed, 90);
-        } else if (i.rotateX() < 0f) {
-            return rotate(speed);
-        } else if (i.rotateX() > 0f) {
-            return rotate(-speed);
-        } else {
-            stop();
-        }
-        return null;
-    }
-
     private void straightenWheels() {
         fl.setDegrees(0);
         fr.setDegrees(0);
@@ -150,10 +92,6 @@ public class GCCRover extends AbstractRover {
         fr.setDegrees(60);
         bl.setDegrees(+60);
         br.setDegrees(-60);
-    }
-
-    private void stop() {
-        setWheelSpeeds(0);
     }
 
     private Matrix4 drive(float speed, int angle) {
@@ -270,25 +208,5 @@ public class GCCRover extends AbstractRover {
         fr.setSpeed(speed);
         bl.setSpeed(speed);
         br.setSpeed(speed);
-    }
-
-    @Override
-    public List<Polygon> getPolygons() {
-        backleft = bl.getPosition(backleft);
-        backright = br.getPosition(backright);
-        frontleft = fl.getPosition(frontleft);
-        frontright = fr.getPosition(frontright);
-
-        polygonVertices[0] = frontright.x;
-        polygonVertices[1] = frontright.z;
-        polygonVertices[2] = frontleft.x;
-        polygonVertices[3] = frontleft.z;
-        polygonVertices[4] = backleft.x;
-        polygonVertices[5] = backleft.z;
-        polygonVertices[6] = backright.x;
-        polygonVertices[7] = backright.z;
-
-        polygon.dirty();
-        return polygons;
     }
 }

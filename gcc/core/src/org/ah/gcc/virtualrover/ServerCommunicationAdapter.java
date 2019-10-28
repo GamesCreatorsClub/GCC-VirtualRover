@@ -99,7 +99,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             sessionId = 1;
             playerTwoId = 2;
         }
-        GCCGame game = new GCCGame();
+        GCCGame game = new GCCGame(mapId);
         game.init();
         GCCClientEngine engine = new GCCClientEngine(game, sessionId, playerTwoId);
         this.engine = engine;

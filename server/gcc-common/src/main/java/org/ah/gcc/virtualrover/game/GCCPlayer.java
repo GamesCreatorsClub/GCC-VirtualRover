@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.game;
 
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
@@ -13,7 +14,9 @@ import org.ah.themvsus.engine.common.input.PlayerInput;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
-public class GCCPlayer extends Player {
+import java.util.List;
+
+public class GCCPlayer extends Player implements GCCCollidableObject {
 
     private RoverType roverType;
 
@@ -89,5 +92,10 @@ public class GCCPlayer extends Player {
         gccPlayer.roverType = roverType;
 
         return newObject;
+    }
+
+    @Override
+    public List<Polygon> getCollisionPolygons() {
+        return getRoverType().getRoverDefinition().getPolygons(position.x, position.y, orientation.getAngleAround(Z_AXIS));
     }
 }
