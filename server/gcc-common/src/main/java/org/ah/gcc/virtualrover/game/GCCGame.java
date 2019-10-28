@@ -3,6 +3,8 @@ package org.ah.gcc.virtualrover.game;
 
 import com.badlogic.gdx.math.Polygon;
 
+import org.ah.gcc.virtualrover.game.challenge.Challenge;
+import org.ah.gcc.virtualrover.game.challenge.Challenges;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
@@ -10,24 +12,15 @@ import org.ah.themvsus.engine.common.game.Player;
 
 import java.util.List;
 
-import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonFromBox;
 import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonsOverlap;
-
-import static java.util.Arrays.asList;
 
 public class GCCGame extends Game {
 
-    private String mapId;
-
-    private List<Polygon> piNoonPolygons = asList(
-            polygonFromBox(-1000, -1001,  1000, -1000),
-            polygonFromBox(-1001, -1000, -1000,  1000),
-            polygonFromBox(-1000,  1000,  1000,  1001),
-            polygonFromBox( 1000, -1000,  1001,  1000));
+    private Challenge challenge;
 
     public GCCGame(String mapId) {
         super();
-        this.mapId = mapId;
+        this.challenge = Challenges.createChallenge(mapId);
     }
 
     @Override
@@ -50,13 +43,14 @@ public class GCCGame extends Game {
             roverPolygon = ((GCCCollidableObject)object).getCollisionPolygons();
         }
 
-        if ("PiNoon".equals(mapId)) {
+        if (challenge != null) {
             if (roverPolygon != null) {
-                if (polygonsOverlap(piNoonPolygons, roverPolygon)) {
+                if (polygonsOverlap(challenge.getCollisionPolygons(), roverPolygon)) {
                     return true;
                 }
             }
         }
+
         for (GameObjectWithPosition o : objects) {
             if (o != object) {
                 if (roverPolygon != null && object instanceof GCCPlayer) {
