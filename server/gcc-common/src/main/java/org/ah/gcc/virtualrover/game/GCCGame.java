@@ -32,10 +32,10 @@ public class GCCGame extends Game {
         Vector3 objectPosition = object.getPosition();
         float x = objectPosition.x;
         float y = objectPosition.y;
-        if (x + 75 > 1000 || x - 75 < -1000) {
+        if (x + 80 > 1000 || x - 80 < -1000) {
             return true;
         }
-        if (y + 75 > 1000 || y - 75 < -1000) {
+        if (y + 80 > 1000 || y - 80 < -1000) {
             return true;
         }
 
@@ -45,9 +45,9 @@ public class GCCGame extends Game {
                 float ox = otherPos.x;
                 float oy = otherPos.y;
 
-                float distancesquared = ((x - ox) * (y - ox)) + ((x - oy) * (y - oy));
+                float distancesquared = (x - ox) * (x - ox) + (y - oy) * (y - oy);
 
-                if (distancesquared < (75 * 75)) {
+                if (distancesquared < (80 * 80)) {
                     return true;
                 }
             }

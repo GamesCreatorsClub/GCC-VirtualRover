@@ -17,9 +17,10 @@ import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
-import org.ah.gcc.virtualrover.camera.CinematicCameraController2;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.statemachine.State;
 import org.ah.gcc.virtualrover.statemachine.StateMachine;
@@ -87,15 +88,17 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraInputMultiplexer.addProcessor(cameraControllersManager);
 
         cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, players));
-        cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
+        // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
         cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
 
         stateMachine = new StateMachine<PiNoonScreen, GameState>();
         stateMachine.toState(GameState.SELECTION, this);
 
 
-        serverCommunicationAdapter.getEngine().getGame().spawnPlayer(1, "Blue");
-        serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
+        GCCPlayer player1 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(1, "Blue");
+        player1.setRoverType(RoverType.GCC);
+        GCCPlayer player2 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
+        player2.setRoverType(RoverType.CBIS);
         serverCommunicationAdapter.getEngine().process();
         // players.add(new PlayerModel(RoverType.GCC, 1, "Blue", Color.BLUE));
         // players.add(new PlayerModel(RoverType.CBIS, 2, "Green", Color.GREEN));
@@ -153,15 +156,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
             if (players.size() > 0) {
                 PlayerModel playerOne = players.get(0);
-                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1,
-                        playerOne.roverInputs.moveX(), playerOne.roverInputs.moveY(),
-                        playerOne.roverInputs.rotateX(), playerOne.roverInputs.rotateY());
+                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInputs);
             }
             if (players.size() > 1) {
                 PlayerModel playerTwo = players.get(1);
-                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1,
-                        playerTwo.roverInputs.moveX(), playerTwo.roverInputs.moveY(),
-                        playerTwo.roverInputs.rotateX(), playerTwo.roverInputs.rotateY());
+                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInputs);
             }
         }
 

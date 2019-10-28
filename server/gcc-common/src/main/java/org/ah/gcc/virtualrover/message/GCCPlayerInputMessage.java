@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.message;
 
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.input.GCCPlayerInputs;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.message.MessageFactory;
@@ -21,10 +22,10 @@ public class GCCPlayerInputMessage extends PlayerInputMessage {
         return playerInputs;
     }
 
-    public void addInputs(int sessionId, int frameNo, float moveX, float moveY, float rotateX, float rotateY) {
+    public void addInputs(int sessionId, int frameNo, GCCPlayerInput playerInput) {
         this.sessionId = sessionId;
         this.frameNo = frameNo;
 
-        ((GCCPlayerInputs)playerInputs).addInputs(frameNo, moveX, moveY, rotateX, rotateY);
+        ((GCCPlayerInputs)playerInputs).addInputs(frameNo, playerInput);
     }
 }

@@ -4,13 +4,15 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 public class GCCPlayerInputs extends PlayerInputs {
 
-    public void addInputs(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
-        GCCPlayerInput playerInput = newPlayerInput();
-        playerInput.moveX(moveX);
-        playerInput.moveY(moveY);
-        playerInput.rotateX(rotateX);
-        playerInput.rotateY(rotateY);
-        super.addInputs(currentFrameNo, playerInput);
+    public void addInputs(int currentFrameNo, GCCPlayerInput playerInput) {
+        GCCPlayerInput newPlayerInput = newPlayerInput();
+        newPlayerInput.moveX(playerInput.moveX());
+        newPlayerInput.moveY(playerInput.moveY());
+        newPlayerInput.rotateX(playerInput.rotateX());
+        newPlayerInput.rotateY(playerInput.rotateY());
+        newPlayerInput.setDesiredForwardSpeed(playerInput.getDesiredForwardSpeed());
+        newPlayerInput.setDesiredRotationSpeed(playerInput.getDesiredRotationSpeed());
+        super.addInputs(currentFrameNo, newPlayerInput);
     }
 
     @Override

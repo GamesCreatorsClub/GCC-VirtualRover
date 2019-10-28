@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
@@ -60,8 +61,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return sprites;
     }
 
-    public void setPlayerOneInput(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
-        playerOneInputMessage.addInputs(sessionId, currentFrameNo, moveX, moveY, rotateX, rotateY);
+    public void setPlayerOneInput(int currentFrameNo, GCCPlayerInput playerInput) {
+        playerOneInputMessage.addInputs(sessionId, currentFrameNo, playerInput);
 
         if (serverCommunication.isConnected()) {
             sendPlayerInput(playerOneInputMessage);
@@ -71,8 +72,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         }
     }
 
-    public void setPlayerTwoInput(int currentFrameNo, float moveX, float moveY, float rotateX, float rotateY) {
-        playerTwoInputMessage.addInputs(sessionId, currentFrameNo, moveX, moveY, rotateX, rotateY);
+    public void setPlayerTwoInput(int currentFrameNo, GCCPlayerInput playerInput) {
+        playerTwoInputMessage.addInputs(sessionId, currentFrameNo, playerInput);
 
         if (serverCommunication.isConnected()) {
             sendPlayerInput(playerTwoInputMessage);
