@@ -73,7 +73,10 @@ public class PlayerModel implements VisibleObject {
 ////            transform.translate(80f, 0, -55);
 //            transform.rotate(new Vector3(0, 1, 0), 180 - bearing);
 ////            transform.translate(-80f, 0, 55f);
-            rover.update(position.x, position.y, position.z, bearing);
+            rover.update(position, bearing);
+            if (rover.getAttachemnt() != null) {
+                rover.getAttachemnt().setAttachmentBits(gccPlayer.getChallengeBits());
+            }
 
             rover.render(batch, environment);
         }

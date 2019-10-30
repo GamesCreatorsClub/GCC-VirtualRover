@@ -36,9 +36,9 @@ public class CBiSRover extends AbstractRover {
     }
 
     @Override
-    public void update(float x, float y, float z, float headingDegs) {
-        transform.setToTranslationAndScaling(x * SCALE, 0, y * SCALE, SCALE, SCALE, SCALE);
-        transform.rotate(new Vector3(0, 1, 0), 180 - headingDegs);
+    public void update(Vector3 position, float headingDegs) {
+        transform.setToTranslationAndScaling(position.x * SCALE, 0, -position.y * SCALE, SCALE, SCALE, SCALE);
+        transform.rotate(new Vector3(0, 1, 0), 180 + headingDegs); // 180 + is because of all rover models are made 'backwards'
         transform.translate(-80f, 0, 55f);
 
         body.transform.set(transform);

@@ -38,22 +38,14 @@ public class GCCGame extends Game {
     @Override
     public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
 
-        List<Polygon> roverPolygon = null;
+        if (challenge != null && challenge.checkForCollision(object, objects)) {
+            return true;
+        }
+
         if (object instanceof GCCCollidableObject) {
-            roverPolygon = ((GCCCollidableObject)object).getCollisionPolygons();
-        }
-
-        if (challenge != null) {
-            if (roverPolygon != null) {
-                if (polygonsOverlap(challenge.getCollisionPolygons(), roverPolygon)) {
-                    return true;
-                }
-            }
-        }
-
-        for (GameObjectWithPosition o : objects) {
-            if (o != object) {
-                if (roverPolygon != null && object instanceof GCCPlayer) {
+            List<Polygon> roverPolygon = ((GCCCollidableObject)object).getCollisionPolygons();
+            for (GameObjectWithPosition o : objects) {
+                if (o != object && o instanceof GCCPlayer) {
                     List<Polygon> otherRoverPolygon = ((GCCCollidableObject)o).getCollisionPolygons();
                     if (polygonsOverlap(roverPolygon, otherRoverPolygon)) {
                         return true;

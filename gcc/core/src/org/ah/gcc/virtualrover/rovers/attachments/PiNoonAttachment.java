@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 
@@ -51,6 +52,7 @@ public class PiNoonAttachment extends AbstractAttachment {
         return sharpPoint;
     }
 
+    @Override
     public void update(Matrix4 roverTransform) {
         balloonPeriod++;
 
@@ -60,24 +62,22 @@ public class PiNoonAttachment extends AbstractAttachment {
 
         for (Balloon balloon : this.balloons) {
             balloon.balloon.transform.set(roverTransform);
-            // balloon.balloon.transform.scale(0.16f, 0.16f, 0.16f);
         }
 
-        balloons[0].balloon.transform.translate(15f, 158f, -30f);
+        balloons[0].balloon.transform.translate(15f, 178f, -70f);
         balloons[1].balloon.transform.translate(-15f, 178f, -50f);
-        balloons[2].balloon.transform.translate(15f, 178f, -70f);
+        balloons[2].balloon.transform.translate(15f, 158f, -30f);
 
-        balloons[0].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (30 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
+        balloons[0].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (-50 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
         balloons[1].balloon.transform.rotate(new Vector3(0, 0, 1), (float) (45 + (Math.cos(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
-        balloons[2].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (-50 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
+        balloons[2].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (30 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
 
         pinoon.transform.set(roverTransform);
-        // pinoon.transform.scale(0.16f, 0.16f, 0.16f);
+
         pinoon.transform.translate(-10f, 8f, -66f);
         pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 
         if (SHOW_MARKER) {
-            // marker.transform.setToTranslationAndScaling(0.01f, 0.01f, 0.01f, sharpPointPos.x, sharpPointPos.y, sharpPointPos.z);
             marker.transform.setToTranslation(sharpPointPos);
             marker.transform.scale(0.003f, 0.003f, 0.003f);
         }
@@ -85,7 +85,7 @@ public class PiNoonAttachment extends AbstractAttachment {
 
     public void removeBalloons() {
         for (Balloon balloon : this.balloons) {
-            balloon.remove();
+            balloon.pop();
         }
     }
 
@@ -95,6 +95,7 @@ public class PiNoonAttachment extends AbstractAttachment {
         }
     }
 
+    @Override
     public void render(ModelBatch batch, Environment environment) {
         batch.render(pinoon, environment);
         for (Balloon balloon : balloons) {
@@ -158,6 +159,22 @@ public class PiNoonAttachment extends AbstractAttachment {
 
         public void reset() { popped = false; }
 
-        public void remove() { popped = true; }
+        public void pop() { popped = true; }
+    }
+
+    @Override
+    public void setAttachmentBits(int challengeBits) {
+        for (int balloonNo = 0; balloonNo < 3; balloonNo++) {
+            int balloonBit = (1 << balloonNo);
+            if ((challengeBits & balloonBit) != 0) {
+                if (balloons[balloonNo].popped) {
+                    balloons[balloonNo].reset();
+                }
+            } else {
+                if (!balloons[balloonNo].popped) {
+                    balloons[balloonNo].pop();
+                }
+            }
+        }
     }
 }

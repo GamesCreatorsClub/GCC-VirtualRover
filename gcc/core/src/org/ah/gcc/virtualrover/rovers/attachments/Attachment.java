@@ -10,4 +10,6 @@ public interface Attachment {
 
     void render(ModelBatch batch, Environment environment);
 
+    void setAttachmentBits(int challengeBits);
+
 }

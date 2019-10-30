@@ -29,6 +29,7 @@ import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.Engine;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,9 +88,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraInputMultiplexer.addProcessor(this);
         cameraInputMultiplexer.addProcessor(cameraControllersManager);
 
+        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, players));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
-        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
 
         stateMachine = new StateMachine<PiNoonScreen, GameState>();
         stateMachine.toState(GameState.SELECTION, this);
@@ -183,21 +184,23 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             if (players.size() > 1) {
                 moveRovers();
             }
-            if (stateMachine.isState(GameState.GAME)) {
-                for (PlayerModel player : players) {
-                    for (PlayerModel other : players) {
-                        if (player != other) {
-                            PiNoonAttachment playerPiNoonAttachment = player.getPiNoonAttachment();
-                            PiNoonAttachment otherPiNoonAttachment = other.getPiNoonAttachment();
-
-                            if (playerPiNoonAttachment.checkIfBalloonsPopped(otherPiNoonAttachment) == 0) {
-                                other.playerScore++;
-                                winner = other.name;
-                            }
-                        }
-                    }
-                }
-            }
+// TODO this is now done in Game. What now?
+//
+//            if (stateMachine.isState(GameState.GAME)) {
+//                for (PlayerModel player : players) {
+//                    for (PlayerModel other : players) {
+//                        if (player != other) {
+//                            PiNoonAttachment playerPiNoonAttachment = player.getPiNoonAttachment();
+//                            PiNoonAttachment otherPiNoonAttachment = other.getPiNoonAttachment();
+//
+//                            if (playerPiNoonAttachment.checkIfBalloonsPopped(otherPiNoonAttachment) == 0) {
+//                                other.playerScore++;
+//                                winner = other.name;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
 
         for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
@@ -256,12 +259,12 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         if (player1.rover != null && player2.rover != null) {
             player1.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
-            player1.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? -1f : Gdx.input.isKeyPressed(Input.Keys.D) ? 1f : 0f);
-            player1.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? -1f : Gdx.input.isKeyPressed(Input.Keys.E) ? 1f : 0f);
+            player1.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
+            player1.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
 
             player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
-            player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? -1f : Gdx.input.isKeyPressed(Input.Keys.L) ? 1f : 0f);
-            player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? -1f : Gdx.input.isKeyPressed(Input.Keys.O) ? 1f : 0f);
+            player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
+            player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
 
 //                List<Polygon> rover1Poligons = player1.rover.getPolygons();
 //                List<Polygon> rover2Poligons = player2.rover.getPolygons();
@@ -354,7 +357,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         }
         if (players.size() > 0) {
             PlayerModel player = players.get(1);
-            orientation.setEulerAnglesRad(0f, 0f, (float)(+ Math.PI / 4f));
+            orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI / 4f));
             player.setGamePlayerPositionAndOrientation(-700, -700, orientation);
         }
 
@@ -460,6 +463,15 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 s.setMiddleMessage("GO!", false);
                 s.setBottomMessage(null, false);
                 s.soundManager.playFight();
+                // TODO this goes into game!
+                GCCGame gccGame = s.serverCommunicationAdapter.getEngine().getGame();
+                for (GameObject gameObject : gccGame.getCurrentGameState().gameObjects().values()) {
+                    if (gameObject instanceof GCCPlayer) {
+                        GCCPlayer gccPlayer = (GCCPlayer)gameObject;
+
+                        gccPlayer.setChallengeBits(7);
+                    }
+                }
             }
 
             @Override public void update(PiNoonScreen s) {

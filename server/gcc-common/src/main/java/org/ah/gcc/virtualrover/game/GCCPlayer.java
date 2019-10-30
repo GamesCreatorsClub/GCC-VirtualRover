@@ -1,6 +1,8 @@
 package org.ah.gcc.virtualrover.game;
 
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
@@ -19,6 +21,8 @@ import java.util.List;
 public class GCCPlayer extends Player implements GCCCollidableObject {
 
     private RoverType roverType;
+    private int challengeBits;
+    private int score;
 
     public GCCPlayer(GameObjectFactory factory, int id) {
         super(factory, id);
@@ -31,6 +35,22 @@ public class GCCPlayer extends Player implements GCCCollidableObject {
 
     public RoverType getRoverType() {
         return roverType;
+    }
+
+    public void setChallengeBits(int challengeBits) {
+        this.challengeBits = challengeBits;
+    }
+
+    public int getChallengeBits() {
+        return challengeBits;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     @Override
@@ -76,12 +96,17 @@ public class GCCPlayer extends Player implements GCCCollidableObject {
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
         serializer.serializeByte((byte)roverType.getId());
+        serializer.serializeByte((byte)score);
+        serializer.serializeShort(challengeBits);
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
         roverType = RoverType.getById(serializer.deserializeByte());
+        score = serializer.deserializeByte();
+        challengeBits = serializer.deserializeShort();
+
     }
 
     @Override
@@ -90,12 +115,22 @@ public class GCCPlayer extends Player implements GCCCollidableObject {
 
         GCCPlayer gccPlayer = (GCCPlayer)newObject;
         gccPlayer.roverType = roverType;
+        gccPlayer.score = score;
+        gccPlayer.challengeBits = challengeBits;
 
         return newObject;
     }
 
     @Override
     public List<Polygon> getCollisionPolygons() {
-        return getRoverType().getRoverDefinition().getPolygons(position.x, position.y, orientation.getAngleAround(Z_AXIS));
+        return getRoverType().getRoverDefinition().getPolygons(position.x, position.y, getBearing());
+    }
+
+    public Vector2 getSharpEnd() {
+        return getRoverType().getRoverDefinition().getSharpPoint(position.x, position.y, getBearing());
+    }
+
+    public Circle getBalloon(int balloonNo) {
+        return getRoverType().getRoverDefinition().getBalloon(balloonNo, position.x, position.y, getBearing());
     }
 }
