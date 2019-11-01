@@ -91,4 +91,8 @@ public class PlayerModel implements VisibleObject {
         gccPlayer.setPosition(x, y);
         gccPlayer.setOrientation(orientation);
     }
+
+    public GCCPlayer getGCCPlayer() {
+        return (GCCPlayer)game.getCurrentGameState().get(id);
+    }
 }

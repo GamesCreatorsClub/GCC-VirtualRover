@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.utils;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -11,11 +12,29 @@ import java.util.List;
 
 public class MeshUtils {
 
-    public static Mesh createRect(float x, float y, float width, float height) {
+    public static Mesh createRect(float x, float y, float z, float width, float height) {
         Mesh mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
 
-        mesh.setVertices(new float[] { -1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 0, 0, 1 * width + x, -1, -1 * height + y, 1, 0, 1, 1, 1, 0,
-                1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 1, 1, -1 * width + x, -1, 1 * height + y, 1, 0, 1, 1, 0, 1 });
+        mesh.setVertices(new float[] {
+                -1 * width + x, z, -1 * height + y, 1, 0, 1, 1, 0, 0,
+                 1 * width + x, z, -1 * height + y, 1, 0, 1, 1, 1, 0,
+                 1 * width + x, z,  1 * height + y, 1, 0, 1, 1, 1, 1,
+                -1 * width + x, z,  1 * height + y, 1, 0, 1, 1, 0, 1
+            });
+
+        mesh.setIndices(new short[] { 2, 1, 0, 0, 3, 2 });
+        return mesh;
+    }
+
+    public static Mesh createRect(float x, float y, float z, float width, float height, Color color) {
+        Mesh mesh = new Mesh(true, 4, 6, VertexAttribute.Position(), VertexAttribute.ColorUnpacked(), VertexAttribute.TexCoords(0));
+
+        mesh.setVertices(new float[] {
+                -1 * width + x, z, -1 * height + y, color.r, color.g, color.b, color.a, 0, 1,
+                 1 * width + x, z, -1 * height + y, color.r, color.g, color.b, color.a, 1, 1,
+                 1 * width + x, z,  1 * height + y, color.r, color.g, color.b, color.a, 1, 0,
+                -1 * width + x, z,  1 * height + y, color.r, color.g, color.b, color.a, 0, 0
+            });
 
         mesh.setIndices(new short[] { 2, 1, 0, 0, 3, 2 });
         return mesh;

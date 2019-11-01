@@ -10,7 +10,7 @@ public class CBISRoverDefinition extends AbstractRoverDefinition {
 
     public CBISRoverDefinition() {
         this.roverControls = new TankRoverControls();
-        this.polygons = asList(PolygonUtils.polygonFromBox(-75f,  -100f, 75f,  100f));
-        this.attachmentPosition = new Vector2(75f, 0);
+        this.polygons = asList(PolygonUtils.polygonFromBox(-100f,  -75f, 100f,  75f));
+        this.attachmentPosition = new Vector2(100f, 0);
     }
 }

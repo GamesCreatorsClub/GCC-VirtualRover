@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -101,8 +102,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         GCCPlayer player2 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
         player2.setRoverType(RoverType.CBIS);
         serverCommunicationAdapter.getEngine().process();
-        // players.add(new PlayerModel(RoverType.GCC, 1, "Blue", Color.BLUE));
-        // players.add(new PlayerModel(RoverType.CBIS, 2, "Green", Color.GREEN));
+
         // TODO do something about it... Remove? Do something smarter? Stop using players list?
         for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
             if (visibleObject instanceof PlayerModel) {
@@ -178,7 +178,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         batch.begin(camera);
 
-        challenge.render(batch, environment);
+
+        challenge.render(batch, environment, serverCommunicationAdapter.getSprites());
 
         if (stateMachine.getCurrentState().shouldMoveRovers()) {
             if (players.size() > 1) {
@@ -201,10 +202,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 //                    }
 //                }
 //            }
-        }
-
-        for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
-            visibleObject.render(batch, environment);
         }
 
         batch.end();
@@ -239,8 +236,19 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     private void drawScore() {
         // TODO sort out score
-        if (players.size() > 0) {
-            font.draw(spriteBatch, players.get(0).playerScore + " - " + players.get(1).playerScore, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+        if (players.size() > 1) {
+            PlayerModel player1 = players.get(0);
+            PlayerModel player2 = players.get(1);
+            font.draw(spriteBatch, player1.playerScore + " - " + player2.playerScore, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+            GCCPlayer gccPlayer1 = player1.getGCCPlayer();
+            Vector3 player1Position = gccPlayer1.getPosition();
+            float player1Bearing = gccPlayer1.getBearing();
+            GCCPlayer gccPlayer2 = player2.getGCCPlayer();
+            Vector3 player2Position = gccPlayer2.getPosition();
+            float player2Bearing = gccPlayer2.getBearing();
+
+            font.draw(spriteBatch, player1Position.x + " - " + player1Position.y + " @ " + player1Bearing, Gdx.graphics.getWidth() - 720, Gdx.graphics.getHeight() - 80);
+            font.draw(spriteBatch, player2Position.x + " - " + player2Position.y + " @ " + player2Bearing, Gdx.graphics.getWidth() - 720, Gdx.graphics.getHeight() - 120);
         }
     }
 
@@ -265,31 +273,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
             player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
             player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
-
-//                List<Polygon> rover1Poligons = player1.rover.getPolygons();
-//                List<Polygon> rover2Poligons = player2.rover.getPolygons();
-//
-//                boolean roversCollide = polygonsOverlap(rover1Poligons, rover2Poligons);
-//
-//                if (roversCollide) {
-//                    if (rover1Moves) {
-//                        player1.rover.getTransform().set(rover1Position);
-//                        player1.rover.update();
-//                    }
-//                    if (rover2Moves) {
-//                        player2.rover.getTransform().set(rover2Position);
-//                        player2.rover.update();
-//                    }
-//                } else {
-//                    if (rover1Moves && challenge.collides(rover1Poligons)) {
-//                        player1.rover.getTransform().set(rover1Position);
-//                        player1.rover.update();
-//                    }
-//                    if (rover2Moves && challenge.collides(rover2Poligons)) {
-//                        player2.rover.getTransform().set(rover2Position);
-//                        player2.rover.update();
-//                    }
-//                }
         }
     }
 
@@ -331,6 +314,20 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 4f;
+        }
+
+        if (keycode == Input.Keys.H && challenge instanceof PiNoonArena) {
+            PiNoonArena piNoonArena = (PiNoonArena)challenge;
+            if (piNoonArena.showRovers && !piNoonArena.showPlan) {
+                piNoonArena.showRovers = true;
+                piNoonArena.showPlan = true;
+            } else if (piNoonArena.showRovers && piNoonArena.showPlan) {
+                piNoonArena.showRovers = false;
+                piNoonArena.showPlan = true;
+            } else {
+                piNoonArena.showRovers = true;
+                piNoonArena.showPlan = false;
+            }
         }
         return false;
     }

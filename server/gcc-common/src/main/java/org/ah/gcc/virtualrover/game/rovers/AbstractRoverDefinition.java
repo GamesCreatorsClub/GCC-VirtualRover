@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class AbstractRoverDefinition implements RoverDefinition {
 
-    private static final float BALLOONS_RADIUS = 40;
+    private static final float BALLOONS_RADIUS = 35;
     private static final float SHARP_POINT_LENGTH = 130;
 
     protected RoverControls roverControls;
@@ -20,9 +20,9 @@ public abstract class AbstractRoverDefinition implements RoverDefinition {
     protected Circle[] ballonsTempCircle = new Circle[3];
 
     public AbstractRoverDefinition() {
-        balloons[0] = new Vector2(-25f, -25f);
-        balloons[1] = new Vector2(25f, 0f);
-        balloons[2] = new Vector2(-25f, 25f);
+        balloons[0] = new Vector2(0f, -45f);
+        balloons[1] = new Vector2(75f, 0f);
+        balloons[2] = new Vector2(0f, 45f);
         for (int i = 0; i < ballonsTempCircle.length; i++) {
             ballonsTempCircle[i] = new Circle(0,  0, BALLOONS_RADIUS);
         }

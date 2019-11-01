@@ -24,7 +24,7 @@ public class PerlinNoiseBackground implements Background {
     private long a = 1;
 
     public PerlinNoiseBackground() {
-        backgroundMesh = createRect(0, 0, 120, 120);
+        backgroundMesh = createRect(0, 0, -1, 120, 120);
         renderable = new Renderable();
         renderable.meshPart.mesh = backgroundMesh;
         renderable.meshPart.primitiveType = GL20.GL_TRIANGLES;
@@ -45,11 +45,13 @@ public class PerlinNoiseBackground implements Background {
         }
     }
 
+    @Override
     public void dispose() {
         backgroundMesh.dispose();
         shader.dispose();
     }
 
+    @Override
     public void render(Camera camera, ModelBatch batch, Environment environment) {
         a++;
 
