@@ -79,8 +79,8 @@ public class GCCPlayer extends Player implements GCCCollidableObject {
     }
 
     @Override
-    public void processPlayerInputs(PlayerInput playerInputs) {
-        roverType.getRoverDefinition().getRoverControls().processPlayerInputs(this, playerInputs);
+    public void processPlayerInputs(PlayerInput playerInput) {
+        roverType.getRoverDefinition().getRoverControls().processPlayerInput(this, playerInput);
     }
 
     @Override

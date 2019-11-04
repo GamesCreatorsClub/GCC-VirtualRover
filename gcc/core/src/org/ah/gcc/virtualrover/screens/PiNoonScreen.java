@@ -29,7 +29,6 @@ import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
-import org.ah.themvsus.engine.common.Engine;
 import org.ah.themvsus.engine.common.game.GameObject;
 
 import java.util.ArrayList;
@@ -139,7 +138,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
-        long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis() * 1000;
         if (!engine.isPaused()) {
             if (engine.isFixedClientFrameNo()) {
                 engine.resetFixedClientFrameNo();
@@ -152,16 +151,16 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 engine.processPlayerInputs();
                 processedGameState = engine.process();
 
-                nextRun = nextRun + Engine.ENGINE_LOOP_TIME;
+                nextRun = nextRun + 8500;
             }
 
             if (players.size() > 0) {
                 PlayerModel playerOne = players.get(0);
-                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInputs);
+                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
             }
             if (players.size() > 1) {
                 PlayerModel playerTwo = players.get(1);
-                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInputs);
+                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
             }
         }
 
@@ -266,13 +265,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         PlayerModel player2 = players.get(1);
 
         if (player1.rover != null && player2.rover != null) {
-            player1.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
-            player1.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
-            player1.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
+            player1.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
+            player1.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
+            player1.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
 
-            player2.roverInputs.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
-            player2.roverInputs.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
-            player2.roverInputs.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
+            player2.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
+            player2.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
+            player2.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
         }
     }
 

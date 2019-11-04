@@ -7,8 +7,8 @@ import org.ah.themvsus.engine.common.input.PlayerInput;
 public class TankRoverControls implements RoverControls {
 
     @Override
-    public void processPlayerInputs(GCCPlayer gccPlayer, PlayerInput playerInputs) {
-        GCCPlayerInput gccPlayerInput = (GCCPlayerInput)playerInputs;
+    public void processPlayerInput(GCCPlayer gccPlayer, PlayerInput playerInput) {
+        GCCPlayerInput gccPlayerInput = (GCCPlayerInput)playerInput;
 
         float moveX = gccPlayerInput.moveX();
         float moveY = gccPlayerInput.moveY();

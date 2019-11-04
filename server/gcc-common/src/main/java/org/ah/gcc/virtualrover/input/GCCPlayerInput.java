@@ -107,6 +107,20 @@ public class GCCPlayerInput extends PlayerInput {
     }
 
     @Override
+    public void free() {
+        moveX = 0f;
+        moveY = 0f;
+
+        rotateX = 0f;
+        rotateY = 0f;
+
+        desiredForwardSpeed = 300f;
+        desiredRotationSpeed = 300f;
+
+        super.free();
+    }
+
+    @Override
     public void assignFrom(PlayerInput playerInput) {
         GCCPlayerInput gccPlayerInput = (GCCPlayerInput)playerInput;
         moveX = gccPlayerInput.moveX;

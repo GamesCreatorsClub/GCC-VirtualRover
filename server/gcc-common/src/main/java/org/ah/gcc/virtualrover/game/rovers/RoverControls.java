@@ -5,6 +5,6 @@ import org.ah.themvsus.engine.common.input.PlayerInput;
 
 public interface RoverControls {
 
-    void processPlayerInputs(GCCPlayer gccPlayer, PlayerInput playerInputs);
+    void processPlayerInput(GCCPlayer gccPlayer, PlayerInput playerInput);
 
 }

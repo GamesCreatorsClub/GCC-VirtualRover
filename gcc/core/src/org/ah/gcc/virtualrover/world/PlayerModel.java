@@ -24,7 +24,7 @@ public class PlayerModel implements VisibleObject {
     public Color colour;
     public RoverType playerSelection = RoverType.GCC;
     public Rover rover;
-    public GCCPlayerInput roverInputs = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
+    public GCCPlayerInput roverInput = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
     public int playerScore = 0;
     public GCCGame game;
 

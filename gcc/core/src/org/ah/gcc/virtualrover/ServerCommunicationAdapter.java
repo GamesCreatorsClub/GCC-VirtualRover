@@ -62,7 +62,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public void setPlayerOneInput(int currentFrameNo, GCCPlayerInput playerInput) {
-        playerOneInputMessage.addInputs(sessionId, currentFrameNo, playerInput);
+        playerOneInputMessage.addInput(sessionId, currentFrameNo, playerInput);
 
         if (serverCommunication.isConnected()) {
             sendPlayerInput(playerOneInputMessage);
@@ -73,7 +73,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public void setPlayerTwoInput(int currentFrameNo, GCCPlayerInput playerInput) {
-        playerTwoInputMessage.addInputs(sessionId, currentFrameNo, playerInput);
+        playerTwoInputMessage.addInput(sessionId, currentFrameNo, playerInput);
 
         if (serverCommunication.isConnected()) {
             sendPlayerInput(playerTwoInputMessage);
