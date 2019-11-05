@@ -12,8 +12,6 @@ import org.ah.gcc.virtualrover.ModelFactory;
 
 import java.util.NoSuchElementException;
 
-import static org.ah.gcc.virtualrover.MainGame.SCALE;
-
 public class GCCRover extends AbstractRover {
 
     private ModelInstance body;
@@ -45,7 +43,8 @@ public class GCCRover extends AbstractRover {
 
     @Override
     public void update(Vector3 position, float headingDegs) {
-        transform.setToTranslationAndScaling(position.x * SCALE, 0, -position.y * SCALE, SCALE, SCALE, SCALE);
+        super.update(position, headingDegs);
+
         transform.rotate(new Vector3(0, 1, 0), 180 + headingDegs); // 180 + is because of all rover models are made 'backwards'
         transform.translate(-80f, 0, 55f);
 

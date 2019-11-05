@@ -58,7 +58,7 @@ public class PiNoonArena implements Challenge {
     private ModelInstance floorModelInstance;
 
     public boolean showRovers = true;
-    public boolean showPlan = true;
+    public boolean showPlan = false;
     public boolean showShadows = false;
 
     public PiNoonArena(ModelFactory modelFactory) {

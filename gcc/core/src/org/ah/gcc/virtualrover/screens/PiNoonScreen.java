@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -88,8 +87,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraInputMultiplexer.addProcessor(this);
         cameraInputMultiplexer.addProcessor(cameraControllersManager);
 
-        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, players));
+        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
 
         stateMachine = new StateMachine<PiNoonScreen, GameState>();
@@ -239,15 +238,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             PlayerModel player1 = players.get(0);
             PlayerModel player2 = players.get(1);
             font.draw(spriteBatch, player1.playerScore + " - " + player2.playerScore, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
-            GCCPlayer gccPlayer1 = player1.getGCCPlayer();
-            Vector3 player1Position = gccPlayer1.getPosition();
-            float player1Bearing = gccPlayer1.getBearing();
-            GCCPlayer gccPlayer2 = player2.getGCCPlayer();
-            Vector3 player2Position = gccPlayer2.getPosition();
-            float player2Bearing = gccPlayer2.getBearing();
-
-            font.draw(spriteBatch, player1Position.x + " - " + player1Position.y + " @ " + player1Bearing, Gdx.graphics.getWidth() - 720, Gdx.graphics.getHeight() - 80);
-            font.draw(spriteBatch, player2Position.x + " - " + player2Position.y + " @ " + player2Bearing, Gdx.graphics.getWidth() - 720, Gdx.graphics.getHeight() - 120);
         }
     }
 
