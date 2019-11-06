@@ -1,10 +1,12 @@
 package org.ah.gcc.virtualrover.challenges;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Attribute;
@@ -15,6 +17,8 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -46,6 +50,7 @@ public class PiNoonArena implements Challenge {
     private List<Polygon> polygons;
 
     protected OrthographicCamera floorCamera;
+    protected PerspectiveCamera shadowCamera;
 
     private FrameBuffer frameBuffer;
 
@@ -59,8 +64,17 @@ public class PiNoonArena implements Challenge {
 
     public boolean showRovers = true;
     public boolean showPlan = false;
-    public boolean showShadows = false;
+    public boolean showShadows = true;
 
+    private ModelBatch modelBatch;
+    private ModelBatch shadowBatch;
+
+    private Environment shadowEnvironment;
+
+    @SuppressWarnings("deprecation")
+    private DirectionalShadowLight shadowLight;
+
+    @SuppressWarnings("deprecation")
     public PiNoonArena(ModelFactory modelFactory) {
         Model arenaModel = modelFactory.loadModel("arena.obj");
 
@@ -105,6 +119,23 @@ public class PiNoonArena implements Challenge {
         attributesList.add(TextureAttribute.createDiffuse(frameBuffer.getColorBufferTexture()));
         Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
         floorModelInstance.materials.get(0).set(attributes);
+
+        shadowLight = new DirectionalShadowLight(2048, 2048, 6f, 6f, 0.01f, 100f);
+        shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        shadowEnvironment = new Environment();
+        shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+        shadowEnvironment.add(shadowLight);
+        shadowEnvironment.shadowMap = shadowLight;
+
+        modelBatch = new ModelBatch();
+        shadowBatch = new ModelBatch(new DepthShaderProvider());
+        shadowCamera = new PerspectiveCamera(45, 1000f, 1000f);
+        shadowCamera.up.set(-1f, 0f, 0f);
+        shadowCamera.position.set(0f, -2000f * SCALE, 0f);
+        shadowCamera.lookAt(0f, 0f, 0f);
+        shadowCamera.near = 0f;
+        shadowCamera.far = 10f;
+        shadowCamera.update();
     }
 
     @Override
@@ -118,6 +149,7 @@ public class PiNoonArena implements Challenge {
         floorMesh.dispose();
         frameBuffer.dispose();
         shapeRenderer.dispose();
+        shadowBatch.dispose();
     }
 
     @Override
@@ -158,13 +190,43 @@ public class PiNoonArena implements Challenge {
             frameBuffer.end();
         }
 
-        batch.render(arena, environment);
+        if (showShadows) {
+            Camera cam = batch.getCamera();
+            batch.end();
 
-        if (showPlan) { batch.render(floorModelInstance); }
+            shadowLight.begin(Vector3.Zero, cam.direction);
+            shadowBatch.begin(shadowLight.getCamera());
 
-        if (showRovers) {
+            shadowBatch.render(arena, environment);
+
             for (VisibleObject visibleObject : visibleObjects.values()) {
-                visibleObject.render(batch, environment);
+                visibleObject.render(shadowBatch, environment);
+            }
+
+            shadowBatch.end();
+            shadowLight.end();
+
+            modelBatch.begin(cam);
+            modelBatch.render(arena, shadowEnvironment);
+
+            if (showPlan) { modelBatch.render(floorModelInstance); }
+
+            if (showRovers) {
+                for (VisibleObject visibleObject : visibleObjects.values()) {
+                    visibleObject.render(modelBatch, shadowEnvironment);
+                }
+            }
+            modelBatch.end();
+            batch.begin(cam);
+        } else {
+            batch.render(arena, environment);
+
+            if (showPlan) { batch.render(floorModelInstance); }
+
+            if (showRovers) {
+                for (VisibleObject visibleObject : visibleObjects.values()) {
+                    visibleObject.render(batch, environment);
+                }
             }
         }
     }

@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.backgrounds.Background;
@@ -22,8 +23,6 @@ import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.common.game.Player;
-
-import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener {
 
@@ -65,9 +64,10 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         spriteBatch = new SpriteBatch();
 
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
         DirectionalLight light = new DirectionalLight();
-        environment.add(light.set(1f, 1f, 1f, new Vector3(0f * SCALE, -10f * SCALE, 0f * SCALE)));
+        light.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        environment.add(light);
 
         hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         hudCamera.setToOrtho(true);

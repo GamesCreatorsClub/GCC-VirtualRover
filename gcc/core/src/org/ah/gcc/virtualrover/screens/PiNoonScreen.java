@@ -167,8 +167,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         camera.update();
         stateMachine.update(this);
 
-        Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
-        Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//        Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
+//        Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         if (renderBackground) {
             background.render(camera, batch, environment);
@@ -317,6 +317,14 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 piNoonArena.showRovers = true;
                 piNoonArena.showPlan = false;
             }
+        }
+        if (keycode == Input.Keys.G && challenge instanceof PiNoonArena) {
+            PiNoonArena piNoonArena = (PiNoonArena)challenge;
+            piNoonArena.showShadows = !piNoonArena.showShadows;
+        }
+        if (keycode == Input.Keys.T && challenge instanceof PiNoonArena) {
+            PiNoonArena piNoonArena = (PiNoonArena)challenge;
+            piNoonArena.showRovers = !piNoonArena.showRovers;
         }
         return false;
     }
