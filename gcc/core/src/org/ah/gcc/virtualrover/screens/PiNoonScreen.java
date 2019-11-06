@@ -50,6 +50,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private List<PlayerModel> players = new ArrayList<PlayerModel>();
 
     private boolean renderBackground = false;
+    private boolean drawFPS = false;
     private long nextRun;
 
     private org.ah.themvsus.engine.common.game.GameState processedGameState;
@@ -211,6 +212,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         if (stateMachine.getCurrentState().shouldDisplayPlayerSelection()) {
             drawPlayerSelection();
         }
+        if (drawFPS) {
+            drawFPS();
+        }
         spriteBatch.end();
 
         drawStandardMessages();
@@ -230,6 +234,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         for (PlayerModel player : players) {
             player.getPiNoonAttachment().removeBalloons();
         }
+    }
+
+    private void drawFPS() {
+        String fps = String.format("%3s", Gdx.graphics.getFramesPerSecond());
+        font.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight() - 40);
     }
 
     private void drawScore() {
@@ -325,6 +334,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         if (keycode == Input.Keys.T && challenge instanceof PiNoonArena) {
             PiNoonArena piNoonArena = (PiNoonArena)challenge;
             piNoonArena.showRovers = !piNoonArena.showRovers;
+        }
+        if (keycode == Input.Keys.F) {
+            drawFPS = !drawFPS;
         }
         return false;
     }
