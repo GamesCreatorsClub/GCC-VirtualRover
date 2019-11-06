@@ -5,6 +5,7 @@ public class Parameters {
     private int width = 1440;
     private int height = 960;
     private boolean undecorated = true;
+    private boolean fullScreen = false;
     private int x = 0;
     private int y = 0;
     private boolean sound = true;
@@ -44,6 +45,9 @@ public class Parameters {
                 } else if ("--undecorated".equals(args[i]) || "-u".equals(args[i])) {
                     undecorated = true;
                     i++;
+                } else if ("--full-screen".equals(args[i]) || "-fc".equals(args[i])) {
+                    fullScreen = true;
+                    i++;
                 } else if ("--mute".equals(args[i]) || "-m".equals(args[i]) || "--no-sound".equals(args[i])) {
                     sound = false;
                     i++;
@@ -58,6 +62,7 @@ public class Parameters {
                     System.out.println("--resollution or -r      resolution in XxY format (1280x800). Default 1440x960.");
                     System.out.println("--decorated or -d        if specified created window will have decoration. Default undecorated.");
                     System.out.println("--undecorated or -u      if specified created window will have not decoration. This is default.");
+                    System.out.println("--full-screen or -fc     full screen mode. This is not a default.");
                     System.out.println("--help or -h or -?       This help.");
                     System.exit(0);
                 }
@@ -87,5 +92,9 @@ public class Parameters {
 
     public boolean hasSound() {
         return sound;
+    }
+
+    public boolean isFullScreen() {
+        return fullScreen;
     }
 }

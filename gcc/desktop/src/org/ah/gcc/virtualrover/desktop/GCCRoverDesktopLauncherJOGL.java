@@ -35,6 +35,7 @@ public class GCCRoverDesktopLauncherJOGL {
         config.width = parameters.getWidth();
         config.height = parameters.getHeight();
         config.undecorated = parameters.isUndecorated();
+        config.fullscreen = parameters.isFullScreen();
 
         new JoglNewtApplication(new MainGame(desktopSpecific), config);
 
