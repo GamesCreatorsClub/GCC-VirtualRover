@@ -120,7 +120,7 @@ public class PiNoonArena implements Challenge {
         Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
         floorModelInstance.materials.get(0).set(attributes);
 
-        shadowLight = new DirectionalShadowLight(2048, 2048, 6f, 6f, 0.01f, 100f);
+        shadowLight = new DirectionalShadowLight(1024, 1024, 6f, 6f, 0.01f, 100f);
         shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
         shadowEnvironment = new Environment();
         shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
