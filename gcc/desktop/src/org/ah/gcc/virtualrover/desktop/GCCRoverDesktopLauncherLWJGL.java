@@ -1,10 +1,10 @@
 package org.ah.gcc.virtualrover.desktop;
 
-import org.ah.gcc.virtualrover.MainGame;
-import org.ah.gcc.virtualrover.PlatformSpecific;
-
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+
+import org.ah.gcc.virtualrover.MainGame;
+import org.ah.gcc.virtualrover.PlatformSpecific;
 
 public class GCCRoverDesktopLauncherLWJGL {
 
@@ -28,6 +28,7 @@ public class GCCRoverDesktopLauncherLWJGL {
         config.y = parameters.getY();
         config.width = parameters.getWidth();
         config.height = parameters.getHeight();
+        config.fullscreen = parameters.isFullScreen();
 
         new LwjglApplication(new MainGame(desktopSpecific), config);
     }
