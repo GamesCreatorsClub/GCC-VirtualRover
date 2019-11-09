@@ -1,11 +1,11 @@
-from piwarssim.engine import EngineObject
+from piwarssim.engine.simulation import SimulationObject
 
 
-class EngineObjectWithPosition(EngineObject):
-    def __init__(self, factory, id):
-        super(EngineObjectWithPosition, self).__init__(factory, id)
-        self._position = [0, 0, 0]
-        self._velocity = [0, 0, 0]
+class SimulationObjectWithPosition(SimulationObject):
+    def __init__(self, factory, sim_object_id):
+        super(SimulationObjectWithPosition, self).__init__(factory, sim_object_id)
+        self._position = [0.0, 0.0, 0.0]
+        self._velocity = [0.0, 0.0, 0.0]
 
     def get_position(self):
         return self._position
@@ -22,7 +22,7 @@ class EngineObjectWithPosition(EngineObject):
         self._position[1] = y
 
     def set_position_3(self, x, y, z):
-        self.changed = self.changed or self._position[0] != x or self._position[1] != y or self._position[1] != z
+        self.changed = self.changed or self._position[0] != x or self._position[1] != y or self._position[2] != z
         self._position[0] = x
         self._position[1] = y
         self._position[2] = z
@@ -40,10 +40,10 @@ class EngineObjectWithPosition(EngineObject):
 
     def server_update_message(self, server_frame_no, message_factory):
         # This is needed only for clients
-        return message_factory.server_update_command(self._id, server_frame_no, self._position, self._velocity, EngineObject.QUATERNION_FORWARD, 0, 0)
+        return message_factory.server_update_command(self._id, server_frame_no, self._position, self._velocity, SimulationObject.QUATERNION_FORWARD, 0, 0)
 
     def serialize(self, full, serializer):
-        super(EngineObjectWithPosition, self).serialize(full, serializer)
+        super(SimulationObjectWithPosition, self).serialize(full, serializer)
         serializer.serialize_float(self._position[0])
         serializer.serialize_float(self._position[1])
         serializer.serialize_float(self._position[2])
@@ -53,7 +53,7 @@ class EngineObjectWithPosition(EngineObject):
         serializer.serialize_float(self._velocity[2])
 
     def deserialize(self, full, serializer):
-        super(EngineObjectWithPosition, self).deserialize(full, serializer)
+        super(SimulationObjectWithPosition, self).deserialize(full, serializer)
         self._position[0] = serializer.deserialize_float()
         self._position[1] = serializer.deserialize_float()
         self._position[2] = serializer.deserialize_float()
@@ -63,14 +63,12 @@ class EngineObjectWithPosition(EngineObject):
         self._velocity[2] = serializer.deserialize_float()
 
     def copy_internal(self, new_object):
-        super(EngineObjectWithPosition, self).copy_internal(new_object)
+        super(SimulationObjectWithPosition, self).copy_internal(new_object)
 
-        new_object._position[0] = self._position[0]
-        new_object._position[1] = self._position[1]
-        new_object._position[2] = self._position[2]
-
-        new_object._velocity[0] = self._velocity[0]
-        new_object._velocity[1] = self._velocity[1]
-        new_object._velocity[2] = self._velocity[2]
+        new_object.set_position_v(self._position)
+        new_object.set_velocity_v(self._velocity)
 
         return new_object
+
+    def __repr__(self):
+        return "p=({:.f}, {:.2f}, {:.2f})".format(self._position[0], self._position[1], self._position[2])

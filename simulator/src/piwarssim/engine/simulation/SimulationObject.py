@@ -2,17 +2,17 @@
 from piwarssim.engine.factory import TypedObject
 
 
-class EngineObject(TypedObject):
+class SimulationObject(TypedObject):
     VECTOR_ZERO = [0, 0, 0]
     QUATERNION_FORWARD = [0, 0, 0, 1]
 
-    def __init__(self, factory, id):
-        super(EngineObject, self).__init__(factory)
-        self._id = id
+    def __init__(self, factory, sim_object_id):
+        super(SimulationObject, self).__init__(factory)
+        self._id = sim_object_id
         self.changed = False
         self._added = True
         self._removed = False
-        self._last_engine_state = None
+        self._last_sim_state = None
 
         self._link_back = None
 
@@ -31,6 +31,9 @@ class EngineObject(TypedObject):
     def set_id(self, object_id):
         self._id = object_id
 
+    def get_last_sim_state(self):
+        return self._last_sim_state
+
     def get_link_back(self):
         return self._link_back
 
@@ -45,7 +48,7 @@ class EngineObject(TypedObject):
 
     def server_update_message(self, server_frame_no, message_factory):
         # This is needed only for clients
-        return message_factory.server_update_command(self._id, server_frame_no, EngineObject.VECTOR_ZERO, EngineObject.VECTOR_ZERO, EngineObject.QUATERNION_FORWARD, 0, 0)
+        return message_factory.server_update_command(self._id, server_frame_no, SimulationObject.VECTOR_ZERO, SimulationObject.VECTOR_ZERO, SimulationObject.QUATERNION_FORWARD, 0, 0)
 
     def newly_created_object_message(self, message_factory):
         raise NotImplemented
@@ -64,7 +67,7 @@ class EngineObject(TypedObject):
         return new_object
 
     def copy(self, engine_state):
-        self._last_engine_state = engine_state
+        self._last_sim_state = engine_state
         if not self.changed:
             return self
 

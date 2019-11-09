@@ -1,10 +1,9 @@
 from piwarssim.engine.message.Message import Message
-    # , MessageCode
 
 
-class GameObjectMessage(Message):
+class SimulationObjectMessage(Message):
     def __init__(self, factory, message_type):
-        super(GameObjectMessage, self).__init__(factory, message_type)
+        super(SimulationObjectMessage, self).__init__(factory, message_type)
         self._object_id = 0
 
     def get_id(self):

@@ -1,8 +1,7 @@
-from piwarssim.engine.message.GameObjectMessage import GameObjectMessage
-# from piwarssim.engine.message.MessageCode import MessageCode
+from piwarssim.engine.message.SimulationObjectMessage import SimulationObjectMessage
 
 
-class ServerUpdateMessage(GameObjectMessage):
+class ServerUpdateMessage(SimulationObjectMessage):
     def __init__(self, factory, message_type):
         super(ServerUpdateMessage, self).__init__(factory, message_type)
         self._position = [0, 0, 0]
@@ -53,7 +52,7 @@ class ServerUpdateMessage(GameObjectMessage):
         self._health = health
 
     def deserialize_impl(self, deserializer):
-        super(GameObjectMessage, self).deserialize_impl(deserializer)
+        super(ServerUpdateMessage, self).deserialize_impl(deserializer)
 
         self._position[0] = deserializer.deserialize_float()
         self._position[1] = deserializer.deserialize_float()
@@ -74,7 +73,7 @@ class ServerUpdateMessage(GameObjectMessage):
         self._server_frame_no = deserializer.deserialize_unsigned_short()
 
     def serialize_impl(self, serializer):
-        super(GameObjectMessage, self).serialize_impl(serializer)
+        super(ServerUpdateMessage, self).serialize_impl(serializer)
 
         serializer.serialize_float(self._position[0])
         serializer.serialize_float(self._position[1])

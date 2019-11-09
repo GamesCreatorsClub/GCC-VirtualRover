@@ -13,4 +13,4 @@ from piwarssim.engine.message.ClientAuthenticateMessage import ClientAuthenticat
 from piwarssim.engine.message.ClientRegisterMessage import ClientRegisterMessage
 from piwarssim.engine.message.RemovedMessage import RemovedMessage
 from piwarssim.engine.message.ChatMessage import ChatMessage
-from piwarssim.engine.message.GameObjectMessage import GameObjectMessage
+from piwarssim.engine.message.SimulationObjectMessage import SimulationObjectMessage

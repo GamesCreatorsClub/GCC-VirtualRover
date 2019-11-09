@@ -1,6 +1,2 @@
 
 from piwarssim.engine.Engine import Engine
-from piwarssim.engine.EngineObject import EngineObject
-from piwarssim.engine.EngineObjectWithPosition import EngineObjectWithPosition
-from piwarssim.engine.EngineObjectWithPositionAndOrientation import EngineObjectWithPositionAndOrientation
-from piwarssim.engine.EngineObjectFactory import EngineObjectFactory

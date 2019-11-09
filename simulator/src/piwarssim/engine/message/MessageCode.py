@@ -49,10 +49,14 @@ class MessageCode(Enum):
     def new_object(self, factory):
         return self._new_object_function(factory)
 
+    @staticmethod
+    def from_ordinal(ordinal):
+        for enum_obj in MessageCode:
+            if enum_obj.value == ordinal:
+                return enum_obj
+
 
 if __name__ == '__main__':
-    # print("Nop        : " + str(MessageCode.Nop.ordinal()) + ", " + str(MessageCode.Nop._new_object_function))
-    # print("PlayerInput: " + str(MessageCode.PlayerInput.ordinal()) + ", " + str(MessageCode.PlayerInput._new_object_function))
 
     for message_type in MessageCode:
         if message_type != MessageCode.PlayerInput:
