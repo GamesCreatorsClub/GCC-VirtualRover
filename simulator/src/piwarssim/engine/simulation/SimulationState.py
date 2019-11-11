@@ -61,7 +61,7 @@ class SimulationState(dict):
 
     def copy_state(self, challenge):
         previous_sim_state = challenge.get_previous_sim_state()
-        new_sim_state = challenge.new_game_state(self._next_game_state_frame_no())
+        new_sim_state = challenge.new_sim_state(self._next_game_state_frame_no())
         for sim_object_id in self:
             sim_object = self[sim_object_id]
             if not sim_object.is_removed():

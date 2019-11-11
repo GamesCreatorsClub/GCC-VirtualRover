@@ -31,9 +31,9 @@ class Message(TypedObject):
         self._deserializer = None
 
     def serialize(self, serializer):
-        serializer.serializeInt(self.get_type().ordinal())
+        serializer.serialize_int(self.get_type().ordinal())
         self.serialize_impl(serializer)
-        self._total_size = serializer.getTotalSize()
+        self._total_size = serializer.get_total_size()
 
     def serialize_impl(self, serializer):
         raise NotImplemented

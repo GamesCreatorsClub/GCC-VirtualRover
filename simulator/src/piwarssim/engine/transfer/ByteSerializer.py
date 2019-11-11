@@ -89,3 +89,6 @@ class ByteSerializer(Serializer):
         f = struct.unpack('f', self.buf[0:4])[0]
         del self.buf[0:4]
         return f
+
+    def get_total_size(self):
+        return len(self.buf)

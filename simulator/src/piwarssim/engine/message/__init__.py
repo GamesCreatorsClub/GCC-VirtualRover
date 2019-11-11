@@ -10,6 +10,7 @@ from piwarssim.engine.message.ClientInternalMessage import ClientInternalMessage
 from piwarssim.engine.message.ServerInternalMessage import ServerInternalMessage
 from piwarssim.engine.message.ServerClientAuthenticatedMessage import ServerClientAuthenticatedMessage
 from piwarssim.engine.message.ClientAuthenticateMessage import ClientAuthenticateMessage
+from piwarssim.engine.message.ClientAuthenticationDetailsMessage import ClientAuthenticationDetailsMessage
 from piwarssim.engine.message.ClientRegisterMessage import ClientRegisterMessage
 from piwarssim.engine.message.RemovedMessage import RemovedMessage
 from piwarssim.engine.message.ChatMessage import ChatMessage

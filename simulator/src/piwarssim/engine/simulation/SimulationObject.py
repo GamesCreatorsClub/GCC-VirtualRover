@@ -6,15 +6,19 @@ class SimulationObject(TypedObject):
     VECTOR_ZERO = [0, 0, 0]
     QUATERNION_FORWARD = [0, 0, 0, 1]
 
-    def __init__(self, factory, sim_object_id):
+    def __init__(self, factory, sim_object_id, sim_object_type):
         super(SimulationObject, self).__init__(factory)
         self._id = sim_object_id
+        self._sim_object_type = sim_object_type
         self.changed = False
         self._added = True
         self._removed = False
         self._last_sim_state = None
 
         self._link_back = None
+
+    def get_type(self):
+        return self._sim_object_type
 
     def remove(self):
         self._removed = True
@@ -72,3 +76,6 @@ class SimulationObject(TypedObject):
             return self
 
         return self.copy_internal(self.factory.obtain(self.get_type()))
+
+    def __repr__(self):
+        return "{:d}".format(self._id)

@@ -1,6 +1,5 @@
-from piwarssim.engine import Engine
-from piwarssim.engine.challenges import PiNoonChallenge
-from piwarssim.engine.message import MessageFactory
+from piwarssim.engine.Engine import Engine
+from piwarssim.engine.message.MessageFactory import MessageFactory
 
 
 class ServerEngine(Engine):
@@ -17,7 +16,12 @@ class ServerEngine(Engine):
     def calculate_updates(self, simulation_state):
         pass
 
+
 if __name__ == '__main__':
+    from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
+    from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
+    from piwarssim.engine.simulation.rovers.RoverType import RoverType
+    from piwarssim.engine.challenges.PiNoonChallenge import PiNoonChallenge
 
     pi_noon_challenge = PiNoonChallenge()
 
@@ -25,5 +29,13 @@ if __name__ == '__main__':
     server_engine.challenge = pi_noon_challenge
 
     pi_noon_challenge.process(1) # 1 second into the game
-    pi_noon_challenge.add_new_sim_object()
-    
+    rover = pi_noon_challenge.spawn_rover(RoverType.GCC)
+
+    serializer_factory = ByteSerializerFactory()
+    message_factory = MessageFactory()
+
+    udpServerModule = UDPServerModule(serializer_factory, message_factory)
+
+    print(str(rover))
+
+    udpServerModule.process()

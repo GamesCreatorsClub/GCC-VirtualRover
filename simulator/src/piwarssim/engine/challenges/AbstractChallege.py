@@ -1,4 +1,7 @@
-from piwarssim.engine.simulation import SimulationStateFactory, SimulationObjectFactory
+from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
+from piwarssim.engine.simulation.SimulationStateFactory import SimulationStateFactory
+from piwarssim.engine.simulation.SimulationObjectFactory import SimulationObjectFactory
+from piwarssim.engine.simulation.RoverSimObject import RoverSimObject
 
 
 class AbstractChallenge:
@@ -12,7 +15,7 @@ class AbstractChallenge:
         self._remove_sim_object = []
 
         self._previous_sim_states.append(self._next_sim_state)
-        self._next_sim_state = self._next_sim_state.next(self)
+        self._next_sim_state = self._next_sim_state.copy_state(self)
 
     def get_frame_id(self):
         if self._next_sim_state is not None:
@@ -41,10 +44,10 @@ class AbstractChallenge:
     def get_current_sim_state(self):
         return self._next_sim_state
 
-    def new_sim_state(self, frame_id, sim_time):
+    def new_sim_state(self, frame_id):
         new_sim_state = self._sim_state_factory.obtain()
         new_sim_state.set_frame_no(frame_id)
-        new_sim_state.set_time(sim_time)
+        # new_sim_state.set_time(sim_time)  # TODO - this needs to be sorted eventually
         return new_sim_state
 
     def process_command(self, command):
@@ -55,3 +58,14 @@ class AbstractChallenge:
 
     def check_for_collision(self, sim_object, objects):
         pass
+
+    def new_id(self):
+        return self._next_sim_state.new_id()
+
+    def spawn_rover(self, rover_type):
+        rover = self._sim_object_factory.obtain(PiWarsSimObjectTypes.Rover)
+        # rover.set_id(self.new_id())
+        rover.set_id(1)
+        rover.set_rover_type(rover_type)
+        self.add_new_sim_object(rover)
+        return rover

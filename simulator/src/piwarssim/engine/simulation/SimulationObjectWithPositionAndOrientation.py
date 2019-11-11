@@ -6,8 +6,8 @@ from piwarssim.engine.simulation import SimulationObjectWithPosition, Simulation
 class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
     FLOAT_ROUNDING_ERROR = 0.000001
 
-    def __init__(self, factory, sim_object_id):
-        super(SimulationObjectWithPositionAndOrientation, self).__init__(factory, sim_object_id)
+    def __init__(self, factory, sim_object_id, sim_object_type):
+        super(SimulationObjectWithPositionAndOrientation, self).__init__(factory, sim_object_id, sim_object_type)
         self._orientation = [0.0, 0.0, 0.0, 1.0]
         self._turn_speed = 0
 
@@ -108,5 +108,4 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
         return math.acos(max(-1.0, min(1.0, (-w if z < 0.0 else w) / math.sqrt(l2)))) * 2.0 * 180.0 / math.pi
 
     def __repr__(self):
-        pos = super(SimulationObjectWithPositionAndOrientation, self).__repr__()
-        return "SimObject[{:d}, {:s} b={:.1f}]".format(self.get_id(), pos, self._get_bearing())
+        return super(SimulationObjectWithPositionAndOrientation, self).__repr__() + ", b={:.1f}".format(self._get_bearing())

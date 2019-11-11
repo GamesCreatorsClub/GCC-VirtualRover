@@ -2,8 +2,8 @@ from piwarssim.engine.simulation import SimulationObject
 
 
 class SimulationObjectWithPosition(SimulationObject):
-    def __init__(self, factory, sim_object_id):
-        super(SimulationObjectWithPosition, self).__init__(factory, sim_object_id)
+    def __init__(self, factory, sim_object_id, sim_object_type):
+        super(SimulationObjectWithPosition, self).__init__(factory, sim_object_id, sim_object_type)
         self._position = [0.0, 0.0, 0.0]
         self._velocity = [0.0, 0.0, 0.0]
 
@@ -71,4 +71,4 @@ class SimulationObjectWithPosition(SimulationObject):
         return new_object
 
     def __repr__(self):
-        return "p=({:.f}, {:.2f}, {:.2f})".format(self._position[0], self._position[1], self._position[2])
+        return super(SimulationObjectWithPosition, self).__repr__() + ", p=({:.2f}, {:.2f}, {:.2f})".format(self._position[0], self._position[1], self._position[2])

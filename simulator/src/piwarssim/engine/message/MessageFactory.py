@@ -11,15 +11,14 @@ class MessageFactory(TypedObjectFactory):
             self.free_objects[message_code] = []
 
     def create_new_object(self, message_code):
-        message_code.new_object(self)
+        return message_code.new_object(self)
 
     def create_message(self, deserializer):
         message_type = deserializer.deserialize_int()
 
-        if message_type >= MessageCode.values().length or message_type < 0:
-            return None  # TODO handle this nicely...
-
-        message_type = MessageCode.values()[message_type]
+        message_type = MessageCode.from_ordinal(message_type)
+        if message_type is None:
+            return None
 
         message = self.obtain(message_type)
         message.deserialize(deserializer)

@@ -4,9 +4,9 @@ from piwarssim.engine.simulation.rovers.RoverType import RoverType
 
 
 class RoverSimObject(SimulationObjectWithPositionAndOrientation):
-    def __init__(self, factory, sim_object_id):
-        super(RoverSimObject, self).__init__(factory, sim_object_id)
-        self._rover_type = None
+    def __init__(self, factory, sim_object_id, sim_object_type):
+        super(RoverSimObject, self).__init__(factory, sim_object_id, sim_object_type)
+        self._rover_type = RoverType.GCC
         self._challenge_bits = 0
         self._score = 0
 
@@ -56,3 +56,6 @@ class RoverSimObject(SimulationObjectWithPositionAndOrientation):
         new_object.set_score(self._score)
 
         return new_object
+
+    def __repr__(self):
+        return "RoverSimObject[" + super(RoverSimObject, self).__repr__() + "]"
