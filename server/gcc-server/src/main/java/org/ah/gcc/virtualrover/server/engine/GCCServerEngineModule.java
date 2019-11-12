@@ -31,7 +31,7 @@ public class GCCServerEngineModule extends ServerEngineModule {
             GAME_LOGGER.info("Starting new game");
             SERVER_LOGGER.info("Starting new game");
 
-            GCCGame game = new GCCGame();
+            GCCGame game = new GCCGame("PiNoon");
             game.init();
 
             return game;

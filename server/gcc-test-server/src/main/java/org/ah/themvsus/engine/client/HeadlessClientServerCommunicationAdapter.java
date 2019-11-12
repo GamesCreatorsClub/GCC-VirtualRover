@@ -27,7 +27,7 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
     }
 
     public void startEngine(String mapId) {
-        GCCGame game = new GCCGame();
+        GCCGame game = new GCCGame("PiNoon");
         game.init();
 
         engine = new ClientEngine<GCCGame>(game, sessionId);
