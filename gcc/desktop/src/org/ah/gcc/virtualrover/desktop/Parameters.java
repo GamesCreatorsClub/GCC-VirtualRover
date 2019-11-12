@@ -9,6 +9,8 @@ public class Parameters {
     private int x = 0;
     private int y = 0;
     private boolean sound = true;
+    private boolean jogl = false;
+    private boolean lwjgl = false;
 
     public Parameters() {}
 
@@ -54,6 +56,14 @@ public class Parameters {
                 } else if ("--sound".equals(args[i]) || "-s".equals(args[i])) {
                     sound = true;
                     i++;
+                } else if ("--jogl".equals(args[i])) {
+                    jogl = true;
+                    lwjgl = false;
+                    i++;
+                } else if ("--lwjgl".equals(args[i])) {
+                    jogl = false;
+                    lwjgl = true;
+                    i++;
                 } else if ("--help".equals(args[i]) || "-h".equals(args[i]) || "-?".equals(args[i])) {
                     i++;
                     System.out.println("Possible arguments:");
@@ -63,7 +73,12 @@ public class Parameters {
                     System.out.println("--decorated or -d        if specified created window will have decoration. Default undecorated.");
                     System.out.println("--undecorated or -u      if specified created window will have not decoration. This is default.");
                     System.out.println("--full-screen or -fc     full screen mode. This is not a default.");
+                    System.out.println("--jogl                   force running it as JOGL impl. This is not a default. (*)");
+                    System.out.println("--lwjgl                  force running it as LWJGL impl. This is not a default. (*)");
                     System.out.println("--help or -h or -?       This help.");
+                    System.out.println();
+                    System.out.println("(*) With no --jogl or --lwjgl set it will run JOGL on arm platform (RPi) and LWJGL any other.");
+                    System.out.println("    Those two options are mutually exclusive.");
                     System.exit(0);
                 }
             }
@@ -96,5 +111,22 @@ public class Parameters {
 
     public boolean isFullScreen() {
         return fullScreen;
+    }
+
+    public boolean isJOGL() {
+        final String osName = System.getProperty("os.name");
+        final String osArch = System.getProperty("os.arch");
+        // final String osVersion = System.getProperty("os.version");
+        // final String xDisplayNum = System.getenv("DISPLAY");
+
+        final boolean isLinux = "Linux".equals(osName);
+        final boolean isArm = "arm".equals(osArch);
+        // final boolean noXwindows = xDisplayNum == null;
+
+        return (jogl && !lwjgl) || (!jogl && !lwjgl && isLinux && isArm);
+    }
+
+    public boolean isLWJGL() {
+        return !isJOGL();
     }
 }
