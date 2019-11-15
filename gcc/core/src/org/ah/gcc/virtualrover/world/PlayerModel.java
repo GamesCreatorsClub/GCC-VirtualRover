@@ -84,6 +84,7 @@ public class PlayerModel implements VisibleObject {
 
     @Override
     public void update(GameObject gameObject) {
+        System.out.println("Got object, id=" + gameObject.getId() + "; " + gameObject);
     }
 
     public void setGamePlayerPositionAndOrientation(int x, int y, Quaternion orientation) {

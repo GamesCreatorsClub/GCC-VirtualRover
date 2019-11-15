@@ -12,6 +12,7 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     private int preferredServerPort;
     private ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback;
     private boolean hasSound = true;
+    protected boolean isSimulation;
 
     @Override
     public void setPreferredServerDetails(String socketAddress, int port) {
@@ -27,6 +28,16 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     @Override
     public int getPreferredServerPort() {
         return preferredServerPort;
+    }
+
+    @Override
+    public void setIsSimulation(boolean isSimulation) {
+        this.isSimulation = isSimulation;
+    }
+
+    @Override
+    public boolean isSimulation() {
+        return isSimulation;
     }
 
     @Override
@@ -77,6 +88,7 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
         this.hasSound = hasSound;
     }
 
+    @Override
     public boolean hasSound() {
         return this.hasSound;
     }

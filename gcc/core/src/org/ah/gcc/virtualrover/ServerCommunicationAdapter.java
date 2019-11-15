@@ -32,10 +32,13 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private int playerTwoId;
 
+    private ModelFactory modelFactory;
+
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
             MessageFactory messageFactory,
-            Console console) {
+            Console console,
+            ModelFactory modelFactory) {
 
         super(new CommonServerCommunicationAdapter.LoggingCallback() {
                 @Override public void error(String area, String msg, Throwable e) {
@@ -45,6 +48,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             serverCommunication, messageFactory);
 
         this.console = console;
+        this.modelFactory = modelFactory;
 
         serverCommunication.setReceiver(this);
 
@@ -136,6 +140,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
             PlayerModel playerModel = new PlayerModel(engine.getGame(), playerObject.getRoverType(), gameObject.getId(), playerObject.getAlias(), playerColor);
             sprites.put(playerObject.getId(), playerModel);
+            playerModel.makeRobot(modelFactory);
 
 //            VisibleObject sprite = new Tank(spriteTextures, gameObject.getId());
 //

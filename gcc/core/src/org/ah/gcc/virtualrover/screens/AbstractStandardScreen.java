@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.PlatformSpecific;
 import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.challenges.Challenge;
 import org.ah.gcc.virtualrover.utils.SoundManager;
@@ -27,6 +28,7 @@ import org.ah.themvsus.engine.common.game.Player;
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener {
 
     protected MainGame game;
+    protected PlatformSpecific platformSpecific;
     protected AssetManager assetManager;
     protected SoundManager soundManager;
     protected ModelFactory modelFactory;
@@ -53,8 +55,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     private GlyphLayout glyphLayout = new GlyphLayout();
     private int a = 0;
 
-    protected AbstractStandardScreen(MainGame game, AssetManager assetManager, SoundManager soundManager, ModelFactory modelFactory, Console console) {
+    protected AbstractStandardScreen(MainGame game, PlatformSpecific platformSpecific, AssetManager assetManager, SoundManager soundManager, ModelFactory modelFactory, Console console) {
         this.game = game;
+        this.platformSpecific = platformSpecific;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
         this.modelFactory = modelFactory;

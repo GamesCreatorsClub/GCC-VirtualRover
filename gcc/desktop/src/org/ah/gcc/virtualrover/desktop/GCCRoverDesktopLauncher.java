@@ -23,6 +23,8 @@ public class GCCRoverDesktopLauncher {
 
         DesktopPlatformSpecific desktopSpecific = new DesktopPlatformSpecific();
         desktopSpecific.setHasSound(parameters.hasSound());
+        desktopSpecific.setIsSimulation(parameters.isSimulation());
+        desktopSpecific.setPreferredServerDetails(parameters.getServerAddress().getHostName(), parameters.getServerAddress().getPort());
 
         System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
         System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");

@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.PlatformSpecific;
 import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
@@ -28,6 +29,7 @@ import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
+import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 import org.ah.themvsus.engine.common.game.GameObject;
 
 import java.util.ArrayList;
@@ -58,12 +60,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private Quaternion orientation = new Quaternion();
 
     public PiNoonScreen(MainGame game,
+            PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
             ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
-        super(game, assetManager, soundManager, modelFactory, console);
+        super(game, platformSpecific, assetManager, soundManager, modelFactory, console);
         this.game = game;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
@@ -93,15 +96,30 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
 
         stateMachine = new StateMachine<PiNoonScreen, GameState>();
-        stateMachine.toState(GameState.SELECTION, this);
 
+        if (platformSpecific.isSimulation()) {
+            stateMachine.toState(GameState.SIMULATION, this);
+            serverCommunicationAdapter.connectToServer(platformSpecific.getPreferredServerAddress(),
+                    platformSpecific.getPreferredServerPort(),
+                    new ServerConnectionCallback() {
 
-        GCCPlayer player1 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(1, "Blue");
-        player1.setRoverType(RoverType.GCC);
-        GCCPlayer player2 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
-        player2.setRoverType(RoverType.CBIS);
-        serverCommunicationAdapter.getEngine().process();
+                        @Override public void successful() {
+                            // TODO Do we need anything here?
+                        }
 
+                        @Override public void failed(String msg) {
+                            // TODO log something to console
+                        }
+            });
+            //
+        } else {
+            stateMachine.toState(GameState.SELECTION, this);
+            GCCPlayer player1 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(1, "Blue");
+            player1.setRoverType(RoverType.GCC);
+            GCCPlayer player2 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
+            player2.setRoverType(RoverType.CBIS);
+            serverCommunicationAdapter.getEngine().process();
+        }
         // TODO do something about it... Remove? Do something smarter? Stop using players list?
         for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
             if (visibleObject instanceof PlayerModel) {
@@ -139,29 +157,34 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
         long now = System.currentTimeMillis() * 1000;
-        if (!engine.isPaused()) {
-            if (engine.isFixedClientFrameNo()) {
-                engine.resetFixedClientFrameNo();
-                nextRun = now;
-            } else if (nextRun == 0) {
-                nextRun = now;
+        if (!platformSpecific.isSimulation()) {
+            if (!engine.isPaused()) {
+                if (engine.isFixedClientFrameNo()) {
+                    engine.resetFixedClientFrameNo();
+                    nextRun = now;
+                } else if (nextRun == 0) {
+                    nextRun = now;
+                }
+                engine.processCommands();
+                while (nextRun <= now) {
+                    engine.processPlayerInputs();
+                    processedGameState = engine.process();
+
+                    nextRun = nextRun + 8500;
+                }
+
+                if (players.size() > 0) {
+                    PlayerModel playerOne = players.get(0);
+                    serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
+                }
+                if (players.size() > 1) {
+                    PlayerModel playerTwo = players.get(1);
+                    serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
+                }
             }
+        } else {
             engine.processCommands();
-            while (nextRun <= now) {
-                engine.processPlayerInputs();
-                processedGameState = engine.process();
-
-                nextRun = nextRun + 8500;
-            }
-
-            if (players.size() > 0) {
-                PlayerModel playerOne = players.get(0);
-                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
-            }
-            if (players.size() > 1) {
-                PlayerModel playerTwo = players.get(1);
-                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
-            }
+            processedGameState = engine.process();
         }
 
         cameraControllersManager.update();
@@ -373,6 +396,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     }
 
     private enum GameState implements State<PiNoonScreen> {
+
+        SIMULATION() {
+            @Override public boolean shouldMoveRovers() { return true; }
+
+        },
 
         SELECTION() {
             @Override public boolean shouldDisplayPlayerSelection() { return true; }

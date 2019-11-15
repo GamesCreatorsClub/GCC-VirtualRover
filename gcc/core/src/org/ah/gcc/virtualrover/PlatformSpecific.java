@@ -15,6 +15,10 @@ public interface PlatformSpecific {
 
     ServerCommunication getServerCommunication();
 
+    void setIsSimulation(boolean isSimulation);
+
+    boolean isSimulation();
+
     void register(String url, String username, String email, String password, RegistrationCallback callback);
 
     void setPreferredServerDetails(String socketAddress, int port);
