@@ -35,58 +35,58 @@ class ByteSerializer(Serializer):
         return b
 
     def serialize_short(self, s):
-        self.buf += struct.pack('h', s)
+        self.buf += struct.pack('>h', s)
 
     def serialize_unsigned_short(self, s):
-        self.buf += struct.pack('H', s)
+        self.buf += struct.pack('>H', s)
 
     def deserialize_short(self):
-        s = struct.unpack('h', self.buf[0:2])[0]
+        s = struct.unpack('>h', self.buf[0:2])[0]
         del self.buf[0:2]
         return s
 
     def deserialize_unsigned_short(self):
-        s = struct.unpack('H', self.buf[0:2])[0]
+        s = struct.unpack('>H', self.buf[0:2])[0]
         del self.buf[0:2]
         return s
 
     def serialize_int(self, i):
-        self.buf += struct.pack('i', i)
+        self.buf += struct.pack('>i', i)
 
     def serialize_unsigned_int(self, i):
-        self.buf += struct.pack('I', i)
+        self.buf += struct.pack('>I', i)
 
     def deserialize_int(self):
-        i = struct.unpack('i', self.buf[0:4])[0]
+        i = struct.unpack('>i', self.buf[0:4])[0]
         del self.buf[0:4]
         return i
 
     def deserialize_unsigned_int(self):
-        i = struct.unpack('I', self.buf[0:4])[0]
+        i = struct.unpack('>I', self.buf[0:4])[0]
         del self.buf[0:4]
         return i
 
     def serialize_long(self, l):
-        self.buf += struct.pack('q', l)
+        self.buf += struct.pack('>q', l)
 
     def serialize_unsigned_long(self, l):
-        self.buf += struct.pack('Q', l)
+        self.buf += struct.pack('>Q', l)
 
     def deserialize_long(self):
-        l = struct.unpack('q', self.buf[0:8])[0]
+        l = struct.unpack('>q', self.buf[0:8])[0]
         del self.buf[0:8]
         return l
 
     def deserialize_unsigned_long(self):
-        f = struct.unpack('Q', self.buf[0:8])[0]
+        f = struct.unpack('>Q', self.buf[0:8])[0]
         del self.buf[0:8]
         return f
 
     def serialize_float(self, f):
-        self.buf += struct.pack('f', f)
+        self.buf += struct.pack('>f', f)
 
     def deserialize_float(self):
-        f = struct.unpack('f', self.buf[0:4])[0]
+        f = struct.unpack('>f', self.buf[0:4])[0]
         del self.buf[0:4]
         return f
 

@@ -7,7 +7,8 @@ from socket import timeout
 
 
 class UDPServerModule:
-    def __init__(self, serializer_factory, message_factory, address="0.0.0.0", port=7454):
+    def __init__(self, server_engine, serializer_factory, message_factory, address="0.0.0.0", port=7454):
+        self._server_engine = server_engine
         self._serializer_factory = serializer_factory
         self._message_factory = message_factory
         self._address = address
@@ -15,16 +16,14 @@ class UDPServerModule:
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._server_socket.bind((self._address, self._port))
-        self._received_messages = []
         self._client_address = None
         self._client_port = 0
         self._client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    def get_received_messages(self):
-        return self._received_messages
+        self._server_engine.register_sender(self.send, self._serializer_factory)
 
     def send(self, packet):
-        if self._client_socket is not None:
+        if self._client_socket is not None and self._client_address is not None:
             self._client_socket.sendto(packet, (self._client_address, self._client_port))
 
     def process(self):
@@ -33,7 +32,7 @@ class UDPServerModule:
             while True:
                 try:
                     data, (addr, port) = self._server_socket.recvfrom(1024)
-                    print("Received '" + str(data) + "' from " + str(addr) + ":" + str(port))
+                    # print("Received '" + str(data) + "' from " + str(addr) + ":" + str(port))
 
                     self._client_address = addr
                     self._client_port = port
@@ -44,7 +43,7 @@ class UDPServerModule:
                     buf += data
                     try:
                         message = self._message_factory.create_message(deserializer)
-                        self._received_messages.append(message)
+                        self._server_engine.receive_message(message)
                     finally:
                         deserializer.free()
                 except timeout:

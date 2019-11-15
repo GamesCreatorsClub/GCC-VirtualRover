@@ -68,13 +68,13 @@ class MultiObjectUpdateMessage(FrameMessage):
         serializer.serialize_unsigned_byte(len(self._new_sim_objects))
         for sim_object in self._new_sim_objects:
             serializer.serialize_short(sim_object.get_id())
-            serializer.serialize_short(sim_object.get_type().ordinal())
+            # serializer.serialize_short(sim_object.get_type().ordinal())
 
             sim_object.serialize(True, serializer)
 
-        serializer.serialize_unsigned_byte(len(self._new_sim_objects))
+        serializer.serialize_unsigned_byte(len(self._updated_sim_objects))
         for sim_object in self._updated_sim_objects:
             serializer.serialize_short(sim_object.get_id())
-            serializer.serialize_short(sim_object.get_type().ordinal())
+            # serializer.serialize_short(sim_object.get_type().ordinal())
 
             sim_object.serialize(False, serializer)

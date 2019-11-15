@@ -54,7 +54,8 @@ class AbstractChallenge:
         pass
 
     def process(self, timestamp):
-        pass
+        for new_sim_object in self._new_sim_objects:
+            self._next_sim_state.add_new(new_sim_object)
 
     def check_for_collision(self, sim_object, objects):
         pass

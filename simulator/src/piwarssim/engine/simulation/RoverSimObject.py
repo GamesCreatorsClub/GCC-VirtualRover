@@ -33,6 +33,7 @@ class RoverSimObject(SimulationObjectWithPositionAndOrientation):
 
         if full:
             serializer.serialize_string(self._rover_type.get_name())
+
         serializer.serialize_byte(0 if self._rover_type is None else self._rover_type.get_id())
         serializer.serialize_byte(self._score)
         serializer.serialize_short(self._challenge_bits)

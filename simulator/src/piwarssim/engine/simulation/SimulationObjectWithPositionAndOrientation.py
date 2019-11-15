@@ -107,5 +107,40 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
 
         return math.acos(max(-1.0, min(1.0, (-w if z < 0.0 else w) / math.sqrt(l2)))) * 2.0 * 180.0 / math.pi
 
+    def set_bearing(self, angle):
+        # 		float d = Vector3.len(x, y, z);
+        # 		if (d == 0f) return idt();
+        # 		d = 1f / d;
+        # 		float l_ang = radians < 0 ? MathUtils.PI2 - (-radians % MathUtils.PI2) : radians % MathUtils.PI2;
+        # 		float l_sin = (float)Math.sin(l_ang / 2);
+        # 		float l_cos = (float)Math.cos(l_ang / 2);
+        # 		return this.set(d * x * l_sin, d * y * l_sin, d * z * l_sin, l_cos).nor();
+        # x = self._orientation[0]
+        # y = self._orientation[1]
+
+        d = 1.0
+        r = angle * math.pi / 180
+        pi2 = 2 * math.pi
+        l_ang =  (pi2 - (-r % pi2)) if r < 0 else r % pi2
+        l_sin = math.sin(l_ang / 2)
+        l_cos = math.cos(l_ang / 2)
+        x = 0
+        y = 0
+        z = d * l_sin
+        w = l_cos
+
+        l = z * z + w * w
+        # if (len != 0.f && !MathUtils.isEqual(len, 1f))
+
+        if l != 0.0 and abs(1.0 - l) < SimulationObjectWithPositionAndOrientation.FLOAT_ROUNDING_ERROR:
+            l = math.sqrt(l)
+            w /= l
+            z /= l
+
+        self._orientation[0] = x
+        self._orientation[1] = y
+        self._orientation[2] = z
+        self._orientation[3] = w
+
     def __repr__(self):
         return super(SimulationObjectWithPositionAndOrientation, self).__repr__() + ", b={:.1f}".format(self._get_bearing())

@@ -58,10 +58,13 @@ class SimulationObject(TypedObject):
         raise NotImplemented
 
     def serialize(self, full, serializer):
-        serializer.serialize_byte(0)
+        serializer.serialize_byte(self._sim_object_type.ordinal())
+        serializer.serialize_unsigned_byte(0)  # Health!?
 
     def deserialize(self, full, serializer):
-        serializer.deserialize_byte()
+        # serializer.deserialize_byte()
+        # Above is already deserialised so we know the type of object we are creating in the first place
+        pass
 
     def copy_internal(self, new_object):
         new_object.changed = False
