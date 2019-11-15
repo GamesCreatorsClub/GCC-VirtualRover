@@ -32,6 +32,14 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
         self._orientation[2] = z
         self._orientation[3] = w
 
+    def set_position_and_bearing(self, x, y, z, angle):
+        self.set_position_3(x, y, z)
+        self.set_bearing(angle)
+
+    def set_position_and_bearing_rad(self, x, y, z, rad):
+        self.set_position_3(x, y, z)
+        self.set_bearing_rad(rad)
+
     def get_turn_speed(self):
         return self._turn_speed
 
@@ -108,6 +116,9 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
         return math.acos(max(-1.0, min(1.0, (-w if z < 0.0 else w) / math.sqrt(l2)))) * 2.0 * 180.0 / math.pi
 
     def set_bearing(self, angle):
+        self.set_bearing_rad(angle * math.pi / 180.0)
+
+    def set_bearing_rad(self, rad):
         # 		float d = Vector3.len(x, y, z);
         # 		if (d == 0f) return idt();
         # 		d = 1f / d;
@@ -119,9 +130,8 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
         # y = self._orientation[1]
 
         d = 1.0
-        r = angle * math.pi / 180
         pi2 = 2 * math.pi
-        l_ang =  (pi2 - (-r % pi2)) if r < 0 else r % pi2
+        l_ang =  (pi2 - (-rad % pi2)) if rad < 0 else rad % pi2
         l_sin = math.sin(l_ang / 2)
         l_cos = math.cos(l_ang / 2)
         x = 0
@@ -136,6 +146,8 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
             l = math.sqrt(l)
             w /= l
             z /= l
+
+        self.changed = self._orientation[0] != x or self._orientation[1] != y or self._orientation[2] != z or self._orientation[3] != w
 
         self._orientation[0] = x
         self._orientation[1] = y

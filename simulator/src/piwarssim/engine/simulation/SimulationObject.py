@@ -17,6 +17,9 @@ class SimulationObject(TypedObject):
 
         self._link_back = None
 
+    def set_changed(self):
+        self.changed = True
+
     def get_type(self):
         return self._sim_object_type
 
