@@ -30,6 +30,7 @@ import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
+import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 
 import java.util.ArrayList;
@@ -75,7 +76,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         this.console = console;
 
         setBackground(new PerlinNoiseBackground());
-        setChallenge(new PiNoonArena(modelFactory));
+
+        PiNoonArena challenge = new PiNoonArena(modelFactory);
+        challenge.init();
+
+        setChallenge(challenge);
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
@@ -114,17 +119,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             //
         } else {
             stateMachine.toState(GameState.SELECTION, this);
-            GCCPlayer player1 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(1, "Blue");
-            player1.setRoverType(RoverType.GCC);
-            GCCPlayer player2 = (GCCPlayer)serverCommunicationAdapter.getEngine().getGame().spawnPlayer(2, "Green");
-            player2.setRoverType(RoverType.CBIS);
-            serverCommunicationAdapter.getEngine().process();
-        }
-        // TODO do something about it... Remove? Do something smarter? Stop using players list?
-        for (VisibleObject visibleObject : serverCommunicationAdapter.getSprites().values()) {
-            if (visibleObject instanceof PlayerModel) {
-                players.add((PlayerModel)visibleObject);
-            }
         }
     }
 
@@ -248,9 +242,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     }
 
     private void setupRovers() {
-        for (PlayerModel player : players) {
-            player.makeRobot(modelFactory);
-        }
 
         // TODO reset sets balloons and we have to remove them immediately after. That's not good...
         resetRovers();
@@ -406,14 +397,32 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             @Override public boolean shouldDisplayPlayerSelection() { return true; }
 
             @Override public void enter(PiNoonScreen s) {
-                for (PlayerModel player : s.players) {
-                    player.playerScore = 0;
+                Game game = s.serverCommunicationAdapter.getEngine().getGame();
+
+                if (game.containsObject(2)) {
+                    game.removeGameObject(2);
                 }
+                if (game.containsObject(1)) {
+                    game.removeGameObject(1);
+                }
+                s.players.clear();
+
                 s.winner = null;
                 s.setBottomMessage("Select rovers and press space to begin", true);
             }
 
             @Override public void exit(PiNoonScreen s) {
+                Game game = s.serverCommunicationAdapter.getEngine().getGame();
+                GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
+                player1.setRoverType(RoverType.GCC);
+                GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
+                player2.setRoverType(RoverType.CBIS);
+                s.serverCommunicationAdapter.getEngine().process();
+                for (VisibleObject visibleObject : s.serverCommunicationAdapter.getSprites().values()) {
+                    if (visibleObject instanceof PlayerModel) {
+                        s.players.add((PlayerModel) visibleObject);
+                    }
+                }
                 s.setupRovers();
             }
         },
@@ -529,6 +538,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                         }
                         s.stateMachine.toState(GameState.END, s);
                     } else {
+                        if (rover1PiNoonAttachment.getUnpoppedBalloonsCount() == 0) {
+                            s.winner = s.players.get(1).name;
+                        } else if (rover2PiNoonAttachment.getUnpoppedBalloonsCount() == 0) {
+                            s.winner = s.players.get(0).name;
+                        }
                         s.stateMachine.toState(GameState.BREAK, s);
                     }
                 }

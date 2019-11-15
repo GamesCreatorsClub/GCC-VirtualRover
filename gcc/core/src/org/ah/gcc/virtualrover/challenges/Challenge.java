@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface Challenge {
 
+    void init();
+
     void dispose();
 
     boolean collides(List<Polygon> polygons);
