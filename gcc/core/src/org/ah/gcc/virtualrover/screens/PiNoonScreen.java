@@ -35,8 +35,6 @@ import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
-    private ServerCommunicationAdapter serverCommunicationAdapter;
-
     private PerspectiveCamera camera;
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
@@ -60,12 +58,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
-        super(game, platformSpecific, assetManager, soundManager, modelFactory, console);
+        super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         this.game = game;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
         this.modelFactory = modelFactory;
-        this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 
         setBackground(new PerlinNoiseBackground());

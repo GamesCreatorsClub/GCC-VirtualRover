@@ -17,8 +17,10 @@ import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.PlatformSpecific;
+import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.challenges.Challenge;
+import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
@@ -29,6 +31,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     protected MainGame game;
     protected PlatformSpecific platformSpecific;
+    protected ServerCommunicationAdapter serverCommunicationAdapter;
+
     protected AssetManager assetManager;
     protected SoundManager soundManager;
     protected ModelFactory modelFactory;
@@ -55,12 +59,20 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     private GlyphLayout glyphLayout = new GlyphLayout();
     private int a = 0;
 
-    protected AbstractStandardScreen(MainGame game, PlatformSpecific platformSpecific, AssetManager assetManager, SoundManager soundManager, ModelFactory modelFactory, Console console) {
+    protected AbstractStandardScreen(MainGame game,
+            PlatformSpecific platformSpecific,
+            AssetManager assetManager,
+            SoundManager soundManager,
+            ModelFactory modelFactory,
+            ServerCommunicationAdapter serverCommunicationAdapter,
+            Console console) {
+
         this.game = game;
         this.platformSpecific = platformSpecific;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
         this.modelFactory = modelFactory;
+        this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 
         batch = new ModelBatch();
@@ -154,8 +166,14 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             // font.draw(spriteBatch, "Press space to start", margin, margin * 2);
         }
 
-        if (middleMessage != null && (!middleMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
-            font.draw(spriteBatch, middleMessage, (Gdx.graphics.getWidth() - textWidth(font, middleMessage)) / 2, (Gdx.graphics.getHeight() - font.getLineHeight()) / 2);
+        GameMessageObject gameMessageObject = serverCommunicationAdapter.getGameMessageObject();
+
+        if (gameMessageObject != null) {
+            String message = gameMessageObject.getMessage();
+            font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(font, message)) / 2, (Gdx.graphics.getHeight() - font.getLineHeight()) / 2);
+        } else if (middleMessage != null && (!middleMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
+            String message = middleMessage;
+            font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(font, message)) / 2, (Gdx.graphics.getHeight() - font.getLineHeight()) / 2);
         }
 
         spriteBatch.end();
@@ -191,7 +209,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     }
 
     protected float textWidth(BitmapFont font, String text) {
-        glyphLayout.setText(font, middleMessage);
+        glyphLayout.setText(font, text);
         return glyphLayout.width;
     }
 }

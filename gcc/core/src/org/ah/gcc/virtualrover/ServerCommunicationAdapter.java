@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
@@ -31,6 +32,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     protected GCCPlayerInputMessage playerTwoInputMessage;
 
     private int playerTwoId;
+    private int gameMessageId;
 
     private ModelFactory modelFactory;
 
@@ -119,7 +121,17 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     @Override
     public void gameObjectRemoved(GameObject gameObject) {
         gameObject.setLinkBack(null);
-        allVisibleObjects.remove(gameObject.getId());
+        int objectId = gameObject.getId();
+        allVisibleObjects.remove(objectId);
+        if (sessionId == objectId) {
+            sessionId = 0;
+        }
+        if (playerTwoId == objectId) {
+            playerTwoId = 0;
+        }
+        if (gameMessageId == objectId) {
+            gameMessageId = 0;
+        }
     }
 
     @Override
@@ -147,6 +159,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 //                System.out.println("sprite == null");
 //            }
 //            sprites.put(gameObject.getId(), sprite);
+        } else if (gameObject instanceof GameMessageObject) {
+            gameMessageId = gameObject.getId();
         }
     }
 
@@ -187,6 +201,14 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             if (player != null) {
                 return player.getLinkBack();
             }
+        }
+        return null;
+    }
+
+    public GameMessageObject getGameMessageObject() {
+        if (engine != null && gameMessageId != 0) {
+            GameMessageObject gameMessageObject = (GameMessageObject)engine.getGame().getCurrentGameState().get(gameMessageId);
+            return gameMessageObject;
         }
         return null;
     }
