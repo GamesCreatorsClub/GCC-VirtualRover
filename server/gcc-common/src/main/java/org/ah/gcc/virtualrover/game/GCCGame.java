@@ -8,6 +8,7 @@ import org.ah.gcc.virtualrover.game.challenge.Challenges;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
+import org.ah.themvsus.engine.common.game.GameState;
 import org.ah.themvsus.engine.common.game.Player;
 
 import java.util.List;
@@ -37,7 +38,6 @@ public class GCCGame extends Game {
 
     @Override
     public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
-
         if (challenge != null && challenge.checkForCollision(object, objects)) {
             return true;
         }
@@ -55,5 +55,14 @@ public class GCCGame extends Game {
         }
 
         return super.checkForCollision(object, objects);
+    }
+
+    @Override
+    public GameState process() { // ServerEngine.mainloop
+        GameState newGameState = super.process();
+        if (challenge != null) {
+            challenge.process(this, newGameState);
+        }
+        return newGameState;
     }
 }

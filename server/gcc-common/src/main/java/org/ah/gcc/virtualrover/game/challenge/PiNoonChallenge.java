@@ -5,8 +5,10 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 
 import org.ah.gcc.virtualrover.game.GCCCollidableObject;
+import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GCCPlayer;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
+import org.ah.themvsus.engine.common.game.GameState;
 
 import java.util.List;
 
@@ -76,4 +78,10 @@ public class PiNoonChallenge extends AbstractChallenge {
         }
         return false;
     }
+
+    @Override
+    public void process(GCCGame gccGame, GameState newGameState) {
+
+    }
+
 }

@@ -18,10 +18,6 @@ public class GCCGameObjectFactory extends GameObjectFactory {
 
     @Override
     protected GameObject createNewObject(GameObjectType gameObjectType) {
-        if (gameObjectType == GameObjectType.PlayerObject) {
-            return new GCCPlayer(this, 0);
-        }
-
         return super.createNewObject(gameObjectType);
     }
 }
