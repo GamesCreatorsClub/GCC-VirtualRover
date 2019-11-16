@@ -6,7 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import org.ah.gcc.virtualrover.game.GCCCollidableObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
 import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
 
@@ -24,6 +26,8 @@ public class PiNoonChallenge extends AbstractChallenge {
             polygonFromBox(-1001, -1000, -1000,  1000),
             polygonFromBox(-1000,  1000,  1000,  1001),
             polygonFromBox( 1000, -1000,  1001,  1000));
+
+    private int gameMessageId;
 
     @Override
     public List<Polygon> getCollisionPolygons() {
@@ -81,7 +85,22 @@ public class PiNoonChallenge extends AbstractChallenge {
 
     @Override
     public void process(GCCGame gccGame, GameState newGameState) {
-
+        GameMessageObject gameMessage = getGameMessage(gccGame, newGameState);
+        gameMessage.setMessage(Long.toString(System.currentTimeMillis() / 1000));
     }
 
+    private GameMessageObject getGameMessage(GCCGame gccGame, GameState newGameState) {
+        GameMessageObject gameMessageObject = null;
+
+        if (gameMessageId != 0) {
+            gameMessageObject = (GameMessageObject) newGameState.get(gameMessageId);
+        }
+
+        if (gameMessageObject == null) {
+            gameMessageObject = (GameMessageObject) gccGame.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.GameMessageObject, gccGame.newId());
+            gccGame.addNewGameObject(gameMessageObject);
+            gameMessageId = gameMessageObject.getId();
+        }
+        return gameMessageObject;
+    }
 }

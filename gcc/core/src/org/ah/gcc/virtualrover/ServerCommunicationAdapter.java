@@ -25,7 +25,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private Console console;
 
-    private IntMap<VisibleObject> sprites = new IntMap<VisibleObject>();
+    private IntMap<VisibleObject> allVisibleObjects = new IntMap<VisibleObject>();
 
     protected GCCPlayerInputMessage playerOneInputMessage;
     protected GCCPlayerInputMessage playerTwoInputMessage;
@@ -59,10 +59,11 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     public void setLocalPlayerIds(int playerOneId, int playerTwoId) {
         this.sessionId = playerOneId;
         this.playerTwoId = playerTwoId;
+        ((GCCClientEngine)this.engine).setLocalPlayerIds(playerOneId, playerTwoId);
     }
 
-    public IntMap<VisibleObject> getSprites() {
-        return sprites;
+    public IntMap<VisibleObject> getVisibleObjects() {
+        return allVisibleObjects;
     }
 
     public void setPlayerOneInput(int currentFrameNo, GCCPlayerInput playerInput) {
@@ -99,10 +100,6 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public void startEngine(String mapId, boolean local) {
-        if (local) {
-            sessionId = 1;
-            playerTwoId = 2;
-        }
         GCCGame game = new GCCGame(mapId);
         game.init();
         GCCClientEngine engine = new GCCClientEngine(game, sessionId, playerTwoId);
@@ -122,7 +119,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     @Override
     public void gameObjectRemoved(GameObject gameObject) {
         gameObject.setLinkBack(null);
-        sprites.remove(gameObject.getId());
+        allVisibleObjects.remove(gameObject.getId());
     }
 
     @Override
@@ -139,8 +136,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             }
 
             PlayerModel playerModel = new PlayerModel(engine.getGame(), playerObject.getRoverType(), gameObject.getId(), playerObject.getAlias(), playerColor);
-            sprites.put(playerObject.getId(), playerModel);
+            allVisibleObjects.put(playerObject.getId(), playerModel);
             playerModel.makeRobot(modelFactory);
+            playerObject.setLinkBack(playerModel);
 
 //            VisibleObject sprite = new Tank(spriteTextures, gameObject.getId());
 //
@@ -150,5 +148,46 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 //            }
 //            sprites.put(gameObject.getId(), sprite);
         }
+    }
+
+    public boolean hasPlayerOne() {
+        return sessionId != 0;
+    }
+
+    public boolean hasPlayerTwo() {
+        return playerTwoId != 0;
+    }
+
+    public GCCPlayer getPlayerOne() {
+        if (engine != null && sessionId != 0) {
+            return (GCCPlayer)engine.getGame().getCurrentGameState().get(sessionId);
+        }
+        return null;
+    }
+
+    public GCCPlayer getPlayerTwo() {
+        if (engine != null && playerTwoId != 0) {
+            return (GCCPlayer)getEngine().getGame().getCurrentGameState().get(playerTwoId);
+        }
+        return null;
+    }
+    public PlayerModel getPlayerOneVisualObject() {
+        if (engine != null && sessionId != 0) {
+            GCCPlayer player = (GCCPlayer)engine.getGame().getCurrentGameState().get(sessionId);
+            if (player != null) {
+                return player.getLinkBack();
+            }
+        }
+        return null;
+    }
+
+    public PlayerModel getPlayerTwoVisualObject() {
+        if (engine != null && playerTwoId != 0) {
+            GCCPlayer player = (GCCPlayer)engine.getGame().getCurrentGameState().get(playerTwoId);
+            if (player != null) {
+                return player.getLinkBack();
+            }
+        }
+        return null;
     }
 }

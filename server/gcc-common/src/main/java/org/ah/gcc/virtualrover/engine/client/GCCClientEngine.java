@@ -31,4 +31,9 @@ public class GCCClientEngine extends ClientEngine<GCCGame> {
         super.processPlayerInputs();
         game.processPlayerInputs(playerTwoId, playerTwoInputs);
     }
+
+    public void setLocalPlayerIds(int playerOneId, int playerTwoId) {
+        setSessionId(playerOneId);
+        this.playerTwoId = playerTwoId;
+    }
 }

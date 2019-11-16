@@ -5,9 +5,8 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 
+import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.world.PlayerModel;
-
-import java.util.List;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
@@ -15,23 +14,26 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
 
     private static Vector3 UP = new Vector3(0, 1, 0);
     private PerspectiveCamera camera;
-    private final List<PlayerModel> players;
 
     private Vector3 pos1 = new Vector3();
     private Vector3 pos2 = new Vector3();
     private Vector3 midpoint = new Vector3();
 
-    public CinematicCameraController(PerspectiveCamera camera, List<PlayerModel> players) {
+    private ServerCommunicationAdapter serverCommunicationAdapter;
+
+    public CinematicCameraController(PerspectiveCamera camera, ServerCommunicationAdapter serverCommunicationAdapter) {
         this.camera = camera;
-        this.players = players;
+        this.serverCommunicationAdapter = serverCommunicationAdapter;
     }
 
     @Override
     public void update() {
         float distanceBetweeRovers = 0f;
-        if (players.size() > 1 && players.get(0).rover != null && players.get(1).rover != null) {
-            players.get(0).rover.getTransform().getTranslation(pos1);
-            players.get(1).rover.getTransform().getTranslation(pos2);
+        PlayerModel player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
+        PlayerModel player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        if (player1 != null && player2 != null) {
+            player1.rover.getTransform().getTranslation(pos1);
+            player2.rover.getTransform().getTranslation(pos2);
             distanceBetweeRovers = pos1.dst(pos2);
             midpoint.set(pos1).add(pos2).scl(0.5f);
 
@@ -46,8 +48,8 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
             pos2.set(d * (float)Math.sin(a) + midpoint.x, 700f * SCALE, d * (float)Math.cos(a) + midpoint.z);
             pos2.lerp(camera.position, Interpolation.exp5.apply(0.9f));
         } else {
-            if (players.size() > 0 && players.get(0).rover != null) {
-                players.get(0).rover.getTransform().getTranslation(midpoint);
+            if (player1 != null) {
+                player1.rover.getTransform().getTranslation(midpoint);
             } else {
                 midpoint.set(0f, 0f, 0f);
             }
