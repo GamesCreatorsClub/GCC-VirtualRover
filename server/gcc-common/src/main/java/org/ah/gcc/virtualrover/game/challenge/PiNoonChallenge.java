@@ -66,7 +66,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             }
         }
 
-        if (object instanceof GCCPlayer) {
+        if (object instanceof GCCPlayer && stateMachine.getCurrentState().shouldCollideBalloons()) {
             GCCPlayer player = (GCCPlayer)object;
             int balloonBits = player.getChallengeBits();
             if ((balloonBits & 7) != 0) {
@@ -127,14 +127,6 @@ public class PiNoonChallenge extends AbstractChallenge {
         stateMachine.update(this);
     }
 
-    protected void resetBallons(GCCPlayer player) {
-        player.setChallengeBits(7);
-    }
-
-    protected void removeBalloons(GCCPlayer player) {
-        player.setChallengeBits(0);
-    }
-
     protected void setMessage(String message, boolean flashing) {
         getGameMessage().setMessage(message, flashing);
     }
@@ -168,13 +160,39 @@ public class PiNoonChallenge extends AbstractChallenge {
             orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
             player1.setPosition(700, 700);
             player1.setOrientation(orientation);
+            removeBalloons(player1);
         }
         GCCPlayer player2 = getPlayerTwo();
         if (player2 != null) {
             orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI / 4f));
             player2.setPosition(-700, -700);
             player2.setOrientation(orientation);
+            removeBalloons(player2);
         }
+    }
+
+    protected void resetRoverBalloons() {
+        for (GameObject gameObject : gccGame.getCurrentGameState().gameObjects().values()) {
+            if (gameObject instanceof GCCPlayer) {
+                resetBallons((GCCPlayer)gameObject);
+            }
+        }
+    }
+
+    protected void removeRoverBalloons() {
+        for (GameObject gameObject : gccGame.getCurrentGameState().gameObjects().values()) {
+            if (gameObject instanceof GCCPlayer) {
+                removeBalloons((GCCPlayer)gameObject);
+            }
+        }
+    }
+
+    protected void resetBallons(GCCPlayer player) {
+        player.setChallengeBits(7);
+    }
+
+    protected void removeBalloons(GCCPlayer player) {
+        player.setChallengeBits(0);
     }
 
     private void stopRovers() {
@@ -225,7 +243,7 @@ public class PiNoonChallenge extends AbstractChallenge {
         },
 
         BREAK() {
-            @Override public boolean shouldMoveRovers() { return false; }
+            @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(PiNoonChallenge challenge) {
                 challenge.getGameMessage().setInGame(true);
@@ -245,13 +263,12 @@ public class PiNoonChallenge extends AbstractChallenge {
                 if (isTimerDone()) {
                     challenge.stateMachine.toState(ChallengeState.ROUND, challenge);
                     challenge.resetRovers();
+                    challenge.resetRoverBalloons();
                 }
             }
         },
 
         ROUND() {
-            @Override public boolean shouldMoveRovers() { return true; }
-
             @Override public void enter(PiNoonChallenge challenge) {
                 setTimer(1000);
                 GCCPlayer player1 = challenge.getPlayerOne();
@@ -272,8 +289,6 @@ public class PiNoonChallenge extends AbstractChallenge {
         },
 
         ROUND_COUNTDOWN() {
-            @Override public boolean shouldMoveRovers() { return true; }
-
             @Override public void enter(PiNoonChallenge challenge) {
                 setTimer(1000);
                 challenge.setMessage(Integer.toString(challenge.countdown), false);
@@ -300,6 +315,8 @@ public class PiNoonChallenge extends AbstractChallenge {
         },
 
         GAME() {
+            @Override
+            public boolean shouldCollideBalloons() { return true; }
             @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(PiNoonChallenge challenge) {
@@ -312,11 +329,7 @@ public class PiNoonChallenge extends AbstractChallenge {
                 // TODO
                 // challenge.soundManager.playFight();
 
-                for (GameObject gameObject : challenge.gccGame.getCurrentGameState().gameObjects().values()) {
-                    if (gameObject instanceof GCCPlayer) {
-                        challenge.resetBallons((GCCPlayer)gameObject);
-                    }
-                }
+                challenge.resetRoverBalloons();
             }
 
             @Override public void update(PiNoonChallenge challenge) {
@@ -397,5 +410,6 @@ public class PiNoonChallenge extends AbstractChallenge {
         @Override public void exit(PiNoonChallenge s) {}
 
         public boolean shouldMoveRovers() { return false; }
+        public boolean shouldCollideBalloons() { return true; }
     }
 }
