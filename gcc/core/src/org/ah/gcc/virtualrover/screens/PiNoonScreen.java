@@ -26,10 +26,9 @@ import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 import org.ah.themvsus.engine.common.game.Game;
-import org.ah.themvsus.engine.common.statemachine.State;
-import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
+import static org.ah.gcc.virtualrover.game.GCCGame.ENGINE_LOOP_TIME_us;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
@@ -37,7 +36,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
 
-    private StateMachine<PiNoonScreen, GameState> stateMachine;
+    private RoverType player1RoverType = RoverType.GCC;
+    private RoverType player2RoverType = RoverType.CBIS;
 
     private boolean renderBackground = false;
     private boolean drawFPS = false;
@@ -84,10 +84,10 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
 
-        stateMachine = new StateMachine<PiNoonScreen, GameState>();
+//        stateMachine = new StateMachine<PiNoonScreen, GameState>();
 
         if (platformSpecific.isSimulation()) {
-            stateMachine.toState(GameState.SIMULATION, this);
+//            stateMachine.toState(GameState.SIMULATION, this);
             serverCommunicationAdapter.connectToServer(platformSpecific.getPreferredServerAddress(),
                     platformSpecific.getPreferredServerPort(),
                     new ServerConnectionCallback() {
@@ -101,8 +101,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                         }
             });
             //
-        } else {
-            stateMachine.toState(GameState.SELECTION, this);
+//        } else {
+//            stateMachine.toState(GameState.SELECTION, this);
         }
     }
 
@@ -135,7 +135,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
         long now = System.currentTimeMillis() * 1000;
-        if (!platformSpecific.isSimulation()) {
+//        if (!platformSpecific.isSimulation()) {
             if (!engine.isPaused()) {
                 if (engine.isFixedClientFrameNo()) {
                     engine.resetFixedClientFrameNo();
@@ -145,29 +145,31 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 }
                 engine.processCommands();
                 while (nextRun <= now) {
-                    engine.processPlayerInputs();
+                    if (!platformSpecific.isSimulation()) {
+                        engine.processPlayerInputs();
+                    }
                     processedGameState = engine.process();
 
-                    nextRun = nextRun + 8500;
-                }
-
-                PlayerModel playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
-                if (playerOne != null) {
-                    serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
-                }
-                PlayerModel playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
-                if (playerTwo != null) {
-                    serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
+                    nextRun = nextRun + ENGINE_LOOP_TIME_us;
                 }
             }
-        } else {
-            engine.processCommands();
-            processedGameState = engine.process();
+//        } else {
+//            engine.processCommands();
+//            processedGameState = engine.process();
+//        }
+
+        PlayerModel playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
+        if (playerOne != null) {
+            serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
+        }
+        PlayerModel playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        if (playerTwo != null) {
+            serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
         }
 
         cameraControllersManager.update();
         camera.update();
-        stateMachine.update(this);
+//        stateMachine.update(this);
 
 //        Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
 //        Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -180,9 +182,14 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
 
         challenge.render(batch, environment, serverCommunicationAdapter.getVisibleObjects());
-
-        if (stateMachine.getCurrentState().shouldMoveRovers()) {
+        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
             moveRovers();
+        } else {
+            setMiddleMessage("Press space to begin", true);
+        }
+
+//        if (stateMachine.getCurrentState().shouldMoveRovers()) {
+//            moveRovers();
 // TODO this is now done in Game. What now?
 //
 //            if (stateMachine.isState(GameState.GAME)) {
@@ -200,17 +207,17 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 //                    }
 //                }
 //            }
-        }
+//        }
 
         batch.end();
 
         spriteBatch.begin();
-        if (stateMachine.getCurrentState().shouldDisplayScore()) {
+//        if (stateMachine.getCurrentState().shouldDisplayScore()) {
             drawScore();
-        }
-        if (stateMachine.getCurrentState().shouldDisplayPlayerSelection()) {
-            drawPlayerSelection();
-        }
+//        }
+//        if (stateMachine.getCurrentState().shouldDisplayPlayerSelection()) {
+//            drawPlayerSelection();
+//        }
         if (drawFPS) {
             drawFPS();
         }
@@ -235,13 +242,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         }
     }
 
-    private void drawPlayerSelection() {
-        // TODO sort out selection
-        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
-            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getAlias(), 64, Gdx.graphics.getHeight() / 2 + 64);
-            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerTwo().getAlias(), 64 + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 64);
-        }
-    }
+//    private void drawPlayerSelection() {
+//        // TODO sort out selection
+//        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
+//            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getAlias(), 64, Gdx.graphics.getHeight() / 2 + 64);
+//            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerTwo().getAlias(), 64 + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 64);
+//        }
+//    }
 
     private void moveRovers() {
         PlayerModel player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
@@ -268,32 +275,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     @Override
     public boolean keyDown(int keycode) {
-        if (stateMachine.isState(GameState.SELECTION)) {
-
-// TODO - this has to be done differently
-//            if (keycode == Input.Keys.D) {
-//                players.get(0).playerSelection = players.get(0).playerSelection.getNext();
-//            } else if (keycode == Input.Keys.A) {
-//                players.get(0).playerSelection = players.get(0).playerSelection.getPrevious();
-//            }
-//
-//            if (keycode == Input.Keys.L) {
-//                players.get(1).playerSelection = players.get(1).playerSelection.getNext();
-//            } else if (keycode == Input.Keys.J) {
-//                players.get(1).playerSelection = players.get(1).playerSelection.getPrevious();
-//            }
-
-            if (keycode == Input.Keys.SPACE) {
-                stateMachine.toState(GameState.GAME, this);
-            }
-        }
-
-        if (keycode == Input.Keys.SPACE) {
-            if (stateMachine.isState(GameState.END)) {
-                stateMachine.toState(GameState.SELECTION, this);
-            } else if (stateMachine.isState(GameState.SELECTION)) {
-                stateMachine.toState(GameState.SELECTION, this);
-            }
+        if (serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
+            Game game = serverCommunicationAdapter.getEngine().getGame();
+            GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
+            player1.setRoverType(player1RoverType);
+            GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
+            player2.setRoverType(player2RoverType);
+            serverCommunicationAdapter.setLocalPlayerIds(1, 2);
         }
 
         if (keycode == Input.Keys.TAB) {
@@ -341,75 +329,75 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     @Override public boolean scrolled(int amount) { return false; }
 
-    private enum GameState implements State<PiNoonScreen> {
-
-        SIMULATION() {
-            @Override public boolean shouldMoveRovers() { return true; }
-        },
-
-        SELECTION() {
-            @Override public boolean shouldDisplayPlayerSelection() { return true; }
-
-            @Override public void enter(PiNoonScreen s) {
-                Game game = s.serverCommunicationAdapter.getEngine().getGame();
-
-                if (game.containsObject(2)) {
-                    game.removeGameObject(2);
-                }
-                if (game.containsObject(1)) {
-                    game.removeGameObject(1);
-                }
-
-                s.setBottomMessage("Select rovers and press space to begin", true);
-            }
-
-            @Override public void exit(PiNoonScreen s) {
-                Game game = s.serverCommunicationAdapter.getEngine().getGame();
-                GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
-                player1.setRoverType(RoverType.GCC);
-                GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
-                player2.setRoverType(RoverType.CBIS);
-                s.serverCommunicationAdapter.setLocalPlayerIds(1, 2);
-                s.serverCommunicationAdapter.getEngine().process();
-
-                s.setBottomMessage("", false);
-            }
-        },
-
-        GAME() {
-            @Override public boolean shouldMoveRovers() { return true; }
-            @Override public boolean shouldDisplayScore() { return true; }
-
-            @Override public void enter(PiNoonScreen s) {
-            }
-
-            @Override public void update(PiNoonScreen s) {
-            }
-        },
-
-        END() {
-            @Override public boolean shouldMoveRovers() { return true; }
-            @Override public boolean shouldDisplayScore() { return true; }
-
-            @Override public void enter(PiNoonScreen s) {
-            }
-
-            @Override public void exit(PiNoonScreen s) {
-            }
-        };
-
-        int timer;
-
-        @Override public void enter(PiNoonScreen s) {}
-        @Override public void update(PiNoonScreen s) {
-            timer--;
-        }
-        @Override public void exit(PiNoonScreen s) {}
-
-        public boolean shouldMoveRovers() { return false; }
-
-        public boolean shouldDisplayScore() { return false; }
-
-        public boolean shouldDisplayPlayerSelection() { return false; }
-    }
+//    private enum GameState implements State<PiNoonScreen> {
+//
+//        SIMULATION() {
+//            @Override public boolean shouldMoveRovers() { return true; }
+//        },
+//
+//        SELECTION() {
+//            @Override public boolean shouldDisplayPlayerSelection() { return true; }
+//
+//            @Override public void enter(PiNoonScreen s) {
+//                Game game = s.serverCommunicationAdapter.getEngine().getGame();
+//
+//                if (game.containsObject(2)) {
+//                    game.removeGameObject(2);
+//                }
+//                if (game.containsObject(1)) {
+//                    game.removeGameObject(1);
+//                }
+//
+//                s.setBottomMessage("Select rovers and press space to begin", true);
+//            }
+//
+//            @Override public void exit(PiNoonScreen s) {
+//                Game game = s.serverCommunicationAdapter.getEngine().getGame();
+//                GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
+//                player1.setRoverType(RoverType.GCC);
+//                GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
+//                player2.setRoverType(RoverType.CBIS);
+//                s.serverCommunicationAdapter.setLocalPlayerIds(1, 2);
+//                s.serverCommunicationAdapter.getEngine().process();
+//
+//                s.setBottomMessage("", false);
+//            }
+//        },
+//
+//        GAME() {
+//            @Override public boolean shouldMoveRovers() { return true; }
+//            @Override public boolean shouldDisplayScore() { return true; }
+//
+//            @Override public void enter(PiNoonScreen s) {
+//            }
+//
+//            @Override public void update(PiNoonScreen s) {
+//            }
+//        },
+//
+//        END() {
+//            @Override public boolean shouldMoveRovers() { return true; }
+//            @Override public boolean shouldDisplayScore() { return true; }
+//
+//            @Override public void enter(PiNoonScreen s) {
+//            }
+//
+//            @Override public void exit(PiNoonScreen s) {
+//            }
+//        };
+//
+//        int timer;
+//
+//        @Override public void enter(PiNoonScreen s) {}
+//        @Override public void update(PiNoonScreen s) {
+//            timer--;
+//        }
+//        @Override public void exit(PiNoonScreen s) {}
+//
+//        public boolean shouldMoveRovers() { return false; }
+//
+//        public boolean shouldDisplayScore() { return false; }
+//
+//        public boolean shouldDisplayPlayerSelection() { return false; }
+//    }
 }

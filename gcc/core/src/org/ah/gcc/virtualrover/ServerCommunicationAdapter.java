@@ -35,6 +35,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     private int gameMessageId;
 
     private ModelFactory modelFactory;
+    private boolean local;
 
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
@@ -101,7 +102,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         console.chat(origin, chatMessage.getLine(), color);
     }
 
+    public boolean isLocal() {
+        return local;
+    }
+
     public void startEngine(String mapId, boolean local) {
+        this.local = local;
         GCCGame game = new GCCGame(mapId);
         game.init();
         GCCClientEngine engine = new GCCClientEngine(game, sessionId, playerTwoId);

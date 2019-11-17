@@ -58,11 +58,6 @@ public class PiNoonChallenge extends AbstractChallenge {
     }
 
     @Override
-    public void spawnedPlayer(GCCPlayer player) {
-        player.setChallengeBits(7);
-    }
-
-    @Override
     public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
         if (object instanceof GCCCollidableObject) {
             if (polygonsOverlap(getCollisionPolygons(), ((GCCCollidableObject)object).getCollisionPolygons())) {
@@ -204,18 +199,6 @@ public class PiNoonChallenge extends AbstractChallenge {
             }
 
             @Override public void exit(PiNoonChallenge challenge) {
-//                GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
-//                player1.setRoverType(RoverType.GCC);
-//                GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
-//                player2.setRoverType(RoverType.CBIS);
-//                challenge.serverCommunicationAdapter.setLocalPlayerIds(1, 2);
-//                challenge.serverCommunicationAdapter.getEngine().process();
-//                for (VisibleObject visibleObject : s.serverCommunicationAdapter.getVisibleObjects().values()) {
-//                    if (visibleObject instanceof PlayerModel) {
-//                        s.players.add(visibleObject);
-//                    }
-//                }
-
                 challenge.resetPlayers();
             }
         },
@@ -226,10 +209,10 @@ public class PiNoonChallenge extends AbstractChallenge {
 
             @Override public void enter(PiNoonChallenge challenge) {
                 if (challenge.winner != null) {
-                    timer = 180;
+                    setTimer(3000);
                     challenge.setMessage(challenge.winner + " won that round!", false);
                 } else {
-                    timer = 60;
+                    setTimer(1000);
                     challenge.setMessage(null, false);
                 }
             }
@@ -237,7 +220,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public void update(PiNoonChallenge challenge) {
                 super.update(challenge);
 
-                if (timer == 0) {
+                if (isTimerDone()) {
                     challenge.stateMachine.toState(ChallengeState.ROUND, challenge);
                 }
             }
@@ -248,7 +231,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public boolean shouldDisplayScore() { return true; }
 
             @Override public void enter(PiNoonChallenge challenge) {
-                timer = 60;
+                setTimer(1000);
                 GCCPlayer player1 = challenge.getPlayerOne();
                 GCCPlayer player2 = challenge.getPlayerTwo();
                 challenge.setMessage("round " + (player1.getScore() + player2.getScore() + 1), false);
@@ -257,7 +240,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public void update(PiNoonChallenge challenge) {
                 super.update(challenge);
 
-                if (timer == 0) {
+                if (isTimerDone()) {
                     challenge.countdown = 3;
                     challenge.stateMachine.toState(ChallengeState.ROUND_COUNTDOWN, challenge);
                 }
@@ -269,7 +252,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public boolean shouldDisplayScore() { return true; }
 
             @Override public void enter(PiNoonChallenge challenge) {
-                timer = 60;
+                setTimer(1000);
                 challenge.setMessage(Integer.toString(challenge.countdown), false);
                 if (challenge.countdown == 2) {
                     // TODO Add this
@@ -280,7 +263,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public void update(PiNoonChallenge challenge) {
                 super.update(challenge);
 
-                if (timer == 0) {
+                if (isTimerDone()) {
                     challenge.countdown--;
                     if (challenge.countdown == 0) {
                         challenge.stateMachine.toState(ChallengeState.GAME, challenge);
@@ -297,7 +280,7 @@ public class PiNoonChallenge extends AbstractChallenge {
 
             @Override public void enter(PiNoonChallenge challenge) {
                 challenge.resetPlayers();
-                timer = 60;
+                setTimer(1000);
                 challenge.setMessage("GO!", false);
                 // TODO
                 // challenge.soundManager.playFight();
@@ -312,7 +295,7 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public void update(PiNoonChallenge challenge) {
                 super.update(challenge);
 
-                if (timer == 0 ) {
+                if (isTimerDone()) {
                     challenge.setMessage(null, false);
                 }
 
@@ -357,12 +340,18 @@ public class PiNoonChallenge extends AbstractChallenge {
             }
         };
 
-        int timer;
+        long timer;
+
+        protected void setTimer(int millis) {
+            timer = System.currentTimeMillis() + millis;
+        }
+
+        protected boolean isTimerDone() {
+            return (timer <= System.currentTimeMillis());
+        }
 
         @Override public void enter(PiNoonChallenge challenge) {}
-        @Override public void update(PiNoonChallenge challenge) {
-            timer--;
-        }
+        @Override public void update(PiNoonChallenge challenge) {}
         @Override public void exit(PiNoonChallenge s) {}
 
         public boolean shouldMoveRovers() { return false; }

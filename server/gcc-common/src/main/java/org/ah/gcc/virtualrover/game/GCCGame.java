@@ -18,6 +18,7 @@ import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonsOverlap;
 public class GCCGame extends Game {
 
     private Challenge challenge;
+    public static final long ENGINE_LOOP_TIME_us = 8500;
 
     public GCCGame(String mapId) {
         super();
