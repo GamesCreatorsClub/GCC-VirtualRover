@@ -170,7 +170,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
         GameMessageObject gameMessageObject = serverCommunicationAdapter.getGameMessageObject();
 
-        if (gameMessageObject != null) {
+        if (gameMessageObject != null && gameMessageObject.getMessage() != null&& !"".equals(gameMessageObject.getMessage())) {
+            middleMessage = "";
             String message = gameMessageObject.getMessage();
             font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(font, message)) / 2, (Gdx.graphics.getHeight() - font.getLineHeight()) / 2);
         } else if (middleMessage != null && (!middleMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {

@@ -66,7 +66,6 @@ public class MainGame extends Game {
 
         soundManager.fetchSounds(assetManager);
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console, modelFactory);
-        serverCommunicationAdapter.startEngine("PiNoon", true);
         piNoonScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         setScreen(piNoonScreen);
     }

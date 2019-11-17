@@ -10,6 +10,7 @@ import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
 import org.ah.themvsus.engine.common.game.Player;
+import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 import java.util.List;
 
@@ -66,5 +67,12 @@ public class GCCGame extends Game {
             challenge.process();
         }
         return super.process();
+    }
+
+    @Override
+    public void processPlayerInputs(int playerId, PlayerInputs playerInputs) {
+        if (challenge == null || challenge.processPlayerInputs(playerId, playerInputs)) {
+            super.processPlayerInputs(playerId, playerInputs);
+        }
     }
 }
