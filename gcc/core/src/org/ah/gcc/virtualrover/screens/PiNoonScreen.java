@@ -8,7 +8,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -21,15 +20,14 @@ import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GCCPlayer;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
-import org.ah.gcc.virtualrover.statemachine.State;
-import org.ah.gcc.virtualrover.statemachine.StateMachine;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 import org.ah.themvsus.engine.common.game.Game;
-import org.ah.themvsus.engine.common.game.GameObject;
+import org.ah.themvsus.engine.common.statemachine.State;
+import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
@@ -40,16 +38,12 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private InputMultiplexer cameraInputMultiplexer;
 
     private StateMachine<PiNoonScreen, GameState> stateMachine;
-    private String winner = null;
-    private int countdown;
 
     private boolean renderBackground = false;
     private boolean drawFPS = false;
     private long nextRun;
 
     private org.ah.themvsus.engine.common.game.GameState processedGameState;
-
-    private Quaternion orientation = new Quaternion();
 
     public PiNoonScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -229,16 +223,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         }
     }
 
-    private void setupRovers() {
-
-        // TODO reset sets balloons and we have to remove them immediately after. That's not good...
-        resetRovers();
-// TODO move this to Game!
-//        for (PlayerModel player : players) {
-//            player.getPiNoonAttachment().removeBalloons();
-//        }
-    }
-
     private void drawFPS() {
         String fps = String.format("%3s", Gdx.graphics.getFramesPerSecond());
         font.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight() - 40);
@@ -300,7 +284,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 //            }
 
             if (keycode == Input.Keys.SPACE) {
-                stateMachine.toState(GameState.BREAK, this);
+                stateMachine.toState(GameState.GAME, this);
             }
         }
 
@@ -357,32 +341,10 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     @Override public boolean scrolled(int amount) { return false; }
 
-    public void resetRovers() {
-        // TODO move this to game
-        GCCPlayer player1 = serverCommunicationAdapter.getPlayerOne();
-        if (player1 != null) {
-            orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
-            player1.setPosition(700, 700);
-            player1.setOrientation(orientation);
-        }
-        GCCPlayer player2 = serverCommunicationAdapter.getPlayerTwo();
-        if (player2 != null) {
-            orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI / 4f));
-            player2.setPosition(-700, -700);
-            player2.setOrientation(orientation);
-        }
-
-        // TODO move this to game
-//        for (PlayerModel player : players) {
-//            player.getPiNoonAttachment().resetBalloons();
-//        }
-    }
-
     private enum GameState implements State<PiNoonScreen> {
 
         SIMULATION() {
             @Override public boolean shouldMoveRovers() { return true; }
-
         },
 
         SELECTION() {
@@ -398,7 +360,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                     game.removeGameObject(1);
                 }
 
-                s.winner = null;
                 s.setBottomMessage("Select rovers and press space to begin", true);
             }
 
@@ -410,82 +371,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 player2.setRoverType(RoverType.CBIS);
                 s.serverCommunicationAdapter.setLocalPlayerIds(1, 2);
                 s.serverCommunicationAdapter.getEngine().process();
-//                for (VisibleObject visibleObject : s.serverCommunicationAdapter.getVisibleObjects().values()) {
-//                    if (visibleObject instanceof PlayerModel) {
-//                        s.players.add(visibleObject);
-//                    }
-//                }
-                s.setupRovers();
-            }
-        },
 
-        BREAK() {
-            @Override public boolean shouldMoveRovers() { return true; }
-            @Override public boolean shouldDisplayScore() { return true; }
-
-            @Override public void enter(PiNoonScreen s) {
-                s.setBottomMessage(null, false);
-                if (s.winner != null) {
-                    timer = 180;
-                    s.setMiddleMessage(s.winner + " won that round!", false);
-                } else {
-                    timer = 60;
-                    s.setMiddleMessage(null, false);
-                }
-            }
-
-            @Override public void update(PiNoonScreen s) {
-                super.update(s);
-
-                if (timer == 0) {
-                    s.stateMachine.toState(GameState.ROUND, s);
-                }
-            }
-        },
-
-        ROUND() {
-            @Override public boolean shouldMoveRovers() { return true; }
-            @Override public boolean shouldDisplayScore() { return true; }
-
-            @Override public void enter(PiNoonScreen s) {
-                timer = 60;
-                // TODO move this to game
-                // s.setMiddleMessage("round " + (s.players.get(0).playerScore + s.players.get(1).playerScore + 1), false);
-            }
-
-            @Override public void update(PiNoonScreen s) {
-                super.update(s);
-
-                if (timer == 0) {
-                    s.countdown = 3;
-                    s.stateMachine.toState(GameState.ROUND_COUNTDOWN, s);
-                }
-            }
-        },
-
-        ROUND_COUNTDOWN() {
-            @Override public boolean shouldMoveRovers() { return true; }
-            @Override public boolean shouldDisplayScore() { return true; }
-
-            @Override public void enter(PiNoonScreen s) {
-                timer = 60;
-                s.setMiddleMessage(Integer.toString(s.countdown), false);
-                if (s.countdown == 2) {
-                    s.soundManager.playReady();
-                }
-            }
-
-            @Override public void update(PiNoonScreen s) {
-                super.update(s);
-
-                if (timer == 0) {
-                    s.countdown--;
-                    if (s.countdown == 0) {
-                        s.stateMachine.toState(GameState.GAME, s);
-                    } else {
-                        enter(s);
-                    }
-                }
+                s.setBottomMessage("", false);
             }
         },
 
@@ -494,51 +381,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             @Override public boolean shouldDisplayScore() { return true; }
 
             @Override public void enter(PiNoonScreen s) {
-                s.resetRovers();
-                timer = 60;
-                s.setMiddleMessage("GO!", false);
-                s.setBottomMessage(null, false);
-                s.soundManager.playFight();
-                // TODO this goes into game!
-                GCCGame gccGame = s.serverCommunicationAdapter.getEngine().getGame();
-                for (GameObject gameObject : gccGame.getCurrentGameState().gameObjects().values()) {
-                    if (gameObject instanceof GCCPlayer) {
-                        GCCPlayer gccPlayer = (GCCPlayer)gameObject;
-
-                        gccPlayer.setChallengeBits(7);
-                    }
-                }
             }
 
             @Override public void update(PiNoonScreen s) {
-                super.update(s);
-
-                if (timer == 0 ) {
-                    s.setMiddleMessage(null, false);
-                }
-
-// TODO move this go game
-//                PiNoonAttachment rover1PiNoonAttachment = s.players.get(0).getPiNoonAttachment();
-//                PiNoonAttachment rover2PiNoonAttachment = s.players.get(1).getPiNoonAttachment();
-//                if (rover1PiNoonAttachment.getUnpoppedBalloonsCount() == 0 || rover2PiNoonAttachment.getUnpoppedBalloonsCount() == 0) {
-//                    int player1score = s.players.get(0).playerScore;
-//                    int player2score = s.players.get(1).playerScore;
-//                    if (player1score + player2score >= 3) {
-//                        if (player1score > player2score) {
-//                            s.winner = s.players.get(0).name;
-//                        } else if (player1score < player2score) {
-//                            s.winner = s.players.get(1).name;
-//                        }
-//                        s.stateMachine.toState(GameState.END, s);
-//                    } else {
-//                        if (rover1PiNoonAttachment.getUnpoppedBalloonsCount() == 0) {
-//                            s.winner = s.players.get(1).name;
-//                        } else if (rover2PiNoonAttachment.getUnpoppedBalloonsCount() == 0) {
-//                            s.winner = s.players.get(0).name;
-//                        }
-//                        s.stateMachine.toState(GameState.BREAK, s);
-//                    }
-//                }
             }
         },
 
@@ -547,13 +392,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             @Override public boolean shouldDisplayScore() { return true; }
 
             @Override public void enter(PiNoonScreen s) {
-// TODO move this to game
-//                s.setMiddleMessage(s.winner + " wins! " + s.players.get(0).playerScore + " - " + s.players.get(1).playerScore, false);
-                s.setBottomMessage("Press space to return to menu!", true);
             }
 
             @Override public void exit(PiNoonScreen s) {
-                s.setMiddleMessage(null, false);
             }
         };
 

@@ -21,7 +21,7 @@ public class GCCGame extends Game {
 
     public GCCGame(String mapId) {
         super();
-        this.challenge = Challenges.createChallenge(mapId);
+        this.challenge = Challenges.createChallenge(this, mapId);
     }
 
     @Override
@@ -59,10 +59,9 @@ public class GCCGame extends Game {
 
     @Override
     public GameState process() { // ServerEngine.mainloop
-        GameState newGameState = super.process();
         if (challenge != null) {
-            challenge.process(this, newGameState);
+            challenge.process();
         }
-        return newGameState;
+        return super.process();
     }
 }

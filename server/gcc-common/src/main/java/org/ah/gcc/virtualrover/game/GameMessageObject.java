@@ -9,6 +9,7 @@ import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public class GameMessageObject extends GameObject {
 
+    private boolean flashing = false;
     private String message = "";
 
     public GameMessageObject(GameObjectFactory factory, int id) {
@@ -18,15 +19,20 @@ public class GameMessageObject extends GameObject {
     @Override
     public GameObjectType getType() { return GCCGameTypeObject.GameMessageObject; }
 
-    public void setMessage(String message) {
+    public void setMessage(String message, boolean flashing) {
         if (message == null) {
             message = "";
         }
-        if (!message.equals(this.message)) {
+        if (!message.equals(this.message) || flashing != this.flashing) {
             changed = true;
         }
 
         this.message = message;
+        this.flashing = flashing;
+    }
+
+    public boolean isFlashing() {
+        return flashing;
     }
 
     public String getMessage() {
@@ -42,6 +48,7 @@ public class GameMessageObject extends GameObject {
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
 
+        serializer.serializeByte(flashing ? 0 : 1);
         serializer.serializeString(message);
     }
 
@@ -49,6 +56,7 @@ public class GameMessageObject extends GameObject {
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
 
+        flashing = serializer.deserializeByte() != 0;
         message = serializer.deserializeString();
     }
 
@@ -56,7 +64,7 @@ public class GameMessageObject extends GameObject {
     protected GameObject copyInt(GameObject newObject) {
         super.copyInt(newObject);
         GameMessageObject gameMessageObject = (GameMessageObject)newObject;
-        gameMessageObject.setMessage(message);
+        gameMessageObject.setMessage(message, flashing);
         return gameMessageObject;
     }
 }
