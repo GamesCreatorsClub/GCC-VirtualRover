@@ -22,7 +22,9 @@ public class GCCGame extends Game {
 
     public GCCGame(String mapId) {
         super();
-        this.challenge = Challenges.createChallenge(this, mapId);
+        if (mapId != null) {
+            this.challenge = Challenges.createChallenge(this, mapId);
+        }
     }
 
     @Override

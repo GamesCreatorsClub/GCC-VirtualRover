@@ -84,25 +84,21 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
 
-//        stateMachine = new StateMachine<PiNoonScreen, GameState>();
-
         if (platformSpecific.isSimulation()) {
-//            stateMachine.toState(GameState.SIMULATION, this);
-            serverCommunicationAdapter.connectToServer(platformSpecific.getPreferredServerAddress(),
+            serverCommunicationAdapter.connectToServer(
+                    platformSpecific.getPreferredServerAddress(),
                     platformSpecific.getPreferredServerPort(),
                     new ServerConnectionCallback() {
-
                         @Override public void successful() {
-                            // TODO Do we need anything here?
+                            PiNoonScreen.this.serverCommunicationAdapter.startEngine(null, false);
                         }
 
                         @Override public void failed(String msg) {
                             // TODO log something to console
                         }
-            });
-            //
-//        } else {
-//            stateMachine.toState(GameState.SELECTION, this);
+                });
+        } else {
+            serverCommunicationAdapter.startEngine("PiNoon", true);
         }
     }
 
@@ -135,28 +131,23 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
         long now = System.currentTimeMillis() * 1000;
-//        if (!platformSpecific.isSimulation()) {
-            if (!engine.isPaused()) {
-                if (engine.isFixedClientFrameNo()) {
-                    engine.resetFixedClientFrameNo();
-                    nextRun = now;
-                } else if (nextRun == 0) {
-                    nextRun = now;
-                }
-                engine.processCommands();
-                while (nextRun <= now) {
-                    if (!platformSpecific.isSimulation()) {
-                        engine.processPlayerInputs();
-                    }
-                    processedGameState = engine.process();
-
-                    nextRun = nextRun + ENGINE_LOOP_TIME_us;
-                }
+        if (engine != null &&!engine.isPaused()) {
+            if (engine.isFixedClientFrameNo()) {
+                engine.resetFixedClientFrameNo();
+                nextRun = now;
+            } else if (nextRun == 0) {
+                nextRun = now;
             }
-//        } else {
-//            engine.processCommands();
-//            processedGameState = engine.process();
-//        }
+            engine.processCommands();
+            while (nextRun <= now) {
+                if (!platformSpecific.isSimulation()) {
+                    engine.processPlayerInputs();
+                }
+                processedGameState = engine.process();
+
+                nextRun = nextRun + ENGINE_LOOP_TIME_us;
+            }
+        }
 
         PlayerModel playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
         if (playerOne != null) {
@@ -169,10 +160,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         cameraControllersManager.update();
         camera.update();
-//        stateMachine.update(this);
-
-//        Gdx.graphics.getGL20().glEnable(GL20.GL_BLEND);
-//        Gdx.graphics.getGL20().glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         if (renderBackground) {
             background.render(camera, batch, environment);
@@ -182,42 +169,23 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
 
         challenge.render(batch, environment, serverCommunicationAdapter.getVisibleObjects());
-        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
-            moveRovers();
+        if (serverCommunicationAdapter.isLocal()) {
+            if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
+                moveRovers();
+            } else if (serverCommunicationAdapter.isLocal()) {
+                setMiddleMessage("Press space to begin", true);
+            }
         } else {
-            setMiddleMessage("Press space to begin", true);
+            if (serverCommunicationAdapter.hasPlayerOne()) {
+                moveRovers();
+            }
         }
-
-//        if (stateMachine.getCurrentState().shouldMoveRovers()) {
-//            moveRovers();
-// TODO this is now done in Game. What now?
-//
-//            if (stateMachine.isState(GameState.GAME)) {
-//                for (PlayerModel player : players) {
-//                    for (PlayerModel other : players) {
-//                        if (player != other) {
-//                            PiNoonAttachment playerPiNoonAttachment = player.getPiNoonAttachment();
-//                            PiNoonAttachment otherPiNoonAttachment = other.getPiNoonAttachment();
-//
-//                            if (playerPiNoonAttachment.checkIfBalloonsPopped(otherPiNoonAttachment) == 0) {
-//                                other.playerScore++;
-//                                winner = other.name;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         batch.end();
 
         spriteBatch.begin();
-//        if (stateMachine.getCurrentState().shouldDisplayScore()) {
-            drawScore();
-//        }
-//        if (stateMachine.getCurrentState().shouldDisplayPlayerSelection()) {
-//            drawPlayerSelection();
-//        }
+        drawScore();
+
         if (drawFPS) {
             drawFPS();
         }
@@ -241,14 +209,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getScore() + " - " + serverCommunicationAdapter.getPlayerTwo().getScore(), Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
         }
     }
-
-//    private void drawPlayerSelection() {
-//        // TODO sort out selection
-//        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
-//            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getAlias(), 64, Gdx.graphics.getHeight() / 2 + 64);
-//            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerTwo().getAlias(), 64 + Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 64);
-//        }
-//    }
 
     private void moveRovers() {
         PlayerModel player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
@@ -328,76 +288,4 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     @Override public boolean mouseMoved(int screenX, int screenY) { return false; }
 
     @Override public boolean scrolled(int amount) { return false; }
-
-//    private enum GameState implements State<PiNoonScreen> {
-//
-//        SIMULATION() {
-//            @Override public boolean shouldMoveRovers() { return true; }
-//        },
-//
-//        SELECTION() {
-//            @Override public boolean shouldDisplayPlayerSelection() { return true; }
-//
-//            @Override public void enter(PiNoonScreen s) {
-//                Game game = s.serverCommunicationAdapter.getEngine().getGame();
-//
-//                if (game.containsObject(2)) {
-//                    game.removeGameObject(2);
-//                }
-//                if (game.containsObject(1)) {
-//                    game.removeGameObject(1);
-//                }
-//
-//                s.setBottomMessage("Select rovers and press space to begin", true);
-//            }
-//
-//            @Override public void exit(PiNoonScreen s) {
-//                Game game = s.serverCommunicationAdapter.getEngine().getGame();
-//                GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
-//                player1.setRoverType(RoverType.GCC);
-//                GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
-//                player2.setRoverType(RoverType.CBIS);
-//                s.serverCommunicationAdapter.setLocalPlayerIds(1, 2);
-//                s.serverCommunicationAdapter.getEngine().process();
-//
-//                s.setBottomMessage("", false);
-//            }
-//        },
-//
-//        GAME() {
-//            @Override public boolean shouldMoveRovers() { return true; }
-//            @Override public boolean shouldDisplayScore() { return true; }
-//
-//            @Override public void enter(PiNoonScreen s) {
-//            }
-//
-//            @Override public void update(PiNoonScreen s) {
-//            }
-//        },
-//
-//        END() {
-//            @Override public boolean shouldMoveRovers() { return true; }
-//            @Override public boolean shouldDisplayScore() { return true; }
-//
-//            @Override public void enter(PiNoonScreen s) {
-//            }
-//
-//            @Override public void exit(PiNoonScreen s) {
-//            }
-//        };
-//
-//        int timer;
-//
-//        @Override public void enter(PiNoonScreen s) {}
-//        @Override public void update(PiNoonScreen s) {
-//            timer--;
-//        }
-//        @Override public void exit(PiNoonScreen s) {}
-//
-//        public boolean shouldMoveRovers() { return false; }
-//
-//        public boolean shouldDisplayScore() { return false; }
-//
-//        public boolean shouldDisplayPlayerSelection() { return false; }
-//    }
 }

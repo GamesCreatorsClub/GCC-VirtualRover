@@ -160,7 +160,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected void drawStandardMessages() {
         a++;
         spriteBatch.begin();
-        spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+        if (!platformSpecific.isSimulation()) {
+            spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+        }
         if (bottomMessage != null && (!bottomMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
             font.draw(spriteBatch, bottomMessage, 64, 128);
             // font.draw(spriteBatch, "Press space to start", margin, margin * 2);
