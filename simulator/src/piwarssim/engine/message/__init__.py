@@ -15,3 +15,4 @@ from piwarssim.engine.message.ClientRegisterMessage import ClientRegisterMessage
 from piwarssim.engine.message.RemovedMessage import RemovedMessage
 from piwarssim.engine.message.ChatMessage import ChatMessage
 from piwarssim.engine.message.SimulationObjectMessage import SimulationObjectMessage
+from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage

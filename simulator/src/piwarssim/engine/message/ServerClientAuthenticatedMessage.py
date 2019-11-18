@@ -13,9 +13,9 @@ class ServerClientAuthenticatedMessage(Message):
         self._session_id = sesssion_id
 
     def deserialize_impl(self, deserializer):
-        super(ServerClientAuthenticatedMessage, self).deserialize_impl(deserializer)
+        # super(ServerClientAuthenticatedMessage, self).deserialize_impl(deserializer)
         self._session_id = deserializer.deserialize_int()
 
     def serialize_impl(self, serializer):
-        super(ServerClientAuthenticatedMessage, self).serialize_impl(serializer)
+        # super(ServerClientAuthenticatedMessage, self).serialize_impl(serializer)
         serializer.serialize_int(self._session_id)

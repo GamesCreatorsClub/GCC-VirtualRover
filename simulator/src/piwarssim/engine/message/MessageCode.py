@@ -12,6 +12,7 @@ from piwarssim.engine.message.ClientAuthenticateMessage import ClientAuthenticat
 from piwarssim.engine.message.ClientRegisterMessage import ClientRegisterMessage
 from piwarssim.engine.message.RemovedMessage import RemovedMessage
 from piwarssim.engine.message.ChatMessage import ChatMessage
+from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage
 
 
 def raise_not_implemented():
@@ -32,7 +33,7 @@ class MessageCode(Enum):
     Removed = (lambda factory: RemovedMessage(factory, MessageCode.Removed),)
     PlayerServerUpdate = (lambda factory: ServerUpdateMessage(factory, MessageCode.PlayerServerUpdate),)
     Chat = (lambda factory: ChatMessage(factory, MessageCode.Chat),)
-    PlayerInput = (lambda factory: raise_not_implemented(), )
+    PlayerInput = (lambda factory: PlayerInputMessage(factory,MessageCode.PlayerInput), )
 
     def __new__(cls, new_object_function):
         value = len(cls.__members__)
