@@ -200,17 +200,23 @@ public class PiNoonChallenge extends AbstractChallenge {
         if (player1 != null) {
             player1.setVelocity(0, 0);
             player1.setTurnSpeed(0);
+            player1.setSpeed(0);
         }
         GCCPlayer player2 = getPlayerTwo();
         if (player2 != null) {
             player2.setVelocity(0, 0);
             player2.setTurnSpeed(0);
+            player2.setSpeed(0);
         }
     }
 
     @Override
     public boolean processPlayerInputs(int playerId, PlayerInputs playerInputs) {
-        return stateMachine.getCurrentState().shouldMoveRovers();
+        boolean doMove = stateMachine.getCurrentState().shouldMoveRovers();
+        if (!doMove) {
+            playerInputs.pop(gccGame.getCurrentFrameId());
+        }
+        return doMove;
     }
 
     private enum ChallengeState implements State<PiNoonChallenge> {
@@ -239,6 +245,7 @@ public class PiNoonChallenge extends AbstractChallenge {
 
             @Override public void exit(PiNoonChallenge challenge) {
                 challenge.resetRovers();
+                challenge.stopRovers();
             }
         },
 
@@ -262,14 +269,16 @@ public class PiNoonChallenge extends AbstractChallenge {
 
                 if (isTimerDone()) {
                     challenge.stateMachine.toState(ChallengeState.ROUND, challenge);
-                    challenge.resetRovers();
-                    challenge.resetRoverBalloons();
                 }
             }
         },
 
         ROUND() {
             @Override public void enter(PiNoonChallenge challenge) {
+                challenge.resetRovers();
+                challenge.resetRoverBalloons();
+                challenge.stopRovers();
+
                 setTimer(1000);
                 GCCPlayer player1 = challenge.getPlayerOne();
                 GCCPlayer player2 = challenge.getPlayerTwo();
@@ -290,6 +299,7 @@ public class PiNoonChallenge extends AbstractChallenge {
 
         ROUND_COUNTDOWN() {
             @Override public void enter(PiNoonChallenge challenge) {
+                challenge.stopRovers();
                 setTimer(1000);
                 challenge.setMessage(Integer.toString(challenge.countdown), false);
                 challenge.getGameMessage().setInGame(true);
@@ -410,6 +420,6 @@ public class PiNoonChallenge extends AbstractChallenge {
         @Override public void exit(PiNoonChallenge s) {}
 
         public boolean shouldMoveRovers() { return false; }
-        public boolean shouldCollideBalloons() { return true; }
+        public boolean shouldCollideBalloons() { return false; }
     }
 }
