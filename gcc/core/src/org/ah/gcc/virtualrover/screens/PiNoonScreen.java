@@ -142,6 +142,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             while (nextRun <= now) {
                 if (!platformSpecific.isSimulation()) {
                     engine.processPlayerInputs();
+                } else {
+                    engine.getPlayerInputs().pop(engine.getGame().getCurrentGameState().getFrameNo());
                 }
                 processedGameState = engine.process();
 
@@ -216,6 +218,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             player1.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
             player1.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
             player1.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
+            player1.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ? 1f : 0f);
+            player1.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.Z));
+            player1.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.X));
+            player1.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.C));
+            player1.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.V));
         }
 
         PlayerModel player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
@@ -223,6 +230,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             player2.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
             player2.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
             player2.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
+            player2.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) ? 1f : 0f);
+            player2.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.N));
+            player2.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.M));
+            player2.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.COMMA));
+            player2.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.PERIOD));
         }
     }
 

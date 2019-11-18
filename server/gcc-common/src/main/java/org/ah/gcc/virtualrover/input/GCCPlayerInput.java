@@ -12,6 +12,24 @@ public class GCCPlayerInput extends PlayerInput {
     private float rotateX = 0f;
     private float rotateY = 0f;
 
+    private float leftTrigger = 0f;
+    private float rightTrigger = 0f;
+
+    private boolean circle;
+    private boolean cross;
+    private boolean square;
+    private boolean triangle;
+
+    private boolean home;
+    private boolean share;
+    private boolean options;
+    private boolean trackpad;
+
+    private boolean hatUp;
+    private boolean hatDown;
+    private boolean hatLeft;
+    private boolean hatRight;
+
     private float desiredForwardSpeed = 300f;
     private float desiredRotationSpeed = 300f;
 
@@ -55,6 +73,69 @@ public class GCCPlayerInput extends PlayerInput {
         return this;
     }
 
+    public float leftTrigger() {
+        return leftTrigger;
+    }
+
+    public GCCPlayerInput leftTrigger(float leftTrigger) {
+        this.leftTrigger = sanitiseTrigger(leftTrigger);
+        return this;
+    }
+
+    public float rightTrigger() {
+        return rightTrigger;
+    }
+
+    public GCCPlayerInput rightTrigger(float leftTrigger) {
+        this.leftTrigger = sanitiseTrigger(leftTrigger);
+        return this;
+    }
+
+    private float sanitiseTrigger(float trigger) {
+        if (trigger < 0f) { trigger = 0f; }
+        if (trigger > 1f) { trigger = 1f; }
+
+        trigger = ((int)trigger * 15f) / 15f;
+
+        return 0;
+    }
+
+    public boolean circle() { return circle; }
+    public GCCPlayerInput circle(boolean circle) { this.circle = circle; return this; }
+
+    public boolean cross() { return cross; }
+    public GCCPlayerInput cross(boolean cross) { this.cross = cross; return this; }
+
+    public boolean square() { return square; }
+    public GCCPlayerInput square(boolean square) { this.square = square; return this; }
+
+    public boolean triangle() { return triangle; }
+    public GCCPlayerInput triangle(boolean triangle) { this.triangle = triangle; return this; }
+
+    public boolean home() { return home; }
+    public GCCPlayerInput home(boolean home) { this.home = home; return this; }
+
+    public boolean share() { return share; }
+    public GCCPlayerInput share(boolean share) { this.share = share; return this; }
+
+    public boolean options() { return options; }
+    public GCCPlayerInput options(boolean options) { this.options = options; return this; }
+
+    public boolean trackpad() { return trackpad; }
+    public GCCPlayerInput trackpad(boolean trackpad) { this.trackpad = trackpad; return this; }
+
+    public boolean hatUp() { return hatUp; }
+    public GCCPlayerInput hatUp(boolean hatUp) { this.hatUp = hatUp; return this; }
+
+    public boolean hatDown() { return hatDown; }
+    public GCCPlayerInput hatDown(boolean hatDown) { this.hatDown = hatDown; return this; }
+
+    public boolean hatLeft() { return hatLeft; }
+    public GCCPlayerInput hatLeft(boolean hatLeft) { this.hatLeft = hatLeft; return this; }
+
+    public boolean hatRight() { return hatRight; }
+    public GCCPlayerInput hatRight(boolean hatRight) { this.hatRight = hatRight; return this; }
+
     public float getDesiredForwardSpeed() {
         return desiredForwardSpeed;
     }
@@ -77,6 +158,25 @@ public class GCCPlayerInput extends PlayerInput {
     public void serialize(Serializer serializer) {
         serializer.serializeUnsignedShort(fitTo8Bits(moveX) << 8 | fitTo8Bits(moveY));
         serializer.serializeUnsignedShort(fitTo8Bits(rotateX) << 8 | fitTo8Bits(rotateY));
+
+        int triggers = ((int)(leftTrigger * 15f)) + ((int)(rightTrigger * 15f)) * 16;
+
+        serializer.serializeUnsignedByte(triggers);
+
+        int bits = (circle ? 1 : 0)
+                | (cross ? 2 : 0)
+                | (square ? 4 : 0)
+                | (triangle ? 8 : 0)
+                | (home ? 16 : 0)
+                | (share ? 32 : 0)
+                | (options ? 64 : 0)
+                | (trackpad ? 128 : 0)
+                | (hatUp ? 256 : 0)
+                | (hatDown ? 512 : 0)
+                | (hatLeft ? 1024 : 0)
+                | (hatRight ? 2048 : 0);
+        serializer.serializeUnsignedShort(bits);
+
         serializer.serializeUnsignedShort(fitTo8Bits((int)(desiredForwardSpeed / 10)) << 8 | fitTo8Bits((int)(desiredRotationSpeed / 10)));
     }
 
@@ -90,6 +190,26 @@ public class GCCPlayerInput extends PlayerInput {
         rotateX = (((rotateXY >> 8) & 0xff) / 127) - 1;
         rotateY = ((rotateXY & 0xff) / 127) - 1;
 
+        int triggers = deserializer.deserializeUnsignedByte();
+        leftTrigger = (triggers & 0xf) / 15f;
+        rightTrigger = ((triggers >> 4) & 0xf) / 15f;
+
+        int bits = deserializer.deserializeUnsignedShort();
+        circle = (bits & 1) != 0;
+        cross = (bits & 2) != 0;
+        square = (bits & 4) != 0;
+        triangle = (bits & 8) != 0;
+
+        home = (bits & 16) != 0;
+        share = (bits & 32) != 0;
+        options = (bits & 64) != 0;
+        trackpad = (bits & 128) != 0;
+
+        hatUp = (bits & 256) != 0;
+        hatDown = (bits & 512) != 0;
+        hatLeft = (bits & 1024) != 0;
+        hatRight = (bits & 2048) != 0;
+
         int desiredSpeeds = deserializer.deserializeUnsignedShort();
         desiredForwardSpeed = ((((desiredSpeeds >> 8) & 0xff) / 127) - 1) * 10;
         desiredRotationSpeed = (((desiredSpeeds & 0xff) / 127) - 1) * 10;
@@ -97,6 +217,11 @@ public class GCCPlayerInput extends PlayerInput {
 
     static int fitTo8Bits(float v) {
         int intValue  = (int)((v + 1) * 127);
+        return intValue;
+    }
+
+    static int fitTo4Bits(float v) {
+        int intValue  = (int)(v * 15);
         return intValue;
     }
 
@@ -114,6 +239,24 @@ public class GCCPlayerInput extends PlayerInput {
         rotateX = 0f;
         rotateY = 0f;
 
+        leftTrigger = 0f;
+        rightTrigger = 0f;
+
+        circle = false;
+        cross = false;
+        square = false;
+        triangle = false;
+
+        home = false;
+        share = false;
+        options = false;
+        trackpad = false;
+
+        hatUp = false;
+        hatDown = false;
+        hatLeft = false;
+        hatRight = false;
+
         desiredForwardSpeed = 300f;
         desiredRotationSpeed = 300f;
 
@@ -127,6 +270,20 @@ public class GCCPlayerInput extends PlayerInput {
         moveY = gccPlayerInput.moveY;
         rotateX = gccPlayerInput.rotateX;
         rotateY = gccPlayerInput.rotateY;
+        leftTrigger = gccPlayerInput.leftTrigger;
+        rightTrigger = gccPlayerInput.rightTrigger;
+        circle = gccPlayerInput.circle;
+        cross = gccPlayerInput.cross;
+        square = gccPlayerInput.square;
+        triangle = gccPlayerInput.triangle;
+        home = gccPlayerInput.home;
+        share = gccPlayerInput.share;
+        options = gccPlayerInput.options;
+        trackpad = gccPlayerInput.trackpad;
+        hatUp = gccPlayerInput.hatUp;
+        hatDown = gccPlayerInput.hatDown;
+        hatLeft = gccPlayerInput.hatLeft;
+        hatRight = gccPlayerInput.hatRight;
         desiredForwardSpeed = gccPlayerInput.desiredForwardSpeed;
         desiredRotationSpeed = gccPlayerInput.desiredRotationSpeed;
     }
