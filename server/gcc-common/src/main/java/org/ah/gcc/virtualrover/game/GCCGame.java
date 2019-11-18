@@ -9,7 +9,7 @@ import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
-import org.ah.themvsus.engine.common.game.Player;
+import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 import java.util.List;
@@ -29,8 +29,8 @@ public class GCCGame extends Game {
     }
 
     @Override
-    public Player spawnPlayer(int id, String alias) {
-        Player player = super.spawnPlayer(id, alias);
+    public AbstractPlayer spawnPlayer(int id, String alias) {
+        AbstractPlayer player = super.spawnPlayer(id, alias);
 
         return player;
     }
