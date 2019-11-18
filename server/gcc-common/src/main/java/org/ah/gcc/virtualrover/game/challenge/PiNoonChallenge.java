@@ -390,17 +390,17 @@ public class PiNoonChallenge extends AbstractChallenge {
 
             @Override public void update(PiNoonChallenge challenge) {
                 if (isTimerDone()) {
-                    GCCPlayer player1 = challenge.getPlayerOne();
-                    GCCPlayer player2 = challenge.getPlayerTwo();
-                    challenge.gccGame.removeGameObject(player2.getId());
-                    challenge.gccGame.removeGameObject(player1.getId());
-                    challenge.player1Id = 0;
-                    challenge.player2Id = 0;
                     challenge.stateMachine.toState(WAITING_START, challenge);
                 }
             }
 
             @Override public void exit(PiNoonChallenge challenge) {
+                GCCPlayer player1 = challenge.getPlayerOne();
+                GCCPlayer player2 = challenge.getPlayerTwo();
+                challenge.gccGame.removeGameObject(player2.getId());
+                challenge.gccGame.removeGameObject(player1.getId());
+                challenge.player1Id = 0;
+                challenge.player2Id = 0;
                 challenge.setMessage(null, false);
             }
         };

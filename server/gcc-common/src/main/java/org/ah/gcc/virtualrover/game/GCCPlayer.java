@@ -7,11 +7,11 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.message.GCCPlayerServerUpdateMessage;
+import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
-import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.input.PlayerInput;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.transfer.Serializer;
@@ -27,6 +27,13 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
     public GCCPlayer(GameObjectFactory factory, int id) {
         super(factory, id);
         setRoverType(RoverType.GCC);
+    }
+
+    @Override
+    public void free() {
+        challengeBits = 0;
+        score = 0;
+        super.free();
     }
 
     public void setRoverType(RoverType roverType) {
