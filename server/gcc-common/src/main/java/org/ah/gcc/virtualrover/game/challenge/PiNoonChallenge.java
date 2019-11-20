@@ -227,9 +227,11 @@ public class PiNoonChallenge extends AbstractChallenge {
 
                 if (game.containsObject(2)) {
                     game.removeGameObject(2);
+                    challenge.player2Id = 0;
                 }
                 if (game.containsObject(1)) {
                     game.removeGameObject(1);
+                    challenge.player1Id = 0;
                 }
 
                 challenge.winner = null;

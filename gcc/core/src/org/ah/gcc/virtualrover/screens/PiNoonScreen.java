@@ -247,7 +247,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     @Override
     public boolean keyDown(int keycode) {
-        if (serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
+        if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
             Game game = serverCommunicationAdapter.getEngine().getGame();
             GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
             player1.setRoverType(player1RoverType);
