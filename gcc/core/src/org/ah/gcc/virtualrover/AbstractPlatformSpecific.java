@@ -41,6 +41,12 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     }
 
     @Override
+    public boolean hasServerDetails() {
+        return preferredServerAddress != null;
+    }
+
+
+    @Override
     public void register(String registrationServerURL, final String username, final String email, final String password, final RegistrationCallback callback) {
         String form = "-----------------------------123\n"
                 + "Content-Disposition: form-data; name=\"username\"\n\n"

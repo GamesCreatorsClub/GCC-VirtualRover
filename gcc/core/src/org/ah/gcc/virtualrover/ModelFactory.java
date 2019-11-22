@@ -1,7 +1,5 @@
 package org.ah.gcc.virtualrover;
 
-import java.util.NoSuchElementException;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -9,10 +7,13 @@ import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.utils.UBJsonReader;
 
+import java.util.NoSuchElementException;
+
 public class ModelFactory {
     private G3dModelLoader g3Modelloader;
     private ObjLoader objModelloader;
     private Model baloon;
+    private Model barrel;
     private Model body;
     private Model pinoon;
     private Model top;
@@ -50,6 +51,7 @@ public class ModelFactory {
 
     public void load() {
         baloon = loadModel("balloon1.obj");
+        barrel = loadModel("Barrel.obj");
         body = loadModel("Body.obj");
         pinoon = loadModel("PiNoon.obj");
         top = loadModel("Top.obj");
@@ -68,6 +70,7 @@ public class ModelFactory {
 
     public void dispose() {
         baloon.dispose();
+        barrel.dispose();
         body.dispose();
         pinoon.dispose();
         top.dispose();
@@ -112,6 +115,13 @@ public class ModelFactory {
             resourceDoesNotExists("body");
         }
         return body;
+    }
+
+    public Model getBarrel() throws NoSuchElementException {
+        if (barrel == null) {
+            resourceDoesNotExists("barrel");
+        }
+        return barrel;
     }
 
     public Model getPiNoon() throws NoSuchElementException {

@@ -1,16 +1,17 @@
 package org.ah.gcc.virtualrover;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
-import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.screens.LoadingScreen;
 import org.ah.gcc.virtualrover.screens.PiNoonScreen;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ServerCommunication;
+import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 
 public class MainGame extends Game {
 
@@ -20,7 +21,6 @@ public class MainGame extends Game {
 
     private ServerCommunication serverCommunication;
     private ServerCommunicationAdapter serverCommunicationAdapter;
-    private GCCMessageFactory messageFactory;
 
     private AssetManager assetManager;
     private SoundManager soundManager;
@@ -28,8 +28,10 @@ public class MainGame extends Game {
 
     private Console console;
 
-    private PiNoonScreen piNoonScreen;
     private LoadingScreen loadingScreen;
+    private GreetingScreen greetingScreen;
+    private PiNoonScreen challengeScreen;
+
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -50,7 +52,6 @@ public class MainGame extends Game {
         modelFactory = new ModelFactory();
         modelFactory.load();
 
-        messageFactory = new GCCMessageFactory();
         serverCommunication = platformSpecific.getServerCommunication();
 
         loadingScreen = new LoadingScreen(this, assetManager);
@@ -65,9 +66,37 @@ public class MainGame extends Game {
         console.raw("(c) Creative Sphere Limited");
 
         soundManager.fetchSounds(assetManager);
-        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, messageFactory, console, modelFactory);
-        piNoonScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        setScreen(piNoonScreen);
+        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, modelFactory);
+
+        if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
+            serverCommunicationAdapter.connectToServer(
+                    platformSpecific.getPreferredServerAddress(),
+                    platformSpecific.getPreferredServerPort(),
+                    new ServerConnectionCallback() {  // TODO factor this out so it can be reused on other connectToServer attempts
+                        @Override public void successful() {
+                            serverCommunicationAdapter.startEngine("PiNoon", true);
+                            startChallenge("PiNoon");
+                        }
+
+                        @Override public void failed(String msg) {
+                            // TODO log something to console
+                        }
+                });
+        } else {
+            greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+//            if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
+//                greetingScreen.connectToServer(platformSpecific.getPreferredServerAddress(), platformSpecific.getPreferredServerPort());
+//            }
+            greetingScreen.reset();
+            setScreen(greetingScreen);
+        }
+    }
+
+    public void startChallenge(String mapId) {
+        Gdx.input.setOnscreenKeyboardVisible(false);
+
+        challengeScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        setScreen(challengeScreen);
     }
 
     @Override
@@ -77,6 +106,6 @@ public class MainGame extends Game {
         modelFactory.dispose();
         if (console != null) { console.dispose(); }
         if (loadingScreen != null) { loadingScreen.dispose(); }
-        if (piNoonScreen != null) { piNoonScreen.dispose(); }
+        if (challengeScreen != null) { challengeScreen.dispose(); }
     }
 }

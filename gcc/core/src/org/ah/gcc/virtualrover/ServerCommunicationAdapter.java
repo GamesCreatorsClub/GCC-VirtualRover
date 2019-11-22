@@ -20,7 +20,6 @@ import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.message.ChatMessage;
-import org.ah.themvsus.engine.common.message.MessageFactory;
 
 public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter<GCCGame> implements GameObjectAddedListener, GameObjectRemovedListener {
 
@@ -39,7 +38,6 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
-            MessageFactory messageFactory,
             Console console,
             ModelFactory modelFactory) {
 
@@ -48,15 +46,19 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
                     Gdx.app.error(area, msg, e);
                 }
             },
-            serverCommunication, messageFactory);
+            serverCommunication);
+
+        GCCMessageFactory messageFactory = new GCCMessageFactory();
+        messageFactory.init();
+        setMessageFactory(messageFactory);
 
         this.console = console;
         this.modelFactory = modelFactory;
 
         serverCommunication.setReceiver(this);
 
-        playerOneInputMessage = ((GCCMessageFactory)messageFactory).createPlayerInputCommand();
-        playerTwoInputMessage = ((GCCMessageFactory)messageFactory).createPlayerInputCommand();
+        playerOneInputMessage = messageFactory.createPlayerInputCommand();
+        playerTwoInputMessage = messageFactory.createPlayerInputCommand();
     }
 
     public void setLocalPlayerIds(int playerOneId, int playerTwoId) {

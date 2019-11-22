@@ -6,14 +6,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
-import org.ah.gcc.virtualrover.message.GCCPlayerServerUpdateMessage;
 import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.input.PlayerInput;
-import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
 import java.util.List;
@@ -91,15 +89,6 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
     }
 
     @Override
-    public void performCommand(Message command) {
-        if (command instanceof GCCPlayerServerUpdateMessage) {
-            super.performCommand(command);
-        } else {
-            super.performCommand(command);
-        }
-    }
-
-    @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
         serializer.serializeByte((byte)roverType.getId());
@@ -114,6 +103,11 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
         score = serializer.deserializeByte();
         challengeBits = serializer.deserializeShort();
 
+    }
+
+    @Override
+    public int size(boolean full) {
+        return super.size(full) + 4;
     }
 
     @Override

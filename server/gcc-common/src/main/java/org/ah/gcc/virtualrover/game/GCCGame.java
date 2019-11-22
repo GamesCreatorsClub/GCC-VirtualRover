@@ -5,11 +5,11 @@ import com.badlogic.gdx.math.Polygon;
 
 import org.ah.gcc.virtualrover.game.challenge.Challenge;
 import org.ah.gcc.virtualrover.game.challenge.Challenges;
+import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
-import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 import java.util.List;
@@ -74,5 +74,9 @@ public class GCCGame extends Game {
         if (challenge == null || challenge.processPlayerInputs(playerId, playerInputs)) {
             super.processPlayerInputs(playerId, playerInputs);
         }
+    }
+
+    public Challenge getChallenge() {
+        return this.challenge;
     }
 }

@@ -31,6 +31,10 @@ public class GCCRoverDesktopLauncher {
         System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
         System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");
 
+        run(parameters, desktopSpecific);
+    }
+
+    public static void run(Parameters parameters, PlatformSpecific desktopSpecific) {
         if (parameters.isJOGL()) {
             runJOGL(parameters, desktopSpecific);
         } else {

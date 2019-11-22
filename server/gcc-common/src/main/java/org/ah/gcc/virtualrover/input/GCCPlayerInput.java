@@ -30,8 +30,8 @@ public class GCCPlayerInput extends PlayerInput {
     private boolean hatLeft;
     private boolean hatRight;
 
-    private float desiredForwardSpeed = 300f;
-    private float desiredRotationSpeed = 300f;
+    private float desiredForwardSpeed = 296f;
+    private float desiredRotationSpeed = 296f;
 
     GCCPlayerInput(AbstractPoolFactory<PlayerInput> factory) {
         super(factory);
@@ -177,7 +177,7 @@ public class GCCPlayerInput extends PlayerInput {
                 | (hatRight ? 2048 : 0);
         serializer.serializeUnsignedShort(bits);
 
-        serializer.serializeUnsignedShort(fitTo8Bits((int)(desiredForwardSpeed / 10)) << 8 | fitTo8Bits((int)(desiredRotationSpeed / 10)));
+        serializer.serializeUnsignedShort(fitTo8BitsWithLimit(desiredForwardSpeed, 0, 1024) << 8 | fitTo8BitsWithLimit(desiredRotationSpeed, -1024, 1024));
     }
 
     @Override
@@ -211,8 +211,8 @@ public class GCCPlayerInput extends PlayerInput {
         hatRight = (bits & 2048) != 0;
 
         int desiredSpeeds = deserializer.deserializeUnsignedShort();
-        desiredForwardSpeed = ((((desiredSpeeds >> 8) & 0xff) / 127) - 1) * 10;
-        desiredRotationSpeed = (((desiredSpeeds & 0xff) / 127) - 1) * 10;
+        desiredForwardSpeed = from8BitWithLimit((desiredSpeeds >> 8) & 0xff, 0, 1024);
+        desiredRotationSpeed = from8BitWithLimit(desiredSpeeds & 0xff, -1024, 1024);
     }
 
     static int fitTo8Bits(float v) {
@@ -223,6 +223,21 @@ public class GCCPlayerInput extends PlayerInput {
     static int fitTo4Bits(float v) {
         int intValue  = (int)(v * 15);
         return intValue;
+    }
+
+    static int fitTo8BitsWithLimit(float v, int min, int max) {
+        if (v >= max) {
+            v = max;
+        } else if (v <= min) {
+            v = min;
+        }
+        v = v - min;
+        v = v * 256 / (max - min);
+        return (int)v;
+    }
+
+    static float from8BitWithLimit(int b, int min, int max) {
+        return b * (max - min) / 256f + min;
     }
 
     public static final AbstractPoolFactory<PlayerInput> INPUTS_FACTORY = new InputsFactory();
@@ -290,5 +305,20 @@ public class GCCPlayerInput extends PlayerInput {
 
     @Override public String toString() {
         return "PlayerInput[" + sequenceNo + "," + moveX + "," + moveY + "," + rotateX + "," + rotateY + "," + desiredForwardSpeed + "," + desiredRotationSpeed + "]";
+    }
+
+
+    public static void main(String[] args) throws Exception {
+
+        float desiredForwardSpeed = 200f;
+        float desiredRotationSpeed = 300f;
+
+        int desiredSpeeds = fitTo8BitsWithLimit(desiredForwardSpeed, 0, 1024) << 8 | fitTo8BitsWithLimit(desiredRotationSpeed, -1024, 1024);
+
+        desiredForwardSpeed = from8BitWithLimit((desiredSpeeds >> 8) & 0xff, 0, 1024);
+        desiredRotationSpeed = from8BitWithLimit(desiredSpeeds & 0xff, -1024, 1024);
+
+        System.out.println("desiredForwardSpeed=" + desiredForwardSpeed);
+        System.out.println("desiredRotationSpeed=" + desiredRotationSpeed);
     }
 }

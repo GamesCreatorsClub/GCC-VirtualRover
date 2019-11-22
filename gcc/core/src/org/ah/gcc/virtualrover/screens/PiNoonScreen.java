@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.utils.IntSet;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -24,7 +25,6 @@ import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
-import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 import org.ah.themvsus.engine.common.game.Game;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
@@ -44,6 +44,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private long nextRun;
 
     private org.ah.themvsus.engine.common.game.GameState processedGameState;
+    private IntSet unknownObjectIds = new IntSet();
 
     public PiNoonScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -53,11 +54,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
         super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        this.game = game;
-        this.assetManager = assetManager;
-        this.soundManager = soundManager;
-        this.modelFactory = modelFactory;
-        this.console = console;
 
         setBackground(new PerlinNoiseBackground());
 
@@ -83,23 +79,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, serverCommunicationAdapter));
         cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
-
-        if (platformSpecific.isSimulation()) {
-            serverCommunicationAdapter.connectToServer(
-                    platformSpecific.getPreferredServerAddress(),
-                    platformSpecific.getPreferredServerPort(),
-                    new ServerConnectionCallback() {
-                        @Override public void successful() {
-                            PiNoonScreen.this.serverCommunicationAdapter.startEngine(null, false);
-                        }
-
-                        @Override public void failed(String msg) {
-                            // TODO log something to console
-                        }
-                });
-        } else {
-            serverCommunicationAdapter.startEngine("PiNoon", true);
-        }
     }
 
     @Override
@@ -138,7 +117,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             } else if (nextRun == 0) {
                 nextRun = now;
             }
-            engine.processCommands();
+            unknownObjectIds.clear();
+            engine.processCommands(unknownObjectIds);
+            if (unknownObjectIds.size > 0) {
+                serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
+            }
             while (nextRun <= now) {
                 if (!platformSpecific.isSimulation()) {
                     engine.processPlayerInputs();

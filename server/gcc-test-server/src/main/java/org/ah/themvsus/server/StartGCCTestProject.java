@@ -1,17 +1,8 @@
 package org.ah.themvsus.server;
 
-import static org.ah.themvsus.engine.common.debug.Debug.DEBUG;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.logging.Logger;
-
 import org.ah.gcc.virtualrover.PlatformSpecific.ServerCommunicationAdapterCreatedCallback;
 import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
-import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncherJOGL;
-import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncherLWJGL;
+import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncher;
 import org.ah.gcc.virtualrover.desktop.Parameters;
 import org.ah.gcc.virtualrover.server.engine.GCCServerEngineModule;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
@@ -20,6 +11,14 @@ import org.ah.themvsus.server.authentication.ThemVsUsSimpleFileRegistrationModul
 import org.ah.themvsus.server.log.LogHelper;
 import org.ah.themvsus.server.mail.MailModule;
 import org.ah.themvsus.server.util.FileConfigLoader;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import static org.ah.themvsus.engine.common.debug.Debug.DEBUG;
 
 import io.vertx.core.ServiceHelper;
 import io.vertx.core.Vertx;
@@ -136,13 +135,13 @@ public class StartGCCTestProject {
         httpServer.listen(httpPort);
         httpsServer.listen(httpsPort);
 
-        startHeadlessClient("test1", "123");
-        startHeadlessClient("test2", "123");
+//        startHeadlessClient("test1", "123");
+//        startHeadlessClient("test2", "123");
 //        startHeadlessClient("test3", "123");
 //        startHeadlessClient("test4", "123");
 //        startHeadlessClient("test5", "123");
 
-        final boolean isArm = "arm".equals(System.getProperty("os.arch"));
+//        final boolean isArm = "arm".equals(System.getProperty("os.arch"));
 
         Parameters parameters = new Parameters();
         parameters.parseArgs(args);
@@ -153,11 +152,9 @@ public class StartGCCTestProject {
         System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
         System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");
 
-        if (isArm) {
-            GCCRoverDesktopLauncherJOGL.run(parameters, desktopSpecific);
-        } else {
-            GCCRoverDesktopLauncherLWJGL.run(parameters, desktopSpecific);
-        }
+        desktopSpecific.setPreferredServerDetails("127.0.0.1", udpPort);
+
+        GCCRoverDesktopLauncher.run(parameters, desktopSpecific);
 
         logger.info("");
         logger.info("Setting up debug run...");

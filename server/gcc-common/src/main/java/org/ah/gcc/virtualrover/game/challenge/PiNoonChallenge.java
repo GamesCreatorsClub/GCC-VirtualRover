@@ -47,8 +47,8 @@ public class PiNoonChallenge extends AbstractChallenge {
 
     private GCCGame gccGame;
 
-    public PiNoonChallenge(Game game) {
-        super(game);
+    public PiNoonChallenge(Game game, String name) {
+        super(game, name);
         gccGame = (GCCGame)game;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
     }

@@ -16,4 +16,6 @@ public interface Challenge {
     boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects);
 
     boolean processPlayerInputs(int playerId, PlayerInputs playerInputs);
+
+    String getName();
 }

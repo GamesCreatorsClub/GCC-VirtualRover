@@ -19,6 +19,8 @@ public interface PlatformSpecific {
 
     boolean isSimulation();
 
+    boolean hasServerDetails();
+
     void register(String url, String username, String email, String password, RegistrationCallback callback);
 
     void setPreferredServerDetails(String socketAddress, int port);

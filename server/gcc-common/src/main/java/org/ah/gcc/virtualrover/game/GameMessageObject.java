@@ -3,8 +3,6 @@ package org.ah.gcc.virtualrover.game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
-import org.ah.themvsus.engine.common.message.Message;
-import org.ah.themvsus.engine.common.message.MessageFactory;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public class GameMessageObject extends GameObject {
@@ -58,11 +56,6 @@ public class GameMessageObject extends GameObject {
     }
 
     @Override
-    public Message newlyCreatedObjectMessage(MessageFactory messageFactory) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
 
@@ -79,6 +72,11 @@ public class GameMessageObject extends GameObject {
         inGame = (status & 0x2b) != 0;
         waiting = (status & 0x4b) != 0;
         message = serializer.deserializeString();
+    }
+
+    @Override
+    public int size(boolean full) {
+        return super.size(full) + 1 + 2 + (message != null ? message.length() : 0);
     }
 
     @Override

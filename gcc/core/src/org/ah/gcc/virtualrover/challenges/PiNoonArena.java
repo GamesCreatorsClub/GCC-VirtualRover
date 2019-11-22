@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.world.BarrelModel;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 
 import java.util.ArrayList;
@@ -49,6 +50,10 @@ public class PiNoonArena extends AbstractChallenge {
     private Model floorModel;
 
     private ModelInstance floorModelInstance;
+
+    private BarrelModel redBarrel;
+    private BarrelModel greenBarrel;
+    private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
 
     public boolean showPlan = false;
 
@@ -77,6 +82,16 @@ public class PiNoonArena extends AbstractChallenge {
         attributesList.add(TextureAttribute.createDiffuse(frameBuffer.getColorBufferTexture()));
         Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
         floorModelInstance.materials.get(0).set(attributes);
+
+        redBarrel = new BarrelModel(null, -1, Color.RED);
+        redBarrel.make(modelFactory);
+        greenBarrel = new BarrelModel(null, -1, Color.GREEN);
+        greenBarrel.make(modelFactory);
+
+        greenBarrel.barrel.transform.translate(100f, 0f, 0f);
+
+        localVisibleObjects.put(5, redBarrel);
+        localVisibleObjects.put(6, greenBarrel);
     }
 
     @Override
@@ -159,7 +174,11 @@ public class PiNoonArena extends AbstractChallenge {
             frameBuffer.end();
         }
 
-        super.render(batch, environment, visibleObjects);
+        IntMap<VisibleObject> newMap = new IntMap<VisibleObject>();
+        newMap.putAll(visibleObjects);
+        newMap.putAll(localVisibleObjects);
+
+        super.render(batch, environment, newMap);
     }
 
     @Override
