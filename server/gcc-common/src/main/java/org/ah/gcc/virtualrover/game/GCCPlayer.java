@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import org.ah.gcc.virtualrover.game.rovers.AbstractRoverDefinition;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
@@ -21,10 +22,16 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
     private RoverType roverType;
     private int challengeBits;
     private int score;
+    private List<Polygon> polygons;
+    private Vector2 sharpPoint = new Vector2();
+    private Circle[] ballonsCircle = new Circle[3];
 
     public GCCPlayer(GameObjectFactory factory, int id) {
         super(factory, id);
         setRoverType(RoverType.GCC);
+        for (int i = 0; i < ballonsCircle.length; i++) {
+            ballonsCircle[i] = new Circle(0,  0, AbstractRoverDefinition.BALLOONS_RADIUS);
+        }
     }
 
     @Override
@@ -36,6 +43,7 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
     public void setRoverType(RoverType roverType) {
         this.roverType = roverType;
+        this.polygons = roverType.getRoverDefinition().getPolygonsCopy();
     }
 
     public RoverType getRoverType() {
@@ -124,14 +132,14 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
     @Override
     public List<Polygon> getCollisionPolygons() {
-        return getRoverType().getRoverDefinition().getPolygons(position.x, position.y, getBearing());
+        return getRoverType().getRoverDefinition().updatePolygons(polygons, position.x, position.y, getBearing());
     }
 
     public Vector2 getSharpEnd() {
-        return getRoverType().getRoverDefinition().getSharpPoint(position.x, position.y, getBearing());
+        return getRoverType().getRoverDefinition().getSharpPoint(sharpPoint, position.x, position.y, getBearing());
     }
 
     public Circle getBalloon(int balloonNo) {
-        return getRoverType().getRoverDefinition().getBalloon(balloonNo, position.x, position.y, getBearing());
+        return getRoverType().getRoverDefinition().getBalloon(ballonsCircle[balloonNo], balloonNo, position.x, position.y, getBearing());
     }
 }

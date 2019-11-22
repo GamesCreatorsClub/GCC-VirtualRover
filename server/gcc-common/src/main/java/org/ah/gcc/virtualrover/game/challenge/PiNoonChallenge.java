@@ -107,17 +107,19 @@ public class PiNoonChallenge extends AbstractChallenge {
         GameState currentGameState = gccGame.getCurrentGameState();
         for (GameObject o : currentGameState.gameObjects().values()) {
             if (o instanceof GCCPlayer) {
-                if (o.isAdded()) {
+                boolean added = o.isAdded();
+                boolean removed = o.isRemoved();
+                int id = o.getId();
+                if (added) {
                     if (player1Id == 0) {
                         player1Id = o.getId();
-                    } else if (player2Id == 0) {
-                        player2Id = o.getId();
+                    } else if (player2Id == 0 && player1Id != id) {
+                        player2Id = id;
                     }
-                } else if (o.isRemoved()) {
-                    if (o.getId() == player1Id) {
+                } else if (removed) {
+                    if (id == player1Id) {
                         player1Id = 0;
-                    }
-                    if (o.getId() == player2Id) {
+                    } else if (id == player2Id) {
                         player2Id = 0;
                     }
                 }

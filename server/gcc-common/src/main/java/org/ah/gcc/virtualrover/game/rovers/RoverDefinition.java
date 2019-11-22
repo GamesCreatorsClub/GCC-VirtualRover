@@ -10,9 +10,11 @@ public interface RoverDefinition {
 
     RoverControls getRoverControls();
 
-    List<Polygon> getPolygons(float x, float y, float angle);
+    List<Polygon> getPolygonsCopy();
 
-    Vector2 getSharpPoint(float x, float y, float angle);
+    List<Polygon> updatePolygons(List<Polygon> polygons, float x, float y, float angle);
 
-    Circle getBalloon(int balloonNo, float x, float y, float angle);
+    Vector2 getSharpPoint(Vector2 point, float x, float y, float angle);
+
+    Circle getBalloon(Circle circle, int balloonNo, float x, float y, float angle);
 }
