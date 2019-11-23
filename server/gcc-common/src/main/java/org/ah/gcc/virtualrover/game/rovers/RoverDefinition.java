@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface RoverDefinition {
 
+    RoverType getRoverType();
+
     RoverControls getRoverControls();
 
-    List<Polygon> getPolygonsCopy();
+    List<Polygon> getPolygons(float x, float y, float angle);
 
-    List<Polygon> updatePolygons(List<Polygon> polygons, float x, float y, float angle);
+    Vector2 getSharpPoint(float x, float y, float angle);
 
-    Vector2 getSharpPoint(Vector2 point, float x, float y, float angle);
-
-    Circle getBalloon(Circle circle, int balloonNo, float x, float y, float angle);
+    Circle getBalloon(int balloonNo, float x, float y, float angle);
 }

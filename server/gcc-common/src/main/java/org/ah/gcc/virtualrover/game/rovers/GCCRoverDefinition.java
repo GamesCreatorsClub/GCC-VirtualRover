@@ -9,6 +9,7 @@ import static java.util.Arrays.asList;
 public class GCCRoverDefinition extends AbstractRoverDefinition {
 
     public GCCRoverDefinition() {
+        super(RoverType.GCC);
         this.roverControls = new FourSteeringWheelsRoverControls();
         this.polygons = asList(PolygonUtils.polygonFromBox(-80f,  -55f, 80f,  55f));
         this.attachmentPosition = new Vector2(80f, 0);

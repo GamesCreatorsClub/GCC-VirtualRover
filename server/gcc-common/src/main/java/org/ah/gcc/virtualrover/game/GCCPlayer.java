@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.gcc.virtualrover.game.rovers.AbstractRoverDefinition;
+import org.ah.gcc.virtualrover.game.rovers.RoverDefinition;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
@@ -19,19 +19,13 @@ import java.util.List;
 
 public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
-    private RoverType roverType;
+    private RoverDefinition roverDefinition;
     private int challengeBits;
     private int score;
-    private List<Polygon> polygons;
-    private Vector2 sharpPoint = new Vector2();
-    private Circle[] ballonsCircle = new Circle[3];
 
     public GCCPlayer(GameObjectFactory factory, int id) {
         super(factory, id);
         setRoverType(RoverType.GCC);
-        for (int i = 0; i < ballonsCircle.length; i++) {
-            ballonsCircle[i] = new Circle(0,  0, AbstractRoverDefinition.BALLOONS_RADIUS);
-        }
     }
 
     @Override
@@ -42,12 +36,11 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
     }
 
     public void setRoverType(RoverType roverType) {
-        this.roverType = roverType;
-        this.polygons = roverType.getRoverDefinition().getPolygonsCopy();
+        this.roverDefinition = roverType.makeRoverDefinition();
     }
 
     public RoverType getRoverType() {
-        return roverType;
+        return roverDefinition.getRoverType();
     }
 
     public void setChallengeBits(int challengeBits) {
@@ -93,13 +86,13 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
     @Override
     public void processPlayerInputs(PlayerInput playerInput) {
-        roverType.getRoverDefinition().getRoverControls().processPlayerInput(this, playerInput);
+        roverDefinition.getRoverControls().processPlayerInput(this, playerInput);
     }
 
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
-        serializer.serializeByte((byte)roverType.getId());
+        serializer.serializeByte((byte)getRoverType().getId());
         serializer.serializeByte((byte)score);
         serializer.serializeShort(challengeBits);
     }
@@ -107,7 +100,7 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
-        roverType = RoverType.getById(serializer.deserializeByte());
+        setRoverType(RoverType.getById(serializer.deserializeByte()));
         score = serializer.deserializeByte();
         challengeBits = serializer.deserializeShort();
 
@@ -123,7 +116,7 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
         super.copyInt(newObject);
 
         GCCPlayer gccPlayer = (GCCPlayer)newObject;
-        gccPlayer.roverType = roverType;
+        gccPlayer.roverDefinition = roverDefinition;
         gccPlayer.score = score;
         gccPlayer.challengeBits = challengeBits;
 
@@ -132,14 +125,14 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
     @Override
     public List<Polygon> getCollisionPolygons() {
-        return getRoverType().getRoverDefinition().updatePolygons(polygons, position.x, position.y, getBearing());
+        return roverDefinition.getPolygons(position.x, position.y, getBearing());
     }
 
     public Vector2 getSharpEnd() {
-        return getRoverType().getRoverDefinition().getSharpPoint(sharpPoint, position.x, position.y, getBearing());
+        return roverDefinition.getSharpPoint(position.x, position.y, getBearing());
     }
 
     public Circle getBalloon(int balloonNo) {
-        return getRoverType().getRoverDefinition().getBalloon(ballonsCircle[balloonNo], balloonNo, position.x, position.y, getBearing());
+        return roverDefinition.getBalloon(balloonNo, position.x, position.y, getBearing());
     }
 }

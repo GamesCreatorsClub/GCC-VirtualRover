@@ -1,18 +1,20 @@
 package org.ah.gcc.virtualrover.game.rovers;
 
 public enum RoverType {
-    GCC(0, "GCC Rover", new GCCRoverDefinition()),
-    CBIS(1, "CBiS-Education", new CBISRoverDefinition())
-    ;
+    GCC(0, "GCC Rover") {
+        @Override public RoverDefinition makeRoverDefinition() { return new GCCRoverDefinition(); }
+    },
+
+    CBIS(1, "CBiS-Education") {
+        @Override public RoverDefinition makeRoverDefinition() { return new CBISRoverDefinition(); }
+    };
 
     private int id;
     private String name;
-    private RoverDefinition roverDefinition;
 
-    RoverType(int id, String nom, RoverDefinition roverDefinition) {
+    RoverType(int id, String name) {
         this.id = id;
-        this.name = nom;
-        this.roverDefinition = roverDefinition;
+        this.name = name;
     }
 
     public int getId() {
@@ -40,7 +42,5 @@ public enum RoverType {
         return name;
     }
 
-    public RoverDefinition getRoverDefinition() {
-        return roverDefinition;
-    }
+    public abstract RoverDefinition makeRoverDefinition();
 }
