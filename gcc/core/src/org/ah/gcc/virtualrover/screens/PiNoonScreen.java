@@ -184,7 +184,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     }
 
     private void drawFPS() {
-        String fps = String.format("%3s", Gdx.graphics.getFramesPerSecond());
+        String fps = Integer.toString(Gdx.graphics.getFramesPerSecond());
         font.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight() - 40);
     }
 
