@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Polygon;
 
 import java.util.List;
 
-public class PolygonUtils {
+public class CollisionUtils {
 
     public static Polygon polygonFromBox(float minX, float minY, float maxX, float maxY) {
         Polygon polygon = new Polygon(new float[] {

@@ -14,7 +14,7 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 import java.util.List;
 
-import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonsOverlap;
+import static org.ah.gcc.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 public class GCCGame extends Game {
 

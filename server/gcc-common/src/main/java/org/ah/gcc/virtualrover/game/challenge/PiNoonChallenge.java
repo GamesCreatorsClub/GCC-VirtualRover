@@ -20,8 +20,8 @@ import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
 import java.util.List;
 
-import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonFromBox;
-import static org.ah.gcc.virtualrover.engine.utils.PolygonUtils.polygonsOverlap;
+import static org.ah.gcc.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
+import static org.ah.gcc.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 import static java.util.Arrays.asList;
 
