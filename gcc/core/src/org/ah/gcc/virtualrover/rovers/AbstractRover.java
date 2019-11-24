@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
-public abstract class AbstractRover implements Rover {
+public abstract class AbstractRover implements RoverModel {
 
     protected static float MIN_DISTANCE = 5 * SCALE;
     protected static float MAX_DISTANCE = 50 * SCALE;
@@ -39,6 +39,14 @@ public abstract class AbstractRover implements Rover {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void setColour(Color colour) {
+        this.colour = colour;
+        if (attachment != null) {
+            attachment.setColour(colour);
+        }
     }
 
     @Override

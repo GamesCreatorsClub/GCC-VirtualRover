@@ -1,6 +1,6 @@
 package org.ah.gcc.virtualrover.game.rovers;
 
-import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.themvsus.engine.common.input.PlayerInput;
 
@@ -11,7 +11,7 @@ public class FourSteeringWheelsRoverControls implements RoverControls {
     }
 
     @Override
-    public void processPlayerInput(GCCPlayer gccPlayer, PlayerInput playerInput) {
+    public void processPlayerInput(Rover gccPlayer, PlayerInput playerInput) {
         GCCPlayerInput gccPlayerInput = (GCCPlayerInput)playerInput;
 
         float moveX = gccPlayerInput.moveX();

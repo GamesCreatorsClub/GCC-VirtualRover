@@ -12,7 +12,7 @@ import org.ah.gcc.virtualrover.ModelFactory;
 
 import java.util.NoSuchElementException;
 
-public class GCCRover extends AbstractRover {
+public class GCCRoverModel extends AbstractRover {
 
     private ModelInstance body;
 
@@ -25,7 +25,7 @@ public class GCCRover extends AbstractRover {
 
     private Matrix4 nextPos = new Matrix4();
 
-     public GCCRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+     public GCCRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
 
         body = new ModelInstance(modelFactory.getBody(), 0, 0, 0);
@@ -39,6 +39,12 @@ public class GCCRover extends AbstractRover {
         fl = new GCCRoverWheel(modelFactory, Color.ORANGE, 25f, -36.7f, -10f, 90);
         br = new GCCRoverWheel(modelFactory, Color.ORANGE, 132f, -36.7f, -100f, 270);
         bl = new GCCRoverWheel(modelFactory, Color.ORANGE, 150f, -36.7f, -10f, 90);
+    }
+
+    @Override
+    public void setColour(Color colour) {
+        super.setColour(colour);
+        top.materials.get(0).set(ColorAttribute.createDiffuse(colour));
     }
 
     @Override

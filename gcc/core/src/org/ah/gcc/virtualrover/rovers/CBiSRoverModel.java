@@ -11,7 +11,7 @@ import org.ah.gcc.virtualrover.ModelFactory;
 
 import java.util.NoSuchElementException;
 
-public class CBiSRover extends AbstractRover {
+public class CBiSRoverModel extends AbstractRover {
     private ModelInstance body;
 
     private BigWheel fr;
@@ -21,7 +21,7 @@ public class CBiSRover extends AbstractRover {
 
     private static float ROVER_SCALE = 26;
 
-    public CBiSRover(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+    public CBiSRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
 
         body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
@@ -31,6 +31,12 @@ public class CBiSRover extends AbstractRover {
         fl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 42f, -27f, 0f, 90);
         br = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 165f, -27f, -145f, 270);
         bl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 190f, -27f, 0f, 90);
+    }
+
+    @Override
+    public void setColour(Color colour) {
+        super.setColour(colour);
+        body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
     }
 
     @Override

@@ -1,6 +1,8 @@
 package org.ah.gcc.virtualrover.server.engine;
 
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.input.GCCPlayerInputs;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
@@ -11,6 +13,8 @@ import org.ah.themvsus.server.engine.ClientSession;
 import org.ah.themvsus.server.engine.ServerEngine;
 
 import java.util.Properties;
+
+import static org.ah.themvsus.server.log.LogHelper.GAME_LOGGER;
 
 public class GCCServerEngine extends ServerEngine<GCCGame> {
 
@@ -42,5 +46,14 @@ public class GCCServerEngine extends ServerEngine<GCCGame> {
 
     @Override
     protected void authenticationFailed(ClientSession clientSession) {
+    }
+
+    @Override
+    protected void clientReadyAction(ClientSession clientSession) {
+        if (!game.containsObject(clientSession.getSessionId())) {
+            Rover rover = game.spawnRover(clientSession.getSessionId(), clientSession.getAlias(), RoverType.GCC);
+            GAME_LOGGER.info(clientSession.clientString() + ": Created new player at " + rover.getPosition().x + ", " + rover.getPosition().y + "; id=" + rover.getId());
+        }
+        sendWorld(clientSession);
     }
 }

@@ -8,7 +8,8 @@ import com.badlogic.gdx.math.Vector2;
 import org.ah.gcc.virtualrover.game.GCCCollidableObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
-import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.Rover.RoverColour;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
@@ -66,8 +67,8 @@ public class PiNoonChallenge extends AbstractChallenge {
             }
         }
 
-        if (object instanceof GCCPlayer && stateMachine.getCurrentState().shouldCollideBalloons()) {
-            GCCPlayer player = (GCCPlayer)object;
+        if (object instanceof Rover && stateMachine.getCurrentState().shouldCollideBalloons()) {
+            Rover player = (Rover)object;
             int balloonBits = player.getChallengeBits();
             if ((balloonBits & 7) != 0) {
                 Circle[] balloons = new Circle[3];
@@ -78,8 +79,8 @@ public class PiNoonChallenge extends AbstractChallenge {
                     }
                 }
                 for (GameObjectWithPosition o : objects) {
-                    if (o != object && o instanceof GCCPlayer) {
-                        GCCPlayer otherPlayer = (GCCPlayer)o;
+                    if (o != object && o instanceof Rover) {
+                        Rover otherPlayer = (Rover)o;
 
                         Vector2 sharpEndOtherPlayer = otherPlayer.getSharpEnd();
                         for (int balloonNo = 0; balloonNo < 3; balloonNo++) {
@@ -106,12 +107,14 @@ public class PiNoonChallenge extends AbstractChallenge {
     public void process() {
         GameState currentGameState = gccGame.getCurrentGameState();
         for (GameObject o : currentGameState.gameObjects().values()) {
-            if (o instanceof GCCPlayer) {
+            if (o instanceof Rover) {
                 if (o.isAdded()) {
                     if (player1Id == 0) {
                         player1Id = o.getId();
+                        resetPlayer1Rover();
                     } else if (player2Id == 0) {
                         player2Id = o.getId();
+                        resetPlayer2Rover();
                     }
                 } else if (o.isRemoved()) {
                     if (o.getId() == player1Id) {
@@ -146,63 +149,79 @@ public class PiNoonChallenge extends AbstractChallenge {
         return gameMessageObject;
     }
 
-    private GCCPlayer getPlayerOne() {
-        return (GCCPlayer) game.getCurrentGameState().get(player1Id);
+    private Rover getPlayerOne() {
+        if (player1Id != 0) {
+            return (Rover) game.getCurrentGameState().get(player1Id);
+        }
+        return null;
     }
 
-    private GCCPlayer getPlayerTwo() {
-        return (GCCPlayer) game.getCurrentGameState().get(player2Id);
+    private Rover getPlayerTwo() {
+        if (player2Id != 0) {
+            return (Rover) game.getCurrentGameState().get(player2Id);
+        }
+        return null;
     }
 
     private void resetRovers() {
-        GCCPlayer player1 = getPlayerOne();
+        resetPlayer1Rover();
+        resetPlayer2Rover();
+    }
+
+    protected void resetPlayer1Rover() {
+        Rover player1 = getPlayerOne();
         if (player1 != null) {
             orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
             player1.setPosition(700, 700);
             player1.setOrientation(orientation);
+            player1.setRoverColour(RoverColour.BLUE);
             removeBalloons(player1);
         }
-        GCCPlayer player2 = getPlayerTwo();
+    }
+
+    protected void resetPlayer2Rover() {
+        Rover player2 = getPlayerTwo();
         if (player2 != null) {
             orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI / 4f));
             player2.setPosition(-700, -700);
             player2.setOrientation(orientation);
+            player2.setRoverColour(RoverColour.GREEN);
             removeBalloons(player2);
         }
     }
 
     protected void resetRoverBalloons() {
         for (GameObject gameObject : gccGame.getCurrentGameState().gameObjects().values()) {
-            if (gameObject instanceof GCCPlayer) {
-                resetBallons((GCCPlayer)gameObject);
+            if (gameObject instanceof Rover) {
+                resetBallons((Rover)gameObject);
             }
         }
     }
 
     protected void removeRoverBalloons() {
         for (GameObject gameObject : gccGame.getCurrentGameState().gameObjects().values()) {
-            if (gameObject instanceof GCCPlayer) {
-                removeBalloons((GCCPlayer)gameObject);
+            if (gameObject instanceof Rover) {
+                removeBalloons((Rover)gameObject);
             }
         }
     }
 
-    protected void resetBallons(GCCPlayer player) {
+    protected void resetBallons(Rover player) {
         player.setChallengeBits(7);
     }
 
-    protected void removeBalloons(GCCPlayer player) {
+    protected void removeBalloons(Rover player) {
         player.setChallengeBits(0);
     }
 
     private void stopRovers() {
-        GCCPlayer player1 = getPlayerOne();
+        Rover player1 = getPlayerOne();
         if (player1 != null) {
             player1.setVelocity(0, 0);
             player1.setTurnSpeed(0);
             player1.setSpeed(0);
         }
-        GCCPlayer player2 = getPlayerTwo();
+        Rover player2 = getPlayerTwo();
         if (player2 != null) {
             player2.setVelocity(0, 0);
             player2.setTurnSpeed(0);
@@ -225,12 +244,12 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public void enter(PiNoonChallenge challenge) {
                 Game game = challenge.getGame();
 
-                if (game.containsObject(2)) {
-                    game.removeGameObject(2);
+                if (game.containsObject(challenge.player2Id)) {
+                    game.removeGameObject(challenge.player2Id);
                     challenge.player2Id = 0;
                 }
-                if (game.containsObject(1)) {
-                    game.removeGameObject(1);
+                if (game.containsObject(challenge.player1Id)) {
+                    game.removeGameObject(challenge.player1Id);
                     challenge.player1Id = 0;
                 }
 
@@ -282,8 +301,8 @@ public class PiNoonChallenge extends AbstractChallenge {
                 challenge.stopRovers();
 
                 setTimer(1000);
-                GCCPlayer player1 = challenge.getPlayerOne();
-                GCCPlayer player2 = challenge.getPlayerTwo();
+                Rover player1 = challenge.getPlayerOne();
+                Rover player2 = challenge.getPlayerTwo();
                 challenge.setMessage("round " + (player1.getScore() + player2.getScore() + 1), false);
                 challenge.getGameMessage().setInGame(true);
                 challenge.getGameMessage().setWaiting(false);
@@ -351,8 +370,8 @@ public class PiNoonChallenge extends AbstractChallenge {
                     challenge.setMessage(null, false);
                 }
 
-                GCCPlayer player1 = challenge.getPlayerOne();
-                GCCPlayer player2 = challenge.getPlayerTwo();
+                Rover player1 = challenge.getPlayerOne();
+                Rover player2 = challenge.getPlayerTwo();
 
                 if (player1.getChallengeBits() == 0 || player2.getChallengeBits() == 0) {
                     int player1score = player1.getScore();
@@ -381,8 +400,8 @@ public class PiNoonChallenge extends AbstractChallenge {
             @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(PiNoonChallenge challenge) {
-                GCCPlayer player1 = challenge.getPlayerOne();
-                GCCPlayer player2 = challenge.getPlayerTwo();
+                Rover player1 = challenge.getPlayerOne();
+                Rover player2 = challenge.getPlayerTwo();
 
                 challenge.setMessage(challenge.winner + " wins! " + player1.getScore() + " - " + player2.getScore(), false);
                 challenge.getGameMessage().setInGame(false);
@@ -397,8 +416,8 @@ public class PiNoonChallenge extends AbstractChallenge {
             }
 
             @Override public void exit(PiNoonChallenge challenge) {
-                GCCPlayer player1 = challenge.getPlayerOne();
-                GCCPlayer player2 = challenge.getPlayerTwo();
+                Rover player1 = challenge.getPlayerOne();
+                Rover player2 = challenge.getPlayerTwo();
                 challenge.gccGame.removeGameObject(player2.getId());
                 challenge.gccGame.removeGameObject(player1.getId());
                 challenge.player1Id = 0;

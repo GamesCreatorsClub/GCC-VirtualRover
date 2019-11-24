@@ -19,13 +19,11 @@ import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
 import org.ah.gcc.virtualrover.challenges.PiNoonArena;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.GCCPlayer;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 import org.ah.themvsus.engine.client.ClientEngine;
-import org.ah.themvsus.engine.common.game.Game;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 import static org.ah.gcc.virtualrover.game.GCCGame.ENGINE_LOOP_TIME_us;
@@ -231,11 +229,10 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
-            Game game = serverCommunicationAdapter.getEngine().getGame();
-            GCCPlayer player1 = (GCCPlayer)game.spawnPlayer(1, "Blue");
-            player1.setRoverType(player1RoverType);
-            GCCPlayer player2 = (GCCPlayer)game.spawnPlayer(2, "Green");
-            player2.setRoverType(player2RoverType);
+            GCCGame game = serverCommunicationAdapter.getEngine().getGame();
+
+            /*Rover player1 = */game.spawnRover(1, "Blue", player1RoverType);
+            /*Rover player2 = */game.spawnRover(2, "Green", player2RoverType);
             serverCommunicationAdapter.setLocalPlayerIds(1, 2);
         }
 

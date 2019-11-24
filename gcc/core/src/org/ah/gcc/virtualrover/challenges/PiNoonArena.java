@@ -25,7 +25,7 @@ import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
-import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.world.BarrelModel;
 import org.ah.gcc.virtualrover.world.PlayerModel;
 
@@ -149,7 +149,7 @@ public class PiNoonArena extends AbstractChallenge {
                 if (visibleObject instanceof PlayerModel) {
                     PlayerModel playerModel = (PlayerModel)visibleObject;
 
-                    GCCPlayer gccPlayer = playerModel.getGCCPlayer();
+                    Rover gccPlayer = playerModel.getGCCPlayer();
 
                     shapeRenderer.setColor(playerModel.colour);
 

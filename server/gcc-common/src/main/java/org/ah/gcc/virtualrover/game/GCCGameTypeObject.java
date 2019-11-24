@@ -1,5 +1,7 @@
 package org.ah.gcc.virtualrover.game;
 
+import org.ah.gcc.virtualrover.game.rovers.CBISRover;
+import org.ah.gcc.virtualrover.game.rovers.GCCRover;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
@@ -15,10 +17,13 @@ public abstract class GCCGameTypeObject extends GameObjectType {
         @Override public String toString() { return "BarrelObjectType"; }
     };
 
-    static { // Override with concrete object!
-        PlayerObject = new GameObjectType() {
-            @Override public GameObject newObject(GameObjectFactory factory) { return new GCCPlayer(factory, -1); }
-            @Override public String toString() { return "PlayerObjectType"; }
-        };
-    }
+    public static GameObjectType GCCRover = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new GCCRover(factory, -1); }
+        @Override public String toString() { return "GCCRoverType"; }
+    };
+
+    public static GameObjectType CBISRover = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new CBISRover(factory, -1); }
+        @Override public String toString() { return "CBISRoverType"; }
+    };
 }

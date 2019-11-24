@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Polygon;
 
 import org.ah.gcc.virtualrover.game.challenge.Challenge;
 import org.ah.gcc.virtualrover.game.challenge.Challenges;
-import org.ah.themvsus.engine.common.game.AbstractPlayer;
+import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
@@ -28,11 +28,14 @@ public class GCCGame extends Game {
         }
     }
 
-    @Override
-    public AbstractPlayer spawnPlayer(int id, String alias) {
-        AbstractPlayer player = super.spawnPlayer(id, alias);
+    public Rover spawnRover(int id, String alias, RoverType roverType) {
+        Rover rover = getGameObjectFactory().newGameObjectWithId(roverType.getGameObjectType(), id);
+        rover.updateAlias(alias);
 
-        return player;
+        addNewGameObject(rover);
+
+        players.add(id);
+        return rover;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class GCCGame extends Game {
         if (object instanceof GCCCollidableObject) {
             List<Polygon> roverPolygon = ((GCCCollidableObject)object).getCollisionPolygons();
             for (GameObjectWithPosition o : objects) {
-                if (o != object && o instanceof GCCPlayer) {
+                if (o != object && o instanceof Rover) {
                     List<Polygon> otherRoverPolygon = ((GCCCollidableObject)o).getCollisionPolygons();
                     if (polygonsOverlap(roverPolygon, otherRoverPolygon)) {
                         return true;

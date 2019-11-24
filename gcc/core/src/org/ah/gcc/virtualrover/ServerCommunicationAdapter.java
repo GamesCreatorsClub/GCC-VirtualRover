@@ -1,12 +1,11 @@
 package org.ah.gcc.virtualrover;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
@@ -144,29 +143,14 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     @Override
     public void gameObjectAdded(GameObject gameObject) {
-        if (gameObject instanceof GCCPlayer) {
-            GCCPlayer playerObject = (GCCPlayer)gameObject;
+        if (gameObject instanceof Rover) {
+            Rover playerObject = (Rover)gameObject;
 
-            String alias = playerObject.getAlias();
-            Color playerColor = Color.WHITE;
-            if ("Blue".equals(alias)) {
-                playerColor = Color.BLUE;
-            } else if ("Green".equals(alias)) {
-                playerColor = Color.GREEN;
-            }
-
-            PlayerModel playerModel = new PlayerModel(engine.getGame(), playerObject.getRoverType(), gameObject.getId(), playerObject.getAlias(), playerColor);
+            PlayerModel playerModel = new PlayerModel(engine.getGame(), playerObject.getRoverType(), gameObject.getId(), playerObject.getAlias());
+            playerModel.setRoverColour(playerObject.getRoverColour());
             allVisibleObjects.put(playerObject.getId(), playerModel);
             playerModel.makeRobot(modelFactory);
             playerObject.setLinkBack(playerModel);
-
-//            VisibleObject sprite = new Tank(spriteTextures, gameObject.getId());
-//
-//            gameObject.setLinkBack(sprite);
-//            if (gameObject.getLinkBack() == null) {
-//                System.out.println("sprite == null");
-//            }
-//            sprites.put(gameObject.getId(), sprite);
         } else if (gameObject instanceof GameMessageObject) {
             gameMessageId = gameObject.getId();
         }
@@ -180,22 +164,22 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return playerTwoId != 0;
     }
 
-    public GCCPlayer getPlayerOne() {
+    public Rover getPlayerOne() {
         if (engine != null && sessionId != 0) {
-            return (GCCPlayer)engine.getGame().getCurrentGameState().get(sessionId);
+            return (Rover)engine.getGame().getCurrentGameState().get(sessionId);
         }
         return null;
     }
 
-    public GCCPlayer getPlayerTwo() {
+    public Rover getPlayerTwo() {
         if (engine != null && playerTwoId != 0) {
-            return (GCCPlayer)getEngine().getGame().getCurrentGameState().get(playerTwoId);
+            return (Rover)getEngine().getGame().getCurrentGameState().get(playerTwoId);
         }
         return null;
     }
     public PlayerModel getPlayerOneVisualObject() {
         if (engine != null && sessionId != 0) {
-            GCCPlayer player = (GCCPlayer)engine.getGame().getCurrentGameState().get(sessionId);
+            Rover player = (Rover)engine.getGame().getCurrentGameState().get(sessionId);
             if (player != null) {
                 return player.getLinkBack();
             }
@@ -205,7 +189,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     public PlayerModel getPlayerTwoVisualObject() {
         if (engine != null && playerTwoId != 0) {
-            GCCPlayer player = (GCCPlayer)engine.getGame().getCurrentGameState().get(playerTwoId);
+            Rover player = (Rover)engine.getGame().getCurrentGameState().get(playerTwoId);
             if (player != null) {
                 return player.getLinkBack();
             }

@@ -14,21 +14,18 @@ public class GCCGameObjectFactory extends GameObjectFactory {
     }
 
     @Override
-    public GCCPlayer newPlayer(int id, String alias) {
-        GCCPlayer player = (GCCPlayer)super.newPlayer(id, alias);
-        return player;
-    }
-
-    @Override
     protected GameObject createNewObject(GameObjectType gameObjectType) {
         return super.createNewObject(gameObjectType);
     }
 
     @Override
     protected void collectTypes() {
-        List<GameObjectType> moreTypes = asList(GCCGameTypeObject.GameMessageObject);
-        // Above - we need to instantiate GameMessageObject before super class accesses GameObjectType.PlayerObject
-        super.collectTypes();
+        List<GameObjectType> moreTypes = asList(
+                GCCGameTypeObject.GameMessageObject,
+                GCCGameTypeObject.BarrelObject,
+                GCCGameTypeObject.GCCRover,
+                GCCGameTypeObject.CBISRover
+        );
         addTypes(moreTypes);
     }
 }

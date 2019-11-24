@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
-public interface Rover {
+public interface RoverModel {
 
     void render(ModelBatch batch, Environment environment);
 
@@ -25,4 +25,6 @@ public interface Rover {
     Attachment getAttachemnt();
 
     void setAttachment(Attachment attachment);
+
+    void setColour(Color colour);
 }

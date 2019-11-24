@@ -9,12 +9,13 @@ import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.Rover.RoverColour;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
-import org.ah.gcc.virtualrover.rovers.CBiSRover;
-import org.ah.gcc.virtualrover.rovers.GCCRover;
-import org.ah.gcc.virtualrover.rovers.Rover;
+import org.ah.gcc.virtualrover.rovers.CBiSRoverModel;
+import org.ah.gcc.virtualrover.rovers.GCCRoverModel;
+import org.ah.gcc.virtualrover.rovers.RoverModel;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachment;
 import org.ah.themvsus.engine.common.game.GameObject;
 
@@ -23,24 +24,29 @@ public class PlayerModel implements VisibleObject {
     public String name;
     public Color colour;
     public RoverType playerSelection = RoverType.GCC;
-    public Rover rover;
+    public RoverModel rover;
     public GCCPlayerInput roverInput = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
     public int playerScore = 0;
     public GCCGame game;
+    private RoverColour roverColour;
 
-    public PlayerModel(GCCGame game, RoverType playerSelection, int id, String name, Color colour) {
+    public PlayerModel(GCCGame game, RoverType playerSelection, int id, String name) {
         this.game = game;
         this.playerSelection = playerSelection;
         this.id = id;
         this.name = name;
+    }
+
+    public PlayerModel(GCCGame game, RoverType playerSelection, int id, String name, Color colour) {
+        this(game, playerSelection, id, name);
         this.colour = colour;
     }
 
     public void makeRobot(ModelFactory modelFactory) {
         if (playerSelection == RoverType.CBIS) {
-            rover = new CBiSRover(name, modelFactory, colour);
+            rover = new CBiSRoverModel(name, modelFactory, colour);
         } else {
-            rover = new GCCRover(name, modelFactory, colour);
+            rover = new GCCRoverModel(name, modelFactory, colour);
         }
         rover.setId(id);
 
@@ -59,7 +65,11 @@ public class PlayerModel implements VisibleObject {
     @Override
     public void render(ModelBatch batch, Environment environment) {
         if (rover != null) {
-            GCCPlayer gccPlayer = (GCCPlayer)game.getCurrentGameState().get(id);
+            Rover gccPlayer = (Rover)game.getCurrentGameState().get(id);
+
+            if (roverColour != null && gccPlayer.getRoverColour() != roverColour) {
+                setRoverColour(gccPlayer.getRoverColour());
+            }
 
             float bearing = gccPlayer.getBearing();
             Vector3 position = gccPlayer.getPosition();
@@ -82,18 +92,32 @@ public class PlayerModel implements VisibleObject {
         }
     }
 
+    public void setRoverColour(RoverColour roverColour) {
+        this.roverColour = roverColour;
+        if (roverColour == Rover.RoverColour.WHITE) {
+            colour = Color.WHITE;
+        } else if (roverColour == Rover.RoverColour.GREEN) {
+            colour = Color.GREEN;
+        } else if (roverColour == Rover.RoverColour.BLUE) {
+            colour = Color.BLUE;
+        }
+        if (rover != null) {
+            rover.setColour(colour);
+        }
+    }
+
     @Override
     public void update(GameObject gameObject) {
         System.out.println("Got object, id=" + gameObject.getId() + "; " + gameObject);
     }
 
     public void setGamePlayerPositionAndOrientation(int x, int y, Quaternion orientation) {
-        GCCPlayer gccPlayer = (GCCPlayer)game.getCurrentGameState().get(id);
+        Rover gccPlayer = (Rover)game.getCurrentGameState().get(id);
         gccPlayer.setPosition(x, y);
         gccPlayer.setOrientation(orientation);
     }
 
-    public GCCPlayer getGCCPlayer() {
-        return (GCCPlayer)game.getCurrentGameState().get(id);
+    public Rover getGCCPlayer() {
+        return (Rover)game.getCurrentGameState().get(id);
     }
 }

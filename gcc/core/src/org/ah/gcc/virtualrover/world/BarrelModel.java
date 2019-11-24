@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.GCCPlayer;
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.themvsus.engine.common.game.GameObject;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
@@ -48,7 +48,7 @@ public class BarrelModel implements VisibleObject {
     }
 
     public void setGamePlayerPositionAndOrientation(int x, int y, Quaternion orientation) {
-        GCCPlayer gccPlayer = (GCCPlayer)game.getCurrentGameState().get(id);
+        Rover gccPlayer = (Rover)game.getCurrentGameState().get(id);
         gccPlayer.setPosition(x, y);
         gccPlayer.setOrientation(orientation);
     }

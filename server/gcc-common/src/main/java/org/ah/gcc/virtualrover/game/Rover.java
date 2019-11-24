@@ -5,46 +5,81 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.gcc.virtualrover.game.rovers.RoverDefinition;
+import org.ah.gcc.virtualrover.game.rovers.RoverControls;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
+import org.ah.themvsus.engine.common.game.GameObjectType;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.input.PlayerInput;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
 import java.util.List;
 
-public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
+public abstract class Rover extends AbstractPlayer implements GCCCollidableObject {
 
-    private RoverDefinition roverDefinition;
+    protected static final float BALLOONS_RADIUS = 35;
+    protected static final float SHARP_POINT_LENGTH = 130;
+
+    public enum RoverColour {
+        WHITE,
+        GREEN,
+        BLUE
+    }
+
+    private RoverType roverType;
+
     private int challengeBits;
     private int score;
+    // TODO add full_change as well so not all, normally not changing attributes like rover_type are sent across every time
+    private RoverColour roverColour = RoverColour.WHITE;
 
-    public GCCPlayer(GameObjectFactory factory, int id) {
+    private RoverControls roverControls;
+    protected List<Polygon> polygons;
+    protected Vector2 attachmentPosition;
+    protected Vector2[] balloons = new Vector2[3];
+    protected Circle[] ballonsTempCircle = new Circle[3];
+
+    protected Vector2 temp = new Vector2();
+
+    public Rover(GameObjectFactory factory, int id, RoverType roverType) {
         super(factory, id);
-        setRoverType(RoverType.GCC);
+
+        this.roverType = roverType;
+        this.roverControls = roverType.createRoverControls();
+
+        balloons[0] = new Vector2(0f, -45f);
+        balloons[1] = new Vector2(75f, 0f);
+        balloons[2] = new Vector2(0f, 45f);
+        for (int i = 0; i < ballonsTempCircle.length; i++) {
+            ballonsTempCircle[i] = new Circle(0,  0, BALLOONS_RADIUS);
+        }
     }
 
     @Override
     public void free() {
         challengeBits = 0;
         score = 0;
+        roverColour = RoverColour.WHITE;
         super.free();
     }
 
-    public void setRoverType(RoverType roverType) {
-        this.roverDefinition = roverType.makeRoverDefinition();
-    }
+    @Override
+    public GameObjectType getType() { return roverType.getGameObjectType(); }
 
     public RoverType getRoverType() {
-        return roverDefinition.getRoverType();
+        return roverType;
+    }
+
+    public RoverControls getRoverControls() {
+        return roverControls;
     }
 
     public void setChallengeBits(int challengeBits) {
         this.challengeBits = challengeBits;
+        this.changed = true;
     }
 
     public int getChallengeBits() {
@@ -53,10 +88,20 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
     public void setScore(int score) {
         this.score = score;
+        this.changed = true;
     }
 
     public int getScore() {
         return score;
+    }
+
+    public void setRoverColour(RoverColour roverColour) {
+        this.roverColour = roverColour;
+        this.changed = true;
+    }
+
+    public RoverColour getRoverColour() {
+        return roverColour;
     }
 
     @Override
@@ -86,24 +131,23 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
 
     @Override
     public void processPlayerInputs(PlayerInput playerInput) {
-        roverDefinition.getRoverControls().processPlayerInput(this, playerInput);
+        roverControls.processPlayerInput(this, playerInput);
     }
 
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
-        serializer.serializeByte((byte)getRoverType().getId());
         serializer.serializeByte((byte)score);
-        serializer.serializeShort(challengeBits);
+        serializer.serializeUnsignedShort(challengeBits);
+        serializer.serializeUnsignedByte((byte)roverColour.ordinal());
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
-        setRoverType(RoverType.getById(serializer.deserializeByte()));
         score = serializer.deserializeByte();
-        challengeBits = serializer.deserializeShort();
-
+        challengeBits = serializer.deserializeUnsignedShort();
+        roverColour = RoverColour.values()[serializer.deserializeUnsignedByte()];
     }
 
     @Override
@@ -115,24 +159,39 @@ public class GCCPlayer extends AbstractPlayer implements GCCCollidableObject {
     protected GameObject copyInt(GameObject newObject) {
         super.copyInt(newObject);
 
-        GCCPlayer gccPlayer = (GCCPlayer)newObject;
-        gccPlayer.roverDefinition = roverDefinition;
+        Rover gccPlayer = (Rover)newObject;
         gccPlayer.score = score;
         gccPlayer.challengeBits = challengeBits;
+        gccPlayer.roverColour = roverColour;
 
         return newObject;
     }
 
     @Override
     public List<Polygon> getCollisionPolygons() {
-        return roverDefinition.getPolygons(position.x, position.y, getBearing());
+
+        for (Polygon p : polygons) {
+            p.setPosition(position.x, position.y);
+            p.setRotation(getBearing());
+        }
+        return polygons;
+
     }
 
     public Vector2 getSharpEnd() {
-        return roverDefinition.getSharpPoint(position.x, position.y, getBearing());
+        temp.set(attachmentPosition);
+        temp.add(SHARP_POINT_LENGTH, 0);
+        temp.rotate(getBearing());
+        temp.add(position.x, position.y);
+        return temp;
     }
 
     public Circle getBalloon(int balloonNo) {
-        return roverDefinition.getBalloon(balloonNo, position.x, position.y, getBearing());
+        temp.set(balloons[balloonNo]);
+        temp.add(attachmentPosition);
+        temp.rotate(getBearing());
+        temp.add(position.x, position.y);
+        ballonsTempCircle[balloonNo].setPosition(temp);
+        return ballonsTempCircle[balloonNo];
     }
 }

@@ -47,6 +47,16 @@ public class PiNoonAttachment extends AbstractAttachment {
         this.balloons[2] = new Balloon(modelFactory.getBaloon(), balloonTransparentColour);
     }
 
+    @Override
+    public void setColour(Color roverColour) {
+        marker.materials.get(0).set(ColorAttribute.createDiffuse(roverColour));
+        Color balloonTransparentColour = new Color(roverColour);
+        balloonTransparentColour.a = 0.7f;
+        for (Balloon balloon : balloons) {
+            balloon.setColour(balloonTransparentColour);
+        }
+    }
+
     public Vector2 getSharpPoint() {
         sharpPoint.set(sharpPointPos.x, sharpPointPos.z);
         return sharpPoint;
@@ -149,6 +159,10 @@ public class PiNoonAttachment extends AbstractAttachment {
             balloon = new ModelInstance(model, 0, 0, 0);
             balloon.materials.get(0).set(ColorAttribute.createDiffuse(balloonTransparentColour));
             balloon.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+        }
+
+        public void setColour(Color balloonTransparentColour) {
+            balloon.materials.get(0).set(ColorAttribute.createDiffuse(balloonTransparentColour));
         }
 
         public void render(ModelBatch batch, Environment environment) {

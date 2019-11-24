@@ -1,12 +1,17 @@
 package org.ah.gcc.virtualrover.game.rovers;
 
+import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
+import org.ah.themvsus.engine.common.game.GameObjectType;
+
 public enum RoverType {
     GCC(0, "GCC Rover") {
-        @Override public RoverDefinition makeRoverDefinition() { return new GCCRoverDefinition(); }
+        @Override public RoverControls createRoverControls() { return new FourSteeringWheelsRoverControls(); }
+        @Override public GameObjectType getGameObjectType() { return GCCGameTypeObject.GCCRover; }
     },
 
     CBIS(1, "CBiS-Education") {
-        @Override public RoverDefinition makeRoverDefinition() { return new CBISRoverDefinition(); }
+        @Override public RoverControls createRoverControls() { return new TankRoverControls(); }
+        @Override public GameObjectType getGameObjectType() { return GCCGameTypeObject.CBISRover; }
     };
 
     private int id;
@@ -42,5 +47,7 @@ public enum RoverType {
         return name;
     }
 
-    public abstract RoverDefinition makeRoverDefinition();
+    public abstract RoverControls createRoverControls();
+
+    public abstract GameObjectType getGameObjectType();
 }

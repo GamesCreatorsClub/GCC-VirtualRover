@@ -1,17 +1,17 @@
 package org.ah.gcc.virtualrover.desktop;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
+import com.badlogic.gdx.Gdx;
 
 import org.ah.themvsus.engine.client.AbstractServerCommunication;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.transfer.BufferSerializer;
 import org.ah.themvsus.engine.common.transfer.BufferSerializerFactory;
 
-import com.badlogic.gdx.Gdx;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 
 public class DesktopServerCommunication extends AbstractServerCommunication {
 
@@ -38,6 +38,8 @@ public class DesktopServerCommunication extends AbstractServerCommunication {
                     buffer.flip();
                     receiver.onMessage(serializer);
                 } catch (IOException e) {
+                    Gdx.app.error("DesktopServerCommunication", "Error receiving datagram", e);
+                } catch (RuntimeException e) {
                     Gdx.app.error("DesktopServerCommunication", "Error receiving datagram", e);
                 }
             }
