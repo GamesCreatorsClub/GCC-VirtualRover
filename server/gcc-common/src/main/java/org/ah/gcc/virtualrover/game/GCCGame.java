@@ -7,6 +7,7 @@ import org.ah.gcc.virtualrover.game.challenge.Challenge;
 import org.ah.gcc.virtualrover.game.challenge.Challenges;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.themvsus.engine.common.game.Game;
+import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
@@ -67,7 +68,7 @@ public class GCCGame extends Game {
     @Override
     public GameState process() { // ServerEngine.mainloop
         if (challenge != null) {
-            challenge.process();
+            challenge.process(getCurrentGameState());
         }
         return super.process();
     }
@@ -77,6 +78,22 @@ public class GCCGame extends Game {
         if (challenge == null || challenge.processPlayerInputs(playerId, playerInputs)) {
             super.processPlayerInputs(playerId, playerInputs);
         }
+    }
+
+    @Override
+    protected void fireGameObjectAdded(GameObject newGameObject) {
+        if (challenge != null) {
+            challenge.gameObjectAdded(newGameObject);
+        }
+        super.fireGameObjectAdded(newGameObject);
+    }
+
+    @Override
+    protected void fireObjectRemoved(GameObject objectToRemove) {
+        if (challenge != null) {
+            challenge.gameObjectRemoved(objectToRemove);
+        }
+        super.fireObjectRemoved(objectToRemove);
     }
 
     public Challenge getChallenge() {

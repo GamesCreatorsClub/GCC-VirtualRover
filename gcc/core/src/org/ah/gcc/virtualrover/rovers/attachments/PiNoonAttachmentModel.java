@@ -8,15 +8,13 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
 
-public class PiNoonAttachment extends AbstractAttachment {
+public class PiNoonAttachmentModel extends AbstractAttachmentModel {
     private static final boolean SHOW_MARKER = true;
 
     private ModelInstance pinoon;
@@ -30,7 +28,7 @@ public class PiNoonAttachment extends AbstractAttachment {
 
     private long balloonPeriod = 0;
 
-    public PiNoonAttachment(ModelFactory modelFactory, Color roverColour) {
+    public PiNoonAttachmentModel(ModelFactory modelFactory, Color roverColour) {
         Color balloonTransparentColour = new Color(roverColour);
         balloonTransparentColour.a = 0.7f;
 
@@ -93,18 +91,6 @@ public class PiNoonAttachment extends AbstractAttachment {
         }
     }
 
-    public void removeBalloons() {
-        for (Balloon balloon : this.balloons) {
-            balloon.pop();
-        }
-    }
-
-    public void resetBalloons() {
-        for (Balloon balloon : this.balloons) {
-            balloon.reset();
-        }
-    }
-
     @Override
     public void render(ModelBatch batch, Environment environment) {
         batch.render(pinoon, environment);
@@ -117,41 +103,8 @@ public class PiNoonAttachment extends AbstractAttachment {
         }
     }
 
-    public int getUnpoppedBalloonsCount() {
-        int notPoppedBalloons = 0;
-        for (Balloon balloon : balloons) {
-            if (!balloon.popped) {
-                notPoppedBalloons++;
-            }
-        }
-        return notPoppedBalloons;
-    }
-
-    public int checkIfBalloonsPopped(PiNoonAttachment otherPiNoonAttachment) {
-        Vector2 sharpPoint = otherPiNoonAttachment.getSharpPoint();
-
-        float radius = 40 * MainGame.SCALE;
-
-        int notPoppedBalloons = 0;
-        for (Balloon balloon : balloons) {
-            if (!balloon.popped) {
-                balloon.balloon.transform.getTranslation(balloon.ballonPosition);
-
-                Circle c = new Circle(balloon.ballonPosition.x, balloon.ballonPosition.z, radius);
-                if (c.contains(sharpPoint)) {
-                    balloon.popped = true;
-                } else {
-                    notPoppedBalloons++;
-                }
-            }
-        }
-        return notPoppedBalloons;
-    }
-
     protected static class Balloon {
         private ModelInstance balloon;
-
-        private Vector3 ballonPosition = new Vector3();
 
         private boolean popped = false;
 
@@ -176,11 +129,10 @@ public class PiNoonAttachment extends AbstractAttachment {
         public void pop() { popped = true; }
     }
 
-    @Override
-    public void setAttachmentBits(int challengeBits) {
+    public void setBalloonBits(int balloonBits) {
         for (int balloonNo = 0; balloonNo < 3; balloonNo++) {
             int balloonBit = (1 << balloonNo);
-            if ((challengeBits & balloonBit) != 0) {
+            if ((balloonBits & balloonBit) != 0) {
                 if (balloons[balloonNo].popped) {
                     balloons[balloonNo].reset();
                 }

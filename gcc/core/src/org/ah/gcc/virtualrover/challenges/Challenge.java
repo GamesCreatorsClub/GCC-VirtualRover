@@ -18,5 +18,4 @@ public interface Challenge {
     boolean collides(List<Polygon> polygons);
 
     void render(ModelBatch batch, Environment en, IntMap<VisibleObject> visibleObjects);
-
 }

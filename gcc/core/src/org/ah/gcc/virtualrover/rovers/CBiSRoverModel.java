@@ -16,7 +16,6 @@ public class CBiSRoverModel extends FourWheelRoverModel {
 
     private ModelInstance body;
 
-    // private static float ROVER_SCALE = 26;
     private static float ROVER_SCALE = 26;
 
     public CBiSRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
@@ -48,7 +47,6 @@ public class CBiSRoverModel extends FourWheelRoverModel {
 
         body.transform.set(transform);
 
-//        body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
         body.transform.translate(7.8f, -1.6f, 0f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
 
@@ -63,8 +61,6 @@ public class CBiSRoverModel extends FourWheelRoverModel {
         fl.update();
         br.update();
         bl.update();
-
-        super.update();
     }
 
     @Override
@@ -73,8 +69,6 @@ public class CBiSRoverModel extends FourWheelRoverModel {
         br.render(batch, environment);
         fl.render(batch, environment);
         fr.render(batch, environment);
-
-        renderAttachment(batch, environment);
 
         batch.render(body, environment);
     }

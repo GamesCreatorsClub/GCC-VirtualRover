@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
-import org.ah.gcc.virtualrover.world.PlayerModel;
+import org.ah.gcc.virtualrover.world.PlayerModelLink;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
@@ -29,18 +29,18 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
     @Override
     public void update() {
         float distanceBetweeRovers = 0f;
-        PlayerModel player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
-        PlayerModel player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        PlayerModelLink player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
+        PlayerModelLink player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
         if (player1 != null && player2 != null) {
-            player1.roverModel.getTransform().getTranslation(pos1);
-            player2.roverModel.getTransform().getTranslation(pos2);
+            player1.getRoverTransform().getTranslation(pos1);
+            player2.getRoverTransform().getTranslation(pos2);
             distanceBetweeRovers = pos1.dst(pos2);
             midpoint.set(pos1).add(pos2).scl(0.5f);
 
             pos1.sub(pos2);
             pos1.rotate(UP, 90);
             float a = (float)Math.atan2(pos1.x, pos1.z);
-            // System.out.println(String.format("(%7.3f, %7.3f, %7.3f) @ %7.3f", pos1.x, pos1.y, pos1.z, a));
+
             float d = distanceBetweeRovers * 700f * SCALE;
             if (d < 800f * SCALE) {
                 d = 800f * SCALE;
@@ -49,7 +49,7 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
             pos2.lerp(camera.position, Interpolation.exp5.apply(0.9f));
         } else {
             if (player1 != null) {
-                player1.roverModel.getTransform().getTranslation(midpoint);
+                player1.getRoverTransform().getTranslation(midpoint);
             } else {
                 midpoint.set(0f, 0f, 0f);
             }

@@ -2,13 +2,10 @@ package org.ah.gcc.virtualrover.rovers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.Rover;
-import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
 import java.util.NoSuchElementException;
 
@@ -29,8 +26,6 @@ public abstract class AbstractRoverModel implements RoverModel {
     protected Matrix4 transform = new Matrix4();
     protected Matrix4 previousTransform = new Matrix4();
 
-    protected Attachment attachment;
-
     protected Vector3 pos = new Vector3();
 
     protected AbstractRoverModel(String name, Color colour) throws NoSuchElementException {
@@ -45,9 +40,6 @@ public abstract class AbstractRoverModel implements RoverModel {
     @Override
     public void setColour(Color colour) {
         this.colour = colour;
-        if (attachment != null) {
-            attachment.setColour(colour);
-        }
     }
 
     @Override
@@ -75,23 +67,6 @@ public abstract class AbstractRoverModel implements RoverModel {
     }
 
     @Override
-    public Attachment getAttachemnt() {
-        return attachment;
-    }
-
-    @Override
-    public void setAttachment(Attachment attachment) {
-        this.attachment = attachment;
-        attachment.update(transform);
-    }
-
-    protected void renderAttachment(ModelBatch batch, Environment environment) {
-        if (attachment != null) {
-            attachment.render(batch, environment);
-        }
-    }
-
-    @Override
     public void update(Rover rover) {
         transform.getTranslation(pos);
 
@@ -104,12 +79,6 @@ public abstract class AbstractRoverModel implements RoverModel {
             pos.lerp(position, 0.5f);
         }
         transform.setToTranslationAndScaling(position.x * SCALE, 0, -position.y * SCALE, SCALE, SCALE, SCALE);
-    }
-
-    public void update() {
-        if (attachment != null) {
-            attachment.update(transform);
-        }
     }
 
     protected static float fixAngle(float degrees) {

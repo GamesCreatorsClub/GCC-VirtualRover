@@ -22,7 +22,7 @@ import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
-import org.ah.gcc.virtualrover.world.PlayerModel;
+import org.ah.gcc.virtualrover.world.PlayerModelLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
@@ -132,11 +132,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             }
         }
 
-        PlayerModel playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
+        PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
         if (playerOne != null) {
             serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
         }
-        PlayerModel playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
         if (playerTwo != null) {
             serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
         }
@@ -188,13 +188,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     private void drawScore() {
         // TODO sort out score
-        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
-            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getScore() + " - " + serverCommunicationAdapter.getPlayerTwo().getScore(), Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
-        }
+//        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
+//            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getScore() + " - " + serverCommunicationAdapter.getPlayerTwo().getScore(), Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+//        }
     }
 
     private void moveRovers() {
-        PlayerModel player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
+        PlayerModelLink player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
         if (player1 != null) {
             player1.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
             player1.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
@@ -206,7 +206,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
             player1.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.V));
         }
 
-        PlayerModel player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        PlayerModelLink player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
         if (player2 != null) {
             player2.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
             player2.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
@@ -231,8 +231,10 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
             GCCGame game = serverCommunicationAdapter.getEngine().getGame();
 
-            /*Rover player1 = */game.spawnRover(1, "Blue", player1RoverType);
-            /*Rover player2 = */game.spawnRover(2, "Green", player2RoverType);
+            // PiNoonChallenge piNoonArena = (PiNoonChallenge)game.getChallenge();
+
+            /* Rover player1 = */game.spawnRover(1, "Blue", player1RoverType);
+            /* Rover player2 = */game.spawnRover(2, "Green", player2RoverType);
             serverCommunicationAdapter.setLocalPlayerIds(1, 2);
         }
 

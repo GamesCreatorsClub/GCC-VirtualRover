@@ -1,6 +1,7 @@
 package org.ah.gcc.virtualrover.game.challenge;
 
 import org.ah.themvsus.engine.common.game.Game;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 public abstract class AbstractChallenge implements Challenge {
 
@@ -19,5 +20,13 @@ public abstract class AbstractChallenge implements Challenge {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void gameObjectAdded(GameObject gameObject) {
+    }
+
+    @Override
+    public void gameObjectRemoved(GameObject gameObject) {
     }
 }

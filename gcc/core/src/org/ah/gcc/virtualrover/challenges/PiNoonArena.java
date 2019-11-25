@@ -25,9 +25,11 @@ import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
+import org.ah.gcc.virtualrover.game.PiNoonAttachment;
 import org.ah.gcc.virtualrover.game.Rover;
-import org.ah.gcc.virtualrover.world.BarrelModel;
-import org.ah.gcc.virtualrover.world.PlayerModel;
+import org.ah.gcc.virtualrover.world.BarrelModelLink;
+import org.ah.gcc.virtualrover.world.PiNoonAttachmentModelLink;
+import org.ah.gcc.virtualrover.world.PlayerModelLink;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +53,8 @@ public class PiNoonArena extends AbstractChallenge {
 
     private ModelInstance floorModelInstance;
 
-    private BarrelModel redBarrel;
-    private BarrelModel greenBarrel;
+    private BarrelModelLink redBarrel;
+    private BarrelModelLink greenBarrel;
     private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
 
     public boolean showPlan = false;
@@ -83,9 +85,9 @@ public class PiNoonArena extends AbstractChallenge {
         Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
         floorModelInstance.materials.get(0).set(attributes);
 
-        redBarrel = new BarrelModel(null, -1, Color.RED);
+        redBarrel = new BarrelModelLink(null, -1, Color.RED);
         redBarrel.make(modelFactory);
-        greenBarrel = new BarrelModel(null, -1, Color.GREEN);
+        greenBarrel = new BarrelModelLink(null, -1, Color.GREEN);
         greenBarrel.make(modelFactory);
 
         greenBarrel.barrel.transform.translate(100f, 0f, 0f);
@@ -146,27 +148,32 @@ public class PiNoonArena extends AbstractChallenge {
             shapeRenderer.begin();
 
             for (VisibleObject visibleObject : visibleObjects.values()) {
-                if (visibleObject instanceof PlayerModel) {
-                    PlayerModel playerModel = (PlayerModel)visibleObject;
+                if (visibleObject instanceof PlayerModelLink) {
+                    PlayerModelLink playerModel = (PlayerModelLink)visibleObject;
 
                     Rover gccPlayer = playerModel.getGCCPlayer();
 
-                    shapeRenderer.setColor(playerModel.colour);
+                    shapeRenderer.setColor(playerModel.getColour());
 
                     for (Polygon polygon : gccPlayer.getCollisionPolygons()) {
                         shapeRenderer.polygon(polygon.getTransformedVertices());
                     }
+                } else if (visibleObject instanceof PiNoonAttachmentModelLink) {
+                    PiNoonAttachmentModelLink attachmentModel = (PiNoonAttachmentModelLink)visibleObject;
 
-                    int balloonBits = gccPlayer.getChallengeBits();
+                    PiNoonAttachment attachment = attachmentModel.getAttachmentGameObject();
+                    shapeRenderer.setColor(attachmentModel.getColour());
+
+                    int balloonBits = attachment.getBalloonBits();
                     for (int i = 0; i < 3; i++) {
                         if ((balloonBits & 1 << i) != 0) {
-                            Circle balloon = gccPlayer.getBalloon(i);
+                            Circle balloon = attachment.getBalloon(i);
                             shapeRenderer.circle(balloon.x, balloon.y, balloon.radius);
                         }
                     }
 
-                    Vector2 sharpEnd = gccPlayer.getSharpEnd();
-                    shapeRenderer.circle(sharpEnd.x, sharpEnd.y, 5);
+                    Vector2 sharpEndPos = attachment.getSharpEnd();
+                    shapeRenderer.circle(sharpEndPos.x, sharpEndPos.y, 5);
                 }
             }
 

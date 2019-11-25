@@ -1,6 +1,5 @@
 package org.ah.gcc.virtualrover.game;
 
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -31,16 +30,13 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
     private RoverType roverType;
 
-    private int challengeBits;
-    private int score;
-    // TODO add full_change as well so not all, normally not changing attributes like rover_type are sent across every time
     private RoverColour roverColour = RoverColour.WHITE;
+    private int attachmentId;
+
+    protected Vector2 attachmentPosition;
 
     private RoverControls roverControls;
     protected List<Polygon> polygons;
-    protected Vector2 attachmentPosition;
-    protected Vector2[] balloons = new Vector2[3];
-    protected Circle[] ballonsTempCircle = new Circle[3];
 
     protected Vector2 temp = new Vector2();
 
@@ -49,25 +45,21 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
         this.roverType = roverType;
         this.roverControls = roverType.createRoverControls();
-
-        balloons[0] = new Vector2(0f, -45f);
-        balloons[1] = new Vector2(75f, 0f);
-        balloons[2] = new Vector2(0f, 45f);
-        for (int i = 0; i < ballonsTempCircle.length; i++) {
-            ballonsTempCircle[i] = new Circle(0,  0, BALLOONS_RADIUS);
-        }
     }
 
     @Override
     public void free() {
-        challengeBits = 0;
-        score = 0;
         roverColour = RoverColour.WHITE;
+        attachmentId = 0;
         super.free();
     }
 
     @Override
     public GameObjectType getType() { return roverType.getGameObjectType(); }
+
+    public Vector2 getAttachmentPosition() {
+        return attachmentPosition;
+    }
 
     public RoverType getRoverType() {
         return roverType;
@@ -77,24 +69,6 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
         return roverControls;
     }
 
-    public void setChallengeBits(int challengeBits) {
-        this.challengeBits = challengeBits;
-        this.changed = true;
-    }
-
-    public int getChallengeBits() {
-        return challengeBits;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-        this.changed = true;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
     public void setRoverColour(RoverColour roverColour) {
         this.roverColour = roverColour;
         this.changed = true;
@@ -102,6 +76,14 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
     public RoverColour getRoverColour() {
         return roverColour;
+    }
+
+    public int getAttachemntId() {
+        return attachmentId;
+    }
+
+    public void addAttachment(int attachmentId) {
+        this.attachmentId = attachmentId;
     }
 
     @Override
@@ -137,22 +119,18 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
-        serializer.serializeByte((byte)score);
-        serializer.serializeUnsignedShort(challengeBits);
         serializer.serializeUnsignedByte((byte)roverColour.ordinal());
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
-        score = serializer.deserializeByte();
-        challengeBits = serializer.deserializeUnsignedShort();
         roverColour = RoverColour.values()[serializer.deserializeUnsignedByte()];
     }
 
     @Override
     public int size(boolean full) {
-        return super.size(full) + 4;
+        return super.size(full) + 1;
     }
 
     @Override
@@ -160,9 +138,8 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
         super.copyInt(newObject);
 
         Rover gccPlayer = (Rover)newObject;
-        gccPlayer.score = score;
-        gccPlayer.challengeBits = challengeBits;
         gccPlayer.roverColour = roverColour;
+        gccPlayer.attachmentId = attachmentId;
 
         return newObject;
     }
@@ -176,22 +153,5 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
         }
         return polygons;
 
-    }
-
-    public Vector2 getSharpEnd() {
-        temp.set(attachmentPosition);
-        temp.add(SHARP_POINT_LENGTH, 0);
-        temp.rotate(getBearing());
-        temp.add(position.x, position.y);
-        return temp;
-    }
-
-    public Circle getBalloon(int balloonNo) {
-        temp.set(balloons[balloonNo]);
-        temp.add(attachmentPosition);
-        temp.rotate(getBearing());
-        temp.add(position.x, position.y);
-        ballonsTempCircle[balloonNo].setPosition(temp);
-        return ballonsTempCircle[balloonNo];
     }
 }

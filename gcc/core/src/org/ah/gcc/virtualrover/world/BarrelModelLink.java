@@ -12,11 +12,10 @@ import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.Rover;
-import org.ah.themvsus.engine.common.game.GameObject;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
-public class BarrelModel implements VisibleObject {
+public class BarrelModelLink implements VisibleObject {
 
     private Vector3 UP = new Vector3(1f, 0f, 0f);
 
@@ -25,7 +24,7 @@ public class BarrelModel implements VisibleObject {
     public GCCGame game;
     public ModelInstance barrel;
 
-    public BarrelModel(GCCGame game, int id, Color colour) {
+    public BarrelModelLink(GCCGame game, int id, Color colour) {
         this.game = game;
         this.id = id;
         this.colour = colour;
@@ -42,13 +41,8 @@ public class BarrelModel implements VisibleObject {
         batch.render(barrel, environment);
     }
 
-    @Override
-    public void update(GameObject gameObject) {
-        System.out.println("Got object, id=" + gameObject.getId() + "; " + gameObject);
-    }
-
     public void setGamePlayerPositionAndOrientation(int x, int y, Quaternion orientation) {
-        Rover gccPlayer = (Rover)game.getCurrentGameState().get(id);
+        Rover gccPlayer = game.getCurrentGameState().get(id);
         gccPlayer.setPosition(x, y);
         gccPlayer.setOrientation(orientation);
     }

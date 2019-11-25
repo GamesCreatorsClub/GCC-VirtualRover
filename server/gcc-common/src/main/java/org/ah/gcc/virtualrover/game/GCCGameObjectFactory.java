@@ -4,8 +4,6 @@ import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
 
-import java.util.List;
-
 import static java.util.Arrays.asList;
 
 public class GCCGameObjectFactory extends GameObjectFactory {
@@ -20,12 +18,6 @@ public class GCCGameObjectFactory extends GameObjectFactory {
 
     @Override
     protected void collectTypes() {
-        List<GameObjectType> moreTypes = asList(
-                GCCGameTypeObject.GameMessageObject,
-                GCCGameTypeObject.BarrelObject,
-                GCCGameTypeObject.GCCRover,
-                GCCGameTypeObject.CBISRover
-        );
-        addTypes(moreTypes);
+        addTypes(asList(GCCGameTypeObject.DEFINED_TYPES));
     }
 }

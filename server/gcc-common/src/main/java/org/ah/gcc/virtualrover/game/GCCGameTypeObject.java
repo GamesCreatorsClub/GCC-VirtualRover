@@ -17,6 +17,11 @@ public abstract class GCCGameTypeObject extends GameObjectType {
         @Override public String toString() { return "BarrelObjectType"; }
     };
 
+    public static GameObjectType PiNoonAttachment = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new PiNoonAttachment(factory, 0); }
+        @Override public String toString() { return "PiNoonAttachmentType"; }
+    };
+
     public static GameObjectType GCCRover = new GameObjectType() {
         @Override public GameObject newObject(GameObjectFactory factory) { return new GCCRover(factory, -1); }
         @Override public String toString() { return "GCCRoverType"; }
@@ -25,5 +30,13 @@ public abstract class GCCGameTypeObject extends GameObjectType {
     public static GameObjectType CBISRover = new GameObjectType() {
         @Override public GameObject newObject(GameObjectFactory factory) { return new CBISRover(factory, -1); }
         @Override public String toString() { return "CBISRoverType"; }
+    };
+
+    protected static GameObjectType[] DEFINED_TYPES = {
+            GameMessageObject,
+            BarrelObject,
+            PiNoonAttachment,
+            GCCRover,
+            CBISRover
     };
 }

@@ -112,8 +112,6 @@ public class GCCRoverModel extends FourWheelRoverModel {
         fl.update();
         br.update();
         bl.update();
-
-        super.update();
     }
 
     @Override
@@ -125,7 +123,5 @@ public class GCCRoverModel extends FourWheelRoverModel {
 
         batch.render(top, environment);
         batch.render(body, environment);
-
-        renderAttachment(batch, environment);
     }
 }

@@ -5,14 +5,16 @@ import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
+import org.ah.gcc.virtualrover.game.PiNoonAttachment;
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.Console;
-import org.ah.gcc.virtualrover.world.PlayerModel;
+import org.ah.gcc.virtualrover.world.PiNoonAttachmentModelLink;
+import org.ah.gcc.virtualrover.world.PlayerModelLink;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
@@ -144,13 +146,23 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     @Override
     public void gameObjectAdded(GameObject gameObject) {
         if (gameObject instanceof Rover) {
-            Rover playerObject = (Rover)gameObject;
+            Rover rover = (Rover)gameObject;
 
-            PlayerModel playerModel = new PlayerModel(engine.getGame(), playerObject.getRoverType(), gameObject.getId(), playerObject.getAlias());
-            playerModel.setRoverColour(playerObject.getRoverColour());
-            allVisibleObjects.put(playerObject.getId(), playerModel);
+            PlayerModelLink playerModel = new PlayerModelLink(engine.getGame(), rover.getRoverType(), gameObject.getId(), rover.getAlias());
+            playerModel.setRoverColour(rover);
+            allVisibleObjects.put(rover.getId(), playerModel);
             playerModel.makeRobot(modelFactory);
-            playerObject.setLinkBack(playerModel);
+            rover.setLinkBack(playerModel);
+
+        } else if (gameObject instanceof PiNoonAttachment) {
+            PiNoonAttachment piNoonAttachment = (PiNoonAttachment)gameObject;
+            PlayerModelLink playerModel = (PlayerModelLink)allVisibleObjects.get(piNoonAttachment.getParentId());
+
+            PiNoonAttachmentModelLink piNoonAttachmentModel = new PiNoonAttachmentModelLink(engine.getGame(), playerModel.getColour(), piNoonAttachment, playerModel);
+            piNoonAttachmentModel.makeModel(modelFactory);
+            piNoonAttachment.setLinkBack(piNoonAttachmentModel);
+
+            allVisibleObjects.put(gameObject.getId(), piNoonAttachmentModel);
         } else if (gameObject instanceof GameMessageObject) {
             gameMessageId = gameObject.getId();
         }
@@ -166,20 +178,20 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     public Rover getPlayerOne() {
         if (engine != null && sessionId != 0) {
-            return (Rover)engine.getGame().getCurrentGameState().get(sessionId);
+            return getEngine().getGame().getCurrentGameState().get(sessionId);
         }
         return null;
     }
 
     public Rover getPlayerTwo() {
         if (engine != null && playerTwoId != 0) {
-            return (Rover)getEngine().getGame().getCurrentGameState().get(playerTwoId);
+            return getEngine().getGame().getCurrentGameState().get(playerTwoId);
         }
         return null;
     }
-    public PlayerModel getPlayerOneVisualObject() {
+    public PlayerModelLink getPlayerOneVisualObject() {
         if (engine != null && sessionId != 0) {
-            Rover player = (Rover)engine.getGame().getCurrentGameState().get(sessionId);
+            Rover player = getEngine().getGame().getCurrentGameState().get(sessionId);
             if (player != null) {
                 return player.getLinkBack();
             }
@@ -187,9 +199,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return null;
     }
 
-    public PlayerModel getPlayerTwoVisualObject() {
+    public PlayerModelLink getPlayerTwoVisualObject() {
         if (engine != null && playerTwoId != 0) {
-            Rover player = (Rover)engine.getGame().getCurrentGameState().get(playerTwoId);
+            Rover player = getEngine().getGame().getCurrentGameState().get(playerTwoId);
             if (player != null) {
                 return player.getLinkBack();
             }
@@ -199,7 +211,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     public GameMessageObject getGameMessageObject() {
         if (engine != null && gameMessageId != 0) {
-            GameMessageObject gameMessageObject = (GameMessageObject)engine.getGame().getCurrentGameState().get(gameMessageId);
+            GameMessageObject gameMessageObject = engine.getGame().getCurrentGameState().get(gameMessageId);
             return gameMessageObject;
         }
         return null;
