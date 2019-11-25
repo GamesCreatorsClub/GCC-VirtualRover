@@ -24,11 +24,11 @@ public class CinematicCameraController2 extends InputAdapter implements ActiveCa
 
     @Override
     public void update() {
-        if (players.size() > 0 && players.get(0).rover != null) {
-            pos1 = players.get(0).rover.getTransform().getTranslation(pos1);
+        if (players.size() > 0 && players.get(0).roverModel != null) {
+            pos1 = players.get(0).roverModel.getTransform().getTranslation(pos1);
 
             Quaternion q = new Quaternion();
-            q = players.get(0).rover.getTransform().getRotation(q);
+            q = players.get(0).roverModel.getTransform().getRotation(q);
 
             pos1.y = 1000f * SCALE;
             camera.position.set(pos1);

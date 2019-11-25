@@ -47,7 +47,8 @@ public class GCCRoverWheel extends AbstractWheel {
         tyre.transform.set(wheel.transform);
     }
 
-    public void render(ModelBatch batch, Environment environment) {
+    @Override
+    protected void render(ModelBatch batch, Environment environment) {
         batch.render(wheel, environment);
         batch.render(tyre, environment);
         batch.render(motor, environment);

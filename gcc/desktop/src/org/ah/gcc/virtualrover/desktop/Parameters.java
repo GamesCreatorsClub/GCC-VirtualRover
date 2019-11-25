@@ -14,6 +14,7 @@ public class Parameters {
     private boolean jogl = false;
     private boolean lwjgl = false;
     private boolean simulation = false;
+    private boolean localOnly = false;
 
     private InetSocketAddress serverAddress;
 
@@ -72,6 +73,9 @@ public class Parameters {
                 } else if ("--simulation".equals(args[i])) {
                     simulation = true;
                     i++;
+                } else if ("--local-only".equals(args[i]) || "-lo".equals(args[i])) {
+                    localOnly = true;
+                    i++;
                 } else if ("--server".equals(args[i])) {
                     if (i + 1 >= args.length) {
                         throw new IllegalArgumentException(args[i] + " must be followed by position format 0x0 (100x40 for instance)");
@@ -107,6 +111,8 @@ public class Parameters {
         System.out.println("--full-screen or -fc     full screen mode. This is not a default.");
         System.out.println("--jogl                   force running it as JOGL impl. This is not a default. (*)");
         System.out.println("--lwjgl                  force running it as LWJGL impl. This is not a default. (*)");
+        System.out.println("--simulation             Is this simulation invocation. This is not a default.");
+        System.out.println("--local-only or -lo      Is this local only game. This is not a default.");
         System.out.println("--help or -h or -?       This help.");
         System.out.println();
         System.out.println("(*) With no --jogl or --lwjgl set it will run JOGL on arm platform (RPi) and LWJGL any other.");
@@ -144,6 +150,10 @@ public class Parameters {
 
     public boolean isSimulation() {
         return simulation;
+    }
+
+    public boolean isLocalOnly() {
+        return localOnly;
     }
 
     public InetSocketAddress getServerAddress() {

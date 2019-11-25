@@ -24,6 +24,7 @@ public class GCCRoverDesktopLauncher {
         DesktopPlatformSpecific desktopSpecific = new DesktopPlatformSpecific();
         desktopSpecific.setHasSound(parameters.hasSound());
         desktopSpecific.setIsSimulation(parameters.isSimulation());
+        desktopSpecific.setLocalOnly(parameters.isLocalOnly());
         if (parameters.getServerAddress() != null) {
             desktopSpecific.setPreferredServerDetails(parameters.getServerAddress().getHostName(), parameters.getServerAddress().getPort());
         }

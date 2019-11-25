@@ -82,6 +82,9 @@ public class MainGame extends Game {
                             // TODO log something to console
                         }
                 });
+        } else if (platformSpecific.isLocalOnly()) {
+            serverCommunicationAdapter.startEngine("PiNoon", true);
+            startChallenge("PiNoon");
         } else {
             greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 //            if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {

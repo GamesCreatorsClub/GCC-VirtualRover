@@ -19,6 +19,10 @@ public interface PlatformSpecific {
 
     boolean isSimulation();
 
+    void setLocalOnly(boolean localOnly);
+
+    boolean isLocalOnly();
+
     boolean hasServerDetails();
 
     void register(String url, String username, String email, String password, RegistrationCallback callback);

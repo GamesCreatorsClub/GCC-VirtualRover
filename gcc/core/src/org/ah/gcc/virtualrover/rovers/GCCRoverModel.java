@@ -5,25 +5,21 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.game.Rover;
 
 import java.util.NoSuchElementException;
 
-public class GCCRoverModel extends AbstractRover {
+import static java.lang.Math.abs;
+import static java.lang.Math.atan2;
+
+public class GCCRoverModel extends FourWheelRoverModel {
 
     private ModelInstance body;
 
-    private GCCRoverWheel fr;
-    private GCCRoverWheel br;
-    private GCCRoverWheel bl;
-    private GCCRoverWheel fl;
-
     private ModelInstance top;
-
-    private Matrix4 nextPos = new Matrix4();
 
      public GCCRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
@@ -48,10 +44,12 @@ public class GCCRoverModel extends AbstractRover {
     }
 
     @Override
-    public void update(Vector3 position, float headingDegs) {
-        super.update(position, headingDegs);
+    public void update(Rover rover) {
+        super.update(rover);
 
-        transform.rotate(new Vector3(0, 1, 0), 180 + headingDegs); // 180 + is because of all rover models are made 'backwards'
+        float bearing = rover.getBearing();
+
+        transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
         transform.translate(-80f, 0, 55f);
 
         fr.getTransform().set(transform);
@@ -61,6 +59,54 @@ public class GCCRoverModel extends AbstractRover {
 
         top.transform.set(transform);
         body.transform.set(transform);
+
+        Vector3 velocity = rover.getVelocity();
+        if (abs(rover.getTurnSpeed()) < 0.01f) {
+            if (abs(velocity.x) < 0.01f && abs(velocity.y) < 0.01f) {
+                // fr.setDegrees(0f);
+                // fl.setDegrees(0f);
+                // br.setDegrees(0f);
+                // bl.setDegrees(0f);
+            } else {
+                float direction = (float)(atan2(velocity.y, velocity.x) * 180 / Math.PI);
+                float relativeAngle = fixAngle(direction - bearing);
+
+                float wheelAngle = relativeAngle;
+                if (wheelAngle > 95f && wheelAngle < 265f) {
+                    wheelAngle = fixAngle(wheelAngle + 180);
+                }
+
+                fr.setDegrees(wheelAngle);
+                fl.setDegrees(wheelAngle);
+                br.setDegrees(wheelAngle);
+                bl.setDegrees(wheelAngle);
+            }
+        } else {
+            if (abs(velocity.x) < 0.01f && abs(velocity.y) < 0.01f) {
+                fr.setDegrees(60f);
+                fl.setDegrees(-60f);
+                br.setDegrees(-60f);
+                bl.setDegrees(60f);
+            } else {
+                float sign = 1f;
+                float dist;
+                if (rover.getTurnSpeed() >= 0f) {
+                    dist = 100f;
+                } else {
+                    dist = 100f;
+                    sign = -1f;
+                }
+                float frontAngle = (float)(atan2(69, dist - 36.5) * 180 / Math.PI);
+                float backAngle = (float)(atan2(69, dist + 36.5) * 180 / Math.PI);
+
+                fr.setDegrees(frontAngle * sign);
+                fl.setDegrees(frontAngle * sign);
+                br.setDegrees(-backAngle * sign);
+                bl.setDegrees(-backAngle * sign);
+            }
+        }
+
+        setWheelSpeeds(rover.getSpeed());
 
         fr.update();
         fl.update();
@@ -72,7 +118,6 @@ public class GCCRoverModel extends AbstractRover {
 
     @Override
     public void render(ModelBatch batch, Environment environment) {
-        // update();
         bl.render(batch, environment);
         br.render(batch, environment);
         fl.render(batch, environment);
@@ -82,135 +127,5 @@ public class GCCRoverModel extends AbstractRover {
         batch.render(body, environment);
 
         renderAttachment(batch, environment);
-    }
-
-    private void straightenWheels() {
-        fl.setDegrees(0);
-        fr.setDegrees(0);
-        bl.setDegrees(0);
-        br.setDegrees(0);
-    }
-
-    private void slantWheels() {
-        fl.setDegrees(-60);
-        fr.setDegrees(60);
-        bl.setDegrees(+60);
-        br.setDegrees(-60);
-    }
-
-    private Matrix4 drive(float speed, int angle) {
-        nextPos.set(transform);
-
-        straightenWheels();
-        setWheelSpeeds(speed);
-        if (angle < 0) {
-            angle += 360;
-        }
-
-        if (angle == 90) {
-            fl.setDegrees(90);
-            fr.setDegrees(90);
-            bl.setDegrees(90);
-            br.setDegrees(90);
-
-            nextPos.translate(new Vector3(0, 0, speed));
-        } else if (angle == 45) {
-            fl.setDegrees(135);
-            fr.setDegrees(135);
-            bl.setDegrees(135);
-            br.setDegrees(135);
-
-            nextPos.translate(new Vector3(speed, 0, speed));
-        } else if (angle == 0) {
-            fl.setDegrees(0);
-            fr.setDegrees(0);
-            bl.setDegrees(0);
-            br.setDegrees(0);
-
-            nextPos.translate(new Vector3(speed, 0, 0));
-        } else if (angle == 135) {
-            fl.setDegrees(180 + 45);
-            fr.setDegrees(180 + 45);
-            bl.setDegrees(180 + 45);
-            br.setDegrees(180 + 45);
-
-            nextPos.translate(new Vector3(speed, 0, -speed));
-        }
-
-        return nextPos;
-    }
-
-    private Matrix4 rotate(float angle) {
-        nextPos.set(transform);
-        float x = -80f;
-        float y = 0;
-        float z = 60f;
-        nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), angle).translate(x, y, z);
-        slantWheels();
-        setWheelSpeeds(3);
-
-        return nextPos;
-    }
-
-    private Matrix4 steer(float d) {
-        nextPos.set(transform);
-
-        setWheelSpeeds(d);
-
-        if (d > 0) {
-            fl.setDegrees(45);
-            fr.setDegrees(45);
-            bl.setDegrees(360 - 45);
-            br.setDegrees(360 - 45);
-            float x = -12f;
-            float y = 0;
-            float z = -4f;
-            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
-        } else {
-            fl.setDegrees(360 - 45);
-            fr.setDegrees(360 - 45);
-            bl.setDegrees(45);
-            br.setDegrees(45);
-            float x = -12f;
-            float y = 0;
-            float z = 30f;
-            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), d).translate(x, y, z);
-        }
-        return nextPos;
-    }
-
-    private Matrix4 steerBack(float d) {
-        nextPos.set(transform);
-
-        setWheelSpeeds(d);
-
-        if (d > 0) {
-            fl.setDegrees(45);
-            fr.setDegrees(45);
-            bl.setDegrees(360 - 45);
-            br.setDegrees(360 - 45);
-            float x = -12f;
-            float y = 0;
-            float z = -4f;
-            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
-        } else {
-            fl.setDegrees(360 - 45);
-            fr.setDegrees(360 - 45);
-            bl.setDegrees(45);
-            br.setDegrees(45);
-            float x = -12f;
-            float y = 0;
-            float z = 30f;
-            nextPos.translate(-x, -y, -z).rotate(new Vector3(0, 1, 0), -d).translate(x, y, z);
-        }
-
-        return nextPos;
-    }
-
-    private void setWheelSpeeds(float speed) {
-        fl.setSpeed(speed);
-        fr.setSpeed(speed);
-        bl.setSpeed(speed);
-        br.setSpeed(speed);
     }
 }

@@ -1,5 +1,7 @@
 package org.ah.gcc.virtualrover.rovers;
 
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
@@ -51,6 +53,8 @@ public abstract class AbstractWheel {
         transform.translate(relativePosition);
         internalUpdate();
     }
+
+    protected abstract void render(ModelBatch batch, Environment environment);
 
     protected abstract void internalUpdate();
 }

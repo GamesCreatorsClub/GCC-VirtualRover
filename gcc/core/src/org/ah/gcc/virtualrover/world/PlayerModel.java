@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
@@ -24,7 +23,7 @@ public class PlayerModel implements VisibleObject {
     public String name;
     public Color colour;
     public RoverType playerSelection = RoverType.GCC;
-    public RoverModel rover;
+    public RoverModel roverModel;
     public GCCPlayerInput roverInput = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
     public int playerScore = 0;
     public GCCGame game;
@@ -44,51 +43,39 @@ public class PlayerModel implements VisibleObject {
 
     public void makeRobot(ModelFactory modelFactory) {
         if (playerSelection == RoverType.CBIS) {
-            rover = new CBiSRoverModel(name, modelFactory, colour);
+            roverModel = new CBiSRoverModel(name, modelFactory, colour);
         } else {
-            rover = new GCCRoverModel(name, modelFactory, colour);
+            roverModel = new GCCRoverModel(name, modelFactory, colour);
         }
-        rover.setId(id);
+        roverModel.setId(id);
 
         PiNoonAttachment piNoonAttachment = new PiNoonAttachment(modelFactory, colour);
-        rover.setAttachment(piNoonAttachment);
+        roverModel.setAttachment(piNoonAttachment);
         piNoonAttachment.removeBalloons();
     }
 
     public PiNoonAttachment getPiNoonAttachment() {
-        if (rover != null) {
-            return (PiNoonAttachment)rover.getAttachemnt();
+        if (roverModel != null) {
+            return (PiNoonAttachment)roverModel.getAttachemnt();
         }
         return null;
     }
 
     @Override
     public void render(ModelBatch batch, Environment environment) {
-        if (rover != null) {
-            Rover gccPlayer = (Rover)game.getCurrentGameState().get(id);
+        if (roverModel != null) {
+            Rover rover = (Rover)game.getCurrentGameState().get(id);
 
-            if (roverColour != null && gccPlayer.getRoverColour() != roverColour) {
-                setRoverColour(gccPlayer.getRoverColour());
+            if (roverColour != null && rover.getRoverColour() != roverColour) {
+                setRoverColour(rover.getRoverColour());
             }
 
-            float bearing = gccPlayer.getBearing();
-            Vector3 position = gccPlayer.getPosition();
-
-//            Matrix4 transform = rover.getTransform();
-//
-////            transform.idt();
-//            transform.setToTranslationAndScaling(position.x * SCALE, 0, position.y * SCALE, SCALE, SCALE, SCALE);
-////            transform.translate(position.x * SCALE, 0, position.y * SCALE);
-////            transform.scale(SCALE, SCALE, SCALE);
-////            transform.translate(80f, 0, -55);
-//            transform.rotate(new Vector3(0, 1, 0), 180 - bearing);
-////            transform.translate(-80f, 0, 55f);
-            rover.update(position, bearing);
-            if (rover.getAttachemnt() != null) {
-                rover.getAttachemnt().setAttachmentBits(gccPlayer.getChallengeBits());
+            this.roverModel.update(rover);
+            if (this.roverModel.getAttachemnt() != null) {
+                this.roverModel.getAttachemnt().setAttachmentBits(rover.getChallengeBits());
             }
 
-            rover.render(batch, environment);
+            this.roverModel.render(batch, environment);
         }
     }
 
@@ -101,8 +88,8 @@ public class PlayerModel implements VisibleObject {
         } else if (roverColour == Rover.RoverColour.BLUE) {
             colour = Color.BLUE;
         }
-        if (rover != null) {
-            rover.setColour(colour);
+        if (roverModel != null) {
+            roverModel.setColour(colour);
         }
     }
 

@@ -32,8 +32,8 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
         PlayerModel player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
         PlayerModel player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
         if (player1 != null && player2 != null) {
-            player1.rover.getTransform().getTranslation(pos1);
-            player2.rover.getTransform().getTranslation(pos2);
+            player1.roverModel.getTransform().getTranslation(pos1);
+            player2.roverModel.getTransform().getTranslation(pos2);
             distanceBetweeRovers = pos1.dst(pos2);
             midpoint.set(pos1).add(pos2).scl(0.5f);
 
@@ -49,7 +49,7 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
             pos2.lerp(camera.position, Interpolation.exp5.apply(0.9f));
         } else {
             if (player1 != null) {
-                player1.rover.getTransform().getTranslation(midpoint);
+                player1.roverModel.getTransform().getTranslation(midpoint);
             } else {
                 midpoint.set(0f, 0f, 0f);
             }

@@ -7,13 +7,14 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
 import java.util.NoSuchElementException;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
-public abstract class AbstractRover implements RoverModel {
+public abstract class AbstractRoverModel implements RoverModel {
 
     protected static float MIN_DISTANCE = 5 * SCALE;
     protected static float MAX_DISTANCE = 50 * SCALE;
@@ -32,7 +33,7 @@ public abstract class AbstractRover implements RoverModel {
 
     protected Vector3 pos = new Vector3();
 
-    protected AbstractRover(String name, Color colour) throws NoSuchElementException {
+    protected AbstractRoverModel(String name, Color colour) throws NoSuchElementException {
         this.name = name;
         this.colour = colour;
     }
@@ -91,8 +92,10 @@ public abstract class AbstractRover implements RoverModel {
     }
 
     @Override
-    public void update(Vector3 position, float headingDegs) {
+    public void update(Rover rover) {
         transform.getTranslation(pos);
+
+        Vector3 position = rover.getPosition();
 
         float distanceSquared = pos.dst2(position);
         if (distanceSquared < MIN_DISTANCE_SQUARED || distanceSquared > MAX_DISTANCE_SQUARED) {
@@ -107,6 +110,15 @@ public abstract class AbstractRover implements RoverModel {
         if (attachment != null) {
             attachment.update(transform);
         }
+    }
+
+    protected static float fixAngle(float degrees) {
+        if (degrees < 0f) {
+            degrees = degrees + 360f;
+        } else if (degrees >= 360f) {
+            degrees = degrees - 360f;
+        }
+        return degrees;
     }
 
     protected static float calcSpeedMillimetresInFrame(float speedMPS) {

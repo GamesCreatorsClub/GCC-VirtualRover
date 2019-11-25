@@ -8,17 +8,15 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.game.Rover;
 
 import java.util.NoSuchElementException;
 
-public class CBiSRoverModel extends AbstractRover {
+public class CBiSRoverModel extends FourWheelRoverModel {
+
     private ModelInstance body;
 
-    private BigWheel fr;
-    private BigWheel br;
-    private BigWheel bl;
-    private BigWheel fl;
-
+    // private static float ROVER_SCALE = 26;
     private static float ROVER_SCALE = 26;
 
     public CBiSRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
@@ -40,15 +38,17 @@ public class CBiSRoverModel extends AbstractRover {
     }
 
     @Override
-    public void update(Vector3 position, float headingDegs) {
-        super.update(position, headingDegs);
+    public void update(Rover rover) {
+        super.update(rover);
 
-        transform.rotate(new Vector3(0, 1, 0), 180 + headingDegs); // 180 + is because of all rover models are made 'backwards'
+        float bearing = rover.getBearing();
+
+        transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
         transform.translate(-80f, 0, 55f);
 
         body.transform.set(transform);
 
-        body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
+//        body.transform.scale(ROVER_SCALE, ROVER_SCALE, ROVER_SCALE);
         body.transform.translate(7.8f, -1.6f, 0f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
 
@@ -56,6 +56,8 @@ public class CBiSRoverModel extends AbstractRover {
         fl.getTransform().set(transform);
         br.getTransform().set(transform);
         bl.getTransform().set(transform);
+
+        setWheelSpeeds(rover.getSpeed());
 
         fr.update();
         fl.update();

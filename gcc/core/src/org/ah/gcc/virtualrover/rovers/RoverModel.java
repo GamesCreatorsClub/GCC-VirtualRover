@@ -4,15 +4,15 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 
+import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.rovers.attachments.Attachment;
 
 public interface RoverModel {
 
     void render(ModelBatch batch, Environment environment);
 
-    void update(Vector3 position, float orientation);
+    void update(Rover rover);
 
     Color getColour();
 

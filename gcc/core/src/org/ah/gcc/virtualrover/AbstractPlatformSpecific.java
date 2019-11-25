@@ -13,6 +13,7 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     private ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback;
     private boolean hasSound = true;
     protected boolean isSimulation;
+    protected boolean isLocalOnly;
 
     @Override
     public void setPreferredServerDetails(String socketAddress, int port) {
@@ -39,6 +40,17 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     public boolean isSimulation() {
         return isSimulation;
     }
+
+    @Override
+    public void setLocalOnly(boolean localOnly) {
+        this.isLocalOnly = localOnly;
+    }
+
+    @Override
+    public boolean isLocalOnly() {
+        return isLocalOnly;
+    }
+
 
     @Override
     public boolean hasServerDetails() {
