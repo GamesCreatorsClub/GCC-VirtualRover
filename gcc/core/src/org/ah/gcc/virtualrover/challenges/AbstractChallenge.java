@@ -93,10 +93,9 @@ public abstract class AbstractChallenge implements Challenge {
             shadowLight.end();
 
             modelBatch.begin(cam);
-            modelBatch.render(challengeModelInstance, shadowEnvironment);
 
-            renderChallenge(modelBatch, environment, visibleObjects);
-            renderVisibleObjects(modelBatch, environment, visibleObjects);
+            renderChallenge(modelBatch, shadowEnvironment, visibleObjects);
+            renderVisibleObjects(modelBatch, shadowEnvironment, visibleObjects);
 
             modelBatch.end();
             batch.begin(cam);
