@@ -116,7 +116,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
                 nextRun = now;
             }
             unknownObjectIds.clear();
-            engine.processCommands(unknownObjectIds);
+            try {
+                engine.processCommands(unknownObjectIds);
+            } catch (RuntimeException e) {
+                // TODO log something!
+            }
             if (unknownObjectIds.size > 0) {
                 serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
             }
