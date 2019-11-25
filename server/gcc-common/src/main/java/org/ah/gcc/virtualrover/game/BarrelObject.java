@@ -2,10 +2,10 @@ package org.ah.gcc.virtualrover.game;
 
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
-import org.ah.themvsus.engine.common.game.GameObjectWithPositionAndOrientation;
+import org.ah.themvsus.engine.common.game.MovingGameObjectWithPositionAndOrientation;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
-public class BarrelObject extends GameObjectWithPositionAndOrientation {
+public class BarrelObject extends MovingGameObjectWithPositionAndOrientation {
 
     public BarrelObject(GameObjectFactory factory, int id) {
         super(factory, id);
@@ -28,12 +28,4 @@ public class BarrelObject extends GameObjectWithPositionAndOrientation {
     public int size(boolean full) {
         return super.size(full);
     }
-//
-//    @Override
-//    protected GameObject copyInt(GameObject newObject) {
-//        super.copyInt(newObject);
-//        BarrelObject gameMessageObject = (BarrelObject)newObject;
-//        gameMessageObject.setMessage(message, flashing);
-//        return gameMessageObject;
-//    }
 }
