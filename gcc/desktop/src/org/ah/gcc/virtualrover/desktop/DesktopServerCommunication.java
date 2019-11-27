@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.desktop;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 
 import org.ah.themvsus.engine.client.AbstractServerCommunication;
@@ -51,6 +52,10 @@ public class DesktopServerCommunication extends AbstractServerCommunication {
 
     @Override
     public void send(Message message) throws IOException {
+        if (Gdx.app.getLogLevel() >= Application.LOG_DEBUG) {
+            Gdx.app.debug("DesktopServerCommunication.send", System.currentTimeMillis() + " Sent    : " + message);
+        }
+
         BufferSerializer serializer = bufferSerializerFactory.obtain();
         try {
             message.serialize(serializer);

@@ -86,4 +86,9 @@ public class GameMessageObject extends GameObject {
         gameMessageObject.setMessage(message, flashing);
         return gameMessageObject;
     }
+
+    @Override
+    public String toString() {
+        return "GameMessage[" + id + ", ingame=" + inGame + ", waiting=" + waiting + ", msg=\"" + message + "\"]";
+    }
 }

@@ -306,19 +306,4 @@ public class GCCPlayerInput extends PlayerInput {
     @Override public String toString() {
         return "PlayerInput[" + sequenceNo + "," + moveX + "," + moveY + "," + rotateX + "," + rotateY + "," + desiredForwardSpeed + "," + desiredRotationSpeed + "]";
     }
-
-
-    public static void main(String[] args) throws Exception {
-
-        float desiredForwardSpeed = 200f;
-        float desiredRotationSpeed = 300f;
-
-        int desiredSpeeds = fitTo8BitsWithLimit(desiredForwardSpeed, 0, 1024) << 8 | fitTo8BitsWithLimit(desiredRotationSpeed, -1024, 1024);
-
-        desiredForwardSpeed = from8BitWithLimit((desiredSpeeds >> 8) & 0xff, 0, 1024);
-        desiredRotationSpeed = from8BitWithLimit(desiredSpeeds & 0xff, -1024, 1024);
-
-        System.out.println("desiredForwardSpeed=" + desiredForwardSpeed);
-        System.out.println("desiredRotationSpeed=" + desiredRotationSpeed);
-    }
 }

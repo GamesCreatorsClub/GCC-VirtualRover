@@ -119,13 +119,22 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
-        serializer.serializeUnsignedByte((byte)roverColour.ordinal());
+        int roverColourOrdinal = (byte)roverColour.ordinal();
+        if (roverColourOrdinal > 2) {
+            System.exit(-1);
+        }
+        serializer.serializeUnsignedByte(roverColourOrdinal);
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
-        roverColour = RoverColour.values()[serializer.deserializeUnsignedByte()];
+        int roverColourOrdinal = serializer.deserializeUnsignedByte();
+        if (roverColourOrdinal >= RoverColour.values().length) {
+            // TODO how to deal with this?
+            // System.out.println("Received wrong colour! " + roverColourOrdinal);
+        }
+        roverColour = RoverColour.values()[roverColourOrdinal];
     }
 
     @Override
@@ -153,5 +162,10 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
         }
         return polygons;
 
+    }
+
+    @Override
+    public String toString() {
+        return "Rover[" + id + "]";
     }
 }

@@ -116,4 +116,9 @@ public class PiNoonAttachment extends DependentObject {
         ballonsTempCircle[balloonNo].setPosition(temp);
         return ballonsTempCircle[balloonNo];
     }
+
+    @Override
+    public String toString() {
+        return "PiNoonAttachemnt[" + id + " of " + getParentId() + "]";
+    }
 }
