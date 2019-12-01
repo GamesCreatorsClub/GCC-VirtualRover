@@ -204,7 +204,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     private void startGame() {
-        game.startChallenge(mapId);
+        game.setChallengeScreen(mapId);
     }
 
     @Override

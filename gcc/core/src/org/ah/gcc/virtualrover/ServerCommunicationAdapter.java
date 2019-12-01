@@ -112,6 +112,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     public void startEngine(String mapId, boolean local) {
         this.local = local;
         GCCGame game = new GCCGame(mapId);
+        game.setIsServer(local);
         game.init();
         GCCClientEngine engine = new GCCClientEngine(game, sessionId, playerTwoId);
         this.engine = engine;
@@ -153,6 +154,10 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             allVisibleObjects.put(rover.getId(), playerModel);
             playerModel.makeRobot(modelFactory);
             rover.setLinkBack(playerModel);
+
+            if (rover.getId() != sessionId && playerTwoId == 0) {
+                playerTwoId = rover.getId();
+            }
 
         } else if (gameObject instanceof PiNoonAttachment) {
             PiNoonAttachment piNoonAttachment = (PiNoonAttachment)gameObject;

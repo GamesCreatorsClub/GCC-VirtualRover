@@ -75,7 +75,7 @@ public class MainGame extends Game {
                     new ServerConnectionCallback() {  // TODO factor this out so it can be reused on other connectToServer attempts
                         @Override public void successful() {
                             serverCommunicationAdapter.startEngine("PiNoon", true);
-                            startChallenge("PiNoon");
+                            setChallengeScreen("PiNoon");
                         }
 
                         @Override public void failed(String msg) {
@@ -84,7 +84,7 @@ public class MainGame extends Game {
                 });
         } else if (platformSpecific.isLocalOnly()) {
             serverCommunicationAdapter.startEngine("PiNoon", true);
-            startChallenge("PiNoon");
+            setChallengeScreen("PiNoon");
         } else {
             greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 //            if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
@@ -95,7 +95,7 @@ public class MainGame extends Game {
         }
     }
 
-    public void startChallenge(String mapId) {
+    public void setChallengeScreen(String mapId) {
         Gdx.input.setOnscreenKeyboardVisible(false);
 
         challengeScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);

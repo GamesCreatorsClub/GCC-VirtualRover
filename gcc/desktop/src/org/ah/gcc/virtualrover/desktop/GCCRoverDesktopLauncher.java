@@ -1,5 +1,6 @@
 package org.ah.gcc.virtualrover.desktop;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplication;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -36,14 +37,19 @@ public class GCCRoverDesktopLauncher {
     }
 
     public static void run(Parameters parameters, PlatformSpecific desktopSpecific) {
+        Application application;
         if (parameters.isJOGL()) {
-            runJOGL(parameters, desktopSpecific);
+            application = runJOGL(parameters, desktopSpecific);
         } else {
-            runLWJGL(parameters, desktopSpecific);
+            application = runLWJGL(parameters, desktopSpecific);
+        }
+
+        if (parameters.doDebug()) {
+            application.setLogLevel(Application.LOG_DEBUG);
         }
     }
 
-    public static void runLWJGL(Parameters parameters, PlatformSpecific desktopSpecific) {
+    public static Application runLWJGL(Parameters parameters, PlatformSpecific desktopSpecific) {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.x = parameters.getX();
         config.y = parameters.getY();
@@ -51,10 +57,10 @@ public class GCCRoverDesktopLauncher {
         config.height = parameters.getHeight();
         config.fullscreen = parameters.isFullScreen();
 
-        new LwjglApplication(new MainGame(desktopSpecific), config);
+        return new LwjglApplication(new MainGame(desktopSpecific), config);
     }
 
-    public static void runJOGL(Parameters parameters, PlatformSpecific desktopSpecific) {
+    public static Application runJOGL(Parameters parameters, PlatformSpecific desktopSpecific) {
         JoglNewtApplicationConfiguration config = new JoglNewtApplicationConfiguration();
         config.useGL30 = true;
         config.x = parameters.getX();
@@ -64,6 +70,6 @@ public class GCCRoverDesktopLauncher {
         config.undecorated = parameters.isUndecorated();
         config.fullscreen = parameters.isFullScreen();
 
-        new JoglNewtApplication(new MainGame(desktopSpecific), config);
+        return new JoglNewtApplication(new MainGame(desktopSpecific), config);
     }
 }

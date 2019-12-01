@@ -155,6 +155,11 @@ public class GCCPlayerInput extends PlayerInput {
     }
 
     @Override
+    public int size() {
+        return 9;
+    }
+
+    @Override
     public void serialize(Serializer serializer) {
         serializer.serializeUnsignedShort(fitTo8Bits(moveX) << 8 | fitTo8Bits(moveY));
         serializer.serializeUnsignedShort(fitTo8Bits(rotateX) << 8 | fitTo8Bits(rotateY));

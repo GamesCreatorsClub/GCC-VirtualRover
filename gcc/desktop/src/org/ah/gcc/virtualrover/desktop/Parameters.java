@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 
 public class Parameters {
 
+    private boolean doDebug = false;
     private int width = 1440;
     private int height = 960;
     private boolean undecorated = true;
@@ -73,6 +74,9 @@ public class Parameters {
                 } else if ("--simulation".equals(args[i])) {
                     simulation = true;
                     i++;
+                } else if ("--debug".equals(args[i]) || "-d".equals(args[i])) {
+                    doDebug = true;
+                    i++;
                 } else if ("--local-only".equals(args[i]) || "-lo".equals(args[i])) {
                     localOnly = true;
                     i++;
@@ -113,6 +117,7 @@ public class Parameters {
         System.out.println("--lwjgl                  force running it as LWJGL impl. This is not a default. (*)");
         System.out.println("--simulation             Is this simulation invocation. This is not a default.");
         System.out.println("--local-only or -lo      Is this local only game. This is not a default.");
+        System.out.println("--debug or -d            Switch client debugging. This is not a default.");
         System.out.println("--help or -h or -?       This help.");
         System.out.println();
         System.out.println("(*) With no --jogl or --lwjgl set it will run JOGL on arm platform (RPi) and LWJGL any other.");
@@ -154,6 +159,10 @@ public class Parameters {
 
     public boolean isLocalOnly() {
         return localOnly;
+    }
+
+    public boolean doDebug() {
+        return doDebug;
     }
 
     public InetSocketAddress getServerAddress() {

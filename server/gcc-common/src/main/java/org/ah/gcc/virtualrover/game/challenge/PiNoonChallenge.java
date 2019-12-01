@@ -39,6 +39,8 @@ public class PiNoonChallenge extends AbstractChallenge {
             polygonFromBox( 1000, -1000,  1001,  1000));
 
     private int gameMessageId;
+    private GameState gameStateGameMessageIsDefinedOn;
+    private GameMessageObject cachedGameMessageObject;
 
     private String winner;
     private int countdown;
@@ -149,9 +151,19 @@ public class PiNoonChallenge extends AbstractChallenge {
     @Override
     public void gameObjectAdded(GameObject gameObject) {
         if (gameObject instanceof Rover) {
-            PiNoonAttachment attachment = game.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.PiNoonAttachment, game.newId());
-            game.addNewGameObject(attachment);
-            attachment.attachToRover((Rover)gameObject);
+            if (game.isServer()) {
+                PiNoonAttachment attachment = game.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.PiNoonAttachment, game.newId());
+                attachment.attachToRover((Rover)gameObject);
+                game.addNewGameObjectImmediately(attachment);
+            }
+        } else if (gameObject instanceof PiNoonAttachment) {
+            PiNoonAttachment attachment = (PiNoonAttachment)gameObject;
+            Rover rover = game.getCurrentGameState().get(attachment.getParentId());
+            if (rover != null) {
+                attachment.attachToRover(rover);
+            } else {
+                // TODO add error here!!!
+            }
         }
     }
 
@@ -173,11 +185,27 @@ public class PiNoonChallenge extends AbstractChallenge {
         GameMessageObject gameMessageObject = null;
 
         if (gameMessageId != 0) {
+            GameState currentGameState = gccGame.getCurrentGameState();
             gameMessageObject = gccGame.getCurrentGameState().get(gameMessageId);
+            if (gameMessageObject != null && gameStateGameMessageIsDefinedOn != null) {
+                gameStateGameMessageIsDefinedOn = null;
+                cachedGameMessageObject = null;
+            } else {
+                if (gameStateGameMessageIsDefinedOn != null) {
+                    if (currentGameState == gameStateGameMessageIsDefinedOn) {
+                        gameMessageObject = cachedGameMessageObject;
+                    } else {
+                        gameStateGameMessageIsDefinedOn = null;
+                        cachedGameMessageObject = null;
+                    }
+                }
+            }
         }
 
         if (gameMessageObject == null) {
+            gameStateGameMessageIsDefinedOn = gccGame.getCurrentGameState();
             gameMessageObject = (GameMessageObject) gccGame.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.GameMessageObject, gccGame.newId());
+            cachedGameMessageObject = gameMessageObject;
             gccGame.addNewGameObject(gameMessageObject);
             gameMessageId = gameMessageObject.getId();
         }
@@ -363,7 +391,9 @@ public class PiNoonChallenge extends AbstractChallenge {
                 PiNoonAttachment player1Attachment = challenge.getPlayerOneAttachment();
                 PiNoonAttachment player2Attachment = challenge.getPlayerTwoAttachment();
 
-                challenge.setMessage("round " + (player1Attachment.getScore() + player2Attachment.getScore() + 1), false);
+                if (player1Attachment != null && player2Attachment != null) {
+                    challenge.setMessage("round " + (player1Attachment.getScore() + player2Attachment.getScore() + 1), false);
+                }
                 challenge.getGameMessage().setInGame(true);
                 challenge.getGameMessage().setWaiting(false);
             }
@@ -433,24 +463,26 @@ public class PiNoonChallenge extends AbstractChallenge {
                 PiNoonAttachment player1Attachment = challenge.getPlayerOneAttachment();
                 PiNoonAttachment player2Attachment = challenge.getPlayerTwoAttachment();
 
-                if (player1Attachment.getBalloonBits() == 0 || player2Attachment.getBalloonBits() == 0) {
-                    int player1score = player1Attachment.getScore();
-                    int player2score = player2Attachment.getScore();
-                    if (player1score + player2score >= 3) {
-                        if (player1score > player2score) {
-                            challenge.winner = challenge.getPlayerOne().getAlias();
-                        } else if (player1score < player2score) {
-                            challenge.winner = challenge.getPlayerTwo().getAlias();
+                if (player1Attachment != null && player2Attachment != null) {
+                    if (player1Attachment.getBalloonBits() == 0 || player2Attachment.getBalloonBits() == 0) {
+                        int player1score = player1Attachment.getScore();
+                        int player2score = player2Attachment.getScore();
+                        if (player1score + player2score >= 3) {
+                            if (player1score > player2score) {
+                                challenge.winner = challenge.getPlayerOne().getAlias();
+                            } else if (player1score < player2score) {
+                                challenge.winner = challenge.getPlayerTwo().getAlias();
+                            }
+                            challenge.stateMachine.toState(ChallengeState.END, challenge);
+                        } else {
+                            if (player1Attachment.getBalloonBits() == 0) {
+                                challenge.winner = challenge.getPlayerTwo().getAlias();
+                            } else if (player2Attachment.getBalloonBits() == 0) {
+                                challenge.winner = challenge.getPlayerOne().getAlias();
+                            }
+                            challenge.stateMachine.toState(ChallengeState.BREAK, challenge);
+                            challenge.stopRovers();
                         }
-                        challenge.stateMachine.toState(ChallengeState.END, challenge);
-                    } else {
-                        if (player1Attachment.getBalloonBits() == 0) {
-                            challenge.winner = challenge.getPlayerTwo().getAlias();
-                        } else if (player2Attachment.getBalloonBits() == 0) {
-                            challenge.winner = challenge.getPlayerOne().getAlias();
-                        }
-                        challenge.stateMachine.toState(ChallengeState.BREAK, challenge);
-                        challenge.stopRovers();
                     }
                 }
             }

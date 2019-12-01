@@ -105,17 +105,21 @@ public class PiNoonAttachmentModel extends AbstractAttachmentModel {
 
     protected static class Balloon {
         private ModelInstance balloon;
+        // private Color colour;
 
         private boolean popped = false;
 
         public Balloon(Model model, Color balloonTransparentColour) {
+            // this.colour = balloonTransparentColour;
             balloon = new ModelInstance(model, 0, 0, 0);
             balloon.materials.get(0).set(ColorAttribute.createDiffuse(balloonTransparentColour));
             balloon.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
         }
 
         public void setColour(Color balloonTransparentColour) {
+            // this.colour = balloonTransparentColour;
             balloon.materials.get(0).set(ColorAttribute.createDiffuse(balloonTransparentColour));
+            balloon.materials.get(0).set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
         }
 
         public void render(ModelBatch batch, Environment environment) {
