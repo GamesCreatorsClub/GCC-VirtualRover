@@ -1,6 +1,5 @@
 package org.ah.gcc.virtualrover;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
@@ -9,6 +8,7 @@ import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.gcc.virtualrover.game.PiNoonAttachment;
 import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
+import org.ah.gcc.virtualrover.logging.GdxClientLoggingAdapter;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
@@ -42,12 +42,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             Console console,
             ModelFactory modelFactory) {
 
-        super(new CommonServerCommunicationAdapter.LoggingCallback() {
-                @Override public void error(String area, String msg, Throwable e) {
-                    Gdx.app.error(area, msg, e);
-                }
-            },
-            serverCommunication);
+        super(GdxClientLoggingAdapter.getInstance(), serverCommunication);
 
         GCCMessageFactory messageFactory = new GCCMessageFactory();
         messageFactory.init();
@@ -73,6 +68,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public void setPlayerOneInput(int currentFrameNo, GCCPlayerInput playerInput) {
+        // TODO remove this!
+        playerInput.moveX(0.5f);
+
         playerOneInputMessage.addInput(sessionId, currentFrameNo, playerInput);
 
         if (serverCommunication.isConnected()) {
@@ -114,7 +112,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         GCCGame game = new GCCGame(mapId);
         game.setIsServer(local);
         game.init();
-        GCCClientEngine engine = new GCCClientEngine(game, sessionId, playerTwoId);
+        GCCClientEngine engine = new GCCClientEngine(game, logger, sessionId, playerTwoId);
         this.engine = engine;
 
         engine.getGame().setGameObjectAddedListener(this);

@@ -6,6 +6,7 @@ import org.ah.gcc.virtualrover.desktop.GCCRoverDesktopLauncher;
 import org.ah.gcc.virtualrover.desktop.Parameters;
 import org.ah.gcc.virtualrover.server.engine.GCCServerEngineModule;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
+import org.ah.themvsus.engine.client.HeadlessClient;
 import org.ah.themvsus.engine.common.security.BCrypt;
 import org.ah.themvsus.server.authentication.ThemVsUsSimpleFileRegistrationModule;
 import org.ah.themvsus.server.log.LogHelper;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.ah.themvsus.engine.common.debug.Debug.DEBUG;
@@ -47,6 +49,10 @@ public class StartGCCTestProject {
         }
 
         LogHelper.setupLogging(config);
+
+        Logger headlessLogger = Logger.getLogger("headless");
+        headlessLogger.setLevel(LogHelper.levelFromString(config.getProperty("headless.level", Level.FINER.getName())));
+
 
         Logger logger = LogHelper.SERVER_LOGGER;
 
@@ -136,7 +142,7 @@ public class StartGCCTestProject {
         httpsServer.listen(httpsPort);
 
 //        startHeadlessClient("test1", "123");
-//        startHeadlessClient("test2", "123");
+        startHeadlessClient("test2", "123");
 //        startHeadlessClient("test3", "123");
 //        startHeadlessClient("test4", "123");
 //        startHeadlessClient("test5", "123");

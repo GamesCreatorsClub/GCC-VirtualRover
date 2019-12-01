@@ -2,6 +2,7 @@ package org.ah.gcc.virtualrover.engine.client;
 
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.themvsus.engine.client.ClientEngine;
+import org.ah.themvsus.engine.client.logging.ClientLogging;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 public class GCCClientEngine extends ClientEngine<GCCGame> {
@@ -9,13 +10,13 @@ public class GCCClientEngine extends ClientEngine<GCCGame> {
     private int playerTwoId = -1;
     private PlayerInputs playerTwoInputs;
 
-    public GCCClientEngine(GCCGame game, int playerOneId, int playerTwoId) {
-        super(game, playerOneId);
+    public GCCClientEngine(GCCGame game, ClientLogging logging, int playerOneId, int playerTwoId) {
+        super(game, logging, playerOneId);
         this.playerTwoId = playerTwoId;
     }
 
-    public GCCClientEngine(GCCGame game, int sessionId) {
-        this(game, sessionId, -1);
+    public GCCClientEngine(GCCGame game, ClientLogging logging, int sessionId) {
+        this(game, logging, sessionId, -1);
     }
 
     public void processPlayerTwoInputs() {

@@ -188,12 +188,12 @@ public class GCCPlayerInput extends PlayerInput {
     @Override
     public void deserialize(Serializer deserializer) {
         int moveXY = deserializer.deserializeUnsignedShort();
-        moveX = (((moveXY >> 8) & 0xff) / 127) - 1;
-        moveY = ((moveXY & 0xff) / 127) - 1;
+        moveX = (((moveXY >> 8) & 0xff) / 127f) - 1f;
+        moveY = ((moveXY & 0xff) / 127f) - 1f;
 
         int rotateXY = deserializer.deserializeUnsignedShort();
-        rotateX = (((rotateXY >> 8) & 0xff) / 127) - 1;
-        rotateY = ((rotateXY & 0xff) / 127) - 1;
+        rotateX = (((rotateXY >> 8) & 0xff) / 127f) - 1f;
+        rotateY = ((rotateXY & 0xff) / 127f) - 1f;
 
         int triggers = deserializer.deserializeUnsignedByte();
         leftTrigger = (triggers & 0xf) / 15f;

@@ -4,21 +4,11 @@ import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.themvsus.engine.common.message.ChatMessage;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class HeadlessClientServerCommunicationAdapter extends CommonServerCommunicationAdapter<GCCGame> {
-
-    private static final Logger logger = Logger.getLogger("TestServer");
 
     public HeadlessClientServerCommunicationAdapter(
             ServerCommunication serverCommunication) {
-        super(new CommonServerCommunicationAdapter.LoggingCallback() {
-                @Override public void error(String area, String msg, Throwable e) {
-                    logger.log(Level.SEVERE, area + ":" + msg, e);
-                }
-            },
-            serverCommunication);
+        super(new LocalClientLogging(), serverCommunication);
 
         GCCMessageFactory messageFactory = new GCCMessageFactory();
         messageFactory.init();
@@ -33,7 +23,7 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
         GCCGame game = new GCCGame("PiNoon");
         game.init();
 
-        engine = new ClientEngine<GCCGame>(game, sessionId);
+        engine = new ClientEngine<GCCGame>(game, logger, sessionId);
 
         sendClientReady();
 
