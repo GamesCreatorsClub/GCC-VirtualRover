@@ -68,7 +68,11 @@ public class GCCGame extends Game {
     @Override
     public GameState process() { // ServerEngine.mainloop
         if (challenge != null) {
-            challenge.process(getCurrentGameState());
+            try {
+                challenge.process(getCurrentGameState());
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
         }
         return super.process();
     }

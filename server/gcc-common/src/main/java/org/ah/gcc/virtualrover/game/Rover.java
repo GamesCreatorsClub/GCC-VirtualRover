@@ -119,22 +119,19 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
-        int roverColourOrdinal = (byte)roverColour.ordinal();
-        if (roverColourOrdinal > 2) {
-            System.exit(-1);
-        }
-        serializer.serializeUnsignedByte(roverColourOrdinal);
+        serializer.serializeUnsignedByte(roverColour.ordinal());
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
         int roverColourOrdinal = serializer.deserializeUnsignedByte();
-        if (roverColourOrdinal >= RoverColour.values().length) {
+        if (roverColourOrdinal < RoverColour.values().length) {
+            roverColour = RoverColour.values()[roverColourOrdinal];
+        } else {
             // TODO how to deal with this?
             // System.out.println("Received wrong colour! " + roverColourOrdinal);
         }
-        roverColour = RoverColour.values()[roverColourOrdinal];
     }
 
     @Override
