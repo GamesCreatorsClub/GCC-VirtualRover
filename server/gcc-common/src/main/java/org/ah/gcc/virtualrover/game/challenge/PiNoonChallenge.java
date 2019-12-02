@@ -149,7 +149,11 @@ public class PiNoonChallenge extends AbstractChallenge {
     }
 
     @Override
-    public void gameObjectAdded(GameObject gameObject) {
+    public void beforeGameObjectAdded(GameObject gameObject) {
+    }
+
+    @Override
+    public void afterGameObjectAdded(GameObject gameObject) {
         if (gameObject instanceof Rover) {
             if (game.isServer()) {
                 PiNoonAttachment attachment = game.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.PiNoonAttachment, game.newId());

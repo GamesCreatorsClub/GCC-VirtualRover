@@ -23,7 +23,7 @@ public abstract class AbstractChallenge implements Challenge {
     }
 
     @Override
-    public void gameObjectAdded(GameObject gameObject) {
+    public void beforeGameObjectAdded(GameObject gameObject) {
     }
 
     @Override

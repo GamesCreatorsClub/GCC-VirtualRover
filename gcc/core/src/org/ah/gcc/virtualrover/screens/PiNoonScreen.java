@@ -39,7 +39,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private boolean renderBackground = false;
     private boolean drawFPS = false;
 
-    private org.ah.themvsus.engine.common.game.GameState processedGameState;
     private IntSet unknownObjectIds = new IntSet();
 
     public PiNoonScreen(MainGame game,
@@ -107,7 +106,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
         if (engine != null) {
             long now = System.currentTimeMillis() * 1000;
-            processedGameState = engine.progressEngine(now, unknownObjectIds);
+            engine.progressEngine(now, unknownObjectIds);
 
             if (unknownObjectIds.size > 0) {
                 serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
@@ -115,11 +114,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
             PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
             if (playerOne != null) {
-                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
+                serverCommunicationAdapter.setPlayerOneInput(playerOne.roverInput);
             }
             PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
             if (playerTwo != null) {
-                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
+                serverCommunicationAdapter.setPlayerTwoInput(playerTwo.roverInput);
             }
         }
 

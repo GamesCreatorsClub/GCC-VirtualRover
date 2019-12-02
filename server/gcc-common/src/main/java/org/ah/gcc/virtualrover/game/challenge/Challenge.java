@@ -21,7 +21,9 @@ public interface Challenge {
 
     String getName();
 
-    void gameObjectAdded(GameObject gameObject);
+    void beforeGameObjectAdded(GameObject gameObject);
+
+    void afterGameObjectAdded(GameObject gameObject);
 
     void gameObjectRemoved(GameObject gameObject);
 }

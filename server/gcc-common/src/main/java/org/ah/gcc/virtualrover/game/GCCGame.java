@@ -88,9 +88,14 @@ public class GCCGame extends Game {
     @Override
     protected void fireGameObjectAdded(GameObject newGameObject) {
         if (challenge != null) {
-            challenge.gameObjectAdded(newGameObject);
+            challenge.beforeGameObjectAdded(newGameObject);
         }
+
         super.fireGameObjectAdded(newGameObject);
+
+        if (challenge != null) {
+            challenge.afterGameObjectAdded(newGameObject);
+        }
     }
 
     @Override

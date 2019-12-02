@@ -67,29 +67,17 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return allVisibleObjects;
     }
 
-    public void setPlayerOneInput(int currentFrameNo, GCCPlayerInput playerInput) {
-        // TODO remove this!
-        playerInput.moveX(0.5f);
-
-        playerOneInputMessage.addInput(sessionId, currentFrameNo, playerInput);
+    public void setPlayerOneInput(GCCPlayerInput playerInput) {
+        getEngine().updateInput(playerInput);
 
         if (serverCommunication.isConnected()) {
             sendPlayerInput(playerOneInputMessage);
-        } else {
-            // Allow shortcut with inputs before
-            engine.receiveMessage(playerOneInputMessage);
         }
     }
 
-    public void setPlayerTwoInput(int currentFrameNo, GCCPlayerInput playerInput) {
-        playerTwoInputMessage.addInput(sessionId, currentFrameNo, playerInput);
-
-        if (serverCommunication.isConnected()) {
-            sendPlayerInput(playerTwoInputMessage);
-        } else {
-            // Allow shortcut with inputs before
-            engine.receiveMessage(playerTwoInputMessage);
-        }
+    public void setPlayerTwoInput(GCCPlayerInput playerInput) {
+        // getEngine().updateInput(playerInput); -- for second player: see next line
+        playerTwoInputMessage.addInput(playerTwoId, getEngine().getGame().getCurrentFrameId(), -1, playerInput);
     }
 
 
@@ -112,7 +100,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         GCCGame game = new GCCGame(mapId);
         game.setIsServer(local);
         game.init();
-        GCCClientEngine engine = new GCCClientEngine(game, logger, sessionId, playerTwoId);
+        GCCClientEngine engine = new GCCClientEngine(game, playerOneInputMessage, logger, sessionId, playerTwoId);
         engine.setFollowOnly(simulation);
         this.engine = engine;
 
