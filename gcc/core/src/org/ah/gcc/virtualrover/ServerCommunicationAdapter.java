@@ -107,12 +107,13 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return local;
     }
 
-    public void startEngine(String mapId, boolean local) {
+    public void startEngine(String mapId, boolean local, boolean simulation) {
         this.local = local;
         GCCGame game = new GCCGame(mapId);
         game.setIsServer(local);
         game.init();
         GCCClientEngine engine = new GCCClientEngine(game, logger, sessionId, playerTwoId);
+        engine.setFollowOnly(simulation);
         this.engine = engine;
 
         engine.getGame().setGameObjectAddedListener(this);

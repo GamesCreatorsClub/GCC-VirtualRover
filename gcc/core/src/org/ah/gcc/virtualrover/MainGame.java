@@ -74,7 +74,7 @@ public class MainGame extends Game {
                     platformSpecific.getPreferredServerPort(),
                     new ServerConnectionCallback() {  // TODO factor this out so it can be reused on other connectToServer attempts
                         @Override public void successful() {
-                            serverCommunicationAdapter.startEngine("PiNoon", true);
+                            serverCommunicationAdapter.startEngine("PiNoon", true, platformSpecific.isSimulation());
                             setChallengeScreen("PiNoon");
                         }
 
@@ -83,7 +83,7 @@ public class MainGame extends Game {
                         }
                 });
         } else if (platformSpecific.isLocalOnly()) {
-            serverCommunicationAdapter.startEngine("PiNoon", true);
+            serverCommunicationAdapter.startEngine("PiNoon", true, platformSpecific.isSimulation());
             setChallengeScreen("PiNoon");
         } else {
             greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);

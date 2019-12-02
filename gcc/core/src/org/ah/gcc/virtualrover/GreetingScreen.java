@@ -200,7 +200,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     private void doLoadMap() {
-        serverCommunicationAdapter.startEngine(mapId, false);
+        serverCommunicationAdapter.startEngine(mapId, false, platformSpecific.isSimulation());
     }
 
     private void startGame() {
