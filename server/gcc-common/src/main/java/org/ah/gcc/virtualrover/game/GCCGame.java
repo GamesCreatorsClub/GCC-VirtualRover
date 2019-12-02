@@ -19,11 +19,12 @@ import static org.ah.gcc.virtualrover.engine.utils.CollisionUtils.polygonsOverla
 
 public class GCCGame extends Game {
 
+    public static int GAME_TICK_IN_us = 16000;
+
     private Challenge challenge;
-    public static final long ENGINE_LOOP_TIME_us = 8500;
 
     public GCCGame(String mapId) {
-        super();
+        super(GAME_TICK_IN_us);
         if (mapId != null) {
             this.challenge = Challenges.createChallenge(this, mapId);
         }

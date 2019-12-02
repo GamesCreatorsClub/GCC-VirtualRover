@@ -26,7 +26,6 @@ import org.ah.gcc.virtualrover.world.PlayerModelLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
-import static org.ah.gcc.virtualrover.game.GCCGame.ENGINE_LOOP_TIME_us;
 
 public class PiNoonScreen extends AbstractStandardScreen implements InputProcessor {
 
@@ -39,7 +38,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     private boolean renderBackground = false;
     private boolean drawFPS = false;
-    private long nextRun;
 
     private org.ah.themvsus.engine.common.game.GameState processedGameState;
     private IntSet unknownObjectIds = new IntSet();
@@ -107,43 +105,24 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
-        long now = System.currentTimeMillis() * 1000;
-        if (engine != null &&!engine.isPaused()) {
-            if (engine.isFixedClientFrameNo()) {
-                engine.resetFixedClientFrameNo();
-                nextRun = now;
-            } else if (nextRun == 0) {
-                nextRun = now;
-            }
-            unknownObjectIds.clear();
-            try {
-                engine.processCommands(unknownObjectIds);
-            } catch (RuntimeException e) {
-                // TODO log something!
-            }
+        if (engine != null) {
+            long now = System.currentTimeMillis() * 1000;
+            processedGameState = engine.progressEngine(now, unknownObjectIds);
+
             if (unknownObjectIds.size > 0) {
                 serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
             }
-            while (nextRun <= now) {
-                if (!platformSpecific.isSimulation()) {
-                    engine.processPlayerInputs();
-                } else {
-                    engine.getPlayerInputs().pop(engine.getGame().getCurrentGameState().getFrameNo());
-                }
-                processedGameState = engine.process();
 
-                nextRun = nextRun + ENGINE_LOOP_TIME_us;
+            PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
+            if (playerOne != null) {
+                serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
+            }
+            PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
+            if (playerTwo != null) {
+                serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
             }
         }
 
-        PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
-        if (playerOne != null) {
-            serverCommunicationAdapter.setPlayerOneInput(processedGameState.getFrameNo() + 1, playerOne.roverInput);
-        }
-        PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
-        if (playerTwo != null) {
-            serverCommunicationAdapter.setPlayerTwoInput(processedGameState.getFrameNo() + 1, playerTwo.roverInput);
-        }
 
         cameraControllersManager.update();
         camera.update();
