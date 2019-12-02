@@ -16,6 +16,8 @@ import org.ah.themvsus.server.util.FileConfigLoader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -141,16 +143,22 @@ public class StartGCCTestProject {
         httpServer.listen(httpPort);
         httpsServer.listen(httpsPort);
 
-//        startHeadlessClient("test1", "123");
-        startHeadlessClient("test2", "123");
-//        startHeadlessClient("test3", "123");
-//        startHeadlessClient("test4", "123");
-//        startHeadlessClient("test5", "123");
+        boolean solo = false;
+        List<String> localArgs = Arrays.asList(args);
+        if (localArgs.contains("--solo")) {
+            localArgs.remove("--solo");
+        }
 
-//        final boolean isArm = "arm".equals(System.getProperty("os.arch"));
+        // startHeadlessClient("test1", "123");
+        if (solo) {
+            startHeadlessClient("test2", "123");
+        }
+        // startHeadlessClient("test3", "123");
+        // startHeadlessClient("test4", "123");
+        // startHeadlessClient("test5", "123");
 
         Parameters parameters = new Parameters();
-        parameters.parseArgs(args);
+        parameters.parseArgs(localArgs.toArray(new String[localArgs.size()]));
 
         TestDesktopPlatformSpecific desktopSpecific = new TestDesktopPlatformSpecific();
         desktopSpecific.setHasSound(parameters.hasSound());

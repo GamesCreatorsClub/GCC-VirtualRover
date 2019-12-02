@@ -28,7 +28,7 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
         GCCGame game = new GCCGame("PiNoon");
         game.init();
 
-        engine = new ClientEngine<GCCGame>(game, playerInputMessage, logger, sessionId);
+        engine = new ClientEngine<GCCGame>(game, serverCommunication, playerInputMessage, logger, sessionId);
 
         sendClientReady();
 

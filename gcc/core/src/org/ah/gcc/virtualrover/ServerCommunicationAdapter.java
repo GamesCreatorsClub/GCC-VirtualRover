@@ -71,7 +71,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         getEngine().updateInput(playerInput);
 
         if (serverCommunication.isConnected()) {
-            sendPlayerInput(playerOneInputMessage);
+            engine.sendPlayerInput();
         }
     }
 
@@ -100,7 +100,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         GCCGame game = new GCCGame(mapId);
         game.setIsServer(local);
         game.init();
-        GCCClientEngine engine = new GCCClientEngine(game, playerOneInputMessage, logger, sessionId, playerTwoId);
+        GCCClientEngine engine = new GCCClientEngine(game, serverCommunication, playerOneInputMessage, logger, sessionId, playerTwoId);
         engine.setFollowOnly(simulation);
         this.engine = engine;
 
