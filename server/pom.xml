@@ -40,6 +40,11 @@
       </dependency>
       <dependency>
         <groupId>org.ah.themvsus</groupId>
+        <artifactId>engine-client-desktop</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ah.themvsus</groupId>
         <artifactId>engine-server</artifactId>
         <version>${project.version}</version>
       </dependency>

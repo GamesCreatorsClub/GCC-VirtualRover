@@ -45,6 +45,11 @@ public class MainGame extends Game {
         assetManager.load("GCC_full.png", Texture.class);
         assetManager.load("font/basic.fnt", BitmapFont.class);
         assetManager.load("font/copper18.fnt", BitmapFont.class);
+        // assetManager.load("font/droidsansmono-8.fnt", BitmapFont.class);
+        assetManager.load("font/droidsansmono-15.fnt", BitmapFont.class);
+        // assetManager.load("font/font18.fnt", BitmapFont.class);
+        // assetManager.load("font/font24.fnt", BitmapFont.class);
+        // assetManager.load("font/font32.fnt", BitmapFont.class);
 
         soundManager = new SoundManager(!platformSpecific.hasSound());
         soundManager.requestAssets(assetManager);

@@ -16,13 +16,15 @@ import org.ah.themvsus.server.util.FileConfigLoader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.ah.themvsus.engine.common.debug.Debug.DEBUG;
+
+import static java.util.Arrays.asList;
 
 import io.vertx.core.ServiceHelper;
 import io.vertx.core.Vertx;
@@ -144,9 +146,10 @@ public class StartGCCTestProject {
         httpsServer.listen(httpsPort);
 
         boolean solo = false;
-        List<String> localArgs = Arrays.asList(args);
+        List<String> localArgs = new ArrayList<String>(asList(args));
         if (localArgs.contains("--solo")) {
             localArgs.remove("--solo");
+            solo = true;
         }
 
         // startHeadlessClient("test1", "123");

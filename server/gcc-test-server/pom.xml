@@ -37,6 +37,10 @@
     </dependency>
     <dependency>
       <groupId>org.ah.themvsus</groupId>
+      <artifactId>engine-client-desktop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ah.themvsus</groupId>
       <artifactId>engine-server</artifactId>
     </dependency>
     <dependency>

@@ -1,6 +1,7 @@
 package org.ah.gcc.virtualrover.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -42,7 +43,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     protected OrthographicCamera hudCamera;
     protected SpriteBatch spriteBatch;
-    protected BitmapFont font;
+    protected BitmapFont fontBig;
+    protected BitmapFont fontSmallMono;
     protected Texture gccLogo;
 
     protected Console console;
@@ -58,6 +60,13 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     private GlyphLayout glyphLayout = new GlyphLayout();
     private int a = 0;
+
+    protected boolean leftShift;
+    protected boolean rightShift;
+    protected boolean leftAlt;
+    protected boolean rightAlt;
+    protected boolean leftCtrl;
+    protected boolean rightCtrl;
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -92,7 +101,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     public void dispose() {
         batch.dispose();
         spriteBatch.dispose();
-        font.dispose();
+        fontBig.dispose();
         if (gccLogo == null) { gccLogo.dispose(); }
         if (challenge != null) { challenge.dispose(); }
         if (background != null) { background.dispose(); }
@@ -126,8 +135,11 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     @Override
     public void show() {
-        if (font == null) {
-            font = assetManager.get("font/basic.fnt");
+        if (fontBig == null) {
+            fontBig = assetManager.get("font/basic.fnt");
+        }
+        if (fontSmallMono == null) {
+            fontSmallMono = assetManager.get("font/droidsansmono-15.fnt");
         }
         if (gccLogo == null) {
             gccLogo = assetManager.get("GCC_full.png");
@@ -164,7 +176,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
         }
         if (bottomMessage != null && (!bottomMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
-            font.draw(spriteBatch, bottomMessage, 64, 128);
+            fontBig.draw(spriteBatch, bottomMessage, 64, 128);
             // font.draw(spriteBatch, "Press space to start", margin, margin * 2);
         }
 
@@ -173,10 +185,10 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         if (gameMessageObject != null && gameMessageObject.getMessage() != null&& !"".equals(gameMessageObject.getMessage())) {
             middleMessage = "";
             String message = gameMessageObject.getMessage();
-            font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(font, message)) / 2, (Gdx.graphics.getHeight() - font.getLineHeight()) / 2);
+            fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) / 2, (Gdx.graphics.getHeight() - fontBig.getLineHeight()) / 2);
         } else if (middleMessage != null && (!middleMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
             String message = middleMessage;
-            font.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(font, message)) / 2, (Gdx.graphics.getHeight() - font.getLineHeight()) / 2);
+            fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) / 2, (Gdx.graphics.getHeight() - fontBig.getLineHeight()) / 2);
         }
 
         spriteBatch.end();
@@ -209,6 +221,50 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     @Override
     public void onText(String text) {
 
+    }
+
+    public boolean keyDown(int keycode) {
+        if (keycode == Input.Keys.SHIFT_LEFT) {
+            leftShift = true;
+        }
+        if (keycode == Input.Keys.SHIFT_RIGHT) {
+            rightShift = true;
+        }
+        if (keycode == Input.Keys.ALT_LEFT) {
+            leftAlt = true;
+        }
+        if (keycode == Input.Keys.ALT_RIGHT) {
+            rightAlt = true;
+        }
+        if (keycode == Input.Keys.CONTROL_LEFT) {
+            leftCtrl = true;
+        }
+        if (keycode == Input.Keys.CONTROL_RIGHT) {
+            rightCtrl = true;
+        }
+        return false;
+    }
+
+    public boolean keyUp(int keycode) {
+        if (keycode == Input.Keys.SHIFT_LEFT) {
+            leftShift = false;
+        }
+        if (keycode == Input.Keys.SHIFT_RIGHT) {
+            rightShift = false;
+        }
+        if (keycode == Input.Keys.ALT_LEFT) {
+            leftAlt = false;
+        }
+        if (keycode == Input.Keys.ALT_RIGHT) {
+            rightAlt = false;
+        }
+        if (keycode == Input.Keys.CONTROL_LEFT) {
+            leftCtrl = false;
+        }
+        if (keycode == Input.Keys.CONTROL_RIGHT) {
+            rightCtrl = false;
+        }
+        return false;
     }
 
     protected float textWidth(BitmapFont font, String text) {

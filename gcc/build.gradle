@@ -55,6 +55,7 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-backend-jogamp:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+        api "org.ah.themvsus:engine-client-desktop:$themvsusVersion"
     }
 }
 
@@ -110,6 +111,7 @@ project(":html") {
         api "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
         api "org.ah.themvsus:engine-common:$themvsusVersion:sources"
         api "org.ah.themvsus:engine-client:$themvsusVersion:sources"
+        api "org.ah.themvsus:engine-client-web:$themvsusVersion:sources"
         api "org.ah.gcc.virtualrover:gcc-common:$gccVersion:sources"
         api "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersionForczyzby"
         api "com.github.czyzby:gdx-websocket:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"

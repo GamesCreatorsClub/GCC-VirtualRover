@@ -23,6 +23,7 @@ import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.PlayerModelLink;
+import org.ah.themvsus.engine.client.AbstractServerCommunication;
 import org.ah.themvsus.engine.client.ClientEngine;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
@@ -165,7 +166,13 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     private void drawFPS() {
         String fps = Integer.toString(Gdx.graphics.getFramesPerSecond());
-        font.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight() - 40);
+        ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
+        String rtt = "RTT: " + Integer.toString(engine.getAverageRTT()) + "/" + Integer.toString(engine.getMaxRTT()) + "/" + Integer.toString(engine.getCurrentRTT());
+        AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
+        String debugDelay = "DD: " + Integer.toString(abstractServerCommunication.getReceivingDelay()) + "/" + Integer.toString(abstractServerCommunication.getSendingDelay());
+        fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight() - 12);
+        fontSmallMono.draw(spriteBatch, rtt, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 12);
+        fontSmallMono.draw(spriteBatch, debugDelay, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 30);
     }
 
     private void drawScore() {
@@ -210,6 +217,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
     @Override
     public boolean keyDown(int keycode) {
+        super.keyDown(keycode);
         if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
             GCCGame game = serverCommunicationAdapter.getEngine().getGame();
 
@@ -248,12 +256,39 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         if (keycode == Input.Keys.F) {
             drawFPS = !drawFPS;
         }
+
         return false;
     }
 
-    @Override public boolean keyUp(int keycode) { return false; }
+    @Override public boolean keyUp(int keycode) {
+        super.keyUp(keycode);
+        return false;
+    }
 
-    @Override public boolean keyTyped(char character) { return false; }
+    @Override public boolean keyTyped(char character) {
+        if (character == '=') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            serverCommmunication.setSendingDelay(serverCommmunication.getSendingDelay() + 5);
+        } else if (character == '-') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            int newSendingDelay = serverCommmunication.getSendingDelay() - 5;
+            if (newSendingDelay < 0) {
+                newSendingDelay = 0;
+            }
+            serverCommmunication.setSendingDelay(newSendingDelay);
+        } else if (character == '+') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            serverCommmunication.setReceivingDelay(serverCommmunication.getReceivingDelay() + 5);
+        } else if (character == '_') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            int newReceivingDelay = serverCommmunication.getReceivingDelay() - 5;
+            if (newReceivingDelay < 0) {
+                newReceivingDelay = 0;
+            }
+            serverCommmunication.setReceivingDelay(newReceivingDelay);
+        }
+        return false;
+    }
 
     @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) { return false; }
 

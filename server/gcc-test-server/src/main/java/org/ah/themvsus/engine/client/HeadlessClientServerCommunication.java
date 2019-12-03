@@ -1,5 +1,6 @@
 package org.ah.themvsus.engine.client;
 
+import org.ah.themvsus.engine.client.desktop.UDPServerCommunication;
 import org.ah.themvsus.engine.client.logging.ClientLogging;
 
 public class HeadlessClientServerCommunication extends UDPServerCommunication {
