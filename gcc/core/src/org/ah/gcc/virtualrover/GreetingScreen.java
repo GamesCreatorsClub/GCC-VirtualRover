@@ -68,9 +68,9 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     private boolean doStartGame = false;
     private boolean doLoadMap;
-    private AssetManager assetManager;
-    private SoundManager soundManager;
-    private ModelFactory modelFactory;
+//    private AssetManager assetManager;
+//    private SoundManager soundManager;
+//    private ModelFactory modelFactory;
 
 
     public GreetingScreen(MainGame game,
@@ -83,9 +83,9 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
         this.game = game;
         this.platformSpecific = platformSpecific;
-        this.assetManager = assetManager;
-        this.soundManager = soundManager;
-        this.modelFactory = modelFactory;
+//        this.assetManager = assetManager;
+//        this.soundManager = soundManager;
+//        this.modelFactory = modelFactory;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 

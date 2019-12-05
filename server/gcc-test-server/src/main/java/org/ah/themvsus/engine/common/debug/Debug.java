@@ -11,8 +11,8 @@ public class Debug {
 
     private boolean pauseAllowed;
     private boolean isPaused;
-    private ServerEngine serverEngine;
-    private ClientEngine clientEngine;
+    private ServerEngine<?> serverEngine;
+    private ClientEngine<?> clientEngine;
 
     private Debug() {}
 
@@ -48,13 +48,13 @@ public class Debug {
         return isPaused;
     }
 
-    public void setServerEngine(ServerEngine engine) { serverEngine = engine; }
+    public void setServerEngine(ServerEngine<?> engine) { serverEngine = engine; }
 
-    public void setClientEngine(ClientEngine engine) { clientEngine = engine; }
+    public void setClientEngine(ClientEngine<?> engine) { clientEngine = engine; }
 
-    public Engine getServerEngine() { return serverEngine; }
+    public Engine<?> getServerEngine() { return serverEngine; }
 
-    public Engine getClientEngine() { return clientEngine; }
+    public Engine<?> getClientEngine() { return clientEngine; }
 
     public ClientSession getClientSessionByAlias(String alias) {
         return serverEngine.getClientSessionByAlias(alias);
