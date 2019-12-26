@@ -3,6 +3,7 @@ package org.ah.gcc.virtualrover;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
+import org.ah.gcc.virtualrover.game.BarrelObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.gcc.virtualrover.game.PiNoonAttachment;
@@ -13,6 +14,7 @@ import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.Console;
+import org.ah.gcc.virtualrover.world.BarrelModelLink;
 import org.ah.gcc.virtualrover.world.PiNoonAttachmentModelLink;
 import org.ah.gcc.virtualrover.world.PlayerModelLink;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
@@ -157,6 +159,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             allVisibleObjects.put(gameObject.getId(), piNoonAttachmentModel);
         } else if (gameObject instanceof GameMessageObject) {
             gameMessageId = gameObject.getId();
+        } else if (gameObject instanceof BarrelObject) {
+            BarrelObject barrelObject = (BarrelObject)gameObject;
+            BarrelModelLink barrelModelLink = new BarrelModelLink(engine.getGame(), barrelObject.getId(), barrelObject.getBarrelColour());
+            allVisibleObjects.put(barrelObject.getId(), barrelModelLink);
+            barrelModelLink.make(modelFactory);
+            barrelObject.setLinkBack(barrelModelLink);
         }
     }
 

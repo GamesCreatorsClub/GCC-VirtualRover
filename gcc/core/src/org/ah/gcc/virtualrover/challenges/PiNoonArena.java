@@ -27,7 +27,6 @@ import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.PiNoonAttachment;
 import org.ah.gcc.virtualrover.game.Rover;
-import org.ah.gcc.virtualrover.world.BarrelModelLink;
 import org.ah.gcc.virtualrover.world.PiNoonAttachmentModelLink;
 import org.ah.gcc.virtualrover.world.PlayerModelLink;
 
@@ -53,8 +52,8 @@ public class PiNoonArena extends AbstractChallenge {
 
     private ModelInstance floorModelInstance;
 
-    private BarrelModelLink redBarrel;
-    private BarrelModelLink greenBarrel;
+//    private BarrelModelLink redBarrel;
+//    private BarrelModelLink greenBarrel;
     private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
 
     public boolean showPlan = false;
@@ -85,15 +84,15 @@ public class PiNoonArena extends AbstractChallenge {
         Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
         floorModelInstance.materials.get(0).set(attributes);
 
-        redBarrel = new BarrelModelLink(null, -1, Color.RED);
-        redBarrel.make(modelFactory);
-        greenBarrel = new BarrelModelLink(null, -1, Color.GREEN);
-        greenBarrel.make(modelFactory);
-
-        greenBarrel.barrel.transform.translate(100f, 0f, 0f);
-
-        localVisibleObjects.put(5, redBarrel);
-        localVisibleObjects.put(6, greenBarrel);
+//        redBarrel = new BarrelModelLink(null, -1, Color.RED);
+//        redBarrel.make(modelFactory);
+//        greenBarrel = new BarrelModelLink(null, -1, Color.GREEN);
+//        greenBarrel.make(modelFactory);
+//
+//        greenBarrel.barrelModel.transform.translate(100f, 0f, 0f);
+//
+//        localVisibleObjects.put(5, redBarrel);
+//        localVisibleObjects.put(6, greenBarrel);
     }
 
     @Override

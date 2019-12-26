@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
+import org.ah.gcc.virtualrover.game.BarrelObject;
+import org.ah.gcc.virtualrover.game.BarrelObject.BarrelColour;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.Rover;
 
@@ -22,7 +24,7 @@ public class BarrelModelLink implements VisibleObject {
     public int id;
     public Color colour;
     public GCCGame game;
-    public ModelInstance barrel;
+    public ModelInstance barrelModel;
 
     public BarrelModelLink(GCCGame game, int id, Color colour) {
         this.game = game;
@@ -30,20 +32,40 @@ public class BarrelModelLink implements VisibleObject {
         this.colour = colour;
     }
 
+    public BarrelModelLink(GCCGame game, int id, BarrelColour barrelColour) {
+        this(game, id, fromBarrelColour(barrelColour));
+    }
+
     public void make(ModelFactory modelFactory) {
-        barrel = new ModelInstance(modelFactory.getBarrel());
-        barrel.transform.scale(SCALE, SCALE, SCALE).rotate(UP, 90).translate(0f, 0f, 20f);
-        barrel.materials.get(0).set(ColorAttribute.createDiffuse(colour));
+        barrelModel = new ModelInstance(modelFactory.getBarrel());
+        barrelModel.transform.scale(SCALE, SCALE, SCALE).rotate(UP, 90).translate(0f, 0f, 20f);
+        barrelModel.materials.get(0).set(ColorAttribute.createDiffuse(colour));
     }
 
     @Override
     public void render(ModelBatch batch, Environment environment) {
-        batch.render(barrel, environment);
+        if (game != null) {
+            BarrelObject barrelObject = game.getCurrentGameState().get(id);
+
+            Vector3 position = barrelObject.getPosition();
+
+            barrelModel.transform.setToTranslationAndScaling(position.x * SCALE, 0, -position.y * SCALE, SCALE, SCALE, SCALE).rotate(UP, 90).translate(0f, 0f, 20f);
+        }
+        batch.render(barrelModel, environment);
     }
 
     public void setGamePlayerPositionAndOrientation(int x, int y, Quaternion orientation) {
         Rover gccPlayer = game.getCurrentGameState().get(id);
         gccPlayer.setPosition(x, y);
         gccPlayer.setOrientation(orientation);
+    }
+
+    public static Color fromBarrelColour(BarrelColour barrelColour) {
+        if (barrelColour == BarrelColour.GREEN) {
+            return Color.GREEN;
+        } else if (barrelColour == BarrelColour.RED) {
+            return Color.RED;
+        }
+        return Color.WHITE;
     }
 }
