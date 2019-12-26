@@ -1,6 +1,7 @@
 package org.ah.themvsus.engine.client;
 
 import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
 import org.ah.themvsus.engine.common.message.ChatMessage;
@@ -25,7 +26,7 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
     }
 
     public void startEngine(String mapId) {
-        GCCGame game = new GCCGame("PiNoon");
+        GCCGame game = new GCCGame(mapId);
         game.init();
 
         engine = new ClientEngine<GCCGame>(game, serverCommunication, playerInputMessage, logger, sessionId);
@@ -33,5 +34,13 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
         sendClientReady();
 
         fireGameReady();
+    }
+
+    public void setPlayerInput(GCCPlayerInput playerInput) {
+        getEngine().updateInput(playerInput);
+
+        if (serverCommunication.isConnected()) {
+            engine.sendPlayerInput();
+        }
     }
 }

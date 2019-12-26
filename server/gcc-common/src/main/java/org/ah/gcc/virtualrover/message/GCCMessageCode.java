@@ -10,7 +10,7 @@ public abstract class GCCMessageCode extends MessageCode {
             { setOrdinal(PlayerInput.ordinal()); }
 
             @Override public Message newObject(MessageFactory factory) { return new GCCPlayerInputMessage(factory); }
-            @Override public String toString() { return "ThemVsUsPlayerInput"; }
+            @Override public String toString() { return "GCCPlayerInput"; }
         };
     }
 

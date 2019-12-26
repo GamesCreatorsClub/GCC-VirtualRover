@@ -119,6 +119,6 @@ public class PiNoonAttachment extends DependentObject {
 
     @Override
     public String toString() {
-        return "PiNoonAttachemnt[" + id + " of " + getParentId() + "]";
+        return "PiNoonAttachemnt" + (changed ? "*[" : "[") + id + " of " + getParentId() + "]";
     }
 }

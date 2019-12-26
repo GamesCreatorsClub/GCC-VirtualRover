@@ -308,7 +308,11 @@ public class GCCPlayerInput extends PlayerInput {
         desiredRotationSpeed = gccPlayerInput.desiredRotationSpeed;
     }
 
+    @Override public String toStringInternal() {
+        return sequenceNo + "," + moveX + "," + moveY + "," + rotateX + "," + rotateY + "," + desiredForwardSpeed + "," + desiredRotationSpeed;
+    }
+
     @Override public String toString() {
-        return "PlayerInput[" + sequenceNo + "," + moveX + "," + moveY + "," + rotateX + "," + rotateY + "," + desiredForwardSpeed + "," + desiredRotationSpeed + "]";
+        return "GCCPlayerInput[" + toStringInternal() + "]";
     }
 }

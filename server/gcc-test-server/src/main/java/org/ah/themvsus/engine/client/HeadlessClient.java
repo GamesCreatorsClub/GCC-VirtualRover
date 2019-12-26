@@ -1,5 +1,9 @@
 package org.ah.themvsus.engine.client;
 
+import com.badlogic.gdx.utils.IntSet;
+
+import org.ah.gcc.virtualrover.game.GCCGame;
+import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.AuthenticatedCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameMapCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
@@ -21,6 +25,9 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
     private String mapId;
     private State state = State.Nothing;
     private LocalClientLogging logger;
+    private GCCPlayerInput roverInput;
+    private IntSet unknownObjectIds = new IntSet();
+    private boolean runLocalPredictiveEngine = false;
 
     public HeadlessClient(String alias, String pass, Properties config) {
         this.config = config;
@@ -31,6 +38,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
 
     public void init() {
         serverCommunication = new HeadlessClientServerCommunication(logger);
+        roverInput = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
 
         Thread thread = new Thread(this);
         thread.setName("Headless client; " + alias);
@@ -63,7 +71,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
             while (true) {
                 try {
                     synchronized (state) {
-                        state.wait(1000);
+                        state.wait(40); // 24 times a second
                     }
                 } catch (InterruptedException ignore) { }
                 if (state == State.Authenticate) {
@@ -74,6 +82,20 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
                     state = State.Nothing;
                     logger.info("Starting engine at map " + mapId + " for " + alias);
                     serverCommunicationAdapter.startEngine(mapId);
+                } else if (state == State.InGame) {
+
+                    if (runLocalPredictiveEngine) {
+                        serverCommunicationAdapter.setPlayerInput(roverInput);
+
+                        ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
+                        if (engine != null) {
+                            long now = System.currentTimeMillis();
+                            engine.progressEngine(now, unknownObjectIds);
+                            if (unknownObjectIds.size > 0) {
+                                serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
+                            }
+                        }
+                    }
                 }
             }
         } catch (Throwable t) {

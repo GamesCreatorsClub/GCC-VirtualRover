@@ -28,6 +28,8 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
         BLUE
     }
 
+    private static RoverColour[] ROVER_COLOUR_VALUES = RoverColour.values();
+
     private RoverType roverType;
 
     private RoverColour roverColour = RoverColour.WHITE;
@@ -70,8 +72,9 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
     }
 
     public void setRoverColour(RoverColour roverColour) {
+        changed = changed || this.roverColour != roverColour;
+
         this.roverColour = roverColour;
-        this.changed = true;
     }
 
     public RoverColour getRoverColour() {
@@ -126,8 +129,9 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
         int roverColourOrdinal = serializer.deserializeUnsignedByte();
-        if (roverColourOrdinal < RoverColour.values().length) {
-            roverColour = RoverColour.values()[roverColourOrdinal];
+        if (roverColourOrdinal < ROVER_COLOUR_VALUES.length) {
+            RoverColour roverColour = ROVER_COLOUR_VALUES[roverColourOrdinal];
+            setRoverColour(roverColour);
         } else {
             // TODO how to deal with this?
             // System.out.println("Received wrong colour! " + roverColourOrdinal);
@@ -163,6 +167,6 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
     @Override
     public String toString() {
-        return "Rover[" + id + "]";
+        return "Rover" + (changed ? debugChangedText + "*[" : "[") + id + ",(" + position.x + "," + position.y + ")]";
     }
 }

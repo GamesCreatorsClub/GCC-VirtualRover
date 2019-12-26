@@ -12,10 +12,8 @@ public class GCCPlayerInputs extends PlayerInputs {
 
     @Override public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("PLayerInputs[\n");
-        for (int i = 0; i < inputs.size; i++) {
-            sb.append(inputs.get(i)).append("\n");
-        }
+        sb.append("GCCPlayerInputs[\n");
+        sb.append(toStringInternal());
         sb.append("]");
         return sb.toString();
     }

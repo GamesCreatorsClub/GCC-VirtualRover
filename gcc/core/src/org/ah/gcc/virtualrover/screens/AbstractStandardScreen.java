@@ -21,11 +21,14 @@ import org.ah.gcc.virtualrover.PlatformSpecific;
 import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.challenges.Challenge;
+import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
+import org.ah.themvsus.engine.client.AbstractServerCommunication;
+import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener {
@@ -67,6 +70,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected boolean rightAlt;
     protected boolean leftCtrl;
     protected boolean rightCtrl;
+
+    protected boolean drawFPS = false;
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -169,6 +174,28 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
     }
 
+    protected void drawFPS() {
+        ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
+        AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
+
+        String fps = "f:" + Integer.toString(Gdx.graphics.getFramesPerSecond());
+        fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 60, Gdx.graphics.getHeight() - 12);
+
+        String rtt = "RTT:" + Integer.toString(engine.getAverageRTT()) + "/" + Integer.toString(engine.getMaxRTT()) + "/" + Integer.toString(engine.getCurrentRTT());
+        fontSmallMono.draw(spriteBatch, rtt, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 12);
+
+        String debugDelay = "DD:" + Integer.toString(abstractServerCommunication.getReceivingDelay()) + "/" + Integer.toString(abstractServerCommunication.getSendingDelay());
+        fontSmallMono.draw(spriteBatch, debugDelay, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 30);
+
+        String frameTickInfo = "RUDA:" + Integer.toString(engine.getRebuiltFramesNumber())
+                                       + "/" + Integer.toString(engine.getSpedUpFrames())
+                                       + "/" + Integer.toString(engine.getSlowedDownFrames())
+                                       + "/" + Integer.toString(engine.getAdjustedForMissingInputsFrames());
+        fontSmallMono.draw(spriteBatch, frameTickInfo, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 48);
+
+    }
+
+
     protected void drawStandardMessages() {
         a++;
         spriteBatch.begin();
@@ -241,6 +268,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
         if (keycode == Input.Keys.CONTROL_RIGHT) {
             rightCtrl = true;
+        }
+        if (keycode == Input.Keys.F) {
+            drawFPS = !drawFPS;
         }
         return false;
     }

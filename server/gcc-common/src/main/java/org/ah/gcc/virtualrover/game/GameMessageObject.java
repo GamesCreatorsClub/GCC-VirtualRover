@@ -68,10 +68,20 @@ public class GameMessageObject extends GameObject {
         super.deserialize(full, serializer);
 
         byte status = serializer.deserializeByte();
-        flashing = (status & 0x1b) != 0;
-        inGame = (status & 0x2b) != 0;
-        waiting = (status & 0x4b) != 0;
-        message = serializer.deserializeString();
+        boolean flashing = (status & 0x1b) != 0;
+        boolean inGame = (status & 0x2b) != 0;
+        boolean waiting = (status & 0x4b) != 0;
+        String message = serializer.deserializeString();
+
+        changed = changed || flashing != this.flashing;
+        changed = changed || inGame != this.inGame;
+        changed = changed || waiting != this.waiting;
+        changed = changed || !this.message.equals(message);
+
+        this.flashing = flashing;
+        this.inGame = inGame;
+        this.waiting = waiting;
+        this.message = message;
     }
 
     @Override
@@ -83,12 +93,15 @@ public class GameMessageObject extends GameObject {
     protected GameObject copyInt(GameObject newObject) {
         super.copyInt(newObject);
         GameMessageObject gameMessageObject = (GameMessageObject)newObject;
-        gameMessageObject.setMessage(message, flashing);
+        gameMessageObject.flashing = flashing;
+        gameMessageObject.inGame = inGame;
+        gameMessageObject.waiting = waiting;
+        gameMessageObject.message = message;
         return gameMessageObject;
     }
 
     @Override
     public String toString() {
-        return "GameMessage[" + id + ", ingame=" + inGame + ", waiting=" + waiting + ", msg=\"" + message + "\"]";
+        return "GameMessage" + (changed ? "*[" : "[") + id + ", ingame=" + inGame + ", waiting=" + waiting + ", msg=\"" + message + "\"]";
     }
 }

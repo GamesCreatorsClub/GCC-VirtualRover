@@ -49,6 +49,9 @@ public class PiNoonAttachmentModelLink implements VisibleObject {
     @Override
     public void render(ModelBatch batch, Environment environment) {
         PiNoonAttachment attachment = game.getCurrentGameState().get(id);
+        if (attachment == null) {
+            System.err.println("Cannot find attachemtn id " + id + " in " + game.getCurrentGameState());
+        }
         attachmentModel.setBalloonBits(attachment.getBalloonBits());
         attachmentModel.update(playerModel.getRoverTransform());
         attachmentModel.render(batch, environment);

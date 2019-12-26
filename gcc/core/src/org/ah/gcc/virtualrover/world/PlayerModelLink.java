@@ -24,7 +24,7 @@ public class PlayerModelLink implements VisibleObject {
     private RoverType playerSelection = RoverType.GCC;
     private RoverModel roverModel;
     private GCCGame game;
-    private RoverColour roverColour;
+    private RoverColour roverColour = RoverColour.WHITE;
 
     public GCCPlayerInput roverInput = (GCCPlayerInput)GCCPlayerInput.INPUTS_FACTORY.obtain(); // TODO - is that OK? Why not set of inputs?
 

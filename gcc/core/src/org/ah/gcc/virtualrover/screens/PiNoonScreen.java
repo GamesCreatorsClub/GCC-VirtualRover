@@ -38,7 +38,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
     private RoverType player2RoverType = RoverType.CBIS;
 
     private boolean renderBackground = false;
-    private boolean drawFPS = false;
 
     private IntSet unknownObjectIds = new IntSet();
 
@@ -106,7 +105,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
 
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
         if (engine != null) {
-            long now = System.currentTimeMillis() * 1000;
+            long now = System.currentTimeMillis();
             engine.progressEngine(now, unknownObjectIds);
 
             if (unknownObjectIds.size > 0) {
@@ -162,17 +161,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         if (console != null) {
             console.render();
         }
-    }
-
-    private void drawFPS() {
-        String fps = Integer.toString(Gdx.graphics.getFramesPerSecond());
-        ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
-        String rtt = "RTT: " + Integer.toString(engine.getAverageRTT()) + "/" + Integer.toString(engine.getMaxRTT()) + "/" + Integer.toString(engine.getCurrentRTT());
-        AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
-        String debugDelay = "DD: " + Integer.toString(abstractServerCommunication.getReceivingDelay()) + "/" + Integer.toString(abstractServerCommunication.getSendingDelay());
-        fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 40, Gdx.graphics.getHeight() - 12);
-        fontSmallMono.draw(spriteBatch, rtt, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 12);
-        fontSmallMono.draw(spriteBatch, debugDelay, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 30);
     }
 
     private void drawScore() {
@@ -252,9 +240,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements InputProcess
         if (keycode == Input.Keys.T && challenge instanceof PiNoonArena) {
             PiNoonArena piNoonArena = (PiNoonArena)challenge;
             piNoonArena.showRovers = !piNoonArena.showRovers;
-        }
-        if (keycode == Input.Keys.F) {
-            drawFPS = !drawFPS;
         }
 
         return false;

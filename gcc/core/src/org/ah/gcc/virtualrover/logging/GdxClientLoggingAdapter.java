@@ -19,49 +19,55 @@ public class GdxClientLoggingAdapter extends AbstractClientLogging {
 
     @Override
     public void debug(String message) {
-        Gdx.app.debug("", message);
+        Gdx.app.debug("", time() + message);
     }
 
     @Override
     public void debug(String tag, String message) {
-        Gdx.app.debug(tag, message);
+        Gdx.app.debug(tag, time() + message);
     }
 
     @Override
     public void info(String message) {
-        Gdx.app.log("", message);
+        Gdx.app.log("", time() + message);
     }
 
     @Override
     public void info(String tag, String message) {
-        Gdx.app.log(tag, message);
+        Gdx.app.log(tag, time() + message);
     }
 
     @Override
     public void warning(String message) {
-        Gdx.app.error("", message);
+        Gdx.app.error("", time() + message);
     }
 
     @Override
     public void warning(String tag, String message) {
-        Gdx.app.error(tag, message);
+        Gdx.app.error(tag, time() + message);
     }
 
     @Override
     public void error(String message, Throwable t) {
         if (t == null) {
-            Gdx.app.error("", message);
+            Gdx.app.error("", time() + message);
         } else {
-            Gdx.app.error("", message, t);
+            Gdx.app.error("", time() + message, t);
         }
     }
 
     @Override
     public void error(String tag, String message, Throwable t) {
         if (t == null) {
-            Gdx.app.error(tag, message);
+            Gdx.app.error(tag, time() + message);
         } else {
-            Gdx.app.error(tag, message, t);
+            Gdx.app.error(tag, time() + message, t);
         }
+    }
+
+    protected String time() {
+        String timestamp = Long.toString(System.currentTimeMillis());
+        timestamp = timestamp.substring(8);
+        return timestamp + " ";
     }
 }

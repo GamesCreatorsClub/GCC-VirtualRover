@@ -323,9 +323,9 @@ public class PiNoonChallenge extends AbstractChallenge {
     @Override
     public boolean processPlayerInputs(int playerId, PlayerInputs playerInputs) {
         boolean doMove = stateMachine.getCurrentState().shouldMoveRovers();
-        if (!doMove) {
-            playerInputs.pop(gccGame.getCurrentFrameId());
-        }
+//        if (!doMove) {
+//            playerInputs.pop(gccGame.getCurrentFrameId());
+//        }
         return doMove;
     }
 
