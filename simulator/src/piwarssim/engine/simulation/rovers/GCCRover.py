@@ -1,19 +1,20 @@
 
-from piwarssim.engine.simulation.SimulationObjectWithPositionAndOrientation import SimulationObjectWithPositionAndOrientation
+from enum import Enum
+
+from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
 
 
-class RoverSimObject(SimulationObjectWithPositionAndOrientation):
+class RoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
+
     def __init__(self, factory, sim_object_id, sim_object_type):
         super(RoverSimObject, self).__init__(factory, sim_object_id, sim_object_type)
-        self._rover_type = RoverType.GCC
-        self._challenge_bits = 0
-        self._score = 0
+        self._rover_colour = RoverColor.White.value
 
-    def get_rover_type(self):
-        return self._rover_type
+    def get_rover_colour(self):
+        return self._rover_colour
 
-    def set_rover_type(self, rover_type):
+    def set_rover_colour(self, rover_colour):
         self._rover_type = rover_type
 
     def get_challenge_bits(self):

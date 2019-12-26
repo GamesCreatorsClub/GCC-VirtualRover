@@ -59,7 +59,7 @@ public class GameMessageObject extends GameObject {
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
 
-        serializer.serializeByte((flashing ? 1 : 0) + (inGame ? 2 : 0) + (waiting ? 4 : 0));
+        serializer.serializeUnsignedByte((flashing ? 1 : 0) + (inGame ? 2 : 0) + (waiting ? 4 : 0));
         serializer.serializeString(message);
     }
 
@@ -67,7 +67,7 @@ public class GameMessageObject extends GameObject {
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
 
-        byte status = serializer.deserializeByte();
+        int status = serializer.deserializeUnsignedByte();
         boolean flashing = (status & 0x1b) != 0;
         boolean inGame = (status & 0x2b) != 0;
         boolean waiting = (status & 0x4b) != 0;

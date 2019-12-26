@@ -6,12 +6,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import org.ah.gcc.virtualrover.screens.ConnectingScreen;
 import org.ah.gcc.virtualrover.screens.LoadingScreen;
 import org.ah.gcc.virtualrover.screens.PiNoonScreen;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ServerCommunication;
-import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 
 public class MainGame extends Game {
 
@@ -29,6 +29,7 @@ public class MainGame extends Game {
     private Console console;
 
     private LoadingScreen loadingScreen;
+    private ConnectingScreen connectingScreen;
     private GreetingScreen greetingScreen;
     private PiNoonScreen challengeScreen;
 
@@ -60,6 +61,7 @@ public class MainGame extends Game {
         serverCommunication = platformSpecific.getServerCommunication();
 
         loadingScreen = new LoadingScreen(this, assetManager);
+        connectingScreen = new ConnectingScreen(this, assetManager);
 
         setScreen(loadingScreen);
     }
@@ -74,19 +76,13 @@ public class MainGame extends Game {
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, modelFactory);
 
         if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
+            setScreen(connectingScreen);
+            connectingScreen.clear();
             serverCommunicationAdapter.connectToServer(
                     platformSpecific.getPreferredServerAddress(),
                     platformSpecific.getPreferredServerPort(),
-                    new ServerConnectionCallback() {  // TODO factor this out so it can be reused on other connectToServer attempts
-                        @Override public void successful() {
-                            serverCommunicationAdapter.startEngine("PiNoon", true, platformSpecific.isSimulation());
-                            setChallengeScreen("PiNoon");
-                        }
-
-                        @Override public void failed(String msg) {
-                            // TODO log something to console
-                        }
-                });
+                    connectingScreen);
+            setScreen(connectingScreen);
         } else if (platformSpecific.isLocalOnly()) {
             serverCommunicationAdapter.startEngine("PiNoon", true, platformSpecific.isSimulation());
             setChallengeScreen("PiNoon");
@@ -115,5 +111,10 @@ public class MainGame extends Game {
         if (console != null) { console.dispose(); }
         if (loadingScreen != null) { loadingScreen.dispose(); }
         if (challengeScreen != null) { challengeScreen.dispose(); }
+    }
+
+    public void successfullyConnected() {
+        serverCommunicationAdapter.startEngine("PiNoon", false, platformSpecific.isSimulation());
+        setChallengeScreen("PiNoon");
     }
 }
