@@ -4,6 +4,7 @@ from piwarssim.engine.message.Message import Message
 
 
 class ServerInternalState(Enum):
+    NoneState = ()
     AuthenticateSuccessful = ()
     AuthenticateFailed = ()
     RegistrationSuccessful = ()
@@ -34,6 +35,11 @@ class ServerInternalMessage(Message):
         self._state = None
         self._message = None
 
+    def free(self):
+        super(ServerInternalMessage, self).free()
+        self._state = None
+        self._message = None
+
     def get_state(self):
         return self._state
 
@@ -45,6 +51,9 @@ class ServerInternalMessage(Message):
 
     def set_message(self, message):
         self._message = message
+
+    def size(self):
+        return super(ServerInternalMessage, self).size() + 1 + 2 + (len(self._message) if self._message is not None else 0)
 
     def deserialize_impl(self, deserializer):
         # super(ServerInternalMessage, self).deserialize_impl(deserializer)

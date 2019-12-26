@@ -5,3 +5,4 @@ class Engine:
 
     def process(self, timestamp):
         self.challenge.process(timestamp)
+

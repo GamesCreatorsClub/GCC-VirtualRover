@@ -12,6 +12,9 @@ class ServerClientAuthenticatedMessage(Message):
     def set_session_id(self, sesssion_id):
         self._session_id = sesssion_id
 
+    def size(self):
+        return super(ServerClientAuthenticatedMessage, self).size() + 4
+
     def deserialize_impl(self, deserializer):
         # super(ServerClientAuthenticatedMessage, self).deserialize_impl(deserializer)
         self._session_id = deserializer.deserialize_int()

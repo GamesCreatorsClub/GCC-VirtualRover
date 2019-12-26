@@ -60,18 +60,13 @@ class SimulationState(dict):
                 sim_object.free()
 
     def copy_state(self, challenge):
-        previous_sim_state = challenge.get_previous_sim_state()
         new_sim_state = challenge.new_sim_state(self._next_game_state_frame_no())
         for sim_object_id in self:
             sim_object = self[sim_object_id]
             if not sim_object.is_removed():
-                new_sim_object = sim_object.copy(previous_sim_state)
-                if not new_sim_object.is_added() and new_sim_object == sim_object and previous_sim_state is not None:
-                    old_sim_object = previous_sim_state[new_sim_object.get_id()]
-                    if old_sim_object is not None:
-                        self[sim_object_id] = old_sim_object
+                new_sim_object = sim_object.copy(self)
                 new_sim_state[sim_object_id] = new_sim_object
-                if new_sim_object.get_id != sim_object_id:
+                if new_sim_object.get_id() != sim_object_id:
                     raise ValueError("Failed to copy objects properly")
 
         return new_sim_state

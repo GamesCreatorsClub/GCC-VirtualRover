@@ -1,6 +1,5 @@
 
 from piwarssim.engine.factory.TypedObjectFactory import TypedObjectFactory
-from piwarssim.engine.simulation.RoverSimObject import RoverSimObject
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.transfer.SizeCalculationSerializer import SizeCalculationSerializer
 

@@ -17,6 +17,13 @@ class SimulationObject(TypedObject):
 
         self._link_back = None
 
+    def free(self):
+        self._last_sim_state = None
+        self.changed = False
+        self._added = False
+        self._removed = False
+        super(SimulationObject, self).free()
+
     def set_changed(self):
         self.changed = True
 
@@ -50,24 +57,21 @@ class SimulationObject(TypedObject):
     def process(self, challenge, objects):
         pass
 
-    def perform_command(self, command):
-        pass
-
-    def server_update_message(self, server_frame_no, message_factory):
-        # This is needed only for clients
-        return message_factory.server_update_command(self._id, server_frame_no, SimulationObject.VECTOR_ZERO, SimulationObject.VECTOR_ZERO, SimulationObject.QUATERNION_FORWARD, 0, 0)
-
     def newly_created_object_message(self, message_factory):
         raise NotImplemented
 
     def serialize(self, full, serializer):
-        serializer.serialize_byte(self._sim_object_type.ordinal())
-        serializer.serialize_unsigned_byte(0)  # Health!?
+        pass
+        # serializer.serialize_byte(self._sim_object_type.ordinal())
+        # serializer.serialize_unsigned_byte(0)  # Health!?
 
     def deserialize(self, full, serializer):
         # serializer.deserialize_byte()
         # Above is already deserialised so we know the type of object we are creating in the first place
         pass
+
+    def size(self, full):
+        return 0
 
     def copy_internal(self, new_object):
         new_object.changed = False
@@ -78,8 +82,6 @@ class SimulationObject(TypedObject):
 
     def copy(self, engine_state):
         self._last_sim_state = engine_state
-        if not self.changed:
-            return self
 
         return self.copy_internal(self.factory.obtain(self.get_type()))
 

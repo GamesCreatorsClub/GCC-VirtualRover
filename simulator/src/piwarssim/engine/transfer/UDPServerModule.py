@@ -7,6 +7,8 @@ from socket import timeout
 
 
 class UDPServerModule:
+    MAGIC = 0xAA
+
     def __init__(self, server_engine, serializer_factory, message_factory, address="0.0.0.0", port=7454):
         self._server_engine = server_engine
         self._serializer_factory = serializer_factory
@@ -24,6 +26,9 @@ class UDPServerModule:
 
     def send(self, packet):
         if self._client_socket is not None and self._client_address is not None:
+            l = len(packet)
+            packet[0:0] = struct.pack('B', UDPServerModule.MAGIC + (l >> 8))
+            packet[1:1] = struct.pack('B', l & 0xFF)
             self._client_socket.sendto(packet, (self._client_address, self._client_port))
 
     def process(self):
@@ -41,9 +46,22 @@ class UDPServerModule:
                     deserializer.setup()
                     buf = deserializer.get_buffer()
                     buf += data
+
                     try:
-                        message = self._message_factory.create_message(deserializer)
-                        self._server_engine.receive_message(message)
+                        b1 = deserializer.deserialize_unsigned_byte()
+                        if deserializer.get_total_size() > 0:
+                            b2 = deserializer.deserialize_unsigned_byte()
+                            if b1 & 0xfe == UDPServerModule.MAGIC:
+                                expected_size = (b1 & 1) * 256 + b2
+                                if expected_size == deserializer.get_total_size():
+                                    message = self._message_factory.create_message(deserializer)
+                                    self._server_engine.receive_message(message)
+                                else:
+                                    print("Expected size " + str((b1 & 1) * 256 + b2) + " but got " + deserializer.get_total_size())
+                            else:
+                                print("Expected MAGIC " + hex(UDPServerModule.MAGIC) + " but got " + hex(b1))
+                        else:
+                            print("Received only one byte but expected at least 2")
                     finally:
                         deserializer.free()
                 except timeout:

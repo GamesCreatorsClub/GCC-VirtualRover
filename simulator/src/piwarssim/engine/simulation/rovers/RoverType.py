@@ -1,22 +1,19 @@
 from enum import Enum
 
-from piwarssim.engine.simulation.rovers.GCCRoverDefinition import GCCRoverDefinition
-
 
 class RoverType(Enum):
-    GCC = (0, "GCC Rover", GCCRoverDefinition())
-    CBIS = (1, "CBiS-Education", GCCRoverDefinition())
+    GCC = (0, "GCC Rover")
+    CBIS = (1, "CBiS-Education")
 
-    def __new__(cls, type_id, name, definition):
+    def __new__(cls, type_id, name):
         value = len(cls.__members__)
         obj = object.__new__(cls)
         obj._value_ = value
         return obj
 
-    def __init__(self, type_id, name, definition):
+    def __init__(self, type_id, name):
         self._type_id = type_id
         self._name = name
-        self._definition = definition
 
     def ordinal(self):
         return self.value

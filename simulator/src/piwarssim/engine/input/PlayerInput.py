@@ -1,6 +1,7 @@
 class PlayerInput:
     def __init__(self, factory):
         self._factory = factory
+        self._is_sent_flag = False
         self._sequence_no = 0
         self._move_x = 0
         self._move_y = 0
@@ -22,6 +23,18 @@ class PlayerInput:
         self._hat_right = False
         self._desired_forward_speed = 300
         self._desired_rotation_speed = 300
+
+    def is_sent(self):
+        return self._is_sent_flag
+
+    def mark_sent(self):
+        self._is_sent_flag = True
+
+    def get_sequence_no(self):
+        return self._sequence_no
+
+    def set_sequence_no(self, sequence_no):
+        self._sequence_no = sequence_no
 
     def move_x(self):
         return self._move_x
@@ -83,7 +96,11 @@ class PlayerInput:
     def desired_rotation_speed(self):
         return self._desired_rotation_speed
 
+    def size(self):
+        return 9
+
     def free(self):
+        self._is_sent_flag = False
         self._sequence_no = 0
         self._move_x = 0
         self._move_y = 0
@@ -107,19 +124,13 @@ class PlayerInput:
         self._desired_rotation_speed = 300
         self._factory.free(self)
 
-    def get_sequence_no(self):
-        return self._sequence_no
-
-    def set_sequence_no(self, sequence_no):
-        self._sequence_no = sequence_no
-
     def serialize(self, serializer):
         serializer.serialize_unsigned_short(PlayerInput.fit_to_8_bits(self._move_x) << 8 | PlayerInput.fit_to_8_bits(self._move_y))
         serializer.serialize_unsigned_short(PlayerInput.fit_to_8_bits(self._rotate_x) << 8 | PlayerInput.fit_to_8_bits(self._rotate_y))
 
         triggers = int(self._left_trigger * 15) + int(self._right_trigger * 15) * 16
 
-        serializer.serialize_unsigned_short(triggers)
+        serializer.serialize_unsigned_byte(triggers)
 
         bits = (1 if self._circle else 0) + \
                (2 if self._cross else 0) + \

@@ -1,10 +1,19 @@
 from enum import Enum
 
-from piwarssim.engine.simulation.RoverSimObject import RoverSimObject
+from piwarssim.engine.simulation.rovers.GCCRover import GCCRover
+from piwarssim.engine.simulation.rovers.CBISRover import CBISRover
 
 
 class PiWarsSimObjectTypes(Enum):
-    Rover = (lambda factory, sim_object_id, sim_object_type: RoverSimObject(factory, sim_object_id, sim_object_type),)
+    GameMessageObject = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+
+    BarrelObject = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+
+    PiNoonAttachment = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+
+    GCCRover = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+
+    CBISRover = (lambda factory, sim_object_id, sim_object_type: CBISRover(factory, sim_object_id, sim_object_type),)
 
     def __new__(cls, new_object_function):
         value = len(cls.__members__)

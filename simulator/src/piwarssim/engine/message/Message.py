@@ -14,6 +14,12 @@ class Message(TypedObject):
     def get_type(self):
         return self._message_type
 
+    def free(self):
+        super(Message, self).free()
+        self.remove_deserializer()
+        self._time = 0
+        self._deserializer = None
+
     def setup(self):
         self._time = time.time()
         self._deserializer = None
@@ -30,8 +36,11 @@ class Message(TypedObject):
 
         self._deserializer = None
 
+    def size(self):
+        return 1
+
     def serialize(self, serializer):
-        serializer.serialize_int(self.get_type().ordinal())
+        serializer.serialize_unsigned_byte(self.get_type().ordinal())
         self.serialize_impl(serializer)
         self._total_size = serializer.get_total_size()
 

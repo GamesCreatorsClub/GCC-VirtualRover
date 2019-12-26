@@ -7,6 +7,11 @@ class ClientAuthenticationDetailsMessage(Message):
         self._username = None
         self._passhash = None
 
+    def free(self):
+        super(ClientAuthenticationDetailsMessage, self).free()
+        self._username = None
+        self._passhash = None
+
     def get_username(self):
         return self._username
 
@@ -16,6 +21,9 @@ class ClientAuthenticationDetailsMessage(Message):
     def set_values(self, username, passhash):
         self._username = username
         self._passhash = passhash
+
+    def size(self):
+        return super(ClientAuthenticationDetailsMessage, self).size() + 2 + (len(self._username) if self._username is not None  else 0) + 2 + (len(self._passhash) if self._passhash is not None else 0)
 
     def deserialize_impl(self, deserializer):
         # super(ClientAuthenticationDetailsMessage, self).deserialize_impl(deserializer)

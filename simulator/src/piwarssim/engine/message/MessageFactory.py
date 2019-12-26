@@ -14,9 +14,9 @@ class MessageFactory(TypedObjectFactory):
         return message_code.new_object(self)
 
     def create_message(self, deserializer):
-        message_type = deserializer.deserialize_int()
+        message_type_code = deserializer.deserialize_unsigned_byte()
 
-        message_type = MessageCode.from_ordinal(message_type)
+        message_type = MessageCode.from_ordinal(message_type_code)
         if message_type is None:
             return None
 

@@ -6,6 +6,7 @@ from piwarssim.engine.input import PlayerInputs
 from piwarssim.engine.message.MessageCode import MessageCode
 from piwarssim.engine.message.ClientInternalMessage import ClientInternalMessage, ClientInternalState
 from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage
+from piwarssim.engine.message.MultiObjectRequestForFullUpdateMessage import MultiObjectRequestForFullUpdateMessage
 from piwarssim.engine.message.MessageFactory import MessageFactory
 
 
@@ -16,6 +17,7 @@ class ServerEngine(Engine):
         self._serializer_factory = None
         self._sender = None
         self._player_inputs = PlayerInputs()
+        self._send_full_update = True
 
     def register_sender(self, sender, serializer_factory):
         self._sender = sender
@@ -30,7 +32,12 @@ class ServerEngine(Engine):
 
                 self.send_message(authenticated_message)
 
-                self.send_full_update()
+                self._send_full_update = True
+                #
+                # self.send_full_update()
+        elif isinstance(message, MultiObjectRequestForFullUpdateMessage):
+            # self.send_full_update()
+            self._send_full_update = True
         elif isinstance(message, PlayerInputMessage):
             self._player_inputs.merge_inputs(self.challenge.get_frame_id(), message.get_player_inputs())
 
@@ -54,6 +61,7 @@ class ServerEngine(Engine):
         current_state = self.challenge.get_current_sim_state()  # TODO shouldn't it be get_previous_sim_state() ?
 
         message = self._message_factory.obtain(MessageCode.MultiObjectUpdate)
+        message.set_frame_no(current_state.get_frame_no())
         for sim_object_id in current_state:
             message.add_new_sim_object(current_state[sim_object_id])
 
@@ -65,7 +73,13 @@ class ServerEngine(Engine):
         message = self._message_factory.obtain(MessageCode.MultiObjectUpdate)
         message.set_frame_no(current_state.get_frame_no())
         for sim_object_id in current_state:
-            message.updated_new_sim_object(current_state[sim_object_id])
+            if self._send_full_update:
+                message.add_new_sim_object(current_state[sim_object_id])
+            else:
+                message.add_updated_sim_object(current_state[sim_object_id])
+
+        if self._send_full_update:
+            self._send_full_update = False
 
         self.send_message(message)
 

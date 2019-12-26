@@ -7,6 +7,11 @@ class ChatMessage(Message):
         self._line = None
         self._origin = None
 
+    def free(self):
+        super(Message, self).free()
+        self._line = None
+        self._origin = None
+
     def get_line(self):
         return self._line
 
@@ -18,6 +23,9 @@ class ChatMessage(Message):
 
     def set_origin(self, origin):
         self._origin = origin
+
+    def size(self):
+        return super(ChatMessage, self).size() + 2 + (len(self._line) if self._line is not None  else 0) + 2 + (len(self._origin) if self._origin is not None else 0)
 
     def deserialize_impl(self, deserializer):
         # super(ChatMessage, self).deserialize_impl(deserializer)

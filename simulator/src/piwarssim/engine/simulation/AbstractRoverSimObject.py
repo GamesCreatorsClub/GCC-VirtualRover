@@ -1,62 +1,72 @@
+from enum import Enum
 
 from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
 
+class RoverColor(Enum):
+    White = ()
+    Green = ()
+    Blue = ()
 
-class RoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
-    def __init__(self, factory, sim_object_id, sim_object_type):
-        super(RoverSimObject, self).__init__(factory, sim_object_id, sim_object_type)
-        self._rover_type = RoverType.GCC
-        self._challenge_bits = 0
-        self._score = 0
+    def __new__(cls):
+        value = len(cls.__members__)
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
 
-    def get_rover_type(self):
-        return self._rover_type
+    def ordinal(self):
+        return self.value
 
-    def set_rover_type(self, rover_type):
+    @staticmethod
+    def from_ordinal(ordinal):
+        for enum_obj in RoverColor:
+            if enum_obj.value == ordinal:
+                return enum_obj
+
+
+class AbstractRoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
+    def __init__(self, factory, sim_object_id, sim_object_type, rover_type):
+        super(AbstractRoverSimObject, self).__init__(factory, sim_object_id, sim_object_type)
         self._rover_type = rover_type
+        self._rover_name = rover_type.get_name()
+        self._rover_colour = RoverColor.White
 
-    def get_challenge_bits(self):
-        return self._challenge_bits
+    def free(self):
+        super(AbstractRoverSimObject, self).free()
 
-    def set_challenge_bits(self, challenge_bits):
-        self._challenge_bits = challenge_bits
+    def get_rover_colour(self):
+        return self._rover_colour
 
-    def get_score(self):
-        return self._score
-
-    def set_score(self, score):
-        self._score = score
+    def set_rover_colour(self, rover_colour):
+        self._rover_colour = rover_colour
 
     def serialize(self, full, serializer):
-        super(RoverSimObject, self).serialize(full, serializer)
+        super(AbstractRoverSimObject, self).serialize(full, serializer)
 
         if full:
-            serializer.serialize_string(self._rover_type.get_name())
+            serializer.serialize_short_string(self._rover_name)
 
-        serializer.serialize_byte(0 if self._rover_type is None else self._rover_type.get_id())
-        serializer.serialize_byte(self._score)
-        serializer.serialize_short(self._challenge_bits)
+        serializer.serialize_unsigned_byte(self._rover_colour.value)
 
     def deserialize(self, full, serializer):
-        super(RoverSimObject, self).deserialize(full, serializer)
+        super(AbstractRoverSimObject, self).deserialize(full, serializer)
 
         if full:
-            serializer.deserialize_string()
+            self._rover_name = serializer.deserialize_short_string()
 
-        rover_type_id = serializer.deserialize_byte()
-        self._rover_type = RoverType.from_ordinal(rover_type_id)
-        self._score = serializer.deserialize_byte()
-        self._challenge_bits = serializer.deserialize_short()
+        colour_value = serializer.deserialize_unsigned_byte()
+        self._rover_colour = RoverColor.from_ordinal(colour_value)
+
+    def size(self, full):
+        return super(AbstractRoverSimObject, self).size(full) + (1 + len(self._rover_name) if full else 0) + 1
 
     def copy_internal(self, new_object):
-        super(RoverSimObject, self).copy_internal(new_object)
+        super(AbstractRoverSimObject, self).copy_internal(new_object)
 
-        new_object.set_rover_type(self._rover_type)
-        new_object.set_challenge_bits(self._challenge_bits)
-        new_object.set_score(self._score)
+        new_object._rover_name = self._rover_name
+        new_object._rover_colour = self._rover_colour
 
         return new_object
 
     def __repr__(self):
-        return "RoverSimObject[" + super(RoverSimObject, self).__repr__() + "]"
+        return self._rover_name + ", " + str(self._rover_colour) + ", " + super(AbstractRoverSimObject, self).__repr__()

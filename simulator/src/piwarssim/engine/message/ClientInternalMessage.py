@@ -4,6 +4,7 @@ from piwarssim.engine.message.Message import Message
 
 
 class ClientInternalState(Enum):
+    NoneState = ()
     RequestServerDetails = ()
     ClientReady = ()
     ClientLeaving = ()
@@ -29,19 +30,26 @@ class ClientInternalMessage(Message):
         super(ClientInternalMessage, self).__init__(factory, message_type)
         self._state = ClientInternalState.RequestServerDetails
 
+    def free(self):
+        super(ClientInternalMessage, self).free()
+        self._state = ClientInternalState.RequestServerDetails
+
     def get_state(self):
         return self._state
 
     def set_state(self, state):
         self._state = state
 
+    def size(self):
+        return super(ClientInternalMessage, self).size() + 1
+
     def deserialize_impl(self, deserializer):
         # super(ClientInternalMessage, self).deserialize_impl(deserializer)
-        self._state = ClientInternalState.from_ordinal(deserializer.deserialize_int())
+        self._state = ClientInternalState.from_ordinal(deserializer.deserialize_unsigned_byte())
 
     def serialize_impl(self, serializer):
         # super(ClientInternalMessage, self).serialize_impl(serializer)
-        serializer.serialize_int(self._state.ordinal())
+        serializer.serialize_unsigned_byte(self._state.ordinal())
 
 
 if __name__ == '__main__':
@@ -59,7 +67,7 @@ if __name__ == '__main__':
         message.set_state(state)
 
         message.serialize(serializer)
-        message_code = serializer.deserialize_int()
+        message_code = serializer.deserialize_unsigned_byte()
         message_received.deserialize(serializer)
 
         print(str(MessageCode.from_ordinal(message_code)) + ", state "+ str(message_received.get_state()) + "'s ordinal " + str(message_received.get_state().ordinal()))

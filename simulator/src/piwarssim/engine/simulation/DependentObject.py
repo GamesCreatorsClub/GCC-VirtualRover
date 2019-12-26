@@ -3,81 +3,42 @@ import math
 from piwarssim.engine.simulation.SimulationObjectWithPositionAndOrientation import SimulationObjectWithPositionAndOrientation
 
 
-class MovingSimulationObjectWithPositionAndOrientation(SimulationObjectWithPositionAndOrientation):
-    FLOAT_ROUNDING_ERROR = 0.000001
+class DependentObject(SimulationObjectWithPositionAndOrientation):
 
     def __init__(self, factory, sim_object_id, sim_object_type):
-        super(MovingSimulationObjectWithPositionAndOrientation, self).__init__(factory, sim_object_id, sim_object_type)
-        self._velocity = [0.0, 0.0, 0.0]
-        self._turn_speed = 0
+        super(DependentObject, self).__init__(factory, sim_object_id, sim_object_type)
+        self._parent_id = 0
 
     def free(self):
-        self._velocity[0] = 0.0
-        self._velocity[1] = 0.0
-        self._velocity[2] = 0.0
-        self._turn_speed = -1
-        super(MovingSimulationObjectWithPositionAndOrientation, self).free()
+        self._parent_id = 0
+        super(DependentObject, self).free()
 
-    def get_velocity(self):
-        return self._velocity
+    def set_parent_id(self, parent_id):
+        self.changed = self.changed or self._parent_id != parent_id
+        self._parent_id = parent_id
 
-    def set_velocity_2(self, x, y):
-        self.changed = self.changed \
-                       or self.within_resolution(self._velocity[0], x) \
-                       or self.within_resolution(self._velocity[1], y)
-
-        self._velocity[0] = x
-        self._velocity[1] = y
-
-    def set_velocity_3(self, x, y, z):
-        self.changed = self.changed \
-                       or self.within_resolution(self._velocity[0], x) \
-                       or self.within_resolution(self._velocity[1], y) \
-                       or self.within_resolution(self._velocity[2], z)
-
-        self._velocity[0] = x
-        self._velocity[1] = y
-        self._velocity[2] = z
-
-    def get_turn_speed(self):
-        return self._turn_speed
-
-    def set_turn_speed(self, turn_speed):
-        self.changed = self.changed or self.within_resolution(self._turn_speed, turn_speed)
-        self._turn_speed = turn_speed
+    def get_parent_id(self):
+        return self._parent_id
 
     def serialize(self, full, serializer):
-        super(MovingSimulationObjectWithPositionAndOrientation, self).serialize(full, serializer)
+        super(DependentObject, self).serialize(full, serializer)
 
-        serializer.serialize_float(self._velocity[0])
-        serializer.serialize_float(self._velocity[1])
-        serializer.serialize_float(self._velocity[2])
-        serializer.serialize_float(self._turn_speed)
+        serializer.serialize_unsigned_short(self._parent_id)
 
     def deserialize(self, full, serializer):
-        super(MovingSimulationObjectWithPositionAndOrientation, self).deserialize(full, serializer)
-        x = serializer.deserialize_float()
-        y = serializer.deserialize_float()
-        z = serializer.deserialize_float()
+        super(DependentObject, self).deserialize(full, serializer)
+        parent_id = serializer.deserialize_unsigned_short()
 
-        self.set_velocity_3(x, y, z)
-        self.set_turn_speed(serializer.deserialize_float())
+        self.set_parent_id(parent_id)
 
     def size(self, full):
-        return super(MovingSimulationObjectWithPositionAndOrientation, self).size(full) + 4 * 4
+        return super(DependentObject, self).size(full) + 2
 
     def copy_internal(self, new_object):
-        super(MovingSimulationObjectWithPositionAndOrientation, self).copy_internal(new_object)
-
-        new_object._velocity[0] = self._velocity[0]
-        new_object._velocity[1] = self._velocity[1]
-        new_object._velocity[2] = self._velocity[2]
-        new_object._turn_speed = self._turn_speed
+        super(DependentObject, self).copy_internal(new_object)
+        new_object._parent_id = self._parent_id
 
         return new_object
 
     def __repr__(self):
-        return super(MovingSimulationObjectWithPositionAndOrientation, self).__repr__() + ", v=({:.2f}, {:.2f}, {:.2f})".format(self._velocity[0], self._velocity[1], self._velocity[2])
-
-    def float_equal(self, a, b):
-        return abs(a - b) < 0.001
+        return super(DependentObject, self).__repr__() + ", parent=" + str(self._parent_id)
