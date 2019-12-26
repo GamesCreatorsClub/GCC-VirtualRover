@@ -3,6 +3,7 @@ from enum import Enum
 from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
 
+
 class RoverColor(Enum):
     White = ()
     Green = ()

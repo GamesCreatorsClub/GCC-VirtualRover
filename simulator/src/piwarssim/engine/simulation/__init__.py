@@ -8,4 +8,6 @@ from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientatio
 from piwarssim.engine.simulation.SimulationObjectFactory import SimulationObjectFactory
 from piwarssim.engine.simulation.AbstractRoverSimObject import AbstractRoverSimObject
 
+from piwarssim.engine.simulation.BarrelSimObject import BarrelSimObject
+
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes

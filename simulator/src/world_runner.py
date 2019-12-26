@@ -8,7 +8,9 @@ import pymunk.pygame_util
 from lib.robot import Robot
 from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.server import ServerEngine
+from piwarssim.engine.simulation.BarrelSimObject import BarrelColour
 
+from worlds.simple_walls import BarrelBody
 
 class WorldRunner:
     def __init__(self):
@@ -20,16 +22,16 @@ class WorldRunner:
         self.world = None
 
     def update(self):
-        pause = False
+        paused = False
 
         player_inputs = server_engine.get_player_inputs()
         player_inputs_array = player_inputs.get_inputs()
         if len(player_inputs_array) > 0:
             player_input = player_inputs_array[0]
-            pause = player_input.circle()
+            paused = player_input.circle()
             # print(str(player_inputs_array[0]))
 
-        if not pause:
+        if not paused:
             try:
                 next(self.running_behaviour)
             except StopIteration:
@@ -40,6 +42,18 @@ class WorldRunner:
             rover.set_position_2(1000 - self.robot.body.position.x * 2.5, self.robot.body.position.y * 2.5 - 1000)
             rover.set_bearing(90 - self.robot.body.angle * 180 / math.pi)
             rover.changed = False
+
+            for object in self.space.bodies:
+                if isinstance(object, BarrelBody):
+                    barrel_body = object
+                    local_object = barrel_body.get_local_object()
+                    if local_object is None:
+                        if barrel_body.is_green():
+                            local_object = server_engine.challenge.make_barrel(BarrelColour.Green)
+                        else:
+                            local_object = server_engine.challenge.make_barrel(BarrelColour.Red)
+                        barrel_body.set_local_object(local_object)
+                    local_object.set_position_2(1000 - barrel_body.position.x * 2.5, barrel_body.position.y * 2.5 - 1000)
 
         server_engine.process(t)
         server_engine.send_update()

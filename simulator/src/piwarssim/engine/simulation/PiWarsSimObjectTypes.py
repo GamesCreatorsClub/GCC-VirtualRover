@@ -1,15 +1,18 @@
 from enum import Enum
 
+from piwarssim.engine.simulation.GameMessageSimObject import GameMessageSimObject
+from piwarssim.engine.simulation.BarrelSimObject import BarrelSimObject
+from piwarssim.engine.simulation.PiNoonAttachemntObject import PiNoonAttachmentObject
 from piwarssim.engine.simulation.rovers.GCCRover import GCCRover
 from piwarssim.engine.simulation.rovers.CBISRover import CBISRover
 
 
 class PiWarsSimObjectTypes(Enum):
-    GameMessageObject = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+    GameMessageObject = (lambda factory, sim_object_id, sim_object_type: GameMessageSimObject(factory, sim_object_id, sim_object_type),)
 
-    BarrelObject = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+    BarrelObject = (lambda factory, sim_object_id, sim_object_type: BarrelSimObject(factory, sim_object_id, sim_object_type),)
 
-    PiNoonAttachment = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+    PiNoonAttachment = (lambda factory, sim_object_id, sim_object_type: PiNoonAttachmentObject(factory, sim_object_id, sim_object_type),)
 
     GCCRover = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
 

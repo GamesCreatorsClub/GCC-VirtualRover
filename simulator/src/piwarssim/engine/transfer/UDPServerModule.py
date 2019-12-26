@@ -28,6 +28,7 @@ class UDPServerModule:
         if self._client_socket is not None and self._client_address is not None:
             l = len(packet)
             packet[0:0] = struct.pack('B', UDPServerModule.MAGIC + (l >> 8))
+            # packet[0:0] = struct.pack('B', UDPServerModule.MAGIC + (l // 256) & 1)
             packet[1:1] = struct.pack('B', l & 0xFF)
             self._client_socket.sendto(packet, (self._client_address, self._client_port))
 

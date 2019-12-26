@@ -56,6 +56,8 @@ class AbstractChallenge:
         for new_sim_object in self._new_sim_objects:
             self._next_sim_state.add_new(new_sim_object)
 
+        # del self._new_sim_objects[:]
+
         current_sim_state = self.get_current_sim_state()
 
         self._previous_sim_states.append(current_sim_state)
@@ -78,3 +80,10 @@ class AbstractChallenge:
         rover.set_id(1)
         self.add_new_sim_object(rover)
         return rover
+
+    def make_barrel(self, barrel_colour):
+        barrel = self._sim_object_factory.obtain(PiWarsSimObjectTypes.BarrelObject)
+        barrel.set_id(self._next_sim_state.new_id())
+        barrel.set_barrel_colour(barrel_colour)
+        self.add_new_sim_object(barrel)
+        return barrel
