@@ -16,6 +16,7 @@ public class Parameters {
     private boolean lwjgl = false;
     private boolean simulation = false;
     private boolean localOnly = false;
+    private boolean tcp = false;
 
     private InetSocketAddress serverAddress;
 
@@ -85,12 +86,21 @@ public class Parameters {
                         throw new IllegalArgumentException(args[i] + " must be followed by position format 0x0 (100x40 for instance)");
                     }
                     String s = args[i + 1];
+                    if (s.toUpperCase().startsWith("UDP:")) {
+                        tcp = false;
+                        s = s.substring(4);
+                    } else if (s.toUpperCase().startsWith("TCP:")) {
+                        tcp = true;
+                        s = s.substring(4);
+                    }
                     int j = s.indexOf(':');
                     if (j < 0) {
                         throw new IllegalArgumentException("Server address must be in <ip/dns>:<port> format but got '" + s + "'. For instance 127.0.0.1:7456.");
                     }
                     serverAddress = new InetSocketAddress(s.substring(0, j), Integer.parseInt(s.substring(j + 1)));
                     i = i + 2;
+                } else if ("--tcp".equals(args[i])) {
+                    tcp = true;
                 } else if ("--help".equals(args[i]) || "-h".equals(args[i]) || "-?".equals(args[i])) {
                     i++;
                     printHelp();
@@ -184,5 +194,9 @@ public class Parameters {
 
     public boolean isLWJGL() {
         return !isJOGL();
+    }
+
+    public boolean isTCP() {
+        return tcp;
     }
 }

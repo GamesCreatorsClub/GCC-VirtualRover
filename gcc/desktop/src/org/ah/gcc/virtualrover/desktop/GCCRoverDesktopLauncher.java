@@ -8,6 +8,9 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.PlatformSpecific;
+import org.ah.gcc.virtualrover.logging.GdxClientLoggingAdapter;
+import org.ah.themvsus.engine.client.desktop.TCPServerCommunication;
+import org.ah.themvsus.engine.client.desktop.UDPServerCommunication;
 
 public class GCCRoverDesktopLauncher {
 
@@ -22,7 +25,13 @@ public class GCCRoverDesktopLauncher {
         Parameters parameters = new Parameters();
         parameters.parseArgs(args);
 
-        DesktopPlatformSpecific desktopSpecific = new DesktopPlatformSpecific();
+
+        DesktopPlatformSpecific desktopSpecific;
+        if (parameters.isTCP()) {
+            desktopSpecific = new DesktopPlatformSpecific(new TCPServerCommunication(GdxClientLoggingAdapter.getInstance()));
+        } else {
+            desktopSpecific = new DesktopPlatformSpecific(new UDPServerCommunication(GdxClientLoggingAdapter.getInstance()));
+        }
         desktopSpecific.setHasSound(parameters.hasSound());
         desktopSpecific.setIsSimulation(parameters.isSimulation());
         desktopSpecific.setLocalOnly(parameters.isLocalOnly());

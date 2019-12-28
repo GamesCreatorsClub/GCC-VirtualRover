@@ -1,32 +1,32 @@
 package org.ah.gcc.virtualrover.desktop;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import org.ah.gcc.virtualrover.AbstractPlatformSpecific;
-import org.ah.themvsus.engine.client.ServerCommunication;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Net.HttpRequest;
 import com.badlogic.gdx.Net.HttpResponse;
 import com.badlogic.gdx.Net.HttpResponseListener;
 
+import org.ah.gcc.virtualrover.AbstractPlatformSpecific;
+import org.ah.themvsus.engine.client.ServerCommunication;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class DesktopPlatformSpecific extends AbstractPlatformSpecific {
 
-    protected DesktopServerCommunication desktopServerCommunication;
+    protected ServerCommunication serverCommunication;
 
     public DesktopPlatformSpecific() {
-        this.desktopServerCommunication = new DesktopServerCommunication();
+        this.serverCommunication = new DesktopServerCommunication();
     }
 
-    protected DesktopPlatformSpecific(DesktopServerCommunication desktopServerCommunication) {
-        this.desktopServerCommunication = desktopServerCommunication;
+    protected DesktopPlatformSpecific(ServerCommunication serverCommunication) {
+        this.serverCommunication = serverCommunication;
     }
 
     @Override
     public ServerCommunication getServerCommunication() {
-        return desktopServerCommunication;
+        return serverCommunication;
     }
 
     @Override
