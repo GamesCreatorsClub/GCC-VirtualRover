@@ -27,6 +27,9 @@ public class ModelFactory {
     private Model bigTyre;
     private Model marker;
 
+    private Model ecoDisasterArena;
+    private Model ecoDisasterZone;
+
     public ModelFactory() {
         UBJsonReader jsonreader = new UBJsonReader();
         g3Modelloader = new G3dModelLoader(jsonreader);
@@ -66,6 +69,9 @@ public class ModelFactory {
         motorholder = loadModel("MotorHolder.obj");
 
         marker = loadModel("teapot.g3db");
+
+        ecoDisasterArena = loadModel("eco-disaster-arena.obj");
+        ecoDisasterZone = loadModel("eco-disaster-zone.obj");
     }
 
     public void dispose() {
@@ -83,6 +89,9 @@ public class ModelFactory {
         bigWheel.dispose();
         bigTyre.dispose();
         marker.dispose();
+
+        ecoDisasterArena.dispose();
+        ecoDisasterZone.dispose();
     }
 
     private void resourceDoesNotExists(String name) throws NoSuchElementException {
@@ -159,6 +168,20 @@ public class ModelFactory {
             resourceDoesNotExists("worker");
         }
         return marker;
+    }
+
+    public Model getEcoDisasterArena() throws NoSuchElementException {
+        if (ecoDisasterArena == null) {
+            resourceDoesNotExists("eco-disaster-arena");
+        }
+        return ecoDisasterArena;
+    }
+
+    public Model getEcoDisasterZone() throws NoSuchElementException {
+        if (ecoDisasterZone == null) {
+            resourceDoesNotExists("eco-disaster-zone");
+        }
+        return ecoDisasterZone;
     }
 
     public Model getcBody() {

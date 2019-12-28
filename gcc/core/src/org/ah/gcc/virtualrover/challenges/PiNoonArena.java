@@ -19,8 +19,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -35,12 +33,8 @@ import java.util.List;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 import static org.ah.gcc.virtualrover.utils.MeshUtils.createRect;
-import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonFromBoundingBox;
-import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
 
 public class PiNoonArena extends AbstractChallenge {
-
-    private List<BoundingBox> boundingBoxes;
 
     private OrthographicCamera floorCamera;
 
@@ -52,8 +46,6 @@ public class PiNoonArena extends AbstractChallenge {
 
     private ModelInstance floorModelInstance;
 
-//    private BarrelModelLink redBarrel;
-//    private BarrelModelLink greenBarrel;
     private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
 
     public boolean showPlan = false;
@@ -96,6 +88,10 @@ public class PiNoonArena extends AbstractChallenge {
     }
 
     @Override
+    public void init() {
+        challengeModelInstance = createChallengeModelInstance(modelFactory);
+    }
+
     protected ModelInstance createChallengeModelInstance(ModelFactory modelFactory) {
         Model arenaModel = modelFactory.loadModel("arena.obj");
 
@@ -104,30 +100,6 @@ public class PiNoonArena extends AbstractChallenge {
         arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
 
         return arena;
-    }
-
-    @Override
-    protected List<Polygon> createCollidingPolygons() {
-        boundingBoxes = new ArrayList<BoundingBox>();
-        float wallWidth = 0.1f;
-        boundingBoxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3(1000 * SCALE, 100 * SCALE, (-1000 - wallWidth) * SCALE)));
-        boundingBoxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, 1000 * SCALE), new Vector3(1000 * SCALE, 100 * SCALE, (1000 + wallWidth) * SCALE)));
-
-        boundingBoxes.add(new BoundingBox(new Vector3(-1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((-1000 - wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
-        boundingBoxes.add(new BoundingBox(new Vector3(1000 * SCALE, 100 * SCALE, -1000 * SCALE), new Vector3((1000 + wallWidth) * SCALE, 100 * SCALE, 1000 * SCALE)));
-
-        List<Polygon> polygons = new ArrayList<Polygon>();
-        for (BoundingBox boundingBox : boundingBoxes) {
-            Polygon polygon = polygonFromBoundingBox(boundingBox);
-            polygons.add(polygon);
-        }
-
-        return polygons;
-    }
-
-    @Override
-    public boolean collides(List<Polygon> polygons) {
-        return polygonsOverlap(this.polygons, polygons);
     }
 
     @Override

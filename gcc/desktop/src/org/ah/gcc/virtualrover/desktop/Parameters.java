@@ -17,6 +17,7 @@ public class Parameters {
     private boolean simulation = false;
     private boolean localOnly = false;
     private boolean tcp = false;
+    private String requestedChallenge;
 
     private InetSocketAddress serverAddress;
 
@@ -83,7 +84,7 @@ public class Parameters {
                     i++;
                 } else if ("--server".equals(args[i])) {
                     if (i + 1 >= args.length) {
-                        throw new IllegalArgumentException(args[i] + " must be followed by position format 0x0 (100x40 for instance)");
+                        throw new IllegalArgumentException(args[i] + " must be followed by server address. For instance TCP:127.0.0.1:7465");
                     }
                     String s = args[i + 1];
                     if (s.toUpperCase().startsWith("UDP:")) {
@@ -101,6 +102,12 @@ public class Parameters {
                     i = i + 2;
                 } else if ("--tcp".equals(args[i])) {
                     tcp = true;
+                } else if ("--challenge".equals(args[i])) {
+                    if (i + 1 >= args.length) {
+                        throw new IllegalArgumentException(args[i] + " must be followed by challenge name");
+                    }
+                    requestedChallenge = args[i + 1];
+                    i = i + 2;
                 } else if ("--help".equals(args[i]) || "-h".equals(args[i]) || "-?".equals(args[i])) {
                     i++;
                     printHelp();
@@ -198,5 +205,9 @@ public class Parameters {
 
     public boolean isTCP() {
         return tcp;
+    }
+
+    public String getRequestedChallenge() {
+        return requestedChallenge;
     }
 }

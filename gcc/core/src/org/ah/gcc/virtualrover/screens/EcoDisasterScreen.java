@@ -15,7 +15,7 @@ import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.gcc.virtualrover.camera.CameraControllersManager;
 import org.ah.gcc.virtualrover.camera.CinematicCameraController;
-import org.ah.gcc.virtualrover.challenges.PiNoonArena;
+import org.ah.gcc.virtualrover.challenges.EcoDisasterArena;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.utils.SoundManager;
@@ -23,18 +23,15 @@ import org.ah.gcc.virtualrover.view.Console;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
-public class PiNoonScreen extends AbstractStandardScreen {
+public class EcoDisasterScreen extends AbstractStandardScreen {
 
     private PerspectiveCamera camera;
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
 
-    private RoverType player1RoverType = RoverType.GCC;
-    private RoverType player2RoverType = RoverType.CBIS;
-
     private boolean renderBackground = false;
 
-    public PiNoonScreen(MainGame game,
+    public EcoDisasterScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
@@ -45,7 +42,7 @@ public class PiNoonScreen extends AbstractStandardScreen {
 
         setBackground(new PerlinNoiseBackground());
 
-        PiNoonArena challenge = new PiNoonArena(modelFactory);
+        EcoDisasterArena challenge = new EcoDisasterArena(modelFactory);
         challenge.init();
 
         setChallenge(challenge);
@@ -107,10 +104,9 @@ public class PiNoonScreen extends AbstractStandardScreen {
 
         batch.begin(camera);
 
-
         challenge.render(batch, environment, serverCommunicationAdapter.getVisibleObjects());
         if (serverCommunicationAdapter.isLocal()) {
-            if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
+            if (serverCommunicationAdapter.hasPlayerOne()) {
                 moveRovers();
             } else if (serverCommunicationAdapter.isLocal()) {
                 setMiddleMessage("Press space to begin", true);
@@ -124,7 +120,6 @@ public class PiNoonScreen extends AbstractStandardScreen {
         batch.end();
 
         spriteBatch.begin();
-        drawScore();
 
         if (drawFPS) {
             drawFPS();
@@ -136,13 +131,6 @@ public class PiNoonScreen extends AbstractStandardScreen {
         if (console != null) {
             console.render();
         }
-    }
-
-    private void drawScore() {
-        // TODO sort out score
-//        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
-//            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getScore() + " - " + serverCommunicationAdapter.getPlayerTwo().getScore(), Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
-//        }
     }
 
     @Override
@@ -158,58 +146,19 @@ public class PiNoonScreen extends AbstractStandardScreen {
         if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
             GCCGame game = serverCommunicationAdapter.getEngine().getGame();
 
-            // PiNoonChallenge piNoonArena = (PiNoonChallenge)game.getChallenge();
-
-            /* Rover player1 = */game.spawnRover(1, "Blue", player1RoverType);
-            /* Rover player2 = */game.spawnRover(2, "Green", player2RoverType);
-            serverCommunicationAdapter.setLocalPlayerIds(1, 2);
+            // TODO - select rover type properly
+            /* Rover player1 = */game.spawnRover(1, "Blue", RoverType.GCC);
+            serverCommunicationAdapter.setLocalPlayerIds(1);
         }
 
         if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 4f;
         }
 
-        if (keycode == Input.Keys.H && challenge instanceof PiNoonArena) {
-            PiNoonArena piNoonArena = (PiNoonArena)challenge;
-            if (piNoonArena.showRovers && !piNoonArena.showPlan) {
-                piNoonArena.showRovers = true;
-                piNoonArena.showPlan = true;
-            } else if (piNoonArena.showRovers && piNoonArena.showPlan) {
-                piNoonArena.showRovers = false;
-                piNoonArena.showPlan = true;
-            } else {
-                piNoonArena.showRovers = true;
-                piNoonArena.showPlan = false;
-            }
-        }
-        if (keycode == Input.Keys.G && challenge instanceof PiNoonArena) {
-            PiNoonArena piNoonArena = (PiNoonArena)challenge;
-            piNoonArena.showShadows = !piNoonArena.showShadows;
-        }
-        if (keycode == Input.Keys.T && challenge instanceof PiNoonArena) {
-            PiNoonArena piNoonArena = (PiNoonArena)challenge;
-            piNoonArena.showRovers = !piNoonArena.showRovers;
-        }
-
-        return false;
-    }
-
-    @Override public boolean keyUp(int keycode) {
-        super.keyUp(keycode);
         return false;
     }
 
     @Override public boolean keyTyped(char character) {
         return super.keyTyped(character);
     }
-
-    @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) { return false; }
-
-    @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) { return false; }
-
-    @Override public boolean touchDragged(int screenX, int screenY, int pointer) { return false; }
-
-    @Override public boolean mouseMoved(int screenX, int screenY) { return false; }
-
-    @Override public boolean scrolled(int amount) { return false; }
 }

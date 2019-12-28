@@ -9,23 +9,16 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 
-import java.util.List;
-
-import static org.ah.gcc.virtualrover.utils.MeshUtils.polygonsOverlap;
-
 @SuppressWarnings("deprecation")
 public abstract class AbstractChallenge implements Challenge {
 
     protected ModelInstance challengeModelInstance;
-
-    protected List<Polygon> polygons;
 
     protected FrameBuffer frameBuffer;
 
@@ -39,7 +32,7 @@ public abstract class AbstractChallenge implements Challenge {
 
     private DirectionalShadowLight shadowLight;
 
-    private ModelFactory modelFactory;
+    protected ModelFactory modelFactory;
 
     public AbstractChallenge(ModelFactory modelFactory) {
         this.modelFactory = modelFactory;
@@ -59,16 +52,6 @@ public abstract class AbstractChallenge implements Challenge {
 
     @Override
     public void init() {
-        challengeModelInstance = createChallengeModelInstance(modelFactory);
-        polygons = createCollidingPolygons();
-    }
-
-    protected abstract ModelInstance createChallengeModelInstance(ModelFactory modelFactory);
-    protected abstract List<Polygon> createCollidingPolygons();
-
-    @Override
-    public boolean collides(List<Polygon> polygons) {
-        return polygonsOverlap(this.polygons, polygons);
     }
 
     @Override
@@ -100,7 +83,7 @@ public abstract class AbstractChallenge implements Challenge {
             modelBatch.end();
             batch.begin(cam);
         } else {
-            batch.render(challengeModelInstance, environment);
+            // batch.render(challengeModelInstance, environment);
 
             renderChallenge(batch, environment, visibleObjects);
             renderVisibleObjects(batch, environment, visibleObjects);

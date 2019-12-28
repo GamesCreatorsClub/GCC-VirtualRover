@@ -2,6 +2,7 @@ package org.ah.gcc.virtualrover.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.IntSet;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -27,11 +29,12 @@ import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
 import org.ah.gcc.virtualrover.view.Console;
+import org.ah.gcc.virtualrover.world.PlayerModelLink;
 import org.ah.themvsus.engine.client.AbstractServerCommunication;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
-public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener {
+public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener, InputProcessor  {
 
     protected MainGame game;
     protected PlatformSpecific platformSpecific;
@@ -72,6 +75,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected boolean rightCtrl;
 
     protected boolean drawFPS = false;
+
+    private IntSet unknownObjectIds = new IntSet();
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -174,6 +179,27 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
     }
 
+    protected void progressEngine() {
+        ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
+        if (engine != null) {
+            long now = System.currentTimeMillis();
+            engine.progressEngine(now, unknownObjectIds);
+
+            if (unknownObjectIds.size > 0) {
+                serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
+            }
+
+            PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
+            if (playerOne != null) {
+                serverCommunicationAdapter.setPlayerOneInput(playerOne.roverInput);
+            }
+            PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
+            if (playerTwo != null) {
+                serverCommunicationAdapter.setPlayerTwoInput(playerTwo.roverInput);
+            }
+        }
+    }
+
     protected void drawFPS() {
         ClientEngine<GCCGame> engine = serverCommunicationAdapter.getEngine();
         AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
@@ -240,6 +266,32 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
     }
 
+    protected void moveRovers() {
+        PlayerModelLink player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
+        if (player1 != null) {
+            player1.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
+            player1.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
+            player1.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
+            player1.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ? 1f : 0f);
+            player1.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.Z));
+            player1.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.X));
+            player1.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.C));
+            player1.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.V));
+        }
+
+        PlayerModelLink player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        if (player2 != null) {
+            player2.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
+            player2.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
+            player2.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
+            player2.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) ? 1f : 0f);
+            player2.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.N));
+            player2.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.M));
+            player2.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.COMMA));
+            player2.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.PERIOD));
+        }
+    }
+
     @Override
     public void onChat(String playerName, String text) {
 
@@ -250,7 +302,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     }
 
+    @Override
     public boolean keyDown(int keycode) {
+
         if (keycode == Input.Keys.SHIFT_LEFT) {
             leftShift = true;
         }
@@ -275,6 +329,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         return false;
     }
 
+    @Override
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.SHIFT_LEFT) {
             leftShift = false;
@@ -296,6 +351,41 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
         return false;
     }
+
+    @Override public boolean keyTyped(char character) {
+        if (character == '=') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            serverCommmunication.setSendingDelay(serverCommmunication.getSendingDelay() + 5);
+        } else if (character == '-') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            int newSendingDelay = serverCommmunication.getSendingDelay() - 5;
+            if (newSendingDelay < 0) {
+                newSendingDelay = 0;
+            }
+            serverCommmunication.setSendingDelay(newSendingDelay);
+        } else if (character == '+') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            serverCommmunication.setReceivingDelay(serverCommmunication.getReceivingDelay() + 5);
+        } else if (character == '_') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            int newReceivingDelay = serverCommmunication.getReceivingDelay() - 5;
+            if (newReceivingDelay < 0) {
+                newReceivingDelay = 0;
+            }
+            serverCommmunication.setReceivingDelay(newReceivingDelay);
+        }
+        return false;
+    }
+
+    @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) { return false; }
+
+    @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) { return false; }
+
+    @Override public boolean touchDragged(int screenX, int screenY, int pointer) { return false; }
+
+    @Override public boolean mouseMoved(int screenX, int screenY) { return false; }
+
+    @Override public boolean scrolled(int amount) { return false; }
 
     protected float textWidth(BitmapFont font, String text) {
         glyphLayout.setText(font, text);

@@ -9,6 +9,8 @@ public class Challenges {
     public static Challenge createChallenge(GCCGame game, String name) {
         if ("PiNoon".equals(name)) {
             return new PiNoonChallenge(game, name);
+        } else if ("EcoDisaster".equals(name)) {
+            return new EcoDisasterChallenge(game, name);
         }
 
         throw new IllegalArgumentException(name + " not known");

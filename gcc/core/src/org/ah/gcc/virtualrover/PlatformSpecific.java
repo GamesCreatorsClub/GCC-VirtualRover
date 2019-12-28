@@ -42,4 +42,6 @@ public interface PlatformSpecific {
     void fireServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapter serverCommunicationAdapter);
 
     void setServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback);
+
+    String getRequestedChallenge();
 }

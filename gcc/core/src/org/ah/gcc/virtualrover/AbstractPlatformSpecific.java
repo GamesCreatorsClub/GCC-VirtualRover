@@ -14,6 +14,7 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     private boolean hasSound = true;
     protected boolean isSimulation;
     protected boolean isLocalOnly;
+    protected String requestedChallenge;
 
     @Override
     public void setPreferredServerDetails(String socketAddress, int port) {
@@ -109,5 +110,14 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     @Override
     public boolean hasSound() {
         return this.hasSound;
+    }
+
+    @Override
+    public String getRequestedChallenge() {
+        return requestedChallenge;
+    }
+
+    public void setRequestedChallenge(String requestedChallenge) {
+        this.requestedChallenge = requestedChallenge;
     }
 }

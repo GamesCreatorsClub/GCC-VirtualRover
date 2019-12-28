@@ -38,6 +38,7 @@ public class GCCRoverDesktopLauncher {
         if (parameters.getServerAddress() != null) {
             desktopSpecific.setPreferredServerDetails(parameters.getServerAddress().getHostName(), parameters.getServerAddress().getPort());
         }
+        desktopSpecific.setRequestedChallenge(parameters.getRequestedChallenge());
 
         System.out.println("Setting up display as " + parameters.getWidth() + "x" + parameters.getHeight() + " @ " + parameters.getX() + ", " + parameters.getY());
         System.out.println(parameters.hasSound() ? "Set sound on" : "No sound will be loaded or played");

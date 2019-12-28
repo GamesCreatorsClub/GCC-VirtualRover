@@ -59,6 +59,10 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         playerTwoInputMessage = messageFactory.createPlayerInputCommand();
     }
 
+    public void setLocalPlayerIds(int playerOneId) {
+        setLocalPlayerIds(playerOneId, -1);
+    }
+
     public void setLocalPlayerIds(int playerOneId, int playerTwoId) {
         this.sessionId = playerOneId;
         this.playerTwoId = playerTwoId;
@@ -144,7 +148,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             playerModel.makeRobot(modelFactory);
             rover.setLinkBack(playerModel);
 
-            if (rover.getId() != sessionId && playerTwoId == 0) {
+            if (rover.getId() != sessionId && playerTwoId <= 0) {
                 playerTwoId = rover.getId();
             }
 
@@ -177,20 +181,20 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public Rover getPlayerOne() {
-        if (engine != null && sessionId != 0) {
+        if (engine != null && sessionId > 0) {
             return getEngine().getGame().getCurrentGameState().get(sessionId);
         }
         return null;
     }
 
     public Rover getPlayerTwo() {
-        if (engine != null && playerTwoId != 0) {
+        if (engine != null && playerTwoId > 0) {
             return getEngine().getGame().getCurrentGameState().get(playerTwoId);
         }
         return null;
     }
     public PlayerModelLink getPlayerOneVisualObject() {
-        if (engine != null && sessionId != 0) {
+        if (engine != null && sessionId > 0) {
             Rover player = getEngine().getGame().getCurrentGameState().get(sessionId);
             if (player != null) {
                 return player.getLinkBack();
@@ -200,7 +204,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public PlayerModelLink getPlayerTwoVisualObject() {
-        if (engine != null && playerTwoId != 0) {
+        if (engine != null && playerTwoId > 0) {
             Rover player = getEngine().getGame().getCurrentGameState().get(playerTwoId);
             if (player != null) {
                 return player.getLinkBack();
@@ -210,7 +214,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public GameMessageObject getGameMessageObject() {
-        if (engine != null && gameMessageId != 0) {
+        if (engine != null && gameMessageId > 0) {
             GameMessageObject gameMessageObject = engine.getGame().getCurrentGameState().get(gameMessageId);
             return gameMessageObject;
         }
