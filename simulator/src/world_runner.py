@@ -10,7 +10,7 @@ from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.server import ServerEngine
 from piwarssim.engine.simulation.BarrelSimObject import BarrelColour
 
-from worlds.simple_walls import BarrelBody
+from worlds.eco_disaster import BarrelBody
 
 
 class WorldRunner:
@@ -23,6 +23,7 @@ class WorldRunner:
         self.running_behaviour = None
         self.robot = None
         self.world = None
+        self.surface = None
 
     def update(self):
         # player_inputs = server_engine.get_player_inputs()
@@ -40,7 +41,11 @@ class WorldRunner:
             self.robot.update(self.space)
             self.space.step(0.4)
 
-            rover.set_position_2(1000 - self.robot.body.position.x * 2.5, self.robot.body.position.y * 2.5 - 1000)
+            world_width = self.world.get_width()
+            world_height = self.world.get_height()
+
+            # rover.set_position_2(1000 - self.robot.body.position.x * 2.5, self.robot.body.position.y * 2.5 - 1000)
+            rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
             rover.set_bearing(90 - self.robot.body.angle * 180 / math.pi)
             rover.changed = False
 
@@ -54,15 +59,19 @@ class WorldRunner:
                         else:
                             local_object = server_engine.challenge.make_barrel(BarrelColour.Red)
                         barrel_body.set_local_object(local_object)
-                    local_object.set_position_2(1000 - barrel_body.position.x * 2.5, barrel_body.position.y * 2.5 - 1000)
+                    # local_object.set_position_2(1000 - barrel_body.position.x * 2.5, barrel_body.position.y * 2.5 - 1000)
+                    local_object.set_position_2(barrel_body.position.x - world_width // 2, world_height // 2 - barrel_body.position.y)
 
             server_engine.process(t)
             server_engine.send_update()
 
     def draw(self):
-        self.screen.fill((1.0, 0, 0))
+        # self.screen.fill((1.0, 0, 0))
+        self.surface.fill((1.0, 0, 0))
         self.space.debug_draw(self.draw_options)
-        self.robot.draw(self.screen)
+        self.robot.draw(self.surface)
+        # self.robot.draw(self.screen)
+        self.screen.blit(pygame.transform.scale(self.surface, (self.screen.get_width(), self.screen.get_height())), (0, 0))
         pygame.display.flip()
 
     def main(self):
@@ -73,10 +82,6 @@ class WorldRunner:
         behaviour_module = import_module("behaviours." + self.args[0])
         world_module = import_module("worlds." + self.args[1])
 
-
-        self.screen = pygame.display.set_mode((world_module.WIDTH, world_module.HEIGHT))
-        self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
-
         self.robot = Robot()
 
         self.space.damping = 0.2
@@ -85,9 +90,13 @@ class WorldRunner:
         self.running_behaviour = behaviour_module.Behaviour(self.robot.controls).run()
         self.world = world_module.World(self.space, self.robot)
 
+        self.surface = pygame.Surface((self.world.get_width(), self.world.get_height()))
+        self.screen = pygame.display.set_mode((800, 800))
+        self.draw_options = pymunk.pygame_util.DrawOptions(self.surface)
+
         running = True
         while running:
-            self.world.update()
+            self.world.update(self.screen.get_width(), self.screen.get_height())
             self.update()
             self.draw()
             for event in pygame.event.get():
