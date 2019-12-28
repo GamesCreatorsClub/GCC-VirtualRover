@@ -6,3 +6,4 @@ from piwarssim.engine.transfer.SizeCalculationSerializer import SizeCalculationS
 from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 
 from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
+from piwarssim.engine.transfer.TCPServerModule import TCPServerModule

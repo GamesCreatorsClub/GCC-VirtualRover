@@ -1,12 +1,14 @@
+
 import socket
-import fcntl
 import struct
 import traceback
+import time
+import threading
 
 from socket import timeout
 
 
-class UDPServerModule:
+class TCPServerModule:
     MAGIC = 0xAA
 
     def __init__(self, server_engine, serializer_factory, message_factory, address="0.0.0.0", port=7454):
@@ -15,63 +17,76 @@ class UDPServerModule:
         self._message_factory = message_factory
         self._address = address
         self._port = port
-        self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._server_socket.bind((self._address, self._port))
+        self._server_socket.listen(3)
         self._client_address = None
         self._client_port = 0
-        self._client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._client_socket = None
 
         self._server_engine.register_sender(self.send, self._serializer_factory)
 
+        self._server_socket_thread = threading.Thread(target=self.accept_clients, daemon=True)
+        self._server_socket_thread.start()
+
+    def is_connected(self):
+        return self._client_socket is not None
+
     def send(self, packet):
-        if self._client_socket is not None and self._client_address is not None:
-            l = len(packet)
-            packet[0:0] = struct.pack('B', UDPServerModule.MAGIC + (l >> 8))
-            # packet[0:0] = struct.pack('B', UDPServerModule.MAGIC + (l // 256) & 1)
-            packet[1:1] = struct.pack('B', l & 0xFF)
-            self._client_socket.sendto(packet, (self._client_address, self._client_port))
+        if self._client_socket is not None:
+            packet = self.add_packet_header(packet)
+            self._client_socket.sendall(packet)
+
+    @staticmethod
+    def add_packet_header(packet):
+        l = len(packet)
+        packet[0:0] = struct.pack('B', TCPServerModule.MAGIC + (l >> 8))
+        packet[1:1] = struct.pack('B', l & 0xFF)
+        return packet
+
+    def accept_clients(self):
+        self._server_socket.settimeout(10)
+        while True:
+            try:
+                conn, addr = self._server_socket.accept()
+                self._client_address = addr
+                self._client_socket = conn
+            except Exception as ex:
+                print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
 
     def process(self):
-        try:
-            self._server_socket.settimeout(10)
-            while True:
-                try:
-                    data, (addr, port) = self._server_socket.recvfrom(1024)
-                    # print("Received '" + str(data) + "' from " + str(addr) + ":" + str(port))
+        while True:
+            self.receive_message()
 
-                    self._client_address = addr
-                    self._client_port = port
+    def receive_message(self):
+        if self._client_socket is not None:
+            try:
+                data = self._client_socket.recv(2)
+                if len(data) == 0:
+                    self._client_socket = None
+                else:
+                    if data[0] & 0xfe == TCPServerModule.MAGIC:
+                        expected_size = (data[0] & 1) * 256 + data[1]
+                        data = self._client_socket.recv(expected_size)
 
-                    deserializer = self._serializer_factory.obtain()
-                    deserializer.setup()
-                    buf = deserializer.get_buffer()
-                    buf += data
+                        deserializer = self._serializer_factory.obtain()
+                        deserializer.setup()
+                        buf = deserializer.get_buffer()
+                        buf += data
 
-                    try:
-                        b1 = deserializer.deserialize_unsigned_byte()
-                        if deserializer.get_total_size() > 0:
-                            b2 = deserializer.deserialize_unsigned_byte()
-                            if b1 & 0xfe == UDPServerModule.MAGIC:
-                                expected_size = (b1 & 1) * 256 + b2
-                                if expected_size == deserializer.get_total_size():
-                                    message = self._message_factory.create_message(deserializer)
-                                    self._server_engine.receive_message(message)
-                                else:
-                                    print("Expected size " + str((b1 & 1) * 256 + b2) + " but got " + deserializer.get_total_size())
-                            else:
-                                print("Expected MAGIC " + hex(UDPServerModule.MAGIC) + " but got " + hex(b1))
-                        else:
-                            print("Received only one byte but expected at least 2")
-                    finally:
-                        deserializer.free()
-                except timeout:
-                    pass
-                except Exception as ex:
-                    print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
-
-        except Exception as ex:
-            print("ERROR: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
+                        message = self._message_factory.create_message(deserializer)
+                        self._server_engine.receive_message(message)
+                    else:
+                        print("Expected MAGIC " + hex(TCPServerModule.MAGIC) + " but got " + hex(data[0]))
+            except timeout:
+                pass
+            except ConnectionResetError:
+                self._client_socket = None
+            except Exception as ex:
+                print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
+        else:
+            time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -82,16 +97,44 @@ if __name__ == '__main__':
     serializer_factory = ByteSerializerFactory()
     message_factory = MessageFactory()
 
-    udpServerModule = UDPServerModule(serializer_factory, message_factory, port=7777)
+    class DummyEngine:
+        def __init__(self):
+            self.send_method = None
+            self.serialiser_factory = None
+            self.message = None
 
-    udpServerModule._client_port = 7454
-    udpServerModule._client_address = '127.0.0.1'
+        def register_sender(self, send_method, serialiser_factory):
+            self.send_method = send_method
+            self.serialiser_factory = serialiser_factory
 
-    # message = message_factory.obtain(MessageCode.Nop)
-    message = message_factory.obtain(MessageCode.PlayerServerUpdate)
-    message.set_values(1, 2, [3, 4, 5], [0, 0, 0], [6, 7, 8, 9], 10, 0)
-    serializer = serializer_factory.obtain()
-    serializer.setup()
+        def receive_message(self, message):
+            self.message = message
 
-    message.serialize(serializer)
-    udpServerModule.send(serializer.get_buffer())
+    engine = DummyEngine()
+
+    tcpServerModule = TCPServerModule(engine, serializer_factory, message_factory, port=7777)
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+        client_socket.connect(('127.0.0.1', 7777))
+
+        serializer = serializer_factory.obtain()
+        serializer.setup()
+
+        message = message_factory.obtain(MessageCode.Chat)
+        message.set_line("Hello")
+        message.set_origin("Me")
+        message.serialize(serializer)
+        message_data = TCPServerModule.add_packet_header(serializer.get_buffer())
+        client_socket.send(message_data)
+
+        started = time.time()
+        while time.time() - started < 2 and engine.message is None:
+            tcpServerModule.receive_message()
+
+        received_message = engine.message
+        print("Got on server '" + str(received_message.get_origin()) + ": " + str(received_message.get_line() + "'"))
+
+        engine.send_method(message_data)
+
+        client_data = client_socket.recv(len(message_data))
+        print("Got on client " + str(len(client_data)) + " bytes that are " + ("same" if client_data == message_data else "different") + " to what is sent")

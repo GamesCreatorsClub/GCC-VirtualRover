@@ -11,6 +11,7 @@ class ByteSerializer(Serializer):
 
     def free(self):
         self.factory.free(self)
+        del self.buf[:]
 
     def setup(self):
         del self.buf[:]

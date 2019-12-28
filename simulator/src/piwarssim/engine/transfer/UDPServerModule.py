@@ -24,6 +24,9 @@ class UDPServerModule:
 
         self._server_engine.register_sender(self.send, self._serializer_factory)
 
+    def is_connected(self):
+        return self._client_socket is not None and self._client_address is not None
+
     def send(self, packet):
         if self._client_socket is not None and self._client_address is not None:
             l = len(packet)

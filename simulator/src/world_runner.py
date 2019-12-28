@@ -12,8 +12,11 @@ from piwarssim.engine.simulation.BarrelSimObject import BarrelColour
 
 from worlds.simple_walls import BarrelBody
 
+
 class WorldRunner:
-    def __init__(self):
+    def __init__(self, is_connected_method, *args):
+        self.is_connected_method = is_connected_method
+        self.args = args
         self.space = pymunk.Space()
         self.screen = None
         self.draw_options = None
@@ -22,16 +25,14 @@ class WorldRunner:
         self.world = None
 
     def update(self):
-        paused = False
-
-        player_inputs = server_engine.get_player_inputs()
-        player_inputs_array = player_inputs.get_inputs()
-        if len(player_inputs_array) > 0:
-            player_input = player_inputs_array[0]
-            paused = player_input.circle()
-            # print(str(player_inputs_array[0]))
-
-        if not paused:
+        # player_inputs = server_engine.get_player_inputs()
+        # player_inputs_array = player_inputs.get_inputs()
+        # if len(player_inputs_array) > 0:
+        #     player_input = player_inputs_array[0]
+        #     paused = player_input.circle()
+        #     # print(str(player_inputs_array[0]))
+        #
+        if self.is_connected_method():
             try:
                 next(self.running_behaviour)
             except StopIteration:
@@ -55,8 +56,8 @@ class WorldRunner:
                         barrel_body.set_local_object(local_object)
                     local_object.set_position_2(1000 - barrel_body.position.x * 2.5, barrel_body.position.y * 2.5 - 1000)
 
-        server_engine.process(t)
-        server_engine.send_update()
+            server_engine.process(t)
+            server_engine.send_update()
 
     def draw(self):
         self.screen.fill((1.0, 0, 0))
@@ -65,12 +66,13 @@ class WorldRunner:
         pygame.display.flip()
 
     def main(self):
-        print(sys.argv)
+        print("Starting with arguments " + str(self.args))
         pygame.init()
         pymunk.pygame_util.positive_y_is_up = False
 
-        behaviour_module = import_module("behaviours." + sys.argv[1])
-        world_module = import_module("worlds." + sys.argv[2])
+        behaviour_module = import_module("behaviours." + self.args[0])
+        world_module = import_module("worlds." + self.args[1])
+
 
         self.screen = pygame.display.set_mode((world_module.WIDTH, world_module.HEIGHT))
         self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
@@ -97,6 +99,7 @@ if __name__ == '__main__':
     from threading import Thread
 
     from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
+    from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
     from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
     from piwarssim.engine.simulation.rovers.RoverType import RoverType
     from piwarssim.engine.challenges.PiNoonChallenge import PiNoonChallenge
@@ -115,12 +118,22 @@ if __name__ == '__main__':
     serializer_factory = ByteSerializerFactory()
     message_factory = MessageFactory()
 
-    udpServerModule = UDPServerModule(server_engine, serializer_factory, message_factory)
+    args = [a for a in sys.argv]
+    del args[0]
+    if args[0].upper() == 'UDP':
+        commServerModule = UDPServerModule(server_engine, serializer_factory, message_factory)
+        del args[0]
+    elif args[0].upper() == 'TCP':
+        commServerModule = TCPServerModule(server_engine, serializer_factory, message_factory)
+        del args[0]
+    else:
+        print("First argument must be 'TCP' or 'UDP'")
+        sys.exit(-1)
 
     print(str(rover))
 
-    thread = Thread(target=udpServerModule.process, daemon=True)
+    thread = Thread(target=commServerModule.process, daemon=True)
     thread.start()
 
-    runner = WorldRunner()
+    runner = WorldRunner(commServerModule.is_connected, *args)
     runner.main()

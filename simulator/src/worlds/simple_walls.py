@@ -22,7 +22,6 @@ class BarrelBody(pymunk.Body):
         self._local_object = local_object
 
 
-
 class World:
     def __init__(self, space, robot):
         self._green_barrel = True
