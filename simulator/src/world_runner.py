@@ -1,5 +1,6 @@
 import argparse
 import math
+import os
 import time
 
 from importlib import import_module
@@ -35,6 +36,7 @@ class WorldRunner:
         self._sim_rover = None
         self._tick = 0
         self._comm_server_module = None
+        self._visualiser = None
 
     def update(self):
         # player_inputs = server_engine.get_player_inputs()
@@ -95,6 +97,7 @@ class WorldRunner:
         parser.add_argument('-w', '--world', '--challenge', dest='world_module', help='world (challenge) module')
         args = parser.parse_args()
 
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (800, 60)
         pygame.init()
         pymunk.pygame_util.positive_y_is_up = False
 
