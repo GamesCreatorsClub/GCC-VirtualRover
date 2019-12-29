@@ -3,4 +3,4 @@ from piwarssim.engine.challenges import AbstractChallenge
 
 class PiNoonChallenge(AbstractChallenge):
     def __init__(self):
-        super(PiNoonChallenge, self).__init__()
+        super(PiNoonChallenge, self).__init__("PiNoon")

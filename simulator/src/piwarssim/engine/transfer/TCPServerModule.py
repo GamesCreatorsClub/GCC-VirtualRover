@@ -36,7 +36,10 @@ class TCPServerModule:
     def send(self, packet):
         if self._client_socket is not None:
             packet = self.add_packet_header(packet)
-            self._client_socket.sendall(packet)
+            try:
+                self._client_socket.sendall(packet)
+            except:
+                pass
 
     @staticmethod
     def add_packet_header(packet):
@@ -52,6 +55,8 @@ class TCPServerModule:
                 conn, addr = self._server_socket.accept()
                 self._client_address = addr
                 self._client_socket = conn
+            except timeout:
+                pass
             except Exception as ex:
                 print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
 

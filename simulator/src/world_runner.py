@@ -1,22 +1,25 @@
+import argparse
 import math
 from importlib import import_module
-import sys
+from threading import Thread
 
-import pymunk, pygame
+import pygame
+import pymunk
 import pymunk.pygame_util
 
 from lib.robot import Robot
 from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.server import ServerEngine
 from piwarssim.engine.simulation.BarrelSimObject import BarrelColour
-
+from piwarssim.engine.simulation.rovers.RoverType import RoverType
+from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
+from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
+from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
 from worlds.eco_disaster import BarrelBody
 
 
 class WorldRunner:
-    def __init__(self, is_connected_method, *args):
-        self.is_connected_method = is_connected_method
-        self.args = args
+    def __init__(self):
         self.space = pymunk.Space()
         self.screen = None
         self.draw_options = None
@@ -24,6 +27,11 @@ class WorldRunner:
         self.robot = None
         self.world = None
         self.surface = None
+        self._is_connected_method = None
+        self._server_engine = None
+        self._sim_rover = None
+        self._tick = 0
+        self._comm_server_module = None
 
     def update(self):
         # player_inputs = server_engine.get_player_inputs()
@@ -33,7 +41,7 @@ class WorldRunner:
         #     paused = player_input.circle()
         #     # print(str(player_inputs_array[0]))
         #
-        if self.is_connected_method():
+        if self._is_connected_method() and self._server_engine.is_client_ready():
             try:
                 next(self.running_behaviour)
             except StopIteration:
@@ -44,10 +52,9 @@ class WorldRunner:
             world_width = self.world.get_width()
             world_height = self.world.get_height()
 
-            # rover.set_position_2(1000 - self.robot.body.position.x * 2.5, self.robot.body.position.y * 2.5 - 1000)
-            rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
-            rover.set_bearing(90 - self.robot.body.angle * 180 / math.pi)
-            rover.changed = False
+            self._sim_rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
+            self._sim_rover.set_bearing(90 - self.robot.body.angle * 180 / math.pi)
+            self._sim_rover.changed = False
 
             for object in self.space.bodies:
                 if isinstance(object, BarrelBody):
@@ -55,15 +62,17 @@ class WorldRunner:
                     local_object = barrel_body.get_local_object()
                     if local_object is None:
                         if barrel_body.is_green():
-                            local_object = server_engine.challenge.make_barrel(BarrelColour.Green)
+                            local_object = self._server_engine.challenge.make_barrel(BarrelColour.Green)
                         else:
-                            local_object = server_engine.challenge.make_barrel(BarrelColour.Red)
+                            local_object = self._server_engine.challenge.make_barrel(BarrelColour.Red)
                         barrel_body.set_local_object(local_object)
                     # local_object.set_position_2(1000 - barrel_body.position.x * 2.5, barrel_body.position.y * 2.5 - 1000)
                     local_object.set_position_2(barrel_body.position.x - world_width // 2, world_height // 2 - barrel_body.position.y)
 
-            server_engine.process(t)
-            server_engine.send_update()
+            self._server_engine.process(self._tick)
+            self._server_engine.send_update()
+
+            self._tick += 0.4
 
     def draw(self):
         # self.screen.fill((1.0, 0, 0))
@@ -75,12 +84,19 @@ class WorldRunner:
         pygame.display.flip()
 
     def main(self):
-        print("Starting with arguments " + str(self.args))
+        parser = argparse.ArgumentParser(description='World runner')
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('--tcp', action='store_true', help='use TCP to connect to UI')
+        group.add_argument('--udp', action='store_false', help='use UDP to connect to UI')
+        parser.add_argument('-b', '--behaviour', dest='behaviour_module', help='behaviour module')
+        parser.add_argument('-w', '--world', '--challenge', dest='world_module', help='world (challenge) module')
+        args = parser.parse_args()
+
         pygame.init()
         pymunk.pygame_util.positive_y_is_up = False
 
-        behaviour_module = import_module("behaviours." + self.args[0])
-        world_module = import_module("worlds." + self.args[1])
+        behaviour_module = import_module("behaviours." + args.behaviour_module)
+        world_module = import_module("worlds." + args.world_module)
 
         self.robot = Robot()
 
@@ -89,6 +105,24 @@ class WorldRunner:
 
         self.running_behaviour = behaviour_module.Behaviour(self.robot.controls).run()
         self.world = world_module.World(self.space, self.robot)
+
+        self._server_engine = ServerEngine(self.world.get_challenge())
+        self._sim_rover = self._server_engine.challenge.spawn_rover(RoverType.GCC)
+
+        self._server_engine.process(self._tick)
+
+        serializer_factory = ByteSerializerFactory()
+        message_factory = MessageFactory()
+
+        if args.tcp:
+            self._comm_server_module = TCPServerModule(self._server_engine, serializer_factory, message_factory)
+        else:
+            self._comm_server_module = UDPServerModule(self._server_engine, serializer_factory, message_factory)
+
+        self._is_connected_method = self._comm_server_module.is_connected
+
+        thread = Thread(target=self._comm_server_module.process, daemon=True)
+        thread.start()
 
         self.surface = pygame.Surface((self.world.get_width(), self.world.get_height()))
         self.screen = pygame.display.set_mode((800, 800))
@@ -105,44 +139,6 @@ class WorldRunner:
 
 
 if __name__ == '__main__':
-    from threading import Thread
 
-    from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
-    from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
-    from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
-    from piwarssim.engine.simulation.rovers.RoverType import RoverType
-    from piwarssim.engine.challenges.PiNoonChallenge import PiNoonChallenge
-
-    pi_noon_challenge = PiNoonChallenge()
-
-    server_engine = ServerEngine(pi_noon_challenge)
-    server_engine.challenge = pi_noon_challenge
-
-    # pi_noon_challenge.process(0) # 1 second into the game
-    rover = pi_noon_challenge.spawn_rover(RoverType.GCC)
-
-    t = 0
-    server_engine.process(t)
-
-    serializer_factory = ByteSerializerFactory()
-    message_factory = MessageFactory()
-
-    args = [a for a in sys.argv]
-    del args[0]
-    if args[0].upper() == 'UDP':
-        commServerModule = UDPServerModule(server_engine, serializer_factory, message_factory)
-        del args[0]
-    elif args[0].upper() == 'TCP':
-        commServerModule = TCPServerModule(server_engine, serializer_factory, message_factory)
-        del args[0]
-    else:
-        print("First argument must be 'TCP' or 'UDP'")
-        sys.exit(-1)
-
-    print(str(rover))
-
-    thread = Thread(target=commServerModule.process, daemon=True)
-    thread.start()
-
-    runner = WorldRunner(commServerModule.is_connected, *args)
+    runner = WorldRunner()
     runner.main()

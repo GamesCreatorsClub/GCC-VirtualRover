@@ -3,6 +3,7 @@ import pymunk
 import pygame
 
 from worlds.abstract_world import AbstractWorld
+from piwarssim.engine.challenges.EcoDisasterChallenge import EcoDisasterChallenge
 
 WIDTH = 2200
 HEIGHT = 2200
@@ -26,7 +27,7 @@ class BarrelBody(pymunk.Body):
 
 class World(AbstractWorld):
     def __init__(self, space, robot):
-        super(World, self).__init__(space, robot, WIDTH, HEIGHT)
+        super(World, self).__init__(EcoDisasterChallenge(), space, robot, WIDTH, HEIGHT)
         self._green_barrel = True
 
     def mouse_pressed(self, x, y):

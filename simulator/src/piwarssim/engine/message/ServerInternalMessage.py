@@ -57,12 +57,12 @@ class ServerInternalMessage(Message):
 
     def deserialize_impl(self, deserializer):
         # super(ServerInternalMessage, self).deserialize_impl(deserializer)
-        self._state = ServerInternalState.from_ordinal(deserializer.deserialize_int())
+        self._state = ServerInternalState.from_ordinal(deserializer.deserialize_unsigned_byte())
         self._message = deserializer.deserialize_string()
 
     def serialize_impl(self, serializer):
         # super(ServerInternalMessage, self).serialize_impl(serializer)
-        serializer.serialize_int(self._state.ordinal())
+        serializer.serialize_unsigned_byte(self._state.ordinal())
         serializer.serialize_string(self._message)
 
 

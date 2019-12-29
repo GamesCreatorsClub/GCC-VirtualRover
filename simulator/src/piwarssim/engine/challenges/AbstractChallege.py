@@ -4,7 +4,8 @@ from piwarssim.engine.simulation.SimulationObjectFactory import SimulationObject
 
 
 class AbstractChallenge:
-    def __init__(self):
+    def __init__(self, challenge_id):
+        self._challenge_id = challenge_id
         self._sim_object_factory = SimulationObjectFactory()
         self._sim_state_factory = SimulationStateFactory()
         self._next_sim_state = self._sim_state_factory.obtain()
@@ -15,6 +16,9 @@ class AbstractChallenge:
 
         self._previous_sim_states.append(self._next_sim_state)
         self._next_sim_state = self._next_sim_state.copy_state(self)
+
+    def get_challenge_id(self):
+        return self._challenge_id
 
     def get_frame_id(self):
         if self._next_sim_state is not None:

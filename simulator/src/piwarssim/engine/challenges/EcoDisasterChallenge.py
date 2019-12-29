@@ -1,6 +1,6 @@
 from piwarssim.engine.challenges import AbstractChallenge
 
 
-class PiNoonChallenge(AbstractChallenge):
+class EcoDisasterChallenge(AbstractChallenge):
     def __init__(self):
-        super(PiNoonChallenge, self).__init__("PiNoon")
+        super(EcoDisasterChallenge, self).__init__("EcoDisaster")
