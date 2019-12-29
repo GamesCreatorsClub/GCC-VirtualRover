@@ -52,7 +52,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
             serverCommunicationAdapter = new HeadlessClientServerCommunicationAdapter(serverCommunication);
             serverCommunicationAdapter.setAuthenticatedCallback(this);
             serverCommunicationAdapter.setGameMapCallback(this);
-            serverCommunicationAdapter.addGameReadyCallback(this);
+            serverCommunicationAdapter.setGameReadyCallback(this);
 
             String udpPortString = config.getProperty("udp.port", "7454");
             int udpPort = Integer.parseInt(udpPortString);

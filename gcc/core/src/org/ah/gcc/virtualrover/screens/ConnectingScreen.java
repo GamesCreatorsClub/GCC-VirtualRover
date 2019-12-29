@@ -6,9 +6,11 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 
 import org.ah.gcc.virtualrover.MainGame;
+import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameMapCallback;
+import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 
-public class ConnectingScreen extends ScreenAdapter implements ServerConnectionCallback {
+public class ConnectingScreen extends ScreenAdapter implements ServerConnectionCallback, GameReadyCallback, GameMapCallback {
 
     private MainGame game;
     @SuppressWarnings("unused")
@@ -16,21 +18,27 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
 
     private boolean connected = false;
     private boolean error = false;
+    private String mapId;
+    private boolean gameReady;
 
     public ConnectingScreen(MainGame game, AssetManager assetManager) {
         this.game = game;
         this.assetManager = assetManager;
     }
 
-    public void clear() {
+    public void reset() {
+        gameReady = false;
         connected = false;
         error = false;
     }
 
     @Override
     public void render(float delta) {
-        if (connected) {
-            game.successfullyConnected();
+        if (gameReady) {
+            game.successfullyConnected(mapId);
+        } else if (connected) {
+            Gdx.gl.glClearColor(0.8f, 1f, 0.8f, 1f);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         } else if (error) {
             Gdx.gl.glClearColor(1f, 0f, 0f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -47,5 +55,16 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
 
     @Override
     public void failed(String msg) {
+    }
+
+    @Override
+    public void gameMap(String mapId) {
+        this.mapId = mapId;
+        this.gameReady = true;
+    }
+
+    @Override
+    public void gameReady() {
+        this.gameReady = true;
     }
 }

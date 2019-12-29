@@ -180,7 +180,7 @@ public class StartGCCTestProject {
         DEBUG.setServerEngine(serverEngineModule.getServerEngine());
         desktopSpecific.setServerCommunicationAdapterCreatedCallback(new ServerCommunicationAdapterCreatedCallback() {
             @Override public void created(ServerCommunicationAdapter serverCommunicationAdapter) {
-                serverCommunicationAdapter.addGameReadyCallback(new GameReadyCallback() {
+                serverCommunicationAdapter.setGameReadyCallback(new GameReadyCallback() {
                     @Override public void gameReady() {
                         DEBUG.setClientEngine(serverCommunicationAdapter.getEngine());
                         logger.info("  Set client engine debug.");

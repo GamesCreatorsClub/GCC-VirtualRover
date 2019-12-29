@@ -1,4 +1,4 @@
-package org.ah.gcc.virtualrover;
+package org.ah.gcc.virtualrover.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -23,7 +23,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import org.ah.gcc.virtualrover.MainGame;
+import org.ah.gcc.virtualrover.ModelFactory;
+import org.ah.gcc.virtualrover.PlatformSpecific;
 import org.ah.gcc.virtualrover.PlatformSpecific.RegistrationCallback;
+import org.ah.gcc.virtualrover.ServerCommunicationAdapter;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.AuthenticatedCallback;
@@ -38,7 +42,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         None, SignInServer, SignInUsername, SignInPassword, RegisterServer, RegisterEmail, RegisterEmail2, RegisterUsername, RegisterPassword, RegisterPassword2;
     }
 
-    private MainGame game;
+    private MainGame mainGame;
     private PlatformSpecific platformSpecific;
     private ServerCommunicationAdapter serverCommunicationAdapter;
 
@@ -81,7 +85,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
 
-        this.game = game;
+        this.mainGame = game;
         this.platformSpecific = platformSpecific;
 //        this.assetManager = assetManager;
 //        this.soundManager = soundManager;
@@ -104,8 +108,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         }
     };
 
-    public void create(MainGame game, PlatformSpecific platformSpecific, ServerCommunicationAdapter serverCommunicationAdapter, Console console) {
-        this.game = game;
+    public void create(MainGame mainGame, PlatformSpecific platformSpecific, ServerCommunicationAdapter serverCommunicationAdapter, Console console) {
+        this.mainGame = mainGame;
         this.platformSpecific = platformSpecific;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
@@ -188,13 +192,18 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
         preferences = Gdx.app.getPreferences("org.ah.themvsus.server-details");
 
-        serverCommunicationAdapter.setAuthenticatedCallback(this);
-        serverCommunicationAdapter.setGameMapCallback(this);
-        serverCommunicationAdapter.addGameReadyCallback(this);
-        serverCommunicationAdapter.setReceivedRegistrationServerCallback(this);
+//        serverCommunicationAdapter.setAuthenticatedCallback(this);
+//        serverCommunicationAdapter.setGameMapCallback(this);
+//        serverCommunicationAdapter.addGameReadyCallback(this);
+//        serverCommunicationAdapter.setReceivedRegistrationServerCallback(this);
     }
 
     public void reset() {
+        serverCommunicationAdapter.setAuthenticatedCallback(this);
+        serverCommunicationAdapter.setGameMapCallback(this);
+        serverCommunicationAdapter.setGameReadyCallback(this);
+        serverCommunicationAdapter.setReceivedRegistrationServerCallback(this);
+
         doStartGame = false;
         setupToReadSignInServer();
     }
@@ -204,7 +213,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     private void startGame() {
-        game.setChallengeScreen(mapId);
+        mainGame.setChallengeScreen(mapId);
     }
 
     @Override

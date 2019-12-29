@@ -2,13 +2,14 @@ package org.ah.gcc.virtualrover;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import org.ah.gcc.virtualrover.screens.ChallengeScreen;
 import org.ah.gcc.virtualrover.screens.ConnectingScreen;
 import org.ah.gcc.virtualrover.screens.EcoDisasterScreen;
+import org.ah.gcc.virtualrover.screens.GreetingScreen;
 import org.ah.gcc.virtualrover.screens.LoadingScreen;
 import org.ah.gcc.virtualrover.screens.PiNoonScreen;
 import org.ah.gcc.virtualrover.utils.SoundManager;
@@ -33,8 +34,9 @@ public class MainGame extends Game {
     private LoadingScreen loadingScreen;
     private ConnectingScreen connectingScreen;
     private GreetingScreen greetingScreen;
-    private Screen challengeScreen;
-
+    private ChallengeScreen challengeScreen;
+    private PiNoonScreen piNoonScreen;
+    private EcoDisasterScreen ecoDisasterScreen;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -77,23 +79,28 @@ public class MainGame extends Game {
         soundManager.fetchSounds(assetManager);
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, modelFactory);
 
-        if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
-            setScreen(connectingScreen);
-            connectingScreen.clear();
-            serverCommunicationAdapter.connectToServer(
-                    platformSpecific.getPreferredServerAddress(),
-                    platformSpecific.getPreferredServerPort(),
-                    connectingScreen);
-            setScreen(connectingScreen);
-        } else if (platformSpecific.isLocalOnly()) {
+        greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        piNoonScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        ecoDisasterScreen = new EcoDisasterScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+
+        if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
             if (requestedChallenge == null || "".equals(requestedChallenge)) {
                 requestedChallenge = "PiNoon";
             }
             serverCommunicationAdapter.startEngine(requestedChallenge, true, platformSpecific.isSimulation());
             setChallengeScreen(requestedChallenge);
+        } else if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
+            setScreen(connectingScreen);
+            connectingScreen.reset();
+            serverCommunicationAdapter.connectToServer(
+                    platformSpecific.getPreferredServerAddress(),
+                    platformSpecific.getPreferredServerPort(),
+                    connectingScreen);
+            serverCommunicationAdapter.setGameMapCallback(connectingScreen);
+            setScreen(connectingScreen);
         } else {
-            greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+//            greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 //            if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
 //                greetingScreen.connectToServer(platformSpecific.getPreferredServerAddress(), platformSpecific.getPreferredServerPort());
 //            }
@@ -106,10 +113,11 @@ public class MainGame extends Game {
         Gdx.input.setOnscreenKeyboardVisible(false);
 
         if ("PiNoon".equals(mapId)) {
-            challengeScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+            challengeScreen = piNoonScreen;
         } else if ("EcoDisaster".equals(mapId)) {
-            challengeScreen = new EcoDisasterScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+            challengeScreen = ecoDisasterScreen;
         }
+        challengeScreen.reset();
         setScreen(challengeScreen);
     }
 
@@ -123,12 +131,8 @@ public class MainGame extends Game {
         if (challengeScreen != null) { challengeScreen.dispose(); }
     }
 
-    public void successfullyConnected() {
-        String requestedChallenge = platformSpecific.getRequestedChallenge();
-        if (requestedChallenge == null || "".equals(requestedChallenge)) {
-            requestedChallenge = "PiNoon";
-        }
-        serverCommunicationAdapter.startEngine(requestedChallenge, false, platformSpecific.isSimulation());
-        setChallengeScreen(requestedChallenge);
+    public void successfullyConnected(String mapId) {
+        serverCommunicationAdapter.startEngine(mapId, false, platformSpecific.isSimulation());
+        setChallengeScreen(mapId);
     }
 }

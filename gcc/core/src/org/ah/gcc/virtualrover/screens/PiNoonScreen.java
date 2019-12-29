@@ -23,7 +23,7 @@ import org.ah.gcc.virtualrover.view.Console;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
-public class PiNoonScreen extends AbstractStandardScreen {
+public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScreen {
 
     private PerspectiveCamera camera;
     private CameraControllersManager cameraControllersManager;
@@ -67,6 +67,18 @@ public class PiNoonScreen extends AbstractStandardScreen {
         cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, serverCommunicationAdapter));
         cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
+    }
+
+    @Override
+    public void reset() {
+        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(0f, 0f, 0f);
+        camera.near = 0.02f;
+        camera.far = 1000f;
+
+        Gdx.input.setInputProcessor(cameraInputMultiplexer);
+        Gdx.input.setCursorCatched(false);
+        challenge.init();
     }
 
     @Override
