@@ -1,5 +1,7 @@
 import argparse
 import math
+import time
+
 from importlib import import_module
 from threading import Thread
 
@@ -15,6 +17,7 @@ from piwarssim.engine.simulation.rovers.RoverType import RoverType
 from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
 from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
+from piwarssim.visualisation.Visualisation import Visualisation
 from worlds.eco_disaster import BarrelBody
 
 
@@ -127,6 +130,11 @@ class WorldRunner:
         self.surface = pygame.Surface((self.world.get_width(), self.world.get_height()))
         self.screen = pygame.display.set_mode((800, 800))
         self.draw_options = pymunk.pygame_util.DrawOptions(self.surface)
+
+        time.sleep(0.2)
+
+        self._visualiser = Visualisation()
+        self._visualiser.start()
 
         running = True
         while running:
