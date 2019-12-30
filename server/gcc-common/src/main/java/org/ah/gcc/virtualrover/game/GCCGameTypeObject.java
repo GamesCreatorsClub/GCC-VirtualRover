@@ -44,6 +44,7 @@ public abstract class GCCGameTypeObject extends GameObjectType {
             GameMessageObject,
             BarrelObject,
             PiNoonAttachment,
+            CameraAttachment,
             GCCRover,
             CBISRover
     };
