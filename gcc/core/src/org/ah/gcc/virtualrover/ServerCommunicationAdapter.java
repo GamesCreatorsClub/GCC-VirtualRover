@@ -3,11 +3,11 @@ package org.ah.gcc.virtualrover;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
-import org.ah.gcc.virtualrover.game.BarrelObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
-import org.ah.gcc.virtualrover.game.PiNoonAttachment;
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.attachments.PiNoonAttachment;
+import org.ah.gcc.virtualrover.game.objects.BarrelObject;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.logging.GdxClientLoggingAdapter;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;

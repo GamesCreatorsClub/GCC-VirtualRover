@@ -1,11 +1,11 @@
-package org.ah.gcc.virtualrover.game;
+package org.ah.gcc.virtualrover.game.rovers;
 
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.gcc.virtualrover.game.rovers.RoverControls;
-import org.ah.gcc.virtualrover.game.rovers.RoverType;
+import org.ah.gcc.virtualrover.game.GCCCollidableObject;
 import org.ah.themvsus.engine.common.game.AbstractPlayer;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
@@ -34,8 +34,12 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
     private RoverColour roverColour = RoverColour.WHITE;
     private int attachmentId;
+    private int cameraId;
 
     protected Vector2 attachmentPosition;
+    protected Vector3 cameraPosition;
+    protected Quaternion cameraOrientation;
+    protected float cameraAngle = 45f;
 
     private RoverControls roverControls;
     protected List<Polygon> polygons;
@@ -53,6 +57,7 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
     public void free() {
         roverColour = RoverColour.WHITE;
         attachmentId = 0;
+        cameraId = 0;
         super.free();
     }
 
@@ -61,6 +66,18 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
     public Vector2 getAttachmentPosition() {
         return attachmentPosition;
+    }
+
+    public Vector3 getCameraPosition() {
+        return cameraPosition;
+    }
+
+    public Quaternion getCameraOrientation() {
+        return cameraOrientation;
+    }
+
+    public float getCameraAngle() {
+        return cameraAngle;
     }
 
     public RoverType getRoverType() {
@@ -87,6 +104,14 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
 
     public void addAttachment(int attachmentId) {
         this.attachmentId = attachmentId;
+    }
+
+    public int getCameraId() {
+        return cameraId;
+    }
+
+    public void addCamera(int cameraId) {
+        this.cameraId = cameraId;
     }
 
     @Override
@@ -150,6 +175,7 @@ public abstract class Rover extends AbstractPlayer implements GCCCollidableObjec
         Rover gccPlayer = (Rover)newObject;
         gccPlayer.roverColour = roverColour;
         gccPlayer.attachmentId = attachmentId;
+        gccPlayer.cameraId = cameraId;
 
         return newObject;
     }

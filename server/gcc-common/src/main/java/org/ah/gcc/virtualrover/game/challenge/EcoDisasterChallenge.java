@@ -1,17 +1,16 @@
 package org.ah.gcc.virtualrover.game.challenge;
 
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.GCCCollidableObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
-import org.ah.gcc.virtualrover.game.PiNoonAttachment;
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.attachments.CameraAttachment;
+import org.ah.gcc.virtualrover.game.objects.BarrelObject;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
@@ -44,7 +43,9 @@ public class EcoDisasterChallenge extends AbstractChallenge {
     private Quaternion orientation = new Quaternion();
 
     private int playerId;
-    private List<PiNoonAttachment> piNoonAttachments = new ArrayList<PiNoonAttachment>();
+    private int cameraId;
+
+    private List<BarrelObject> barrels = new ArrayList<BarrelObject>();
 
     private StateMachine<EcoDisasterChallenge, ChallengeState> stateMachine = new StateMachine<EcoDisasterChallenge, ChallengeState>();
 
@@ -74,65 +75,22 @@ public class EcoDisasterChallenge extends AbstractChallenge {
 
     @Override
     public void process(GameState currentGameState) {
-        piNoonAttachments.clear();
-        for (GameObject o : currentGameState.gameObjects().values()) {
-            if (o instanceof Rover) {
-                if (o.isAdded()) {
-                    if (playerId == 0) {
-                        playerId = o.getId();
-                        resetRover();
-                    }
-                } else if (o.isRemoved()) {
-                    if (o.getId() == playerId) {
-                        playerId = 0;
-                    }
-                }
-            } else if (o instanceof PiNoonAttachment) {
-                piNoonAttachments.add((PiNoonAttachment)o);
-            }
-        }
+        cameraId = 0;
 
-        for (PiNoonAttachment piNoonAttachment : piNoonAttachments) {
-            GameObject parent = game.getCurrentGameState().get(piNoonAttachment.getParentId());
+        if (cameraId > 0) {
+            CameraAttachment cameraAttachment = game.getCurrentGameState().get(cameraId);
+
+            GameObject parent = game.getCurrentGameState().get(cameraAttachment.getParentId());
             if (parent instanceof GameObjectWithPositionAndOrientation) {
                 GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
 
                 Vector3 position = gameObject.getPosition();
-                piNoonAttachment.setPosition(position.x, position.y, position.z);
-                piNoonAttachment.setOrientation(gameObject.getOrientation());
+                cameraAttachment.setPosition(position.x, position.y, position.z);
+                cameraAttachment.setOrientation(gameObject.getOrientation());
             }
         }
 
-        if (stateMachine.getCurrentState().shouldCollideBalloons()) {
-            for (PiNoonAttachment piNoonAttachment : piNoonAttachments) {
-                int balloonBits = piNoonAttachment.getBalloonBits();
-                if ((balloonBits & 7) != 0) {
-                    Circle[] balloons = new Circle[3];
-                    for (int balloonNo = 0; balloonNo < 3; balloonNo++) {
-                        int balloonBit = 1 << balloonNo;
-                        if ((balloonBits & balloonBit) != 0) {
-                            balloons[balloonNo] = piNoonAttachment.getBalloon(balloonNo);
-                        }
-                    }
-                    for (PiNoonAttachment otherPlayerAttachment : piNoonAttachments) {
-
-                        Vector2 sharpEndOtherPlayer = otherPlayerAttachment.getSharpEnd();
-                        for (int balloonNo = 0; balloonNo < 3; balloonNo++) {
-                            if (balloons[balloonNo] != null && balloons[balloonNo].contains(sharpEndOtherPlayer)) {
-                                balloons[balloonNo] = null;
-
-                                int balloonBit = ~(1 << balloonNo);
-                                balloonBits &= balloonBit;
-                                piNoonAttachment.setBalloonBits(balloonBits);
-
-                                if ((balloonBits & 7) == 0) {
-                                    otherPlayerAttachment.setScore(otherPlayerAttachment.getScore() + 1);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        for (BarrelObject barrel : barrels) {
         }
         stateMachine.update(this);
     }
@@ -145,15 +103,20 @@ public class EcoDisasterChallenge extends AbstractChallenge {
     public void afterGameObjectAdded(GameObject gameObject) {
         if (gameObject instanceof Rover) {
             if (game.isServer()) {
-                PiNoonAttachment attachment = game.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.PiNoonAttachment, game.newId());
-                attachment.attachToRover((Rover)gameObject);
-                game.addNewGameObjectImmediately(attachment);
+                CameraAttachment cameraAttachment = game.getGameObjectFactory().newGameObjectWithId(GCCGameTypeObject.CameraAttachment, game.newId());
+                cameraAttachment.attachToRover((Rover)gameObject);
+                game.addNewGameObjectImmediately(cameraAttachment);
+                cameraId = cameraAttachment.getId();
             }
-        } else if (gameObject instanceof PiNoonAttachment) {
-            PiNoonAttachment attachment = (PiNoonAttachment)gameObject;
-            Rover rover = game.getCurrentGameState().get(attachment.getParentId());
+            playerId = gameObject.getId();
+            resetRover();
+        } else if (gameObject instanceof CameraAttachment) {
+            CameraAttachment cameraAttachment = (CameraAttachment)gameObject;
+            cameraId = cameraAttachment.getId();
+
+            Rover rover = game.getCurrentGameState().get(cameraAttachment.getParentId());
             if (rover != null) {
-                attachment.attachToRover(rover);
+                cameraAttachment.attachToRover(rover);
             } else {
                 // TODO add error here!!!
             }
@@ -164,7 +127,9 @@ public class EcoDisasterChallenge extends AbstractChallenge {
     public void gameObjectRemoved(GameObject gameObject) {
         if (gameObject instanceof Rover) {
             Rover rover = (Rover)gameObject;
-            if (rover.getAttachemntId() != 0) {
+            playerId = 0;
+            cameraId = 0;
+            if (rover.getCameraId() != 0) {
                 game.removeGameObject(rover.getAttachemntId());
             }
         }
@@ -212,11 +177,11 @@ public class EcoDisasterChallenge extends AbstractChallenge {
         return null;
     }
 
-    private PiNoonAttachment getPlayerAttachment() {
+    private CameraAttachment getCameraAttachment() {
         Rover rover = getPlayer();
         if (rover != null) {
-            PiNoonAttachment attachment = gccGame.getCurrentGameState().get(rover.getAttachemntId());
-            return attachment;
+            CameraAttachment cameraAttachment = gccGame.getCurrentGameState().get(rover.getCameraId());
+            return cameraAttachment;
         }
         return null;
     }
@@ -229,6 +194,10 @@ public class EcoDisasterChallenge extends AbstractChallenge {
             player1.setOrientation(orientation);
             // player1.setRoverColour(RoverColour.BLUE);
         }
+    }
+
+    private void resetBarrels() {
+
     }
 
     private void stopRovers() {
@@ -275,12 +244,11 @@ public class EcoDisasterChallenge extends AbstractChallenge {
         },
 
         GAME() {
-            @Override
-            public boolean shouldCollideBalloons() { return true; }
             @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(EcoDisasterChallenge challenge) {
                 challenge.resetRover();
+                challenge.resetBarrels();
                 setTimer(1000);
                 challenge.setMessage("GO!", false);
                 challenge.getGameMessage().setInGame(true);
@@ -297,7 +265,7 @@ public class EcoDisasterChallenge extends AbstractChallenge {
                     challenge.setMessage(null, false);
                 }
 
-                PiNoonAttachment player1Attachment = challenge.getPlayerAttachment();
+                CameraAttachment player1Attachment = challenge.getCameraAttachment();
 
                 if (player1Attachment != null) {
                 }
@@ -344,6 +312,5 @@ public class EcoDisasterChallenge extends AbstractChallenge {
         @Override public void exit(EcoDisasterChallenge s) {}
 
         public boolean shouldMoveRovers() { return false; }
-        public boolean shouldCollideBalloons() { return false; }
     }
 }

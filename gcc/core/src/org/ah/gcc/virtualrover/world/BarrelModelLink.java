@@ -10,10 +10,10 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
-import org.ah.gcc.virtualrover.game.BarrelObject;
-import org.ah.gcc.virtualrover.game.BarrelObject.BarrelColour;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.objects.BarrelObject;
+import org.ah.gcc.virtualrover.game.objects.BarrelObject.BarrelColour;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 
 import static org.ah.gcc.virtualrover.MainGame.SCALE;
 

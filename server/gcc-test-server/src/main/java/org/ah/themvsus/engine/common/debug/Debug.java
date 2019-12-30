@@ -52,11 +52,11 @@ public class Debug {
 
     public void setClientEngine(ClientEngine<?> engine) { clientEngine = engine; }
 
-    public Engine<?> getServerEngine() { return serverEngine; }
+    // public Engine<?> getServerEngine() { return serverEngine; }
 
     public Engine<?> getClientEngine() { return clientEngine; }
 
-    public ClientSession getClientSessionByAlias(String alias) {
+    public ClientSession<?> getClientSessionByAlias(String alias) {
         return serverEngine.getClientSessionByAlias(alias);
     }
 }

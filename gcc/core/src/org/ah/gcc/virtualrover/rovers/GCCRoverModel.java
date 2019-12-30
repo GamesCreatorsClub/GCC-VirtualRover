@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.ModelFactory;
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 
 import java.util.NoSuchElementException;
 

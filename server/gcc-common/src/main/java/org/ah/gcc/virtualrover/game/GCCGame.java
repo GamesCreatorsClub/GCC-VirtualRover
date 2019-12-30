@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Polygon;
 
 import org.ah.gcc.virtualrover.game.challenge.Challenge;
 import org.ah.gcc.virtualrover.game.challenge.Challenges;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;

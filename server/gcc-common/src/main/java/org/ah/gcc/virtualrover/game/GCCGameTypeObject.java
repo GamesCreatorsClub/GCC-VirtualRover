@@ -1,5 +1,8 @@
 package org.ah.gcc.virtualrover.game;
 
+import org.ah.gcc.virtualrover.game.attachments.CameraAttachment;
+import org.ah.gcc.virtualrover.game.attachments.PiNoonAttachment;
+import org.ah.gcc.virtualrover.game.objects.BarrelObject;
 import org.ah.gcc.virtualrover.game.rovers.CBISRover;
 import org.ah.gcc.virtualrover.game.rovers.GCCRover;
 import org.ah.themvsus.engine.common.game.GameObject;
@@ -20,6 +23,11 @@ public abstract class GCCGameTypeObject extends GameObjectType {
     public static GameObjectType PiNoonAttachment = new GameObjectType() {
         @Override public GameObject newObject(GameObjectFactory factory) { return new PiNoonAttachment(factory, 0); }
         @Override public String toString() { return "PiNoonAttachmentType"; }
+    };
+
+    public static GameObjectType CameraAttachment = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new CameraAttachment(factory, 0); }
+        @Override public String toString() { return "CameraAttachmentType"; }
     };
 
     public static GameObjectType GCCRover = new GameObjectType() {

@@ -8,8 +8,8 @@ import com.badlogic.gdx.math.Quaternion;
 import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
-import org.ah.gcc.virtualrover.game.PiNoonAttachment;
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.attachments.PiNoonAttachment;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.gcc.virtualrover.rovers.attachments.PiNoonAttachmentModel;
 
 public class PiNoonAttachmentModelLink implements VisibleObject {

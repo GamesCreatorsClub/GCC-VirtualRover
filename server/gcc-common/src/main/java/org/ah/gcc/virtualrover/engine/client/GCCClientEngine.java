@@ -23,7 +23,7 @@ public class GCCClientEngine extends ClientEngine<GCCGame> {
 
     public void processPlayerTwoInputs() {
         if (playerTwoId > 0) {
-            game.processPlayerInputs(playerTwoId, playerTwoInputs);
+            getGame().processPlayerInputs(playerTwoId, playerTwoInputs);
         }
     }
 
@@ -35,7 +35,7 @@ public class GCCClientEngine extends ClientEngine<GCCGame> {
     public void processPlayerInputs() {
         super.processPlayerInputs();
         if (playerTwoId > 0) {
-            game.processPlayerInputs(playerTwoId, playerTwoInputs);
+            getGame().processPlayerInputs(playerTwoId, playerTwoInputs);
         }
     }
 

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 
 public interface RoverModel {
 

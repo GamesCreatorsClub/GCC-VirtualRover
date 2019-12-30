@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.gcc.virtualrover.game.Rover;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 
 import java.util.NoSuchElementException;
 

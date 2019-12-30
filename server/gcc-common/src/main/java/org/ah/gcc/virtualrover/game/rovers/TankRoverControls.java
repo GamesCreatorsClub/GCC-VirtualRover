@@ -1,6 +1,5 @@
 package org.ah.gcc.virtualrover.game.rovers;
 
-import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.themvsus.engine.common.input.PlayerInput;
 

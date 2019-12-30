@@ -1,9 +1,10 @@
 package org.ah.gcc.virtualrover.game.rovers;
 
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.engine.utils.CollisionUtils;
-import org.ah.gcc.virtualrover.game.Rover;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 
 import static java.util.Arrays.asList;
@@ -15,5 +16,8 @@ public class GCCRover extends Rover {
 
         this.polygons = asList(CollisionUtils.polygonFromBox(-80f,  -55f, 80f,  55f));
         this.attachmentPosition = new Vector2(80f, 0);
+        this.cameraPosition = new Vector3(80f, 0f, 20f);
+        this.cameraOrientation = new Quaternion();
+        this.cameraAngle = 45f;
     }
 }

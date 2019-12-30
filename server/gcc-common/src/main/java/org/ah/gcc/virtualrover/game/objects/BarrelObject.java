@@ -1,5 +1,6 @@
-package org.ah.gcc.virtualrover.game;
+package org.ah.gcc.virtualrover.game.objects;
 
+import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
 import org.ah.themvsus.engine.common.game.MovingGameObjectWithPositionAndOrientation;

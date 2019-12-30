@@ -1,18 +1,23 @@
-package org.ah.gcc.virtualrover.game;
+package org.ah.gcc.virtualrover.game.attachments;
 
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 
+import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.DependentObject;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
+import org.ah.themvsus.engine.common.game.GameObjectWithPositionAndOrientation;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
-public class PiNoonAttachment extends DependentObject {
+public class PiNoonAttachment extends GameObjectWithPositionAndOrientation implements DependentObject {
 
     protected static final float BALLOONS_RADIUS = 35;
     protected static final float SHARP_POINT_LENGTH = 130;
+
+    private int parentId;
 
     private int balloonBits;
     private int score;
@@ -36,13 +41,26 @@ public class PiNoonAttachment extends DependentObject {
 
     @Override
     public void free() {
+        parentId = 0;
         balloonBits = 0;
         score = 0;
         super.free();
     }
 
+    @Override
+    public int getParentId() {
+        return parentId;
+    }
+
+    @Override
+    public void setParentId(int parentId) {
+        changed = changed || this.parentId != parentId;
+
+        this.parentId = parentId;
+    }
+
     public void attachToRover(Rover rover) {
-        super.setParentId(rover.getId());
+        setParentId(rover.getId());
         attachmentPosition.set(rover.getAttachmentPosition());
         rover.addAttachment(getId());
     }
@@ -71,6 +89,7 @@ public class PiNoonAttachment extends DependentObject {
     @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
+        serializer.serializeUnsignedShort(parentId);
         serializer.serializeByte((byte)score);
         serializer.serializeUnsignedByte(balloonBits);
     }
@@ -78,13 +97,14 @@ public class PiNoonAttachment extends DependentObject {
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
+        parentId = serializer.deserializeUnsignedShort();
         score = serializer.deserializeByte();
         balloonBits = serializer.deserializeUnsignedByte();
     }
 
     @Override
     public int size(boolean full) {
-        return super.size(full) + 2;
+        return super.size(full) + 2 + 1 + 1;
     }
 
     @Override
@@ -92,6 +112,7 @@ public class PiNoonAttachment extends DependentObject {
         super.copyInt(newObject);
 
         PiNoonAttachment attachment = (PiNoonAttachment)newObject;
+        attachment.parentId = parentId;
         attachment.score = score;
         attachment.balloonBits = balloonBits;
         attachment.attachmentPosition.x = attachmentPosition.x;
