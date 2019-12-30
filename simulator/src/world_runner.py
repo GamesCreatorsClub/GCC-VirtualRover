@@ -13,7 +13,7 @@ import pymunk.pygame_util
 from lib.robot import Robot
 from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.server import ServerEngine
-from piwarssim.engine.simulation.BarrelSimObject import BarrelColour
+from piwarssim.engine.simulation.objects.BarrelSimObject import BarrelColour
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
 from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
