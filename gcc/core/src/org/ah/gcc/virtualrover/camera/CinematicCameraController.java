@@ -12,7 +12,7 @@ import static org.ah.gcc.virtualrover.MainGame.SCALE;
 
 public class CinematicCameraController extends InputAdapter implements ActiveCamera {
 
-    private static Vector3 UP = new Vector3(0, 1, 0);
+    private static Vector3 UP = Vector3.Y;
     private PerspectiveCamera camera;
 
     private Vector3 pos1 = new Vector3();

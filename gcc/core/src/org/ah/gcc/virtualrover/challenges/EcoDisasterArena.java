@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -63,13 +64,13 @@ public class EcoDisasterArena extends AbstractChallenge {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
+    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
 
         IntMap<VisibleObject> newMap = new IntMap<VisibleObject>();
         newMap.putAll(visibleObjects);
         newMap.putAll(localVisibleObjects);
 
-        super.render(batch, environment, newMap);
+        super.render(batch, environment, frameBuffer, newMap);
     }
 
     @Override

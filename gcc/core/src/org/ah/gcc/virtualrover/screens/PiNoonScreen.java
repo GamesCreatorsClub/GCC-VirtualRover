@@ -120,7 +120,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
         batch.begin(camera);
 
 
-        challenge.render(batch, environment, serverCommunicationAdapter.getVisibleObjects());
+        challenge.render(batch, environment, null, serverCommunicationAdapter.getVisibleObjects());
         if (serverCommunicationAdapter.isLocal()) {
             if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
                 moveRovers();

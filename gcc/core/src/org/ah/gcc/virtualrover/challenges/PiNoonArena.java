@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
@@ -36,6 +38,8 @@ import static org.ah.gcc.virtualrover.utils.MeshUtils.createRect;
 
 public class PiNoonArena extends AbstractChallenge {
 
+    private FrameBuffer frameBuffer;
+
     private OrthographicCamera floorCamera;
 
     private Mesh floorMesh;
@@ -52,6 +56,8 @@ public class PiNoonArena extends AbstractChallenge {
 
     public PiNoonArena(ModelFactory modelFactory) {
         super(modelFactory);
+
+        frameBuffer = new FrameBuffer(Format.RGBA8888, 1024, 1024, false);
 
         floorCamera = new OrthographicCamera(2000, 2000);
         floorCamera.update();
@@ -75,16 +81,6 @@ public class PiNoonArena extends AbstractChallenge {
         attributesList.add(TextureAttribute.createDiffuse(frameBuffer.getColorBufferTexture()));
         Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
         floorModelInstance.materials.get(0).set(attributes);
-
-//        redBarrel = new BarrelModelLink(null, -1, Color.RED);
-//        redBarrel.make(modelFactory);
-//        greenBarrel = new BarrelModelLink(null, -1, Color.GREEN);
-//        greenBarrel.make(modelFactory);
-//
-//        greenBarrel.barrelModel.transform.translate(100f, 0f, 0f);
-//
-//        localVisibleObjects.put(5, redBarrel);
-//        localVisibleObjects.put(6, greenBarrel);
     }
 
     @Override
@@ -104,13 +100,14 @@ public class PiNoonArena extends AbstractChallenge {
 
     @Override
     public void dispose() {
+        frameBuffer.dispose();
         floorModel.dispose();
         floorMesh.dispose();
         shapeRenderer.dispose();
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
+    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
         if (showPlan) {
             frameBuffer.begin();
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
@@ -156,7 +153,7 @@ public class PiNoonArena extends AbstractChallenge {
         newMap.putAll(visibleObjects);
         newMap.putAll(localVisibleObjects);
 
-        super.render(batch, environment, newMap);
+        super.render(batch, environment, frameBuffer, newMap);
     }
 
     @Override

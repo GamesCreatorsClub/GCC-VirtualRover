@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.gcc.virtualrover.engine.client.GCCClientEngine;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
+import org.ah.gcc.virtualrover.game.attachments.CameraAttachment;
 import org.ah.gcc.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.gcc.virtualrover.game.objects.BarrelObject;
 import org.ah.gcc.virtualrover.game.rovers.Rover;
@@ -23,6 +24,9 @@ import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.message.ChatMessage;
+import org.ah.themvsus.engine.common.message.Message;
+
+import java.nio.ByteBuffer;
 
 public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter<GCCGame> implements GameObjectAddedListener, GameObjectRemovedListener {
 
@@ -35,9 +39,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private int playerTwoId;
     private int gameMessageId;
+    private int cameraAttachmentId;
 
     private ModelFactory modelFactory;
     private boolean local;
+
+    private boolean makeCameraSnapshot;
 
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
@@ -57,6 +64,11 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
         playerOneInputMessage = messageFactory.createPlayerInputCommand();
         playerTwoInputMessage = messageFactory.createPlayerInputCommand();
+    }
+
+    @Override
+    protected void processMessage(Message message) {
+        super.processMessage(message);
     }
 
     public void setLocalPlayerIds(int playerOneId) {
@@ -135,6 +147,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         if (gameMessageId == objectId) {
             gameMessageId = 0;
         }
+        if (cameraAttachmentId == objectId) {
+            cameraAttachmentId = 0;
+        }
     }
 
     @Override
@@ -161,6 +176,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             piNoonAttachment.setLinkBack(piNoonAttachmentModel);
 
             allVisibleObjects.put(gameObject.getId(), piNoonAttachmentModel);
+        } else if (gameObject instanceof CameraAttachment) {
+            cameraAttachmentId = gameObject.getId();
         } else if (gameObject instanceof GameMessageObject) {
             gameMessageId = gameObject.getId();
         } else if (gameObject instanceof BarrelObject) {
@@ -219,5 +236,21 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             return gameMessageObject;
         }
         return null;
+    }
+
+    public CameraAttachment getCameraAttachment() {
+        if (engine != null && cameraAttachmentId > 0) {
+            CameraAttachment cameraAttachment = engine.getGame().getCurrentGameState().get(cameraAttachmentId);
+            return cameraAttachment;
+        }
+        return null;
+    }
+
+    public boolean isMakeCameraSnapshot() {
+        return makeCameraSnapshot;
+    }
+
+    public void makeCameraSnapshot(ByteBuffer pixels) {
+        makeCameraSnapshot = false;
     }
 }

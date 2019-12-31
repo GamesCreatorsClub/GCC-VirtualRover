@@ -1,7 +1,8 @@
 package org.ah.gcc.virtualrover.challenges;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -20,8 +21,6 @@ public abstract class AbstractChallenge implements Challenge {
 
     protected ModelInstance challengeModelInstance;
 
-    protected FrameBuffer frameBuffer;
-
     public boolean showRovers = true;
     public boolean showShadows = true;
 
@@ -36,8 +35,6 @@ public abstract class AbstractChallenge implements Challenge {
 
     public AbstractChallenge(ModelFactory modelFactory) {
         this.modelFactory = modelFactory;
-
-        frameBuffer = new FrameBuffer(Format.RGBA8888, 1024, 1024, false);
 
         shadowLight = new DirectionalShadowLight(1024, 1024, 6f, 6f, 0.01f, 100f);
         shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
@@ -56,15 +53,15 @@ public abstract class AbstractChallenge implements Challenge {
 
     @Override
     public void dispose() {
-        frameBuffer.dispose();
         shadowBatch.dispose();
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
+    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
         if (showShadows) {
             Camera cam = batch.getCamera();
             batch.end();
+            if (frameBuffer != null) { frameBuffer.end(); }
 
             shadowLight.begin(Vector3.Zero, cam.direction);
             shadowBatch.begin(shadowLight.getCamera());
@@ -75,6 +72,13 @@ public abstract class AbstractChallenge implements Challenge {
             shadowBatch.end();
             shadowLight.end();
 
+            if (frameBuffer != null) {
+                frameBuffer.begin();
+                Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+//                Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
+//                Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
+//                Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
+            }
             modelBatch.begin(cam);
 
             renderChallenge(modelBatch, shadowEnvironment, visibleObjects);

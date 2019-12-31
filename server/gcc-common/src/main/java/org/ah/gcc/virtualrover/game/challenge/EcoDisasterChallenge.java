@@ -2,7 +2,6 @@ package org.ah.gcc.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
 
 import org.ah.gcc.virtualrover.game.GCCCollidableObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
@@ -14,7 +13,6 @@ import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
-import org.ah.themvsus.engine.common.game.GameObjectWithPositionAndOrientation;
 import org.ah.themvsus.engine.common.game.GameState;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
@@ -75,20 +73,18 @@ public class EcoDisasterChallenge extends AbstractChallenge {
 
     @Override
     public void process(GameState currentGameState) {
-        cameraId = 0;
-
-        if (cameraId > 0) {
-            CameraAttachment cameraAttachment = game.getCurrentGameState().get(cameraId);
-
-            GameObject parent = game.getCurrentGameState().get(cameraAttachment.getParentId());
-            if (parent instanceof GameObjectWithPositionAndOrientation) {
-                GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
-
-                Vector3 position = gameObject.getPosition();
-                cameraAttachment.setPosition(position.x, position.y, position.z);
-                cameraAttachment.setOrientation(gameObject.getOrientation());
-            }
-        }
+//        if (cameraId > 0) {
+//            CameraAttachment cameraAttachment = game.getCurrentGameState().get(cameraId);
+//
+//            GameObject parent = game.getCurrentGameState().get(cameraAttachment.getParentId());
+//            if (parent instanceof GameObjectWithPositionAndOrientation) {
+//                GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
+//
+//                Vector3 position = gameObject.getPosition();
+//                cameraAttachment.setPosition(position.x, position.y, position.z);
+//                cameraAttachment.setOrientation(gameObject.getOrientation());
+//            }
+//        }
 
         for (BarrelObject barrel : barrels) {
         }

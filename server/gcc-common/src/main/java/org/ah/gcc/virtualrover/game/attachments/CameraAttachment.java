@@ -1,8 +1,5 @@
 package org.ah.gcc.virtualrover.game.attachments;
 
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
-
 import org.ah.gcc.virtualrover.game.GCCGameTypeObject;
 import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.DependentObject;
@@ -16,8 +13,6 @@ public class CameraAttachment extends GameObjectWithPositionAndOrientation imple
 
     private int parentId;
 
-    protected Vector3 cameraPosition = new Vector3();
-    protected Quaternion cameraOrientation = new Quaternion();
     protected float cameraAngle = 45f;
 
     public CameraAttachment(GameObjectFactory factory, int id) {
@@ -44,14 +39,14 @@ public class CameraAttachment extends GameObjectWithPositionAndOrientation imple
 
     public void attachToRover(Rover rover) {
         setParentId(rover.getId());
-        cameraPosition.set(rover.getCameraPosition());
-        cameraOrientation.set(rover.getCameraOrientation());
+        position.set(rover.getCameraPosition());
+        orientation.set(rover.getCameraOrientation());
         cameraAngle = rover.getCameraAngle();
         rover.addCamera(getId());
     }
 
     @Override
-    public GameObjectType getType() { return GCCGameTypeObject.PiNoonAttachment; }
+    public GameObjectType getType() { return GCCGameTypeObject.CameraAttachment; }
 
     @Override
     public void serialize(boolean full, Serializer serializer) {
@@ -76,14 +71,6 @@ public class CameraAttachment extends GameObjectWithPositionAndOrientation imple
 
         CameraAttachment attachment = (CameraAttachment)newObject;
         attachment.parentId = parentId;
-        attachment.cameraPosition.x = cameraPosition.x;
-        attachment.cameraPosition.y = cameraPosition.y;
-        attachment.cameraPosition.z = cameraPosition.z;
-
-        attachment.cameraOrientation.x = cameraOrientation.x;
-        attachment.cameraOrientation.y = cameraOrientation.y;
-        attachment.cameraOrientation.z = cameraOrientation.z;
-        attachment.cameraOrientation.w = cameraOrientation.w;
 
         return newObject;
     }

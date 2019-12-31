@@ -1,7 +1,6 @@
 package org.ah.themvsus.engine.common.debug;
 
 import org.ah.themvsus.engine.client.ClientEngine;
-import org.ah.themvsus.engine.common.Engine;
 import org.ah.themvsus.server.engine.ClientSession;
 import org.ah.themvsus.server.engine.ServerEngine;
 
@@ -54,7 +53,7 @@ public class Debug {
 
     // public Engine<?> getServerEngine() { return serverEngine; }
 
-    public Engine<?> getClientEngine() { return clientEngine; }
+    public ClientEngine<?> getClientEngine() { return clientEngine; }
 
     public ClientSession<?> getClientSessionByAlias(String alias) {
         return serverEngine.getClientSessionByAlias(alias);
