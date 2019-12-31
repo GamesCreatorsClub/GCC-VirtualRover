@@ -58,7 +58,7 @@ class WorldRunner:
             world_height = self.world.get_height()
 
             self._sim_rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
-            self._sim_rover.set_bearing(90 - self.robot.body.angle * 180 / math.pi)
+            self._sim_rover.set_bearing(270 - self.robot.body.angle * 180 / math.pi)
             self._sim_rover.changed = False
 
             for object in self.space.bodies:
