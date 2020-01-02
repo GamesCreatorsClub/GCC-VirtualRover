@@ -16,6 +16,8 @@ class Visualisation():
         self._java_executable = "java"
         self._process = None
         self._thread = None
+        self._debug = False
+        self._remote_java_debugging = False
 
         if os.getcwd().endswith("/src"):
             self._jar_path = "../libs/piwars-simulator.jar"
@@ -66,6 +68,18 @@ class Visualisation():
     def get_server_address(self):
         return self._server_address
 
+    def set_debug(self, debug):
+        self._debug = debug
+
+    def is_debug(self):
+        return self._debug
+
+    def set_remote_java_debugging(self, remote_java_debugging):
+        self._remote_java_debugging = remote_java_debugging
+
+    def is_remote_java_debugging(self):
+        return self._remote_java_debugging
+
     def get_thread(self):
         return self._thread
 
@@ -77,8 +91,12 @@ class Visualisation():
         self._thread.start()
 
     def run(self):
-        command = [self.get_java_executable(),
-                   "-jar", self.get_jar_path()]
+        command = [self.get_java_executable()]
+
+        if self.is_remote_java_debugging():
+            command += ["-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"]
+
+        command += ["-jar", self.get_jar_path()]
 
         if self.is_mute():
             command += ["--mute"]
@@ -91,6 +109,9 @@ class Visualisation():
             command += ["--server", "tcp:" + self.get_server_address()]
         else:
             command += ["--server", "udp:" + self.get_server_address()]
+
+        if self.is_debug():
+            command += ["--debug"]
 
         print("Current dir is " + os.getcwd())
 

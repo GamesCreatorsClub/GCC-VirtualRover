@@ -1,7 +1,6 @@
 from enum import Enum
 
 from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
-from piwarssim.engine.simulation.rovers.RoverType import RoverType
 
 
 class RoverColor(Enum):
@@ -31,6 +30,12 @@ class AbstractRoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
         self._rover_type = rover_type
         self._rover_name = rover_type.get_name()
         self._rover_colour = RoverColor.White
+        self._attachment_id = 0
+        self._camera_id = 0
+        self.attachmentPosition = (80.0, 0.0)
+        self.cameraPosition = (75.0, 0.0, 20.0)
+        self.cameraOrientation = ()
+        self.cameraAngle = 45.0
 
     def free(self):
         super(AbstractRoverSimObject, self).free()
@@ -40,6 +45,18 @@ class AbstractRoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
 
     def set_rover_colour(self, rover_colour):
         self._rover_colour = rover_colour
+
+    def get_camera_id(self):
+        return self._camera_id
+
+    def set_camera_id(self, camera_id):
+        self._camera_id = camera_id
+
+    def get_attachment_id(self):
+        return self._attachment_id
+
+    def set_attachment_id(self, attachment_id):
+        self._attachment_id = attachment_id
 
     def serialize(self, full, serializer):
         super(AbstractRoverSimObject, self).serialize(full, serializer)

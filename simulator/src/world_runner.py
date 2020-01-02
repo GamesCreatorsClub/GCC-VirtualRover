@@ -2,6 +2,7 @@ import argparse
 import math
 import os
 import time
+from PIL import Image
 
 from importlib import import_module
 from threading import Thread
@@ -12,6 +13,7 @@ import pymunk.pygame_util
 
 from lib.robot import Robot
 from piwarssim.engine.message import MessageFactory
+from piwarssim.engine.message.MessageCode import MessageCode
 from piwarssim.engine.server import ServerEngine
 from piwarssim.engine.simulation.objects.BarrelSimObject import BarrelColour
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
@@ -31,12 +33,18 @@ class WorldRunner:
         self.robot = None
         self.world = None
         self.surface = None
+        self._font = None
         self._is_connected_method = None
+        self._message_factory = None
         self._server_engine = None
-        self._sim_rover = None
+        self._sim_rover_id = None
         self._tick = 0
         self._comm_server_module = None
         self._visualiser = None
+        self._snapshot_image_bytes = []
+        self._snapshot_image = None
+        self._paused = True
+        self._step = False
 
     def update(self):
         # player_inputs = server_engine.get_player_inputs()
@@ -46,7 +54,9 @@ class WorldRunner:
         #     paused = player_input.circle()
         #     # print(str(player_inputs_array[0]))
         #
-        if self._is_connected_method() and self._server_engine.is_client_ready():
+        if self._is_connected_method() and self._server_engine.is_client_ready() and (not self._paused or self._step):
+            if self._step:
+                self._step = False
             try:
                 next(self.running_behaviour)
             except StopIteration:
@@ -57,21 +67,26 @@ class WorldRunner:
             world_width = self.world.get_width()
             world_height = self.world.get_height()
 
-            self._sim_rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
-            self._sim_rover.set_bearing(270 - self.robot.body.angle * 180 / math.pi)
-            self._sim_rover.changed = False
+            sim_rover = self._server_engine.challenge.get_sim_object(self._sim_rover_id)
+
+            sim_rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
+            sim_rover.set_bearing(270 - self.robot.body.angle * 180 / math.pi)
+            sim_rover.changed = False
 
             for object in self.space.bodies:
                 if isinstance(object, BarrelBody):
                     barrel_body = object
-                    local_object = barrel_body.get_local_object()
-                    if local_object is None:
+                    local_object_id = barrel_body.get_local_object()
+                    if local_object_id is None:
                         if barrel_body.is_green():
                             local_object = self._server_engine.challenge.make_barrel(BarrelColour.Green)
                         else:
                             local_object = self._server_engine.challenge.make_barrel(BarrelColour.Red)
-                        barrel_body.set_local_object(local_object)
-                    # local_object.set_position_2(1000 - barrel_body.position.x * 2.5, barrel_body.position.y * 2.5 - 1000)
+                        local_object_id = local_object.get_id()
+                        barrel_body.set_local_object(local_object_id)
+                    else:
+                        local_object = self._server_engine.challenge.get_sim_object(local_object_id)
+
                     local_object.set_position_2(barrel_body.position.x - world_width // 2, world_height // 2 - barrel_body.position.y)
 
             self._server_engine.process(self._tick)
@@ -86,7 +101,24 @@ class WorldRunner:
         self.robot.draw(self.surface)
         # self.robot.draw(self.screen)
         self.screen.blit(pygame.transform.scale(self.surface, (self.screen.get_width(), self.screen.get_height())), (0, 0))
+        if self._snapshot_image is not None:
+            self.screen.blit(self._snapshot_image, (0, 0))
+        if self._paused:
+            self.screen.blit(self._font.render("Paused", True, (255, 255, 255)), (10, 0))
         pygame.display.flip()
+
+    def screenshot_callback(self, message):
+        packet_no = message.get_packet_no()
+        total_packets = message.get_total_packets()
+        if packet_no == 0:
+            self._snapshot_image_bytes = message.get_buffer()
+        else:
+            self._snapshot_image_bytes += message.get_buffer()
+
+        if packet_no + 1 == total_packets:
+            pilImage = Image.frombytes("RGBA", (320, 256), bytes(self._snapshot_image_bytes))
+            # openCVImage = numpy.array(pilImage)
+            self._snapshot_image = pygame.image.fromstring(pilImage.tobytes("raw"), (320, 256), "RGBA")
 
     def main(self):
         parser = argparse.ArgumentParser(description='World runner')
@@ -113,23 +145,25 @@ class WorldRunner:
         self.world = world_module.World(self.space, self.robot)
 
         self._server_engine = ServerEngine(self.world.get_challenge())
-        self._sim_rover = self._server_engine.challenge.spawn_rover(RoverType.GCC)
+        self._sim_rover_id = self._server_engine.challenge.spawn_rover(RoverType.GCC).get_id()
 
         self._server_engine.process(self._tick)
+        self._server_engine.set_screenshot_callback(self.screenshot_callback)
 
         serializer_factory = ByteSerializerFactory()
-        message_factory = MessageFactory()
+        self._message_factory = MessageFactory()
 
         if args.tcp:
-            self._comm_server_module = TCPServerModule(self._server_engine, serializer_factory, message_factory)
+            self._comm_server_module = TCPServerModule(self._server_engine, serializer_factory, self._message_factory)
         else:
-            self._comm_server_module = UDPServerModule(self._server_engine, serializer_factory, message_factory)
+            self._comm_server_module = UDPServerModule(self._server_engine, serializer_factory, self._message_factory)
 
         self._is_connected_method = self._comm_server_module.is_connected
 
         thread = Thread(target=self._comm_server_module.process, daemon=True)
         thread.start()
 
+        self._font = pygame.font.SysFont("comicsansms", 32)
         self.surface = pygame.Surface((self.world.get_width(), self.world.get_height()))
         self.screen = pygame.display.set_mode((800, 800))
         self.draw_options = pymunk.pygame_util.DrawOptions(self.surface)
@@ -137,16 +171,41 @@ class WorldRunner:
         time.sleep(0.2)
 
         self._visualiser = Visualisation()
+        # self._visualiser.set_debug(True)
+        # self._visualiser.set_remote_java_debugging(True)
         self._visualiser.start()
 
+        pause_pressed = False
+        step_pressed = False
         running = True
         while running:
             self.world.update(self.screen.get_width(), self.screen.get_height())
+            pressed = pygame.key.get_pressed()
+            if pressed[pygame.K_s]:
+                message = self._message_factory.obtain(MessageCode.ServerRequestScreenshot)
+                self._server_engine.send_message(message)
+                message.free()
+
             self.update()
             self.draw()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                pressed = pygame.key.get_pressed()
+                if pressed[pygame.K_p]:
+                    if not pause_pressed:
+                        pause_pressed = True
+                        self._paused = not self._paused
+                else:
+                    if pause_pressed:
+                        pause_pressed = False
+                if pressed[pygame.K_o]:
+                    if not step_pressed:
+                        step_pressed = True
+                        self._step = not self._step
+                else:
+                    if step_pressed:
+                        step_pressed = False
 
 
 if __name__ == '__main__':

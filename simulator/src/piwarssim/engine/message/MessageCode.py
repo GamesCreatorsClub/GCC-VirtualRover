@@ -12,6 +12,8 @@ from piwarssim.engine.message.ClientAuthenticateMessage import ClientAuthenticat
 from piwarssim.engine.message.ClientRegisterMessage import ClientRegisterMessage
 from piwarssim.engine.message.ChatMessage import ChatMessage
 from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage
+from piwarssim.engine.message.ServerRequestScreenshotMessage import ServerRequestScreenshotMessage
+from piwarssim.engine.message.ClientScreenshotMessage import ClientScreenshotMessage
 
 
 def raise_not_implemented():
@@ -31,6 +33,8 @@ class MessageCode(Enum):
     ClientRegister = (lambda factory: ClientRegisterMessage(factory, MessageCode.ClientRegister),)
     PlayerInput = (lambda factory: PlayerInputMessage(factory,MessageCode.PlayerInput), )
     Chat = (lambda factory: ChatMessage(factory, MessageCode.Chat),)
+    ServerRequestScreenshot = (lambda factory: ServerRequestScreenshotMessage(factory, MessageCode.ServerRequestScreenshot),)
+    ClientScreenshot = (lambda factory: ClientScreenshotMessage(factory, MessageCode.Chat),)
 
     def __new__(cls, new_object_function):
         value = len(cls.__members__)

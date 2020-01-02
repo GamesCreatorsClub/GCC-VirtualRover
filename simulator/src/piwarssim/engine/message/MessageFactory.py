@@ -24,13 +24,3 @@ class MessageFactory(TypedObjectFactory):
         message.deserialize(deserializer)
 
         return message
-
-    def new_message(self, message_type):
-        message = self.obtain(message_type)
-        message.setup()
-        return message
-
-    def server_update_command(self, object_id, server_frame_no, position, velocity, orientation, turn_speed, health):
-        server_update_command = self.new_message(MessageCode.ServerUpdate)
-        server_update_command.set_values(object_id, server_frame_no, position, velocity, orientation, turn_speed, health)
-        return server_update_command

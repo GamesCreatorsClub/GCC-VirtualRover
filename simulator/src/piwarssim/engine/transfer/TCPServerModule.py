@@ -9,7 +9,7 @@ from socket import timeout
 
 
 class TCPServerModule:
-    MAGIC = 0xAA
+    MAGIC = 0xA8
 
     def __init__(self, server_engine, serializer_factory, message_factory, address="0.0.0.0", port=7454):
         self._server_engine = server_engine
@@ -71,8 +71,8 @@ class TCPServerModule:
                 if len(data) == 0:
                     self._client_socket = None
                 else:
-                    if data[0] & 0xfe == TCPServerModule.MAGIC:
-                        expected_size = (data[0] & 1) * 256 + data[1]
+                    if data[0] & 0xf8 == TCPServerModule.MAGIC:
+                        expected_size = (data[0] & 7) * 256 + data[1]
                         data = self._client_socket.recv(expected_size)
 
                         deserializer = self._serializer_factory.obtain()

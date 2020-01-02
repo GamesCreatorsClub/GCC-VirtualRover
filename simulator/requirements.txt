@@ -2,3 +2,4 @@ pymunk
 pygame
 pgzero
 pyquaternion
+Pillow

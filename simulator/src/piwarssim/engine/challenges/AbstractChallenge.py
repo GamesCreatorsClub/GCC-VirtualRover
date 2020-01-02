@@ -30,8 +30,19 @@ class AbstractChallenge:
     def add_new_sim_object(self, sim_object):
         self._new_sim_objects.append(sim_object)
 
+    def add_new_sim_object_immediately(self, new_sim_object):
+        self.before_sim_object_added(new_sim_object)
+        self._next_sim_state.add_new(new_sim_object)
+        self.after_sim_object_added(new_sim_object)
+
     def contains_sim_object(self, sim_object_id):
         return sim_object_id in self._next_sim_state
+
+    def get_sim_object(self, sim_object_id):
+        if self.contains_sim_object(sim_object_id):
+            return self._next_sim_state[sim_object_id]
+
+        return None
 
     def get_sim_state(self, frame_id):
         first_frame_no = self._previous_sim_states[0].get_frame_no()
@@ -58,7 +69,18 @@ class AbstractChallenge:
 
     def process(self, timestamp):
         for new_sim_object in self._new_sim_objects:
-            self._next_sim_state.add_new(new_sim_object)
+            self.add_new_sim_object_immediately(new_sim_object)
+
+        del self._new_sim_objects[:]
+
+        while len(self._remove_sim_object) > 0:
+            game_object_id = self._remove_sim_object[0]
+            if game_object_id in self._next_sim_state:
+                object_to_remove = self._next_sim_state[game_object_id]
+                object_to_remove.remove()
+                self.sim_object_removed(object_to_remove)
+
+            # players.remove(gameObjectId);
 
         # del self._new_sim_objects[:]
 
@@ -77,6 +99,15 @@ class AbstractChallenge:
 
     def new_id(self):
         return self._next_sim_state.new_id()
+
+    def before_sim_object_added(self, sim_object):
+        pass
+
+    def after_sim_object_added(self, sim_object):
+        pass
+
+    def sim_object_removed(self, sim_object):
+        pass
 
     def spawn_rover(self, rover_type):
         rover = self._sim_object_factory.obtain(PiWarsSimObjectTypes.GCCRover)

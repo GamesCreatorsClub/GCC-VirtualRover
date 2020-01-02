@@ -10,8 +10,8 @@ import org.ah.gcc.virtualrover.ModelFactory;
 import org.ah.gcc.virtualrover.VisibleObject;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.rovers.Rover;
-import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.game.rovers.Rover.RoverColour;
+import org.ah.gcc.virtualrover.game.rovers.RoverType;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.rovers.CBiSRoverModel;
 import org.ah.gcc.virtualrover.rovers.GCCRoverModel;
@@ -48,14 +48,16 @@ public class PlayerModelLink implements VisibleObject {
     public void render(ModelBatch batch, Environment environment) {
         if (roverModel != null) {
             Rover rover = game.getCurrentGameState().get(id);
+            if (rover != null) {
 
-            if (roverColour != null && rover.getRoverColour() != roverColour) {
-                setRoverColour(rover);
+                if (roverColour != null && rover.getRoverColour() != roverColour) {
+                    setRoverColour(rover);
+                }
+
+                this.roverModel.update(rover);
+
+                this.roverModel.render(batch, environment);
             }
-
-            this.roverModel.update(rover);
-
-            this.roverModel.render(batch, environment);
         }
     }
 

@@ -83,10 +83,18 @@ class Serializer:
         self.serialize_bytes(buf)
 
     def deserialize_byte_array(self):
-        l = self.deserialize_short()
+        l = self.deserialize_unsigned_short()
         buf = [0] * l
         self.deserialize_bytes(buf)
         return buf
+
+    def deserialize_byte_array_raw(self):
+        l = self.deserialize_unsigned_short()
+
+        return self.deserialize_bytes_raw(l)
+
+    def deserialize_bytes_raw(self, l):
+        pass
 
     def deserialize_string(self):
         buf = self.deserialize_byte_array()

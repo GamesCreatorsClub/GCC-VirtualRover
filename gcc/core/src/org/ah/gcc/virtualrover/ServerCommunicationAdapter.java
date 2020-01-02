@@ -11,8 +11,10 @@ import org.ah.gcc.virtualrover.game.objects.BarrelObject;
 import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.gcc.virtualrover.input.GCCPlayerInput;
 import org.ah.gcc.virtualrover.logging.GdxClientLoggingAdapter;
+import org.ah.gcc.virtualrover.message.ClientScreenshotMessage;
 import org.ah.gcc.virtualrover.message.GCCMessageFactory;
 import org.ah.gcc.virtualrover.message.GCCPlayerInputMessage;
+import org.ah.gcc.virtualrover.message.ServerRequestScreenshotMessage;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.Console;
 import org.ah.gcc.virtualrover.world.BarrelModelLink;
@@ -26,9 +28,11 @@ import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.message.ChatMessage;
 import org.ah.themvsus.engine.common.message.Message;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
 public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter<GCCGame> implements GameObjectAddedListener, GameObjectRemovedListener {
+
+    private static final byte[] EMPTY_ARRAY = new byte[0];
 
     private Console console;
 
@@ -68,7 +72,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     @Override
     protected void processMessage(Message message) {
-        super.processMessage(message);
+        if (message instanceof ServerRequestScreenshotMessage) {
+            makeCameraSnapshot = true;
+            message.free();
+        } else {
+            super.processMessage(message);
+        }
     }
 
     public void setLocalPlayerIds(int playerOneId) {
@@ -250,7 +259,39 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return makeCameraSnapshot;
     }
 
-    public void makeCameraSnapshot(ByteBuffer pixels) {
+    public void makeCameraSnapshot(byte[] snapshotData) {
         makeCameraSnapshot = false;
+        int packetPayloadAllowance;
+
+        ClientScreenshotMessage clientScreenshotMessage =
+                ((GCCMessageFactory)messageFactory).createClientScreenshotMessage(0, 0, EMPTY_ARRAY, 0, 0);
+        try {
+            packetPayloadAllowance = clientScreenshotMessage.size();
+        } finally {
+            clientScreenshotMessage.free();
+        }
+
+        int packetNo = 0;
+        int packetLen = getServerCommmunication().getNoHeaderMTU() - packetPayloadAllowance;
+        int totalPackets = snapshotData.length / packetLen;
+        if (snapshotData.length % packetLen != 0) {
+            totalPackets += 1;
+        }
+
+        while (packetNo < totalPackets) {
+            int thisPacketLen = packetLen;
+            if (packetNo * packetLen + thisPacketLen > snapshotData.length) {
+                thisPacketLen = snapshotData.length - packetNo * packetLen;
+            }
+            clientScreenshotMessage = ((GCCMessageFactory)messageFactory).createClientScreenshotMessage(packetNo, totalPackets, snapshotData, packetNo * packetLen, thisPacketLen);
+            try {
+                serverCommunication.send(clientScreenshotMessage);
+            } catch (IOException e) {
+                logger.error("Network", "Error sending ClientScreenshotMessage", e);
+            } finally {
+                clientScreenshotMessage.free();
+            }
+            packetNo++;
+        }
     }
 }

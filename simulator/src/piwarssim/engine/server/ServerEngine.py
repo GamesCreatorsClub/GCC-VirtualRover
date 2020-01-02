@@ -9,6 +9,7 @@ from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage
 from piwarssim.engine.message.MultiObjectRequestForFullUpdateMessage import MultiObjectRequestForFullUpdateMessage
 from piwarssim.engine.message.MessageFactory import MessageFactory
 from piwarssim.engine.message.ServerInternalMessage import ServerInternalState
+from piwarssim.engine.message.ClientScreenshotMessage import ClientScreenshotMessage
 
 
 class ServerEngine(Engine):
@@ -20,33 +21,42 @@ class ServerEngine(Engine):
         self._player_inputs = PlayerInputs()
         self._send_full_update = True
         self._client_ready = False
+        self._screenshot_callback = None
+
+    def set_screenshot_callback(self, screenshot_callback):
+        self._screenshot_callback = screenshot_callback
 
     def register_sender(self, sender, serializer_factory):
         self._sender = sender
         self._serializer_factory = serializer_factory
 
     def receive_message(self, message):
-        # self._received_messages.append(message)
-        if isinstance(message, ClientInternalMessage):
-            if message.get_state() == ClientInternalState.RequestServerDetails:
-                self._client_ready = False
+        try:
+            # self._received_messages.append(message)
+            if isinstance(message, ClientInternalMessage):
+                if message.get_state() == ClientInternalState.RequestServerDetails:
+                    self._client_ready = False
 
-                authenticated_message = self._message_factory.obtain(MessageCode.ServerClientAuthenticated)
-                authenticated_message.set_session_id(1)
-                self.send_message(authenticated_message)
+                    authenticated_message = self._message_factory.obtain(MessageCode.ServerClientAuthenticated)
+                    authenticated_message.set_session_id(1)
+                    self.send_message(authenticated_message)
 
-                server_internal_message = self._message_factory.obtain(MessageCode.ServerInternal)
-                server_internal_message.set_state(ServerInternalState.GameMap)
-                server_internal_message.set_message(self.challenge.get_challenge_id())
-                self.send_message(server_internal_message)
-            elif message.get_state() == ClientInternalState.ClientReady:
-                self._client_ready = True
+                    server_internal_message = self._message_factory.obtain(MessageCode.ServerInternal)
+                    server_internal_message.set_state(ServerInternalState.GameMap)
+                    server_internal_message.set_message(self.challenge.get_challenge_id())
+                    self.send_message(server_internal_message)
+                elif message.get_state() == ClientInternalState.ClientReady:
+                    self._client_ready = True
+                    self._send_full_update = True
+            elif isinstance(message, MultiObjectRequestForFullUpdateMessage):
+                # self.send_full_update()
                 self._send_full_update = True
-        elif isinstance(message, MultiObjectRequestForFullUpdateMessage):
-            # self.send_full_update()
-            self._send_full_update = True
-        elif isinstance(message, PlayerInputMessage):
-            self._player_inputs.merge_inputs(self.challenge.get_frame_id(), message.get_player_inputs())
+            elif isinstance(message, PlayerInputMessage):
+                self._player_inputs.merge_inputs(self.challenge.get_frame_id(), message.get_player_inputs())
+            elif isinstance(message, ClientScreenshotMessage):
+                self._screenshot_callback(message)
+        finally:
+            message.free()
 
     def clear_client_ready(self):
         self._client_ready = False

@@ -14,7 +14,19 @@ public abstract class GCCMessageCode extends MessageCode {
         };
     }
 
+    public static MessageCode ServerRequestScreenshot = new MessageCode() {
+        @Override public Message newObject(MessageFactory factory) { return new ServerRequestScreenshotMessage(factory); }
+        @Override public String toString() { return "ServerRequestScreenshot"; }
+    };
+
+    public static MessageCode ClientScreenshot = new MessageCode() {
+        @Override public Message newObject(MessageFactory factory) { return new ClientScreenshotMessage(factory); }
+        @Override public String toString() { return "ClientScreenshot"; }
+    };
+
     public static MessageCode[] values() {
-        return new MessageCode[] {};
+        return new MessageCode[] {
+                ServerRequestScreenshot, ClientScreenshot,
+        };
     }
 }

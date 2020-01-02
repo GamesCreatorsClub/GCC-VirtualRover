@@ -73,8 +73,8 @@ if __name__ == '__main__':
 
     serializer = ByteSerializer(None)
 
-    message = ServerInternalMessage(None, MessageCode.ClientInternal)
-    message_received = ServerInternalMessage(None, MessageCode.ClientInternal)
+    message = ServerInternalMessage(None, MessageCode.ServerInternal)
+    message_received = ServerInternalMessage(None, MessageCode.ServerInternal)
     for state in ServerInternalState:
 
         serializer.setup()

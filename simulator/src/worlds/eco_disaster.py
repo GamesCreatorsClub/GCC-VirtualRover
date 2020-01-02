@@ -5,6 +5,7 @@ import pygame
 from worlds.abstract_world import AbstractWorld
 from piwarssim.engine.challenges.EcoDisasterChallenge import EcoDisasterChallenge
 
+
 WIDTH = 2200
 HEIGHT = 2200
 
@@ -29,6 +30,9 @@ class World(AbstractWorld):
     def __init__(self, space, robot):
         super(World, self).__init__(EcoDisasterChallenge(), space, robot, WIDTH, HEIGHT)
         self._green_barrel = True
+
+    def update(self, screen_width, screen_height):
+        super(World, self).update(screen_width, screen_height)
 
     def mouse_pressed(self, x, y):
         self._green_barrel = not self._green_barrel

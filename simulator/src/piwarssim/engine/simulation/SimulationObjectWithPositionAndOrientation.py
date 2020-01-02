@@ -144,6 +144,32 @@ class SimulationObjectWithPositionAndOrientation(SimulationObjectWithPosition):
 
         self.set_orientation_4(x, y, z, w)
 
+    @staticmethod
+    def from_yaw_pitch_roll(yaw, pitch, roll):
+        yaw = yaw * math.pi / 180.0
+        pitch = pitch * math.pi / 180.0
+        roll = roll * math.pi / 180.0
+
+        hr = roll * 0.5
+        shr = math.sin(hr)
+        chr = math.cos(hr)
+        hp = pitch * 0.5
+        shp = math.sin(hp)
+        chp = math.cos(hp)
+        hy = yaw * 0.5
+        shy = math.sin(hy)
+        chy = math.cos(hy)
+        chy_shp = chy * shp
+        shy_chp = shy * chp
+        chy_chp = chy * chp
+        shy_shp = shy * shp
+
+        x = (chy_shp * chr) + (shy_chp * shr) # cos(yaw / 2) * sin(pitch / 2) * cos(roll / 2) + sin(yaw / 2) * cos(pitch / 2) * sin(roll / 2)
+        y = (shy_chp * chr) - (chy_shp * shr) # sin(yaw / 2) * cos(pitch / 2) * cos(roll / 2) - cos(yaw / 2) * sin(pitch / 2) * sin(roll / 2)
+        z = (chy_chp * shr) - (shy_shp * chr) # cos(yaw / 2) * cos(pitch / 2) * sin(roll / 2) - sin(yaw / 2) * sin(pitch / 2) * cos(roll / 2)
+        w = (chy_chp * chr) + (shy_shp * shr) # cos(yaw / 2) * cos(pitch / 2) * cos(roll / 2) + sin(yaw / 2) * sin(pitch / 2) * sin(roll / 2)
+        return x, y, z, w
+
     def __repr__(self):
         return super(SimulationObjectWithPositionAndOrientation, self).__repr__() + ", b={:.1f}".format(self._get_bearing())
 

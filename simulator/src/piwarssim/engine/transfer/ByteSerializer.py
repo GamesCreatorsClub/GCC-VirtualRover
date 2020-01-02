@@ -91,5 +91,10 @@ class ByteSerializer(Serializer):
         del self.buf[0:4]
         return f
 
+    def deserialize_bytes_raw(self, l):
+        res = self.buf[0:l]
+        del self.buf[0:l]
+        return res
+
     def get_total_size(self):
         return len(self.buf)

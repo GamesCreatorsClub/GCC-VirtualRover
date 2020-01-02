@@ -37,6 +37,16 @@ public class CameraAttachment extends GameObjectWithPositionAndOrientation imple
         this.parentId = parentId;
     }
 
+    public float getCameraAngle() {
+        return cameraAngle;
+    }
+
+    public void setCameraAngle(float cameraAngle) {
+        changed = changed || this.cameraAngle != cameraAngle;
+
+        this.cameraAngle = cameraAngle;
+    }
+
     public void attachToRover(Rover rover) {
         setParentId(rover.getId());
         position.set(rover.getCameraPosition());
@@ -52,17 +62,19 @@ public class CameraAttachment extends GameObjectWithPositionAndOrientation imple
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
         serializer.serializeUnsignedShort(parentId);
+        serializer.serializeFloat(cameraAngle);
     }
 
     @Override
     public void deserialize(boolean full, Serializer serializer) {
         super.deserialize(full, serializer);
-        parentId = serializer.deserializeUnsignedShort();
+        setParentId(serializer.deserializeUnsignedShort());
+        setCameraAngle(serializer.deserializeFloat());
     }
 
     @Override
     public int size(boolean full) {
-        return super.size(full) + 2;
+        return super.size(full) + 2 + 4;
     }
 
     @Override

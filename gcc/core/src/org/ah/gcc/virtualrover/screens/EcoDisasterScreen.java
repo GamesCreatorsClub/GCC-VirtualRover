@@ -9,11 +9,11 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -40,7 +40,7 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
     private FrameBuffer attachedCameraFrameBuffer;
     // private TextureRegion attachedCameraTextureRegion;
     private Texture attachedCameraTexture;
-    private TextureData attachedCameraTextureData;
+    // private TextureData attachedCameraTextureData;
     private Pixmap attachedCameraPixmap;
     private Vector3 calculatedCameraPosition = new Vector3();
     private Quaternion calculatedCameraOrientation = new Quaternion();
@@ -52,6 +52,7 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
 
     private boolean renderBackground = false;
     private boolean makeSnapshot = false;
+    private byte[] snapshotData = null;
 
     public EcoDisasterScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -84,10 +85,11 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
         attachedCamera.fieldOfView = 45f;
 
         attachedCameraFrameBuffer = new FrameBuffer(Format.RGBA8888, 320, 256, true);
+        attachedCameraPixmap = new Pixmap(320,  256,  Format.RGBA8888);
+        // attachedCameraTextureData = new PixmapTextureData(attachedCameraPixmap, Format.RGBA8888, false, false);
         //attachedCameraTextureRegion = new TextureRegion(attachedCameraFrameBuffer.getColorBufferTexture());
         attachedCameraTexture = attachedCameraFrameBuffer.getColorBufferTexture();
-        attachedCameraTextureData = attachedCameraTexture.getTextureData();
-        attachedCameraPixmap = new Pixmap(320,  256,  Format.RGBA8888);
+        // attachedCameraTextureData = attachedCameraTexture.getTextureData();
 
         cameraInputMultiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(cameraInputMultiplexer);
@@ -195,8 +197,9 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
         }
 
         if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
-            snapshot();
-            serverCommunicationAdapter.makeCameraSnapshot(attachedCameraPixmap.getPixels());
+            // snapshot();
+            // serverCommunicationAdapter.makeCameraSnapshot(attachedCameraPixmap.getPixels());
+            serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
         }
     }
 
@@ -240,6 +243,9 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
 
         batch.end();
 
+        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
+            snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
+        }
         attachedCameraFrameBuffer.end();
 
         //        FileHandle fh = new FileHandle(output);
@@ -248,17 +254,17 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
 //        pixmap.dispose();
     }
 
-    private void snapshot() {
-        if (!attachedCameraTextureData.isPrepared()) {
-            attachedCameraTextureData.prepare();
-        }
-        Pixmap pixmap = attachedCameraTextureData.consumePixmap();
-        try {
-            attachedCameraPixmap.drawPixmap(pixmap, 0, 0);
-        } finally {
-            attachedCameraTextureData.disposePixmap();
-        }
-    }
+//    private void snapshot() {
+//        if (!attachedCameraTextureData.isPrepared()) {
+//            attachedCameraTextureData.prepare();
+//        }
+//        Pixmap pixmap = attachedCameraTextureData.consumePixmap();
+//        try {
+//            attachedCameraPixmap.drawPixmap(pixmap, 0, 0);
+//        } finally {
+//            attachedCameraTextureData.disposePixmap();
+//        }
+//    }
 
     @Override
     public void resize(int width, int height) {

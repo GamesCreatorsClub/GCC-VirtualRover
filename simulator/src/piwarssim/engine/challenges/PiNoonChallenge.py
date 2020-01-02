@@ -1,4 +1,4 @@
-from piwarssim.engine.challenges import AbstractChallenge
+from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 
 
 class PiNoonChallenge(AbstractChallenge):

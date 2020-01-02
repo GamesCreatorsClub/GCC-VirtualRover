@@ -22,4 +22,12 @@ public class GCCMessageFactory extends MessageFactory {
         GCCPlayerInputMessage playerInputCommand = newMessage(MessageCode.PlayerInput);
         return playerInputCommand;
     }
+
+    public ClientScreenshotMessage createClientScreenshotMessage(int packetNo, int totalPackets, byte[] pixels, int off, int len) {
+        ClientScreenshotMessage clientRegisterMessage = newMessage(GCCMessageCode.ClientScreenshot);
+        clientRegisterMessage.setPacketNo(packetNo);
+        clientRegisterMessage.setTotalPackets(totalPackets);
+        clientRegisterMessage.setBuffer(pixels, off, len);
+        return clientRegisterMessage;
+    }
 }
