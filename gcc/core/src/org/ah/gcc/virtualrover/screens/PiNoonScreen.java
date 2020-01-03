@@ -32,8 +32,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
     private RoverType player1RoverType = RoverType.GCC;
     private RoverType player2RoverType = RoverType.CBIS;
 
-    private boolean renderBackground = false;
-
     public PiNoonScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,

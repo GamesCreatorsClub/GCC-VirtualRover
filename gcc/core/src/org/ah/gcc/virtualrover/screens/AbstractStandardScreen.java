@@ -5,7 +5,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -14,8 +17,11 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 import org.ah.gcc.virtualrover.MainGame;
 import org.ah.gcc.virtualrover.ModelFactory;
@@ -25,6 +31,8 @@ import org.ah.gcc.virtualrover.backgrounds.Background;
 import org.ah.gcc.virtualrover.challenges.Challenge;
 import org.ah.gcc.virtualrover.game.GCCGame;
 import org.ah.gcc.virtualrover.game.GameMessageObject;
+import org.ah.gcc.virtualrover.game.attachments.CameraAttachment;
+import org.ah.gcc.virtualrover.game.rovers.Rover;
 import org.ah.gcc.virtualrover.utils.SoundManager;
 import org.ah.gcc.virtualrover.view.ChatColor;
 import org.ah.gcc.virtualrover.view.ChatListener;
@@ -34,7 +42,11 @@ import org.ah.themvsus.engine.client.AbstractServerCommunication;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
+import static org.ah.gcc.virtualrover.MainGame.SCALE;
+
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener, InputProcessor  {
+
+    protected static Vector3 UP = Vector3.Y;
 
     protected MainGame game;
     protected PlatformSpecific platformSpecific;
@@ -52,6 +64,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected BitmapFont fontBig;
     protected BitmapFont fontSmallMono;
     protected Texture gccLogo;
+
+    protected boolean renderBackground = false;
 
     protected Console console;
 
@@ -77,6 +91,16 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected boolean drawFPS = false;
 
     private IntSet unknownObjectIds = new IntSet();
+
+    private PerspectiveCamera attachedCamera;
+    private FrameBuffer attachedCameraFrameBuffer;
+    private Texture attachedCameraTexture;
+    private Vector3 calculatedCameraPosition = new Vector3();
+    private Quaternion calculatedCameraOrientation = new Quaternion();
+    private Vector3 attachedCameraDirection = new Vector3();
+
+    protected byte[] snapshotData = null;
+    protected CameraAttachment cameraAttachment;
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -105,6 +129,17 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
         hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         hudCamera.setToOrtho(true);
+
+        attachedCamera = new PerspectiveCamera(45, 320, 256);
+        attachedCamera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        attachedCamera.lookAt(0f, 0f, 0f);
+        attachedCamera.near = 0.02f;
+        attachedCamera.far = 1000f;
+        attachedCamera.up.set(UP);
+        attachedCamera.fieldOfView = 45f;
+
+        attachedCameraFrameBuffer = new FrameBuffer(Format.RGBA8888, 320, 256, true);
+        attachedCameraTexture = attachedCameraFrameBuffer.getColorBufferTexture();
     }
 
     @Override
@@ -112,6 +147,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         batch.dispose();
         spriteBatch.dispose();
         fontBig.dispose();
+        attachedCameraFrameBuffer.dispose();
         if (gccLogo == null) { gccLogo.dispose(); }
         if (challenge != null) { challenge.dispose(); }
         if (background != null) { background.dispose(); }
@@ -198,6 +234,68 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
                 serverCommunicationAdapter.setPlayerTwoInput(playerTwo.roverInput);
             }
         }
+    }
+
+    protected CameraAttachment processCameraAttachemnt() {
+
+        cameraAttachment = serverCommunicationAdapter.getCameraAttachment();
+        if (cameraAttachment != null) {
+            Rover rover = serverCommunicationAdapter.getEngine().getGame().getCurrentGameState().get(cameraAttachment.getParentId());
+            if (rover != null) {
+                renderAttachedCamera(rover, cameraAttachment);
+            } else {
+                // TODO do something
+            }
+        }
+
+        return cameraAttachment;
+    }
+
+    private void renderAttachedCamera(Rover rover, CameraAttachment cameraAttachment) {
+        Vector3 cameraPosition = cameraAttachment.getPosition();
+        Vector3 roverPosition = rover.getPosition();
+        calculatedCameraPosition.set(cameraPosition);
+
+        calculatedCameraOrientation.set(rover.getOrientation());
+        calculatedCameraOrientation.mul(cameraAttachment.getOrientation());
+
+        rover.getOrientation().transform(calculatedCameraPosition);
+        calculatedCameraPosition.add(roverPosition);
+
+        attachedCameraDirection.set(Vector3.X);
+        calculatedCameraOrientation.transform(attachedCameraDirection);
+
+        attachedCamera.position.x = calculatedCameraPosition.x * SCALE;
+        attachedCamera.position.y = cameraPosition.z * SCALE;
+        attachedCamera.position.z = -calculatedCameraPosition.y * SCALE;
+        attachedCamera.direction.x = attachedCameraDirection.x;
+        attachedCamera.direction.y = attachedCameraDirection.z;
+        attachedCamera.direction.z = -attachedCameraDirection.y;
+        attachedCamera.update();
+
+        attachedCameraFrameBuffer.begin();
+        Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+
+        if (renderBackground) {
+            background.render(attachedCamera, batch, environment);
+        }
+
+        batch.begin(attachedCamera);
+
+        challenge.render(batch, environment, attachedCameraFrameBuffer, serverCommunicationAdapter.getVisibleObjects());
+
+        batch.end();
+
+        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
+            snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
+        }
+        attachedCameraFrameBuffer.end();
+    }
+
+    protected void showAttachedCamera() {
+        spriteBatch.draw(attachedCameraTexture, 0, 0, 320, 256, 0, 0, 320, 256, false, true);
     }
 
     protected void drawFPS() {
