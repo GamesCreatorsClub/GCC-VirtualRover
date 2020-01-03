@@ -28,11 +28,11 @@ class BarrelBody(pymunk.Body):
 
 class World(AbstractWorld):
     def __init__(self, space, robot):
-        super(World, self).__init__(EcoDisasterChallenge(), space, robot, WIDTH, HEIGHT)
+        super(World, self).__init__("EcoDisaster", space, robot, WIDTH, HEIGHT)
         self._green_barrel = True
 
-    def update(self, screen_width, screen_height):
-        super(World, self).update(screen_width, screen_height)
+    def update(self, world_screen_rect):
+        super(World, self).update(world_screen_rect)
 
     def mouse_pressed(self, x, y):
         self._green_barrel = not self._green_barrel

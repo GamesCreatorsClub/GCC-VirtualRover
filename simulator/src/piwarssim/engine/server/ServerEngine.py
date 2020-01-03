@@ -1,7 +1,6 @@
 import math
 import time
 
-from piwarssim.engine.Engine import Engine
 from piwarssim.engine.input import PlayerInputs
 from piwarssim.engine.message.MessageCode import MessageCode
 from piwarssim.engine.message.ClientInternalMessage import ClientInternalMessage, ClientInternalState
@@ -12,9 +11,9 @@ from piwarssim.engine.message.ServerInternalMessage import ServerInternalState
 from piwarssim.engine.message.ClientScreenshotMessage import ClientScreenshotMessage
 
 
-class ServerEngine(Engine):
+class ServerEngine:
     def __init__(self, challenge):
-        super(ServerEngine, self).__init__(challenge)
+        self.challenge = challenge
         self._message_factory = MessageFactory()
         self._serializer_factory = None
         self._sender = None
@@ -22,6 +21,12 @@ class ServerEngine(Engine):
         self._send_full_update = True
         self._client_ready = False
         self._screenshot_callback = None
+
+    def get_message_factory(self):
+        return self._message_factory
+
+    def process(self, timestamp):
+        self.challenge.process(timestamp)
 
     def set_screenshot_callback(self, screenshot_callback):
         self._screenshot_callback = screenshot_callback

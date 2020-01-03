@@ -12,7 +12,7 @@ class AbstractWorld:
         robot.body.position = self._width / 2, self._height / 2
         self.create_walls(self._width, self._height)
 
-    def get_challenge(self):
+    def get_challenge_name(self):
         return self._challenge
 
     def get_width(self):
@@ -33,13 +33,17 @@ class AbstractWorld:
             wall.friction = 0.9
         self.space.add(walls)
 
-    def update(self, screen_width, screen_height):
+    def update(self, world_screen_rect):
         if pygame.mouse.get_pressed()[0] and not self._mouse_pressed:
             self._mouse_pressed = True
 
             x, y = pygame.mouse.get_pos()
 
-            self.mouse_pressed(x * self._width / screen_width, y * self._height / screen_height)
+            off_x = world_screen_rect.x
+            off_y = world_screen_rect.y
+            width = world_screen_rect.width
+            height = world_screen_rect.height
+            self.mouse_pressed(x * self._width / width - off_x, y * self._height / height - off_y)
 
         elif not pygame.mouse.get_pressed()[0] and self._mouse_pressed:
             self._mouse_pressed = False

@@ -90,6 +90,10 @@ class Visualisation():
         self._thread = threading.Thread(target=self.run, daemon=True)
         self._thread.start()
 
+    def stop(self):
+        if self._process is not None:
+            self._process.kill()
+
     def run(self):
         command = [self.get_java_executable()]
 

@@ -12,7 +12,7 @@ HEIGHT = 2000
 
 class World(AbstractWorld):
     def __init__(self, space, robot):
-        super(World, self).__init__(PiNoonChallenge(), space, robot, WIDTH, HEIGHT)
+        super(World, self).__init__("PiNoon", space, robot, WIDTH, HEIGHT)
         self._green_barrel = True
 
     def mouse_pressed(self, x, y):
