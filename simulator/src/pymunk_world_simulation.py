@@ -30,6 +30,8 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
     def process_arguments(self, args):
         self.simulation_runner.set_delta_tick(0.02)
 
+        pymunk.pygame_util.positive_y_is_up = False
+
         behaviour_module = import_module("behaviours." + args.behaviour_module)
         world_module = import_module("worlds." + args.world_module)
 
@@ -46,7 +48,9 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
     def get_challenge_name(self):
         return self.world.get_challenge_name()
 
-    def update(self):
+    def update(self, timestamp):
+        super(PymunkWorldSimulationAdapter, self).update(timestamp)
+
         try:
             next(self.running_behaviour)
         except StopIteration:
@@ -79,10 +83,11 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
 
                 local_object.set_position_2(barrel_body.position.x - world_width // 2, world_height // 2 - barrel_body.position.y)
 
-        self.server_engine.process(self.simulation_runner.get_timestamp())
+        self.server_engine.process(timestamp)
         self.server_engine.send_update()
 
     def draw(self, screen, screen_world_rect):
+        super(PymunkWorldSimulationAdapter, self).draw(screen, screen_world_rect)
         self.world.update(screen_world_rect)
 
         self._surface.fill((1.0, 0, 0))

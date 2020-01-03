@@ -16,11 +16,48 @@ class BaseSimulationAdapter:
     def set_sim_rover_id(self, sim_rover_id):
         self.sim_rover_id = sim_rover_id
 
+    def get_sim_rover_id(self):
+        """
+        Returns id of rover in simulation.
+        :return: id of simulation object representing rover.
+        """
+        return self.sim_rover_id
+
     def define_arguments(self, args_parser):
+        """
+        This is invoked before any other method on adapter allowing adapter to set up command line parameter definitions
+        it will use.
+        :param args_parser: argument parser (argparse.ArgumentParser)
+        """
         pass
 
     def process_arguments(self, args):
+        """
+        Invoked after arguments were parsed and available for the adapter.
+        :param args: arguments parsed by parser passed in 'define_arguments' method
+        """
         pass
 
-    def update(self):
+    def update(self, timestamp):
+        """
+        Invoked for every tick of the loop with current timestamp.
+
+        :param timestamp: simulation timestamp
+        """
         pass
+
+    def draw(self, screen, screen_world_rect):
+        """
+        This method is invoked regularly to draw simulation world on python side (if any)
+        :param screen: surface to draw the world representation
+        :param screen_world_rect: rectangle representing where it should be drawn on
+        """
+        pass
+
+    def get_challenge_name(self):
+        """
+        Optional method to implement. If '--challenge' command line argument is not supplied
+        then this method might be called to obtain name of challenge that will be simulated.
+        :return: name of the challenge (from piwarsim.challenges.Challenges enum)
+        """
+        return None

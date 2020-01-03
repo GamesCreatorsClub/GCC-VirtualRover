@@ -4,8 +4,6 @@ import os
 import time
 import platform
 import pygame
-import pymunk
-import pymunk.pygame_util
 import sys
 
 from enum import Enum
@@ -37,6 +35,18 @@ class SnapshotHandler:
         self._received_callback = None
         self._delay = 0.25  # 4 times a second
         self._receive_timestamp = 0
+
+    def set_snapshot_delay(self, snapshot_delay):
+        """
+        Amount of time (in simulation) before snapshot is delivered after requested.
+        Zero means before next 'tick'
+        :param snapshot_delay: amount in seconds
+        :return:
+        """
+        self._delay = snapshot_delay
+
+    def get_snapshot_delay(self):
+        self._delay
 
     def snapshot_requested(self):
         return self._state != SnapshotState.Idle
@@ -97,16 +107,38 @@ class SimulationRunner:
         self._timestamp = 0
 
     def set_delta_tick(self, delta_tick):
+        """
+        Sets amount of time to pass between two simulation loops in seconds.
+        :param delta_tick: amount of time between two loop executions in seconds
+        :return:
+        """
         self._delta_tick = delta_tick
 
     def get_delta_tick(self):
         return self._delta_tick
 
     def set_timestamp(self, timestamp):
+        """
+        Sets simulation time. It starts with zero.
+        :param timestamp: timestamp in seconds.
+        :return:
+        """
         self._timestamp = timestamp
 
     def get_timestamp(self):
         return self._timestamp
+
+    def set_snapshot_delay(self, snapshot_delay):
+        """
+        Amount of time (in simulation) before snapshot is delivered after requested.
+        Zero means before next 'tick'
+        :param snapshot_delay: amount in seconds
+        :return:
+        """
+        self._snapshot_handler.set_snapshot_delay(snapshot_delay)
+
+    def get_snapshot_delay(self):
+        return self._snapshot_handler.get_snapshot_delay()
 
     def update(self):
         # player_inputs = server_engine.get_player_inputs()
@@ -120,7 +152,7 @@ class SimulationRunner:
                 and self._server_engine.is_client_ready() \
                 and not self._snapshot_handler.wait_for_snapshot(self._timestamp) \
                 and (not self._paused or self._step):
-            self.simulation_adapter.update()
+            self.simulation_adapter.update(self._timestamp)
             self._timestamp += self._delta_tick
 
     def draw(self):
@@ -139,7 +171,7 @@ class SimulationRunner:
     def leave(self):
         if self._visualiser is not None:
             self._visualiser.stop()
-        sys.exit(-1)
+        sys.exit(0)
 
     def main(self):
         self.simulation_adapter.set_simulation_runner(self)
@@ -159,13 +191,17 @@ class SimulationRunner:
 
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (800, 60)
         pygame.init()
-        pymunk.pygame_util.positive_y_is_up = False
 
         self.simulation_adapter.process_arguments(args)
 
         self._paused = args.start_paused
 
         challenge_name = args.challenge if args.challenge is not None else self.simulation_adapter.get_challenge_name()
+        if challenge_name is None:
+            print("You must supply '--challenge' command line argument with name of challenge")
+            print("    (from piwarsim.challenges.Challenges enum) or implement get_challenge_name")
+            print("    from BaseSimulationAdapter class.")
+            sys.exit(-1)
         challenge = Challenges.from_name(challenge_name).new_object()
         self._server_engine = ServerEngine(challenge)
         self._sim_rover_id = self._server_engine.challenge.spawn_rover(RoverType.GCC).get_id()
