@@ -1,0 +1,18 @@
+apply plugin: "java"
+apply plugin: "maven"
+
+sourceCompatibility = 1.7
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+task createPom  {
+    pom {
+        project {
+            groupId 'org.ah.piwars.virtualrover'
+            artifactId 'core'
+            version '1.0.0-SNAPSHOT'
+
+        }
+    }.writeTo("pom.xml")
+}
