@@ -11,6 +11,8 @@ public class Challenges {
             return new PiNoonChallenge(game, name);
         } else if ("EcoDisaster".equals(name)) {
             return new EcoDisasterChallenge(game, name);
+        } else if ("CanyonsOfMars".equals(name)) {
+            return new CanyonsOfMarsChallenge(game, name);
         }
 
         throw new IllegalArgumentException(name + " not known");

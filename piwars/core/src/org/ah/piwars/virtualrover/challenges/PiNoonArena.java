@@ -51,6 +51,7 @@ public class PiNoonArena extends AbstractChallenge {
     private ModelInstance floorModelInstance;
 
     private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
+    private IntMap<VisibleObject> allVisibleObjects = new IntMap<VisibleObject>();
 
     public boolean showPlan = false;
 
@@ -149,11 +150,11 @@ public class PiNoonArena extends AbstractChallenge {
             frameBuffer.end();
         }
 
-        IntMap<VisibleObject> newMap = new IntMap<VisibleObject>();
-        newMap.putAll(visibleObjects);
-        newMap.putAll(localVisibleObjects);
+        allVisibleObjects.clear();
+        allVisibleObjects.putAll(visibleObjects);
+        allVisibleObjects.putAll(localVisibleObjects);
 
-        super.render(batch, environment, frameBuffer, newMap);
+        super.render(batch, environment, frameBuffer, allVisibleObjects);
     }
 
     @Override

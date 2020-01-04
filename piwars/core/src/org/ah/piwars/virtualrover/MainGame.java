@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import org.ah.piwars.virtualrover.screens.CanyonsOfMarsScreen;
 import org.ah.piwars.virtualrover.screens.ChallengeScreen;
 import org.ah.piwars.virtualrover.screens.ConnectingScreen;
 import org.ah.piwars.virtualrover.screens.EcoDisasterScreen;
@@ -37,6 +38,7 @@ public class MainGame extends Game {
     private ChallengeScreen challengeScreen;
     private PiNoonScreen piNoonScreen;
     private EcoDisasterScreen ecoDisasterScreen;
+    private CanyonsOfMarsScreen canyonsOfMarsScreen;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -82,6 +84,7 @@ public class MainGame extends Game {
         greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         piNoonScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         ecoDisasterScreen = new EcoDisasterScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        canyonsOfMarsScreen = new CanyonsOfMarsScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
@@ -116,6 +119,8 @@ public class MainGame extends Game {
             challengeScreen = piNoonScreen;
         } else if ("EcoDisaster".equals(mapId)) {
             challengeScreen = ecoDisasterScreen;
+        } else if ("CanyonsOfMars".equals(mapId)) {
+            challengeScreen = canyonsOfMarsScreen;
         }
         challengeScreen.reset();
         setScreen(challengeScreen);
