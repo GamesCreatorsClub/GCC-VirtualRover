@@ -1,7 +1,6 @@
 package org.ah.piwars.virtualrover.challenges;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
@@ -19,10 +19,14 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
-import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CHICANE_LENGTH;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CHICANES_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CHICANE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.COURSE_LENGTH;
-import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CUT_MODIFIER;;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CUT_MODIFIER;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.FLOOR_POLYGON;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALLS_POLYGONS;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALL_HEIGHT;
+import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class StraightLineSpeedTestArena extends AbstractChallenge {
 
@@ -31,22 +35,19 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
     private Material floorMaterial;
 
     private Material wallMaterial;
-    private Model horizontalWallModel;
-    private ModelInstance topWall;
-    private ModelInstance bottomWall;
+    private Array<Model> wallModels = new Array<>();
+    private Array<ModelInstance> wallInstances = new Array<>();
 
     private Material lineMaterial;
     private Model lineModel;
     private ModelInstance line;
 
     private Material chicaneMaterial;
-    private Model chicaneModel;
-    private Array<ModelInstance> chicanes = new Array<ModelInstance>();
+    private Array<Model> chicaneModels = new Array<Model>();
+    private Array<ModelInstance> chicaneInstances = new Array<ModelInstance>();
 
     public StraightLineSpeedTestArena(ModelFactory modelFactory) {
         super(modelFactory);
-
-        int courseLength = COURSE_LENGTH;
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
         floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.2f, 0.2f, 1f)));
@@ -55,42 +56,30 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
         chicaneMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.8f, 0.0f, 0.0f, 1f)));
 
         ModelBuilder modelBuilder = new ModelBuilder();
-        floorModel = modelBuilder.createBox(COURSE_LENGTH, 10, 610, floorMaterial, attrs);
+        floorModel = extrudePolygonY(modelBuilder, FLOOR_POLYGON, 10, attrs, floorMaterial);
 
         floorModelInstance = new ModelInstance(floorModel);
         floorModelInstance.transform.setToTranslationAndScaling(0, -59f * SCALE, 0, SCALE, SCALE, SCALE);
 
-        horizontalWallModel = modelBuilder.createBox(COURSE_LENGTH, 64, 10, wallMaterial, attrs);
-        topWall = new ModelInstance(horizontalWallModel);
-        topWall.transform.setToTranslationAndScaling(0, (32 - 59) * SCALE, - 310 * SCALE, SCALE, SCALE, SCALE);
-        bottomWall = new ModelInstance(horizontalWallModel);
-        bottomWall.transform.setToTranslationAndScaling(0, (32 - 59) * SCALE, 310 * SCALE, SCALE, SCALE, SCALE);
+        for (Polygon wallPolygon : WALLS_POLYGONS) {
+            Model wallModel = extrudePolygonY(modelBuilder, wallPolygon, WALL_HEIGHT, attrs, wallMaterial);
+            ModelInstance wallInstance = new ModelInstance(wallModel);
+            wallInstance.transform.setToTranslationAndScaling(0, (WALL_HEIGHT / 2 - 59) * SCALE, 0, SCALE, SCALE, SCALE);
+            wallModels.add(wallModel);
+            wallInstances.add(wallInstance);
+        }
 
         lineModel = modelBuilder.createRect(-COURSE_LENGTH / 2, 0, -5, -COURSE_LENGTH / 2, 0, 5, COURSE_LENGTH / 2, 0, 5, COURSE_LENGTH / 2, 0, -5, 0f, 1f, 0f, lineMaterial, attrs);
         line = new ModelInstance(lineModel);
         line.transform.setToTranslationAndScaling(0, - 50 * SCALE, 0 * SCALE, SCALE, SCALE, SCALE);
-        chicaneModel = createChicaneModel(modelBuilder, CHICANE_LENGTH, attrs);
 
-        addChicane(-COURSE_LENGTH / 4, 305 - CHICANE_WIDTH / 2);
-        addChicane(-COURSE_LENGTH / 4, -305 + CHICANE_WIDTH / 2);
-        addChicane(COURSE_LENGTH / 4, 305 - CHICANE_WIDTH / 2);
-        addChicane(COURSE_LENGTH / 4, -305 + CHICANE_WIDTH / 2);
-    }
-
-    private Model createChicaneModel(ModelBuilder modelBuilder, int length, int attributes) {
-        modelBuilder.begin();
-        MeshPartBuilder meshPartBuilder = modelBuilder.part("box", GL20.GL_TRIANGLES, attributes, chicaneMaterial);
-        ChicaneBShapeuilder.build(meshPartBuilder, length);
-        return modelBuilder.end();
-    }
-
-    private void addChicane(float x, float y) {
-        ModelInstance chicane = new ModelInstance(chicaneModel);
-        chicane.transform.setToTranslationAndScaling(x * SCALE, (19 - 59) * SCALE, - y * SCALE, SCALE, SCALE, SCALE);
-        if (y < 0) {
-            chicane.transform.rotate(1f, 0f, 0f, 180);
+        for (Polygon chicanePolygon : CHICANES_POLYGONS) {
+            Model chicaneModel = extrudePolygonY(modelBuilder, chicanePolygon, CHICANE_WIDTH, attrs, chicaneMaterial);
+            ModelInstance chicaneInstance = new ModelInstance(chicaneModel);
+            chicaneInstance.transform.setToTranslationAndScaling(0, (CHICANE_WIDTH / 2 - 59) * SCALE, 0, SCALE, SCALE, SCALE);
+            chicaneModels.add(chicaneModel);
+            chicaneInstances.add(chicaneInstance);
         }
-        chicanes.add(chicane);
     }
 
     @Override
@@ -110,17 +99,22 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
     @Override
     public void dispose() {
         floorModel.dispose();
-        horizontalWallModel.dispose();
         lineModel.dispose();
-        // chicaneModel.dispose();
+        for (Model chicaneModel : chicaneModels) {
+            chicaneModel.dispose();
+        }
+        for (Model wallModel : wallModels) {
+            wallModel.dispose();
+        }
     }
 
     @Override
     protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
         batch.render(floorModelInstance, environment);
-        batch.render(topWall, environment);
-        batch.render(bottomWall, environment);
-        for (ModelInstance chicane : chicanes) {
+        for (ModelInstance wall : wallInstances) {
+            batch.render(wall, environment);
+        }
+        for (ModelInstance chicane : chicaneInstances) {
             batch.render(chicane, environment);
         }
         batch.render(line, environment);

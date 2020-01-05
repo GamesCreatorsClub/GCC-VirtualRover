@@ -17,6 +17,7 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
 import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
@@ -30,15 +31,23 @@ public class StraightLineSpeedTestChallenge extends AbstractChallenge {
     public static int CHICANE_LENGTH = 800;
     public static float CHICANE_WIDTH = 38;
     public static float CUT_MODIFIER = 1.5f;
+    public static float WALL_HEIGHT = 64;
 
-    private List<Polygon> piNoonPolygons = asList(
-                    polygonFromBox(-COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2, -305),
-                    polygonFromBox(-COURSE_LENGTH / 2, 305, COURSE_LENGTH / 2, 315),
-                    polygonForChicane(-COURSE_LENGTH / 4, -305),
-                    polygonForChicane(-COURSE_LENGTH / 4, 305),
-                    polygonForChicane(COURSE_LENGTH / 4, -305),
-                    polygonForChicane(COURSE_LENGTH / 4, 305)
-            );
+    public static final Polygon FLOOR_POLYGON = polygonFromBox(-COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2, 315);
+
+    public static final List<Polygon> CHICANES_POLYGONS = asList(
+            polygonForChicane(-COURSE_LENGTH / 4, -305),
+            polygonForChicane(-COURSE_LENGTH / 4, 305),
+            polygonForChicane(COURSE_LENGTH / 4, -305),
+            polygonForChicane(COURSE_LENGTH / 4, 305)
+    );
+
+    public static final List<Polygon> WALLS_POLYGONS = asList(
+            polygonFromBox(-COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2, -305),
+            polygonFromBox(-COURSE_LENGTH / 2, 305, COURSE_LENGTH / 2, 315)
+    );
+
+    private List<Polygon> piNoonPolygons;
 
     private int gameMessageId;
     private GameState gameStateGameMessageIsDefinedOn;
@@ -57,6 +66,10 @@ public class StraightLineSpeedTestChallenge extends AbstractChallenge {
         super(game, name);
         piwarsGame = (PiWarsGame)game;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
+
+        piNoonPolygons = new ArrayList<Polygon>();
+        piNoonPolygons.addAll(WALLS_POLYGONS);
+        piNoonPolygons.addAll(CHICANES_POLYGONS);
     }
 
     @Override
