@@ -36,7 +36,7 @@ public abstract class AbstractChallenge implements Challenge {
     public AbstractChallenge(ModelFactory modelFactory) {
         this.modelFactory = modelFactory;
 
-        shadowLight = new DirectionalShadowLight(1024, 1024, 6f, 6f, 0.01f, 100f);
+        shadowLight = new DirectionalShadowLight(1280, 1280, 8.5f, 8.5f, 0.01f, 100f);
         shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
         shadowEnvironment = new Environment();
         shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));

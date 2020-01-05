@@ -34,7 +34,6 @@ public class ModelFactory {
         UBJsonReader jsonreader = new UBJsonReader();
         g3Modelloader = new G3dModelLoader(jsonreader);
         objModelloader = new ObjLoader();
-
     }
 
     public Model loadModel(String filename) {

@@ -13,6 +13,7 @@ import org.ah.piwars.virtualrover.screens.EcoDisasterScreen;
 import org.ah.piwars.virtualrover.screens.GreetingScreen;
 import org.ah.piwars.virtualrover.screens.LoadingScreen;
 import org.ah.piwars.virtualrover.screens.PiNoonScreen;
+import org.ah.piwars.virtualrover.screens.StraightLineSpeedTestScreen;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ServerCommunication;
@@ -39,6 +40,7 @@ public class MainGame extends Game {
     private PiNoonScreen piNoonScreen;
     private EcoDisasterScreen ecoDisasterScreen;
     private CanyonsOfMarsScreen canyonsOfMarsScreen;
+    private StraightLineSpeedTestScreen straightLineSpeedTestScreen;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -50,6 +52,7 @@ public class MainGame extends Game {
         assetManager = new AssetManager();
 
         assetManager.load("GCC_full.png", Texture.class);
+        assetManager.load("3d/Alien.png", Texture.class);
         assetManager.load("font/basic.fnt", BitmapFont.class);
         assetManager.load("font/copper18.fnt", BitmapFont.class);
         // assetManager.load("font/droidsansmono-8.fnt", BitmapFont.class);
@@ -85,6 +88,7 @@ public class MainGame extends Game {
         piNoonScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         ecoDisasterScreen = new EcoDisasterScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         canyonsOfMarsScreen = new CanyonsOfMarsScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        straightLineSpeedTestScreen = new StraightLineSpeedTestScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
@@ -121,6 +125,8 @@ public class MainGame extends Game {
             challengeScreen = ecoDisasterScreen;
         } else if ("CanyonsOfMars".equals(mapId)) {
             challengeScreen = canyonsOfMarsScreen;
+        } else if ("StraightLineSpeedTest".equals(mapId)) {
+            challengeScreen = straightLineSpeedTestScreen;
         }
         challengeScreen.reset();
         setScreen(challengeScreen);

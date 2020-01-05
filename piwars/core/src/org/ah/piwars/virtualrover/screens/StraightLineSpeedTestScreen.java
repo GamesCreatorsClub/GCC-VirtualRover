@@ -15,7 +15,7 @@ import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.piwars.virtualrover.camera.CameraControllersManager;
 import org.ah.piwars.virtualrover.camera.CinematicCameraController;
-import org.ah.piwars.virtualrover.challenges.CanyonsOfMarsArena;
+import org.ah.piwars.virtualrover.challenges.StraightLineSpeedTestArena;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.RoverType;
@@ -24,13 +24,13 @@ import org.ah.piwars.virtualrover.view.Console;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
-public class CanyonsOfMarsScreen extends AbstractStandardScreen implements ChallengeScreen {
+public class StraightLineSpeedTestScreen extends AbstractStandardScreen implements ChallengeScreen {
 
     private PerspectiveCamera camera;
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
 
-    public CanyonsOfMarsScreen(MainGame game,
+    public StraightLineSpeedTestScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
@@ -41,14 +41,14 @@ public class CanyonsOfMarsScreen extends AbstractStandardScreen implements Chall
 
         setBackground(new PerlinNoiseBackground());
 
-        CanyonsOfMarsArena challenge = new CanyonsOfMarsArena(modelFactory, assetManager);
+        StraightLineSpeedTestArena challenge = new StraightLineSpeedTestArena(modelFactory);
         challenge.init();
 
         setChallenge(challenge);
 
         camera = new PerspectiveCamera(45, 800, 480);
-        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
-        camera.lookAt(0f, 0f, 0f);
+        camera.position.set(3900f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(3450f, 0f, 0f);
         camera.near = 0.02f;
         camera.far = 1000f;
 
@@ -67,8 +67,8 @@ public class CanyonsOfMarsScreen extends AbstractStandardScreen implements Chall
 
     @Override
     public void reset() {
-        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
-        camera.lookAt(0f, 0f, 0f);
+        camera.position.set(3900f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(3450f, 0f, 0f);
         camera.near = 0.02f;
         camera.far = 1000f;
 

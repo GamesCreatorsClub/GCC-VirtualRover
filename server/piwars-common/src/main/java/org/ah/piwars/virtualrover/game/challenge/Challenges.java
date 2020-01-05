@@ -13,6 +13,8 @@ public class Challenges {
             return new EcoDisasterChallenge(game, name);
         } else if ("CanyonsOfMars".equals(name)) {
             return new CanyonsOfMarsChallenge(game, name);
+        } else if ("StraightLineSpeedTest".equals(name)) {
+            return new StraightLineSpeedTestChallenge(game, name);
         }
 
         throw new IllegalArgumentException(name + " not known");

@@ -29,8 +29,8 @@ import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.Background;
 import org.ah.piwars.virtualrover.challenges.Challenge;
-import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
+import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.piwars.virtualrover.utils.SoundManager;
@@ -276,7 +276,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         attachedCameraFrameBuffer.begin();
         Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
         if (renderBackground) {
             background.render(attachedCamera, batch, environment);
