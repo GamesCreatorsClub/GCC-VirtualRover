@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
@@ -20,6 +21,10 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.FLOOR_POLYGON;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALLS_POLYGONS;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_HEIGHT;
+import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class CanyonsOfMarsArena extends AbstractChallenge {
 
@@ -29,10 +34,9 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
 
     private Material wallMaterial;
     private Material alienMaterial;
-    private Model verticalWallModel;
-    private Model horizontalWallModel;
+    private Array<Model> wallModels = new Array<Model>();
+    private Array<ModelInstance> wallInstances = new Array<>();
     private Model alienPosterModel;
-    private Array<ModelInstance> walls = new Array<>();
 
     public CanyonsOfMarsArena(ModelFactory modelFactory, AssetManager assetManager) {
         super(modelFactory);
@@ -47,80 +51,52 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
 
         ModelBuilder modelBuilder = new ModelBuilder();
         floorModel = modelBuilder.createBox(3400, 10, 1830, floorMaterial, attrs);
+        floorModel = extrudePolygonY(modelBuilder, FLOOR_POLYGON, 10, attrs, floorMaterial);
 
         floorModelInstance = new ModelInstance(floorModel);
         floorModelInstance.transform.setToTranslationAndScaling(0, -59f * SCALE, 0, SCALE, SCALE, SCALE);
 
-        verticalWallModel = modelBuilder.createBox(10, 200, 610, wallMaterial, attrs);
-        horizontalWallModel = modelBuilder.createBox(680, 200, 10, wallMaterial, attrs);
         alienPosterModel = modelBuilder.createRect(0, -60, -60, 0, -60, 60, 0, 60, 60, 0, 60, -60, 0, 0, 1, alienMaterial, attrs);
 
+        for (Polygon wallPolygon : WALLS_POLYGONS) {
+            Model wallModel = extrudePolygonY(modelBuilder, wallPolygon, WALL_HEIGHT, attrs, wallMaterial);
+            ModelInstance wallInstance = new ModelInstance(wallModel);
+            wallInstance.transform.setToTranslationAndScaling(0, (WALL_HEIGHT / 2 - 59) * SCALE, 0, SCALE, SCALE, SCALE);
+            wallModels.add(wallModel);
+            wallInstances.add(wallInstance);
+        }
 
-        addVerticalWall(1695, -610);
-        addVerticalWall(1695, 0);
-        addVerticalWall(1695, 610);
-        addHorizontalWall(1360, 910);
-        addHorizontalAlien(1360, 910, true);
-        addHorizontalWall(680, 910);
-        addHorizontalWall(0, 910);
-        addHorizontalWall(-680, 910);
-        addHorizontalAlien(-680, 910, true);
-        addHorizontalWall(-1360, 910);
-        addVerticalWall(-1695, 610);
-        addVerticalAlien(-1695, 610, true);
-        addVerticalWall(-1695, 0);
-        addVerticalWall(-1695, -610);
-        addHorizontalWall(-1360, -910);
-        addHorizontalAlien(-1360, -910, false);
-        addHorizontalWall(-680, -910);
-        addHorizontalWall(0, -910);
+        addHorizontalAlien(1360, 915, true);
+        addHorizontalAlien(-680, 915, true);
+        addVerticalAlien(-1700, 610, true);
+        addHorizontalAlien(-1360, -915, false);
 
-        addVerticalWall(1010, -610);
-        addVerticalAlien(1010, -610, false);
-        addVerticalWall(1010, 0);
-        addHorizontalWall(680, 305);
-        addVerticalWall(340, 0);
-        addHorizontalWall(0, -305);
-        addHorizontalAlien(0, -305, false);
-        addHorizontalWall(-680, -305);
-        addVerticalWall(-1010, 0);
-        addVerticalAlien(-1010, 0, true);
+        addVerticalAlien(1020, -610, false);
+        addHorizontalAlien(0, -315, false);
+        addVerticalAlien(-1020, 0, true);
 
-        addVerticalWall(-340, 610);
-        addVerticalAlien(-340, 610, true);
-    }
-
-    private void addVerticalWall(float x, float y) {
-        ModelInstance wall = new ModelInstance(verticalWallModel);
-        wall.transform.setToTranslationAndScaling(x * SCALE, (100 - 59) * SCALE, - y * SCALE, SCALE, SCALE, SCALE);
-        walls.add(wall);
-    }
-
-    private void addHorizontalWall(float x, float y) {
-        ModelInstance wall = new ModelInstance(horizontalWallModel);
-        wall.transform.setToTranslationAndScaling(x * SCALE, (100 - 59) * SCALE, - y * SCALE, SCALE, SCALE, SCALE);
-        walls.add(wall);
+        addVerticalAlien(-330, 610, true);
     }
 
     private void addVerticalAlien(float x, float y, boolean left) {
         if (left) {
-            x += 10;
+            x += 11;
         } else {
-            x -= 10;
+            x -= 11;
         }
         ModelInstance wall = new ModelInstance(alienPosterModel);
         wall.transform.setToTranslationAndScaling(x * SCALE, (100 - 59) * SCALE, - y * SCALE, SCALE, SCALE, SCALE);
         if (left) {
             wall.transform.rotate(0f, 1f, 0f, 180);
         }
-        walls.add(wall);
+        wallInstances.add(wall);
     }
 
     private void addHorizontalAlien(float x, float y, boolean down) {
         if (down) {
-            y -= 10;
+            y -= 11;
         } else {
-            y += 10;
+            y += 11;
         }
         ModelInstance wall = new ModelInstance(alienPosterModel);
         wall.transform.setToTranslationAndScaling(x * SCALE, (100 - 59) * SCALE, - y * SCALE, SCALE, SCALE, SCALE);
@@ -129,7 +105,7 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
         } else {
             wall.transform.rotate(0f, 1f, 0f, -90f);
         }
-        walls.add(wall);
+        wallInstances.add(wall);
     }
 
     @Override
@@ -150,14 +126,15 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
     public void dispose() {
         alienPosterModel.dispose();
         floorModel.dispose();
-        verticalWallModel.dispose();
-        horizontalWallModel.dispose();
+        for (Model wallModel : wallModels) {
+            wallModel.dispose();
+        }
     }
 
     @Override
     protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
         batch.render(floorModelInstance, environment);
-        for (ModelInstance wall : walls) {
+        for (ModelInstance wall : wallInstances) {
             batch.render(wall, environment);
         }
     }

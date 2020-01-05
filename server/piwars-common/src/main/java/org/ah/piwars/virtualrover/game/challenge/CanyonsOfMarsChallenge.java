@@ -26,20 +26,29 @@ import static java.util.Arrays.asList;
 
 public class CanyonsOfMarsChallenge extends AbstractChallenge {
 
-    private List<Polygon> piNoonPolygons = asList(
-            polygonFromBox(1690, -915, 1700, 915),
-            polygonFromBox(-1700, 895, 1700, 915),
-            polygonFromBox(-1700, -915, -1690, 915),
-            polygonFromBox(-1700, -915, 340, -895),
+    public static float CHALLENGE_WIDTH = 3400;
+    public static float CHALLENGE_HEIGHT = 1830;
 
-            polygonFromBox(1010, -915, 1020, 305),
-            polygonFromBox(340, 305, 1020, 315),
-            polygonFromBox(330, -315, 340, 315),
-            polygonFromBox(-1020, -315, 340, -305),
-            polygonFromBox(-1020, -315, -1010, 315),
+    public static float WALL_HEIGHT = 200;
 
-            polygonFromBox(-330, 304, -340, 915)
+    public static final Polygon FLOOR_POLYGON = polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_HEIGHT / 2, CHALLENGE_WIDTH / 2, CHALLENGE_HEIGHT / 2);
+
+    public static final List<Polygon> WALLS_POLYGONS = asList(
+                polygonFromBox(1690, -915, 1700, 915),
+                polygonFromBox(-1700, 905, 1700, 915),
+                polygonFromBox(-1700, -915, -1690, 915),
+                polygonFromBox(-1700, -915, 340, -905),
+
+                polygonFromBox(1010, -915, 1020, 315),
+                polygonFromBox(340, 305, 1020, 315),
+                polygonFromBox(330, -315, 340, 315),
+                polygonFromBox(-1020, -315, 340, -305),
+                polygonFromBox(-1020, -315, -1010, 315),
+
+                polygonFromBox(-330, 305, -340, 915)
             );
+
+    private List<Polygon> piNoonPolygons = WALLS_POLYGONS;
 
     private int gameMessageId;
     private GameState gameStateGameMessageIsDefinedOn;
