@@ -41,11 +41,11 @@ public class BlastOffChallenge extends AbstractChallenge {
     );
 
     public static final List<Polygon> LINE_POLYGONS = asList(
-            polygonForWall1(0, 10),
-            polygonForWall2(0, 10),
-            polygonForWall3(0, 10),
-            polygonForWall4(0, 10),
-            polygonForWall5(0, 10)
+            polygonForWall1(0, 19),
+            polygonForWall2(0, 19),
+            polygonForWall3(0, 19),
+            polygonForWall4(0, 19),
+            polygonForWall5(0, 19)
     );
 
     public static final List<Polygon> WALLS_POLYGONS = asList(

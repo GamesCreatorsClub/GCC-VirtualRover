@@ -69,7 +69,7 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
             wallInstances.add(wallInstance);
         }
 
-        lineModel = modelBuilder.createRect(-COURSE_LENGTH / 2, 0, -5, -COURSE_LENGTH / 2, 0, 5, COURSE_LENGTH / 2, 0, 5, COURSE_LENGTH / 2, 0, -5, 0f, 1f, 0f, lineMaterial, attrs);
+        lineModel = modelBuilder.createRect(-COURSE_LENGTH / 2, 0, -9.5f, -COURSE_LENGTH / 2, 0, 9.5f, COURSE_LENGTH / 2, 0, 5, COURSE_LENGTH / 2, 0, -5, 0f, 1f, 0f, lineMaterial, attrs);
         line = new ModelInstance(lineModel);
         line.transform.setToTranslationAndScaling(0, - 50 * SCALE, 0 * SCALE, SCALE, SCALE, SCALE);
 
