@@ -15,6 +15,8 @@ public class Challenges {
             return new CanyonsOfMarsChallenge(game, name);
         } else if ("StraightLineSpeedTest".equals(name)) {
             return new StraightLineSpeedTestChallenge(game, name);
+        } else if ("BlastOff".equals(name)) {
+            return new BlastOffChallenge(game, name);
         }
 
         throw new IllegalArgumentException(name + " not known");

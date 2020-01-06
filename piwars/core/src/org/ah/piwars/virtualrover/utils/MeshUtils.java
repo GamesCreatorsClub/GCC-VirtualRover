@@ -47,11 +47,45 @@ public class MeshUtils extends BaseShapeBuilder {
         return mesh;
     }
 
+    public static Model flatPolygon(ModelBuilder modelBuilder, Polygon polygon, float y, int attributes, Material material) {
+        modelBuilder.begin();
+        MeshPartBuilder meshPartBuilder = modelBuilder.part("box", GL20.GL_TRIANGLES, attributes, material);
+        flatPolygon(meshPartBuilder, polygon, y);
+        return modelBuilder.end();
+    }
+
     public static Model extrudePolygonY(ModelBuilder modelBuilder, Polygon polygon, float depth, int attributes, Material material) {
         modelBuilder.begin();
         MeshPartBuilder meshPartBuilder = modelBuilder.part("box", GL20.GL_TRIANGLES, attributes, material);
         extrudePolygonY(meshPartBuilder, polygon, depth);
         return modelBuilder.end();
+    }
+
+    public static void flatPolygon(MeshPartBuilder builder, Polygon polygon, float y) {
+        float[] polygon_vertices = polygon.getVertices();
+        int polygon_points = polygon_vertices.length / 2;
+        builder.ensureVertices(polygon_points);
+        builder.ensureRectangleIndices(polygon_points - 2);
+
+        Rectangle boundingRectangle = polygon.getBoundingRectangle();
+        float minx = boundingRectangle.x;
+        float miny = boundingRectangle.y;
+        float width = boundingRectangle.width;
+        float height = boundingRectangle.height;
+        float y1 = 0f;
+        float x1 = polygon_vertices[0];
+        float z1 = - polygon_vertices[1];
+        for (int i = 1; i < polygon_points - 1; i++) {
+            float x2 = polygon_vertices[i * 2];
+            float z2 = - polygon_vertices[i * 2 + 1];
+            float x3 = polygon_vertices[i * 2 + 2];
+            float z3 = - polygon_vertices[i * 2 + 3];
+
+            vertTmp1.setPos(x1, y1, z1).setNor(0f, 1f, 0f).setUV((x1 - minx) / width, (z1 - miny) / height);
+            vertTmp2.setPos(x2, y1, z2).setNor(0f, 1f, 0f).setUV((x2 - minx) / width, (z2 - miny) / height);
+            vertTmp3.setPos(x3, y1, z3).setNor(0f, 1f, 0f).setUV((x3 - minx) / width, (z3 - miny) / height);
+            builder.triangle(vertTmp2, vertTmp1, vertTmp3);
+        }
     }
 
     public static void extrudePolygonY(MeshPartBuilder builder, Polygon polygon, float depth) {
@@ -105,7 +139,6 @@ public class MeshUtils extends BaseShapeBuilder {
                     tmpV1.x, 0f, tmpV1.z);
         }
     }
-
 
     public static Polygon polygonFromModelInstance(ModelInstance modelInstance) {
         BoundingBox boundingBox = new BoundingBox();

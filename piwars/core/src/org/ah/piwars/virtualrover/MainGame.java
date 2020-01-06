@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
+import org.ah.piwars.virtualrover.screens.BlastOffScreen;
 import org.ah.piwars.virtualrover.screens.CanyonsOfMarsScreen;
 import org.ah.piwars.virtualrover.screens.ChallengeScreen;
 import org.ah.piwars.virtualrover.screens.ConnectingScreen;
@@ -41,6 +42,7 @@ public class MainGame extends Game {
     private EcoDisasterScreen ecoDisasterScreen;
     private CanyonsOfMarsScreen canyonsOfMarsScreen;
     private StraightLineSpeedTestScreen straightLineSpeedTestScreen;
+    private BlastOffScreen blastOffScreen;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -89,6 +91,7 @@ public class MainGame extends Game {
         ecoDisasterScreen = new EcoDisasterScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         canyonsOfMarsScreen = new CanyonsOfMarsScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         straightLineSpeedTestScreen = new StraightLineSpeedTestScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        blastOffScreen = new BlastOffScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
@@ -127,6 +130,8 @@ public class MainGame extends Game {
             challengeScreen = canyonsOfMarsScreen;
         } else if ("StraightLineSpeedTest".equals(mapId)) {
             challengeScreen = straightLineSpeedTestScreen;
+        } else if ("BlastOff".equals(mapId)) {
+            challengeScreen = blastOffScreen;
         }
         challengeScreen.reset();
         setScreen(challengeScreen);
