@@ -1,3 +1,8 @@
+
+import time
+import random
+from datetime import time
+
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
@@ -9,6 +14,7 @@ class MineSweeperChallenge(AbstractChallenge):
         self.camera_id = 0
         self.rover_id = 0
         self.mine_sweeper_status_id = 0
+        self._next_event = 0
 
     def after_sim_object_added(self, sim_object):
         super(MineSweeperChallenge, self).after_sim_object_added(sim_object)
@@ -26,3 +32,23 @@ class MineSweeperChallenge(AbstractChallenge):
             mine_sweeper_state_object.set_id(self.new_id())
             self.add_new_sim_object_immediately(mine_sweeper_state_object)
             mine_sweeper_state_object.set_state_bits(0)
+
+    def process(self, timestamp):
+        if timestamp > self._next_event:
+            mine_sweeper_status = self.get_mine_sweeper_status()
+            if mine_sweeper_status is not None:
+                next_light = random.randint(0, 16)
+                bit = 1 << next_light
+                mine_sweeper_status.set_state_bits(bit)
+
+                self._next_event = timestamp + 2
+
+        super(MineSweeperChallenge, self).process(timestamp)
+
+    def get_mine_sweeper_status(self):
+        sim_state = self.get_current_sim_state()
+        for game_object_id in sim_state:
+            sim_object = sim_state[game_object_id]
+            if sim_object.get_type() == PiWarsSimObjectTypes.MineSweeperStateObject:
+                return sim_object
+        return None

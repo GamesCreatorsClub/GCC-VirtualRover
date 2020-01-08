@@ -110,7 +110,7 @@ class AbstractChallenge:
         pass
 
     def spawn_rover(self, rover_type):
-        rover = self._sim_object_factory.obtain(PiWarsSimObjectTypes.GCCRover)
+        rover = self._sim_object_factory.obtain(PiWarsSimObjectTypes.GCCRoverM16)
         # rover.set_id(self.new_id())
         rover.set_id(1)
         self.add_new_sim_object(rover)

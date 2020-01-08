@@ -3,17 +3,17 @@ import pygame
 
 
 class AbstractWorld:
-    def __init__(self, challenge, space, robot, width, height):
+    def __init__(self, challenge_name, space, robot, width, height):
         self._width = width
         self._height = height
         self._mouse_pressed = False
-        self.challenge = challenge
+        self._challenge_name = challenge_name
         self.space = space
         robot.body.position = self._width / 2, self._height / 2
         self.create_walls(self._width, self._height)
 
     def get_challenge_name(self):
-        return self.challenge
+        return self._challenge_name
 
     def get_width(self):
         return self._width

@@ -55,6 +55,7 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
             next(self.running_behaviour)
         except StopIteration:
             pass
+
         self.robot.update(self.space)
         self.space.step(0.4)
 

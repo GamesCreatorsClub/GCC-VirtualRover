@@ -5,7 +5,8 @@ from piwarssim.engine.simulation.MineSweeperStateObject import MineSweeperStateO
 from piwarssim.engine.simulation.objects.BarrelSimObject import BarrelSimObject
 from piwarssim.engine.simulation.attachments.PiNoonAttachemntObject import PiNoonAttachmentObject
 from piwarssim.engine.simulation.attachments.CameraAttachemntObject import CameraAttachmentObject
-from piwarssim.engine.simulation.rovers.GCCRover import GCCRover
+from piwarssim.engine.simulation.rovers.GCCRoverM16 import GCCRoverM16
+from piwarssim.engine.simulation.rovers.GCCRoverM18 import GCCRoverM18
 from piwarssim.engine.simulation.rovers.CBISRover import CBISRover
 
 
@@ -20,7 +21,9 @@ class PiWarsSimObjectTypes(Enum):
 
     CameraAttachment = (lambda factory, sim_object_id, sim_object_type: CameraAttachmentObject(factory, sim_object_id, sim_object_type),)
 
-    GCCRover = (lambda factory, sim_object_id, sim_object_type: GCCRover(factory, sim_object_id, sim_object_type),)
+    GCCRoverM16 = (lambda factory, sim_object_id, sim_object_type: GCCRoverM16(factory, sim_object_id, sim_object_type),)
+
+    GCCRoverM18 = (lambda factory, sim_object_id, sim_object_type: GCCRoverM18(factory, sim_object_id, sim_object_type),)
 
     CBISRover = (lambda factory, sim_object_id, sim_object_type: CBISRover(factory, sim_object_id, sim_object_type),)
 
