@@ -14,14 +14,14 @@ import org.ah.piwars.virtualrover.game.rovers.Rover.RoverColour;
 import org.ah.piwars.virtualrover.game.rovers.RoverType;
 import org.ah.piwars.virtualrover.input.PiWarsPlayerInput;
 import org.ah.piwars.virtualrover.rovers.CBiSRoverModel;
-import org.ah.piwars.virtualrover.rovers.GCCRoverModel;
+import org.ah.piwars.virtualrover.rovers.GCCRoverModelM16;
 import org.ah.piwars.virtualrover.rovers.RoverModel;
 
 public class PlayerModelLink implements VisibleObject {
     private int id;
     private String name;
     private Color colour;
-    private RoverType playerSelection = RoverType.GCC;
+    private RoverType playerSelection = RoverType.GCCM16;
     private RoverModel roverModel;
     private PiWarsGame game;
     private RoverColour roverColour = RoverColour.WHITE;
@@ -39,7 +39,7 @@ public class PlayerModelLink implements VisibleObject {
         if (playerSelection == RoverType.CBIS) {
             roverModel = new CBiSRoverModel(name, modelFactory, colour);
         } else {
-            roverModel = new GCCRoverModel(name, modelFactory, colour);
+            roverModel = new GCCRoverModelM16(name, modelFactory, colour);
         }
         roverModel.setId(id);
     }

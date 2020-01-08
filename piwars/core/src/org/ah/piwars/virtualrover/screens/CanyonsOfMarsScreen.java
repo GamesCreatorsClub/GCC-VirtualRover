@@ -164,7 +164,7 @@ public class CanyonsOfMarsScreen extends AbstractStandardScreen implements Chall
             PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
 
             // TODO - select rover type properly
-            /* Rover player1 = */game.spawnRover(1, "Blue", RoverType.GCC);
+            /* Rover player1 = */game.spawnRover(1, "Blue", RoverType.GCCM16);
             serverCommunicationAdapter.setLocalPlayerIds(1);
         }
 

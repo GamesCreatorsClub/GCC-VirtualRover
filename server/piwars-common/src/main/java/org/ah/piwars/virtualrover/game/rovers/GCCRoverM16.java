@@ -9,10 +9,10 @@ import org.ah.themvsus.engine.common.game.GameObjectFactory;
 
 import static java.util.Arrays.asList;
 
-public class GCCRover extends Rover {
+public class GCCRoverM16 extends Rover {
 
-    public GCCRover(GameObjectFactory factory, int id) {
-        super(factory, id, RoverType.GCC);
+    public GCCRoverM16(GameObjectFactory factory, int id) {
+        super(factory, id, RoverType.GCCM16);
 
         this.polygons = asList(CollisionUtils.polygonFromBox(-80f,  -55f, 80f,  55f));
         this.attachmentPosition = new Vector2(80f, 0);

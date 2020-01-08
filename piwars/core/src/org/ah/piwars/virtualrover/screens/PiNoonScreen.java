@@ -29,7 +29,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
 
-    private RoverType player1RoverType = RoverType.GCC;
+    private RoverType player1RoverType = RoverType.GCCM16;
     private RoverType player2RoverType = RoverType.CBIS;
 
     public PiNoonScreen(MainGame game,

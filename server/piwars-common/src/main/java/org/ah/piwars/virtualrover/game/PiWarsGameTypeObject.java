@@ -4,7 +4,8 @@ import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
 import org.ah.piwars.virtualrover.game.rovers.CBISRover;
-import org.ah.piwars.virtualrover.game.rovers.GCCRover;
+import org.ah.piwars.virtualrover.game.rovers.GCCRoverM16;
+import org.ah.piwars.virtualrover.game.rovers.GCCRoverM18;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
@@ -35,9 +36,14 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
         @Override public String toString() { return "CameraAttachmentType"; }
     };
 
-    public static GameObjectType GCCRover = new GameObjectType() {
-        @Override public GameObject newObject(GameObjectFactory factory) { return new GCCRover(factory, -1); }
-        @Override public String toString() { return "GCCRoverType"; }
+    public static GameObjectType GCCRoverM16 = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new GCCRoverM16(factory, -1); }
+        @Override public String toString() { return "GCCRoverM16Type"; }
+    };
+
+    public static GameObjectType GCCRoverM18 = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new GCCRoverM18(factory, -1); }
+        @Override public String toString() { return "GCCRoverM18Type"; }
     };
 
     public static GameObjectType CBISRover = new GameObjectType() {
@@ -51,7 +57,8 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
             MineSweeperStateObject,
             PiNoonAttachment,
             CameraAttachment,
-            GCCRover,
+            GCCRoverM16,
+            GCCRoverM18,
             CBISRover
     };
 }

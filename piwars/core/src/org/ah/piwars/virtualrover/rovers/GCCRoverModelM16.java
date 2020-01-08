@@ -15,13 +15,13 @@ import java.util.NoSuchElementException;
 import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 
-public class GCCRoverModel extends FourWheelRoverModel {
+public class GCCRoverModelM16 extends FourWheelRoverModel {
 
     private ModelInstance body;
 
     private ModelInstance top;
 
-     public GCCRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+     public GCCRoverModelM16(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
 
         body = new ModelInstance(modelFactory.getBody(), 0, 0, 0);

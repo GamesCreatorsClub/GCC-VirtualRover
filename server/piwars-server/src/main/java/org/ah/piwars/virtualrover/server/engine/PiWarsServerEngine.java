@@ -53,7 +53,7 @@ public class PiWarsServerEngine extends ServerEngine<PiWarsGame> {
     @Override
     protected void clientReadyAction(ClientSession<?> clientSession) {
         if (!game.containsObject(clientSession.getSessionId())) {
-            Rover rover = game.spawnRover(clientSession.getSessionId(), clientSession.getAlias(), RoverType.GCC);
+            Rover rover = game.spawnRover(clientSession.getSessionId(), clientSession.getAlias(), RoverType.GCCM16);
             GAME_LOGGER.info(clientSession.clientString() + ": Created new player at " + rover.getPosition().x + ", " + rover.getPosition().y + "; id=" + rover.getId());
         }
         sendWorld(clientSession);

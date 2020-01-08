@@ -4,9 +4,14 @@ import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.themvsus.engine.common.game.GameObjectType;
 
 public enum RoverType {
-    GCC(0, "GCC Rover") {
+    GCCM16(0, "GCC Rover M16") {
         @Override public RoverControls createRoverControls() { return new FourSteeringWheelsRoverControls(); }
-        @Override public GameObjectType getGameObjectType() { return PiWarsGameTypeObject.GCCRover; }
+        @Override public GameObjectType getGameObjectType() { return PiWarsGameTypeObject.GCCRoverM16; }
+    },
+
+    GCCM18(0, "GCC Rover M18") {
+        @Override public RoverControls createRoverControls() { return new FourSteeringWheelsRoverControls(); }
+        @Override public GameObjectType getGameObjectType() { return PiWarsGameTypeObject.GCCRoverM18; }
     },
 
     CBIS(1, "CBiS-Education") {
@@ -32,7 +37,7 @@ public enum RoverType {
                 return e;
             }
         }
-        return RoverType.GCC;
+        return RoverType.GCCM16;
     }
 
     public RoverType getNext() {
