@@ -14,6 +14,7 @@ public class GameMessageObject extends GameObject {
 
     public GameMessageObject(GameObjectFactory factory, int id) {
         super(factory, id);
+        nonInteractive = true;
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.ah.piwars.virtualrover.screens.ConnectingScreen;
 import org.ah.piwars.virtualrover.screens.EcoDisasterScreen;
 import org.ah.piwars.virtualrover.screens.GreetingScreen;
 import org.ah.piwars.virtualrover.screens.LoadingScreen;
+import org.ah.piwars.virtualrover.screens.MineSweeperScreen;
 import org.ah.piwars.virtualrover.screens.PiNoonScreen;
 import org.ah.piwars.virtualrover.screens.StraightLineSpeedTestScreen;
 import org.ah.piwars.virtualrover.utils.SoundManager;
@@ -43,6 +44,7 @@ public class MainGame extends Game {
     private CanyonsOfMarsScreen canyonsOfMarsScreen;
     private StraightLineSpeedTestScreen straightLineSpeedTestScreen;
     private BlastOffScreen blastOffScreen;
+    private MineSweeperScreen mineSweeperScreen;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -92,6 +94,7 @@ public class MainGame extends Game {
         canyonsOfMarsScreen = new CanyonsOfMarsScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         straightLineSpeedTestScreen = new StraightLineSpeedTestScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         blastOffScreen = new BlastOffScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        mineSweeperScreen = new MineSweeperScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
@@ -132,6 +135,8 @@ public class MainGame extends Game {
             challengeScreen = straightLineSpeedTestScreen;
         } else if ("BlastOff".equals(mapId)) {
             challengeScreen = blastOffScreen;
+        } else if ("MineSweeper".equals(mapId)) {
+            challengeScreen = mineSweeperScreen;
         }
         challengeScreen.reset();
         setScreen(challengeScreen);

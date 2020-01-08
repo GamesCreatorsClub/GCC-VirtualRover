@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
+import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
@@ -17,54 +18,50 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
 import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 import static java.util.Arrays.asList;
 
-public class BlastOffChallenge extends AbstractChallenge {
+public class MineSweeperChallenge extends AbstractChallenge {
 
-    public static float SQRT2 = (float) Math.sqrt(2);
+    public static float COURSE_WIDTH = 2200;
 
-    public static int COURSE_LENGTH = 7200; // 7200
-    public static float COURSE_WIDTH = 550;
-    public static float WALL_HEIGHT = 70;
+    public static float WALL_HEIGHT = 200;
 
-    public static float BOTTOM_WALL_ADJUST = (SQRT2 - 1f) * COURSE_WIDTH;
+    public static List<Polygon> MINE_POLYGONS = asList(
+            polygonFromBox(-1100, -1100,  -550, -550),
+            polygonFromBox(-550, -1100,  0, -550),
+            polygonFromBox(0, -1100,  550, -550),
+            polygonFromBox(550, -1100,  1100, -550),
 
-    public static final List<Polygon> FLOOR_POLYGONS = asList(
-            polygonForWall1(0, COURSE_WIDTH),
-            polygonForWall2(0, COURSE_WIDTH),
-            polygonForWall3(0, COURSE_WIDTH),
-            polygonForWall4(0, COURSE_WIDTH),
-            polygonForWall5(0, COURSE_WIDTH)
-    );
+            polygonFromBox(-1100, -550,  -550, 0),
+            polygonFromBox(-550, -550,  0, 0),
+            polygonFromBox(0, -550,  550, 0),
+            polygonFromBox(550, -550,  1100, 0),
 
-    public static final List<Polygon> LINE_POLYGONS = asList(
-            polygonForWall1(0, 19),
-            polygonForWall2(0, 19),
-            polygonForWall3(0, 19),
-            polygonForWall4(0, 19),
-            polygonForWall5(0, 19)
-    );
+            polygonFromBox(-1100, 0,  -550, 550),
+            polygonFromBox(-550, 0,  0, 550),
+            polygonFromBox(0, 0,  550, 550),
+            polygonFromBox(550, 0,  1100, 550),
 
-    public static final List<Polygon> WALLS_POLYGONS = asList(
-            polygonForWall1(COURSE_WIDTH / 2, 10),
-            polygonForWall2(COURSE_WIDTH / 2, 10),
-            polygonForWall3(COURSE_WIDTH / 2, 10),
-            polygonForWall4(COURSE_WIDTH / 2, 10),
-            polygonForWall5(COURSE_WIDTH / 2, 10),
-            polygonForWall1(-COURSE_WIDTH / 2, 10),
-            polygonForWall2(-COURSE_WIDTH / 2, 10),
-            polygonForWall3(-COURSE_WIDTH / 2, 10),
-            polygonForWall4(-COURSE_WIDTH / 2, 10),
-            polygonForWall5(-COURSE_WIDTH / 2, 10)
-    );
+            polygonFromBox(-1100, 550,  -550, 1100),
+            polygonFromBox(-550, 550,  0, 1100),
+            polygonFromBox(0, 550,  550, 1100),
+            polygonFromBox(550, 550,  1100, 1100));
 
-    private List<Polygon> piNoonPolygons;
+    public static List<Polygon> WALL_POLYGONS = asList(
+            polygonFromBox(-1100, -1101,  1100, -1100),
+            polygonFromBox(-1101, -1100, -1100,  1100),
+            polygonFromBox(-1100,  1100,  1100,  1101),
+            polygonFromBox( 1100, -1100,  1101,  1100));
 
+    private List<Polygon> piNoonPolygons = WALL_POLYGONS;
+
+    private Random random = new Random();
     private int gameMessageId;
     private GameState gameStateGameMessageIsDefinedOn;
     private GameMessageObject cachedGameMessageObject;
@@ -73,18 +70,16 @@ public class BlastOffChallenge extends AbstractChallenge {
 
     private int playerId;
     private int cameraId;
+    private int stateObjectId;
 
-    private StateMachine<BlastOffChallenge, ChallengeState> stateMachine = new StateMachine<BlastOffChallenge, ChallengeState>();
+    private StateMachine<MineSweeperChallenge, ChallengeState> stateMachine = new StateMachine<MineSweeperChallenge, ChallengeState>();
 
     private PiWarsGame piwarsGame;
 
-    public BlastOffChallenge(Game game, String name) {
+    public MineSweeperChallenge(Game game, String name) {
         super(game, name);
         piwarsGame = (PiWarsGame)game;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-
-        piNoonPolygons = new ArrayList<Polygon>();
-        piNoonPolygons.addAll(WALLS_POLYGONS);
     }
 
     @Override
@@ -105,6 +100,19 @@ public class BlastOffChallenge extends AbstractChallenge {
 
     @Override
     public void process(GameState currentGameState) {
+//        if (cameraId > 0) {
+//            CameraAttachment cameraAttachment = game.getCurrentGameState().get(cameraId);
+//
+//            GameObject parent = game.getCurrentGameState().get(cameraAttachment.getParentId());
+//            if (parent instanceof GameObjectWithPositionAndOrientation) {
+//                GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
+//
+//                Vector3 position = gameObject.getPosition();
+//                cameraAttachment.setPosition(position.x, position.y, position.z);
+//                cameraAttachment.setOrientation(gameObject.getOrientation());
+//            }
+//        }
+
         stateMachine.update(this);
     }
 
@@ -120,9 +128,19 @@ public class BlastOffChallenge extends AbstractChallenge {
                 cameraAttachment.attachToRover((Rover)gameObject);
                 game.addNewGameObjectImmediately(cameraAttachment);
                 cameraId = cameraAttachment.getId();
+                cameraAttachment.setPosition(cameraAttachment.getPosition().x, cameraAttachment.getPosition().y, 200);
+                orientation.set(cameraAttachment.getOrientation());
+                orientation.setEulerAngles(30f, 0f, 0f);
+                cameraAttachment.setOrientation(orientation);
+
+                MineSweeperStateObject mineSweeperStateObject = game.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.MineSweeperStateObject, game.newId());
+                game.addNewGameObjectImmediately(mineSweeperStateObject);
+                mineSweeperStateObject.setStateBits(0x0);
             }
             playerId = gameObject.getId();
             resetRover();
+        } else if (gameObject instanceof MineSweeperStateObject) {
+            stateObjectId = gameObject.getId();
         } else if (gameObject instanceof CameraAttachment) {
             CameraAttachment cameraAttachment = (CameraAttachment)gameObject;
             cameraId = cameraAttachment.getId();
@@ -202,15 +220,35 @@ public class BlastOffChallenge extends AbstractChallenge {
     private void resetRover() {
         Rover player1 = getPlayer();
         if (player1 != null) {
-            orientation.setEulerAnglesRad(0f, 0f, 0f); // (float)(Math.PI / 2f));
-            player1.setPosition(-COURSE_LENGTH / 2 + 150, 0);
+            orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
+            player1.setPosition(0, 700);
             player1.setOrientation(orientation);
+            // player1.setRoverColour(RoverColour.BLUE);
         }
     }
 
-    private void resetBarrels() {
-
+    protected MineSweeperStateObject getMineSweeperStateObject() {
+        if (stateObjectId != 0) {
+            return game.getCurrentGameState().get(stateObjectId);
+        }
+        return null;
     }
+
+    protected void clear_lights() {
+        MineSweeperStateObject mineSweeperStateObject = getMineSweeperStateObject();
+        if (mineSweeperStateObject != null) {
+            mineSweeperStateObject.setStateBits(0);
+        }
+    }
+
+    protected void change_lights() {
+        MineSweeperStateObject mineSweeperStateObject = getMineSweeperStateObject();
+        if (mineSweeperStateObject != null) {
+            int next_light_no = random.nextInt(16);
+            int light = 1 << next_light_no;
+            mineSweeperStateObject.setStateBits(light);
+        }
+     }
 
     private void stopRovers() {
         Rover player1 = getPlayer();
@@ -228,10 +266,12 @@ public class BlastOffChallenge extends AbstractChallenge {
         return doMove;
     }
 
-    private enum ChallengeState implements State<BlastOffChallenge> {
+    private enum ChallengeState implements State<MineSweeperChallenge> {
 
         WAITING_START() {
-            @Override public void enter(BlastOffChallenge challenge) {
+            @Override public void enter(MineSweeperChallenge challenge) {
+                challenge.clear_lights();
+
                 Game game = challenge.getGame();
 
                 if (game.containsObject(challenge.playerId)) {
@@ -243,13 +283,13 @@ public class BlastOffChallenge extends AbstractChallenge {
                 challenge.getGameMessage().setWaiting(true);
             }
 
-            @Override public void update(BlastOffChallenge challenge) {
+            @Override public void update(MineSweeperChallenge challenge) {
                 if (challenge.playerId != 0) {
                     challenge.stateMachine.toState(ChallengeState.GAME, challenge);
                 }
             }
 
-            @Override public void exit(BlastOffChallenge challenge) {
+            @Override public void exit(MineSweeperChallenge challenge) {
                 challenge.resetRover();
                 challenge.stopRovers();
             }
@@ -258,9 +298,8 @@ public class BlastOffChallenge extends AbstractChallenge {
         GAME() {
             @Override public boolean shouldMoveRovers() { return true; }
 
-            @Override public void enter(BlastOffChallenge challenge) {
+            @Override public void enter(MineSweeperChallenge challenge) {
                 challenge.resetRover();
-                challenge.resetBarrels();
                 setTimer(1000);
                 challenge.setMessage("GO!", false);
                 challenge.getGameMessage().setInGame(true);
@@ -270,11 +309,13 @@ public class BlastOffChallenge extends AbstractChallenge {
                 // challenge.soundManager.playFight();
             }
 
-            @Override public void update(BlastOffChallenge challenge) {
+            @Override public void update(MineSweeperChallenge challenge) {
                 super.update(challenge);
 
                 if (isTimerDone()) {
                     challenge.setMessage(null, false);
+                    challenge.change_lights();
+                    setTimer(1500);
                 }
 
                 CameraAttachment player1Attachment = challenge.getCameraAttachment();
@@ -287,7 +328,7 @@ public class BlastOffChallenge extends AbstractChallenge {
         END() {
             @Override public boolean shouldMoveRovers() { return true; }
 
-            @Override public void enter(BlastOffChallenge challenge) {
+            @Override public void enter(MineSweeperChallenge challenge) {
                 // PiNoonAttachment player1Attachment = challenge.getPlayerOneAttachment();
 
                 challenge.getGameMessage().setInGame(false);
@@ -295,13 +336,13 @@ public class BlastOffChallenge extends AbstractChallenge {
                 setTimer(3000);
             }
 
-            @Override public void update(BlastOffChallenge challenge) {
+            @Override public void update(MineSweeperChallenge challenge) {
                 if (isTimerDone()) {
                     challenge.stateMachine.toState(WAITING_START, challenge);
                 }
             }
 
-            @Override public void exit(BlastOffChallenge challenge) {
+            @Override public void exit(MineSweeperChallenge challenge) {
                 Rover player1 = challenge.getPlayer();
                 challenge.piwarsGame.removeGameObject(player1.getId());
                 challenge.playerId = 0;
@@ -319,63 +360,10 @@ public class BlastOffChallenge extends AbstractChallenge {
             return (timer <= System.currentTimeMillis());
         }
 
-        @Override public void enter(BlastOffChallenge challenge) {}
-        @Override public void update(BlastOffChallenge challenge) {}
-        @Override public void exit(BlastOffChallenge s) {}
+        @Override public void enter(MineSweeperChallenge challenge) {}
+        @Override public void update(MineSweeperChallenge challenge) {}
+        @Override public void exit(MineSweeperChallenge s) {}
 
         public boolean shouldMoveRovers() { return false; }
     }
-
-    public static Polygon polygonForWall1(float y, float width) {
-        Polygon polygon = new Polygon(new float[] {
-                - COURSE_LENGTH / 2, y + width / 2,
-                - COURSE_LENGTH / 6, y + width / 2,
-                - COURSE_LENGTH / 6, y - width / 2,
-                - COURSE_LENGTH / 2, y - width / 2,
-        });
-        return polygon;
-    }
-
-    public static Polygon polygonForWall2(float y, float width) {
-        Polygon polygon = new Polygon(new float[] {
-                - COURSE_LENGTH / 6, y + width / 2,
-                - COURSE_LENGTH / 6 + COURSE_WIDTH, y + width / 2 + COURSE_WIDTH,
-                - COURSE_LENGTH / 6 + COURSE_WIDTH, y - width / 2 + COURSE_WIDTH,
-                - COURSE_LENGTH / 6, y - width / 2,
-        });
-        return polygon;
-    }
-
-    public static Polygon polygonForWall3(float y, float width) {
-        Polygon polygon = new Polygon(new float[] {
-                - COURSE_LENGTH / 6 + COURSE_WIDTH, y + width / 2 + COURSE_WIDTH,
-                COURSE_LENGTH / 6 - COURSE_WIDTH, y + width / 2 + COURSE_WIDTH,
-                COURSE_LENGTH / 6 - COURSE_WIDTH, y - width / 2 + COURSE_WIDTH,
-                - COURSE_LENGTH / 6 + COURSE_WIDTH, y - width / 2 + COURSE_WIDTH,
-        });
-        return polygon;
-    }
-
-    public static Polygon polygonForWall4(float y, float width) {
-        float adjust = (BOTTOM_WALL_ADJUST / 2) ;
-
-        Polygon polygon = new Polygon(new float[] {
-                COURSE_LENGTH / 6 - COURSE_WIDTH, y + width / 2 + COURSE_WIDTH,
-                COURSE_LENGTH / 6, y + width / 2,
-                COURSE_LENGTH / 6, y - width / 2,
-                COURSE_LENGTH / 6 - COURSE_WIDTH, y - width / 2 + COURSE_WIDTH,
-        });
-        return polygon;
-    }
-
-    public static Polygon polygonForWall5(float y, float width) {
-        Polygon polygon = new Polygon(new float[] {
-                COURSE_LENGTH / 6, y + width / 2,
-                COURSE_LENGTH / 2, y + width / 2,
-                COURSE_LENGTH / 2, y - width / 2,
-                COURSE_LENGTH / 6, y - width / 2,
-        });
-        return polygon;
-    }
-
 }

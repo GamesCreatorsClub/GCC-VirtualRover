@@ -3,8 +3,9 @@ package org.ah.piwars.virtualrover;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.engine.client.PiWarsClientEngine;
-import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
+import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
+import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
@@ -44,6 +45,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     private int playerTwoId;
     private int gameMessageId;
     private int cameraAttachmentId;
+    private int mineSweeperId;
 
     private ModelFactory modelFactory;
     private boolean local;
@@ -159,6 +161,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         if (cameraAttachmentId == objectId) {
             cameraAttachmentId = 0;
         }
+        if (mineSweeperId == objectId) {
+            mineSweeperId = 0;
+        }
     }
 
     @Override
@@ -195,6 +200,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             allVisibleObjects.put(barrelObject.getId(), barrelModelLink);
             barrelModelLink.make(modelFactory);
             barrelObject.setLinkBack(barrelModelLink);
+        } else if (gameObject instanceof MineSweeperStateObject) {
+            mineSweeperId = gameObject.getId();
         }
     }
 
@@ -251,6 +258,14 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         if (engine != null && cameraAttachmentId > 0) {
             CameraAttachment cameraAttachment = engine.getGame().getCurrentGameState().get(cameraAttachmentId);
             return cameraAttachment;
+        }
+        return null;
+    }
+
+    public MineSweeperStateObject getMineSweeperStateObject() {
+        if (engine != null && mineSweeperId > 0) {
+            MineSweeperStateObject mineSweeperStateObject = engine.getGame().getCurrentGameState().get(mineSweeperId);
+            return mineSweeperStateObject;
         }
         return null;
     }

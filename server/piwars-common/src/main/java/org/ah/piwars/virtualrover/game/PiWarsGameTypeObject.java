@@ -20,6 +20,11 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
         @Override public String toString() { return "BarrelObjectType"; }
     };
 
+    public static GameObjectType MineSweeperStateObject = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new MineSweeperStateObject(factory, 0); }
+        @Override public String toString() { return "MineSweeperStateObjectType"; }
+    };
+
     public static GameObjectType PiNoonAttachment = new GameObjectType() {
         @Override public GameObject newObject(GameObjectFactory factory) { return new PiNoonAttachment(factory, 0); }
         @Override public String toString() { return "PiNoonAttachmentType"; }
@@ -43,6 +48,7 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
     protected static GameObjectType[] DEFINED_TYPES = {
             GameMessageObject,
             BarrelObject,
+            MineSweeperStateObject,
             PiNoonAttachment,
             CameraAttachment,
             GCCRover,

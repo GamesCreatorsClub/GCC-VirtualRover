@@ -17,6 +17,8 @@ public class Challenges {
             return new StraightLineSpeedTestChallenge(game, name);
         } else if ("BlastOff".equals(name)) {
             return new BlastOffChallenge(game, name);
+        } else if ("MineSweeper".equals(name)) {
+            return new MineSweeperChallenge(game, name);
         }
 
         throw new IllegalArgumentException(name + " not known");
