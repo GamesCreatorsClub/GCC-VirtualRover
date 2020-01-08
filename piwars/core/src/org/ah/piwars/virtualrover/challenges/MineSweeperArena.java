@@ -36,7 +36,7 @@ public class MineSweeperArena extends AbstractChallenge {
     private Array<ModelInstance> wallInstances = new Array<>();
     private ServerCommunicationAdapter serverCommunicationAdapter;
 
-    private static ColorAttribute FLOOR_LIT_COLOUR = ColorAttribute.createDiffuse(new Color(0.8f, 0.8f, 0.8f, 1f));
+    private static ColorAttribute FLOOR_LIT_COLOUR = ColorAttribute.createDiffuse(new Color(0.6f, 0.2f, 0.2f, 1f));
     private static ColorAttribute FLOOR_NOT_LIT_COLOUR = ColorAttribute.createDiffuse(new Color(0.5f, 0.5f, 0.5f, 1f));
 
     public MineSweeperArena(ModelFactory modelFactory, ServerCommunicationAdapter serverCommunicationAdapter) {
