@@ -1,10 +1,10 @@
 from enum import Enum
 
 from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
-from piwarssim.engine.simulation.rovers.RoverType import RoverType
+from piwarssim.engine.simulation import SimulationObject
 
 
-class MineSweeperStateObject(MovingSimulationObjectWithPositionAndOrientation):
+class MineSweeperStateObject(SimulationObject):
     def __init__(self, factory, sim_object_id, sim_object_type):
         super(MineSweeperStateObject, self).__init__(factory, sim_object_id, sim_object_type)
         self._state_bits = 0

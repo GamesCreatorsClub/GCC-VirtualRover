@@ -1,10 +1,9 @@
 from enum import Enum
 
-from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
-from piwarssim.engine.simulation.rovers.RoverType import RoverType
+from piwarssim.engine.simulation import SimulationObject
 
 
-class GameMessageSimObject(MovingSimulationObjectWithPositionAndOrientation):
+class GameMessageSimObject(SimulationObject):
     def __init__(self, factory, sim_object_id, sim_object_type):
         super(GameMessageSimObject, self).__init__(factory, sim_object_id, sim_object_type)
         self.flashing = False

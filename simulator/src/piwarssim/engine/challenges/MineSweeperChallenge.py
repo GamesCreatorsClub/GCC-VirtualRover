@@ -37,7 +37,7 @@ class MineSweeperChallenge(AbstractChallenge):
         if timestamp > self._next_event:
             mine_sweeper_status = self.get_mine_sweeper_status()
             if mine_sweeper_status is not None:
-                next_light = random.randint(0, 16)
+                next_light = random.randint(0, 15)
                 bit = 1 << next_light
                 mine_sweeper_status.set_state_bits(bit)
 
