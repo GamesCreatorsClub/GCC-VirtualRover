@@ -1,2 +1,6 @@
-from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.challenges.PiNoonChallenge import PiNoonChallenge
+from piwarssim.engine.challenges.BlastOffChallenge import BlastOffChallenge
+from piwarssim.engine.challenges.CanyonsOfMarsChallenge import CanyonsOfMarsChallenge
+from piwarssim.engine.challenges.EcoDisasterChallenge import EcoDisasterChallenge
+from piwarssim.engine.challenges.MineSweeperChallenge import MineSweeperChallenge
+from piwarssim.engine.challenges.StraightLineSpeedTestChallenge import StraightLineSpeedTestChallenge

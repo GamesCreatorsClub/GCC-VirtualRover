@@ -1,6 +1,7 @@
 from enum import Enum
 
 from piwarssim.engine.simulation.GameMessageSimObject import GameMessageSimObject
+from piwarssim.engine.simulation.MineSweeperStateObject import MineSweeperStateObject
 from piwarssim.engine.simulation.objects.BarrelSimObject import BarrelSimObject
 from piwarssim.engine.simulation.attachments.PiNoonAttachemntObject import PiNoonAttachmentObject
 from piwarssim.engine.simulation.attachments.CameraAttachemntObject import CameraAttachmentObject
@@ -12,6 +13,8 @@ class PiWarsSimObjectTypes(Enum):
     GameMessageObject = (lambda factory, sim_object_id, sim_object_type: GameMessageSimObject(factory, sim_object_id, sim_object_type),)
 
     BarrelObject = (lambda factory, sim_object_id, sim_object_type: BarrelSimObject(factory, sim_object_id, sim_object_type),)
+
+    MineSweeperStateObject = (lambda factory, sim_object_id, sim_object_type: MineSweeperStateObject(factory, sim_object_id, sim_object_type),)
 
     PiNoonAttachment = (lambda factory, sim_object_id, sim_object_type: PiNoonAttachmentObject(factory, sim_object_id, sim_object_type),)
 

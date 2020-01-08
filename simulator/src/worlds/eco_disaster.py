@@ -1,9 +1,8 @@
-"""Simple world with walls"""
+"""Simple Eco Disaster Example"""
 import pymunk
 import pygame
 
 from worlds.abstract_world import AbstractWorld
-from piwarssim.engine.challenges.EcoDisasterChallenge import EcoDisasterChallenge
 
 
 WIDTH = 2200
