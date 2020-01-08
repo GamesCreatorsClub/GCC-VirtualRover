@@ -13,7 +13,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <vertxVersion>3.4.2</vertxVersion>
+    <vertxVersion>3.8.4</vertxVersion>
     <client.version>1.0</client.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
