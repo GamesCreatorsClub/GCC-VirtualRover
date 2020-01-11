@@ -21,6 +21,8 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_HEIGHT;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.FLOOR_POLYGON;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALLS_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_HEIGHT;
@@ -40,6 +42,8 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
 
     public CanyonsOfMarsArena(ModelFactory modelFactory, AssetManager assetManager) {
         super(modelFactory);
+
+        setDimensions(CHALLENGE_WIDTH, CHALLENGE_HEIGHT);
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
         floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.3f, 0.3f, 0.3f, 1f)));

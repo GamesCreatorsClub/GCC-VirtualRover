@@ -15,10 +15,8 @@ import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.piwars.virtualrover.camera.CameraControllersManager;
 import org.ah.piwars.virtualrover.camera.CinematicCameraController;
-import org.ah.piwars.virtualrover.challenges.EcoDisasterArena;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
-import org.ah.piwars.virtualrover.game.rovers.RoverType;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 
@@ -40,11 +38,6 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
         super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         setBackground(new PerlinNoiseBackground());
-
-        EcoDisasterArena challenge = new EcoDisasterArena(modelFactory);
-        challenge.init();
-
-        setChallenge(challenge);
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
@@ -166,7 +159,7 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
             PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
 
             // TODO - select rover type properly
-            /* Rover player1 = */game.spawnRover(1, "Blue", RoverType.GCCM16);
+            /* Rover player1 = */game.spawnRover(1, "Blue", mainGameApp.getSelectedRover1());
             serverCommunicationAdapter.setLocalPlayerIds(1);
         }
 

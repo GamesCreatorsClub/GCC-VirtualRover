@@ -17,6 +17,8 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.game.challenge.BlastOffChallenge.COURSE_LENGTH;
+import static org.ah.piwars.virtualrover.game.challenge.BlastOffChallenge.COURSE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.BlastOffChallenge.FLOOR_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.BlastOffChallenge.LINE_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.BlastOffChallenge.WALLS_POLYGONS;
@@ -40,6 +42,8 @@ public class BlastOffArena extends AbstractChallenge {
 
     public BlastOffArena(ModelFactory modelFactory) {
         super(modelFactory);
+
+        setDimensions(COURSE_WIDTH, COURSE_LENGTH);
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
         floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.2f, 0.2f, 1f)));

@@ -93,4 +93,6 @@ public abstract class AbstractRoverModel implements RoverModel {
     protected static float calcSpeedMillimetresInFrame(float speedMPS) {
         return speedMPS * Gdx.graphics.getDeltaTime() * 1000; // in millimetres
     }
+
+    public abstract void dispose();
 }

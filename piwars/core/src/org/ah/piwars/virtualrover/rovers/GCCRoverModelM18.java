@@ -21,7 +21,11 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
 
     private ModelInstance top;
 
-     public GCCRoverModelM18(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+    public GCCRoverModelM18(ModelFactory modelFactory) throws NoSuchElementException {
+        this("GCC Rover M18", modelFactory, Color.WHITE);
+    }
+
+    public GCCRoverModelM18(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
 
         body = new ModelInstance(modelFactory.getBody(), 0, 0, 0);
@@ -123,5 +127,9 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
 
         batch.render(top, environment);
         batch.render(body, environment);
+    }
+
+    @Override
+    public void dispose() {
     }
 }

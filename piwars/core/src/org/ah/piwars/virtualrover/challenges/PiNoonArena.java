@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.game.challenge.EcoDisasterChallenge.CHALLENGE_WIDTH;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.createRect;
 
 public class PiNoonArena extends AbstractChallenge {
@@ -57,6 +58,8 @@ public class PiNoonArena extends AbstractChallenge {
 
     public PiNoonArena(ModelFactory modelFactory) {
         super(modelFactory);
+
+        setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
         frameBuffer = new FrameBuffer(Format.RGBA8888, 1024, 1024, false);
 

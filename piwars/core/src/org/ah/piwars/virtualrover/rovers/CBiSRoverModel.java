@@ -18,6 +18,10 @@ public class CBiSRoverModel extends FourWheelRoverModel {
 
     private static float ROVER_SCALE = 26;
 
+    public CBiSRoverModel(ModelFactory modelFactory) throws NoSuchElementException {
+        this("CBiS Rover", modelFactory, Color.WHITE);
+    }
+
     public CBiSRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
         super(name, colour);
 
@@ -71,5 +75,9 @@ public class CBiSRoverModel extends FourWheelRoverModel {
         fr.render(batch, environment);
 
         batch.render(body, environment);
+    }
+
+    @Override
+    public void dispose() {
     }
 }

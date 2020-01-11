@@ -9,11 +9,18 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -26,8 +33,17 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import org.ah.piwars.virtualrover.MainGame;
 import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
-import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.PlatformSpecific.RegistrationCallback;
+import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
+import org.ah.piwars.virtualrover.challenges.ChallengeArena;
+import org.ah.piwars.virtualrover.challenges.ChallengeDescription;
+import org.ah.piwars.virtualrover.challenges.Challenges;
+import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.piwars.virtualrover.game.rovers.RoverType;
+import org.ah.piwars.virtualrover.rovers.AbstractRoverModel;
+import org.ah.piwars.virtualrover.rovers.CBiSRoverModel;
+import org.ah.piwars.virtualrover.rovers.GCCRoverModelM16;
+import org.ah.piwars.virtualrover.rovers.GCCRoverModelM18;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.AuthenticatedCallback;
@@ -36,17 +52,66 @@ import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyC
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.ReceivedRegistrationServerCallback;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 
+import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.screens.AbstractStandardScreen.UP;
+
 public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCallback, GameReadyCallback, GameMapCallback, ReceivedRegistrationServerCallback {
 
+
     private enum State {
-        None, SignInServer, SignInUsername, SignInPassword, RegisterServer, RegisterEmail, RegisterEmail2, RegisterUsername, RegisterPassword, RegisterPassword2;
+        None(false, false),
+        SelectChallenge(true, false),
+        SelectRover(true, true),
+        ReadyToStart(true, true),
+        SignInServer(false, false),
+        SignInUsername(false, false),
+        SignInPassword(false, false),
+        RegisterServer(false, false),
+        RegisterEmail(false, false),
+        RegisterEmail2(false, false),
+        RegisterUsername(false, false),
+        RegisterPassword(false, false),
+        RegisterPassword2(false, false);
+
+        public boolean displaySelectingChallenge;
+        public boolean displaySelectingRovers;
+
+        State(boolean displaySelectingChallenge, boolean displaySelectingRovers) {
+            this.displaySelectingChallenge = displaySelectingChallenge;
+            this.displaySelectingRovers = displaySelectingRovers;
+        }
     }
+
+    private static RoverType[] ROVER_TYPE_VALUES = RoverType.values();
+
+    private static final String START_GAME_TEXT = "Press SPACE to start";
+
+    private static final int CHALLENGE_SELECTION_WIDTH = 160;
+    private static final int CHALLENGE_SELECTION_HEIGHT = 128;
+    private static final int CORNER_WIDTH = 32;
+    private static final float TOP_OFFSET = 40;
+    private static final int ROVER_SELECTION_WIDTH = 160;
+    private static final int ROVER_SELECTION_HEIGHT = 128;
+    private static final int MARGIN = 20;
 
     private MainGame mainGame;
     private PlatformSpecific platformSpecific;
     private ServerCommunicationAdapter serverCommunicationAdapter;
 
+    private ModelBatch modelBatch;
+    protected Environment environment;
+
+    private Local3DDisplay challenge;
+    private Local3DDisplay rover1;
+    private Local3DDisplay rover2;
+
+    private SpriteBatch cornerBatch;
+    private OrthographicCamera cornerCamera;
+    private FrameBuffer cornerFrameBuffer;
+    private Texture cornerTexture;
+
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -59,7 +124,10 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     private Console console;
 
-    private State state = State.SignInServer;
+    private float screenWidth;
+    private float screenHeight;
+
+    private State state = State.SelectChallenge;
     private String serverAddress;
     private int serverPort;
     private String username;
@@ -74,22 +142,39 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private boolean doLoadMap;
 //    private AssetManager assetManager;
 //    private SoundManager soundManager;
-//    private ModelFactory modelFactory;
+    private ModelFactory modelFactory;
+    private Challenges challenges;
 
+    private int currentlySelectedChallengeIndex;
+    private ChallengeDescription currentlySelectedChallengeDescription;
+    private ChallengeArena currentlySelectedChallengeArena;
+
+    private int currentlySelectedRover1Index;
+    private RoverType currentlySelectedRover1Type;
+    private AbstractRoverModel currentlySelectedRover1Model;
+
+    private int currentlySelectedRover2Index;
+    private RoverType currentlySelectedRover2Type;
+    private AbstractRoverModel currentlySelectedRover2Model;
+
+    private long flashTime = 0;
+    private boolean flash = true;
 
     public GreetingScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
+            Challenges challenges,
             ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
 
         this.mainGame = game;
         this.platformSpecific = platformSpecific;
+        this.challenges = challenges;
 //        this.assetManager = assetManager;
 //        this.soundManager = soundManager;
-//        this.modelFactory = modelFactory;
+        this.modelFactory = modelFactory;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 
@@ -108,6 +193,10 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         }
     };
 
+    private Rover roverGameObject;
+
+    private float startGameTextWidth;
+
     public void create(MainGame mainGame, PlatformSpecific platformSpecific, ServerCommunicationAdapter serverCommunicationAdapter, Console console) {
         this.mainGame = mainGame;
         this.platformSpecific = platformSpecific;
@@ -117,10 +206,94 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         font = new BitmapFont(Gdx.files.internal("font/copper18.fnt"), Gdx.files.internal("font/copper18.png"), false);
 
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.setToOrtho(true);
 
+        modelBatch = new ModelBatch();
+
+        createScene();
+
+        preferences = Gdx.app.getPreferences("org.ah.themvsus.server-details");
+
+        currentlySelectedChallengeDescription = challenges.getAvailableChallenges().get(currentlySelectedChallengeIndex);
+        currentlySelectedChallengeArena = challenges.getChallengeArena(currentlySelectedChallengeDescription.getName());
+
+        roverGameObject = new Rover(null, 0, RoverType.GCCM16) { };
+        updateCurrentlySelectedRover1();
+        updateCurrentlySelectedRover2();
+
+        challenge = new Local3DDisplay(
+                CHALLENGE_SELECTION_WIDTH,
+                CHALLENGE_SELECTION_HEIGHT,
+                currentlySelectedChallengeArena.getWidth(),
+                currentlySelectedChallengeArena.getLength()) {
+
+                    @Override
+                    public void drawModel(ModelBatch modelbatch, Environment environment, FrameBuffer frameBuffer) {
+                        currentlySelectedChallengeArena.render(
+                                modelBatch,
+                                environment,
+                                frameBuffer,
+                                currentlySelectedChallengeArena.defaultVisibleObjets());
+                    }
+        };
+
+        rover1 = new Local3DDisplay(
+                ROVER_SELECTION_WIDTH,
+                ROVER_SELECTION_HEIGHT,
+                210,
+                290) {
+
+                    @Override
+                    public void drawModel(ModelBatch modelbatch, Environment environment, FrameBuffer frameBuffer) {
+                        currentlySelectedRover1Model.render(modelBatch, environment);
+                    }
+        };
+
+        rover2 = new Local3DDisplay(
+                ROVER_SELECTION_WIDTH,
+                ROVER_SELECTION_HEIGHT,
+                210,
+                290) {
+
+                    @Override
+                    public void drawModel(ModelBatch modelbatch, Environment environment, FrameBuffer frameBuffer) {
+                        currentlySelectedRover2Model.render(modelBatch, environment);
+                    }
+        };
+
+        createCorner();
+
+        GlyphLayout layout = new GlyphLayout(); //dont do this every frame! Store it as member
+        layout.setText(font, START_GAME_TEXT);
+        startGameTextWidth = layout.width;
+    }
+
+    private void createCorner() {
+        cornerBatch = new SpriteBatch();
+        cornerCamera = new OrthographicCamera(CORNER_WIDTH, CORNER_WIDTH);
+        cornerCamera.setToOrtho(true, CORNER_WIDTH, CORNER_WIDTH);
+
+        cornerFrameBuffer = new FrameBuffer(Format.RGBA8888, CORNER_WIDTH, CORNER_WIDTH, false);
+        cornerTexture = cornerFrameBuffer.getColorBufferTexture();
+
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setProjectionMatrix(cornerCamera.combined);
+        cornerFrameBuffer.begin();
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+        shapeRenderer.circle(CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH);
+        shapeRenderer.end();
+        cornerFrameBuffer.end();
+    }
+
+    private void createScene() {
         viewport = new ScreenViewport(camera);
         stage = new Stage(viewport, batch);
         skin = new Skin();
@@ -189,23 +362,21 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
                 }
             }
         });
-
-        preferences = Gdx.app.getPreferences("org.ah.themvsus.server-details");
-
-//        serverCommunicationAdapter.setAuthenticatedCallback(this);
-//        serverCommunicationAdapter.setGameMapCallback(this);
-//        serverCommunicationAdapter.addGameReadyCallback(this);
-//        serverCommunicationAdapter.setReceivedRegistrationServerCallback(this);
     }
 
     public void reset() {
+        currentlySelectedChallengeIndex = 0;
+        currentlySelectedChallengeDescription = challenges.getAvailableChallenges().get(currentlySelectedChallengeIndex);
+        currentlySelectedChallengeArena = challenges.getChallengeArena(currentlySelectedChallengeDescription.getName());
+
         serverCommunicationAdapter.setAuthenticatedCallback(this);
         serverCommunicationAdapter.setGameMapCallback(this);
         serverCommunicationAdapter.setGameReadyCallback(this);
         serverCommunicationAdapter.setReceivedRegistrationServerCallback(this);
 
         doStartGame = false;
-        setupToReadSignInServer();
+        // setupToReadSignInServer();
+        state = State.SelectChallenge;
     }
 
     private void doLoadMap() {
@@ -214,6 +385,57 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     private void startGame() {
         mainGame.setChallengeScreen(mapId);
+    }
+
+    private void updateCurrentlySelectedChallenge() {
+        if (currentlySelectedChallengeIndex < 0) {
+            currentlySelectedChallengeIndex = challenges.getAvailableChallenges().size() - 1;
+        } else if (currentlySelectedChallengeIndex >= challenges.getAvailableChallenges().size()) {
+            currentlySelectedChallengeIndex = 0;
+        }
+        currentlySelectedChallengeDescription = challenges.getAvailableChallenges().get(currentlySelectedChallengeIndex);
+        currentlySelectedChallengeArena = challenges.getChallengeArena(currentlySelectedChallengeDescription.getName());
+        challenge.setModelDimensions(currentlySelectedChallengeArena.getWidth(), currentlySelectedChallengeArena.getLength());
+    }
+
+    private void updateCurrentlySelectedRover1() {
+        if (currentlySelectedRover1Index < 0) {
+            currentlySelectedRover1Index = ROVER_TYPE_VALUES.length - 1;
+        } else if (currentlySelectedRover1Index >= ROVER_TYPE_VALUES.length) {
+            currentlySelectedRover1Index = 0;
+        }
+        currentlySelectedRover1Type = ROVER_TYPE_VALUES[currentlySelectedRover1Index];
+        if (currentlySelectedRover1Model != null) {
+            currentlySelectedRover1Model.dispose();
+        }
+        if (currentlySelectedRover1Type == RoverType.GCCM16) {
+            currentlySelectedRover1Model = new GCCRoverModelM16(modelFactory);
+        } else if (currentlySelectedRover1Type == RoverType.GCCM18) {
+            currentlySelectedRover1Model = new GCCRoverModelM18(modelFactory);
+        } else if (currentlySelectedRover1Type == RoverType.CBIS) {
+            currentlySelectedRover1Model = new CBiSRoverModel(modelFactory);
+        }
+        currentlySelectedRover1Model.update(roverGameObject);
+    }
+
+    private void updateCurrentlySelectedRover2() {
+        if (currentlySelectedRover2Index < 0) {
+            currentlySelectedRover2Index = ROVER_TYPE_VALUES.length - 1;
+        } else if (currentlySelectedRover2Index >= ROVER_TYPE_VALUES.length) {
+            currentlySelectedRover2Index = 0;
+        }
+        currentlySelectedRover2Type = ROVER_TYPE_VALUES[currentlySelectedRover2Index];
+        if (currentlySelectedRover2Model != null) {
+            currentlySelectedRover2Model.dispose();
+        }
+        if (currentlySelectedRover2Type == RoverType.GCCM16) {
+            currentlySelectedRover2Model = new GCCRoverModelM16(modelFactory);
+        } else if (currentlySelectedRover2Type == RoverType.GCCM18) {
+            currentlySelectedRover2Model = new GCCRoverModelM18(modelFactory);
+        } else if (currentlySelectedRover2Type == RoverType.CBIS) {
+            currentlySelectedRover2Model = new CBiSRoverModel(modelFactory);
+        }
+        currentlySelectedRover2Model.update(roverGameObject);
     }
 
     @Override
@@ -225,13 +447,80 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     @Override
     public void render(float delta) {
+        if (flashTime < System.currentTimeMillis()) {
+            flash = !flash;
+            flashTime = System.currentTimeMillis() + 1000;
+        }
+        screenWidth = Gdx.graphics.getWidth();
+        screenHeight = Gdx.graphics.getHeight();
+        if (state.displaySelectingChallenge) {
+            challenge.update();
+            challenge.render(modelBatch);
+            challenge.setPosition((screenWidth - CHALLENGE_SELECTION_WIDTH) / 2, screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET);
+        }
+        if (state.displaySelectingRovers) {
+            if (currentlySelectedChallengeDescription.getMaxRovers() == 2) {
+                rover1.update();
+                rover1.render(modelBatch);
+                rover1.setPosition(
+                        screenWidth * 5 / 16 - CHALLENGE_SELECTION_WIDTH / 2,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
+                rover2.update();
+                rover2.render(modelBatch);
+                rover2.setPosition(
+                        screenWidth * 11 / 16 - CHALLENGE_SELECTION_WIDTH / 2,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
+            } else {
+                rover1.update();
+                rover1.render(modelBatch);
+                rover1.setPosition(
+                        (screenWidth - CHALLENGE_SELECTION_WIDTH) / 2,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
+            }
+        }
+
         updateCamera();
 
         Gdx.gl.glClearColor(0.35f, 0.21f, 0.06f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
+        shapeRenderer.begin();
+        if (state.displaySelectingChallenge) { challenge.drawTextureBorder(shapeRenderer); }
+        if (state.displaySelectingRovers) { rover1.drawTextureBorder(shapeRenderer); }
+        shapeRenderer.end();
         batch.begin();
+        drawStateHelpText(batch);
+        if (state.displaySelectingChallenge) {
+            challenge.drawTexture(batch);
+            font.draw(batch, currentlySelectedChallengeDescription.getDescription(), (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20, screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET);
+        }
+        if (state.displaySelectingRovers) {
+            if (currentlySelectedChallengeDescription.getMaxRovers() == 2) {
+                rover1.drawTexture(batch);
+                rover2.drawTexture(batch);
+                font.draw(batch, currentlySelectedRover1Type.getName(),
+                        screenWidth * 5 / 16 - CHALLENGE_SELECTION_WIDTH / 2 + 20,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN * 2);
+
+                font.draw(batch, currentlySelectedRover2Type.getName(),
+                        screenWidth * 11 / 16 - CHALLENGE_SELECTION_WIDTH / 2 + 20,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN * 2);
+            } else {
+                rover1.drawTexture(batch);
+                font.draw(batch, currentlySelectedRover1Type.getName(),
+                        (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
+            }
+        }
+        if (state == State.ReadyToStart && flash) {
+
+            font.draw(batch, START_GAME_TEXT,
+                (screenWidth - startGameTextWidth) / 2,
+                screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET - ROVER_SELECTION_HEIGHT * 2f - MARGIN *2 );
+        }
 
         batch.end();
 
@@ -245,6 +534,16 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
         if (doStartGame) {
             startGame();
+        }
+    }
+
+    private void drawStateHelpText(SpriteBatch batch) {
+        if (state == State.SelectChallenge) {
+            font.draw(batch, "Select Challenge", 10,
+                    screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET);
+        } else if (state == State.SelectRover) {
+            font.draw(batch, "Select Rover", 10,
+                    screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
         }
     }
 
@@ -275,6 +574,9 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     @Override
     public void dispose() {
         batch.dispose();
+        challenge.dispose();
+        cornerTexture.dispose();
+        cornerFrameBuffer.dispose();
     }
 
     public void updateCamera() {
@@ -286,6 +588,62 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         state = State.None;
         // doConnectToServer = true;
         serverCommunicationAdapter.connectToServer(serverAddress, serverPort, serverConnectionCallback);
+    }
+
+    private void previous(int player) {
+        if (state == State.SelectChallenge) {
+            currentlySelectedChallengeIndex = currentlySelectedChallengeIndex - 1;
+            updateCurrentlySelectedChallenge();
+        } else if (state == State.SelectRover) {
+            if (player == 0) {
+                currentlySelectedRover1Index = currentlySelectedRover1Index - 1;
+                updateCurrentlySelectedRover1();
+            }
+            if (player == 1) {
+                currentlySelectedRover2Index = currentlySelectedRover2Index - 1;
+                updateCurrentlySelectedRover2();
+            }
+        }
+    }
+
+    private void next(int player) {
+        if (state == State.SelectChallenge) {
+            currentlySelectedChallengeIndex = currentlySelectedChallengeIndex + 1;
+            updateCurrentlySelectedChallenge();
+        } else if (state == State.SelectRover) {
+            if (player == 0) {
+                currentlySelectedRover1Index = currentlySelectedRover1Index + 1;
+                updateCurrentlySelectedRover1();
+            }
+            if (player == 1) {
+                currentlySelectedRover2Index = currentlySelectedRover2Index + 1;
+                updateCurrentlySelectedRover2();
+            }
+        }
+    }
+
+    private void select(int player) {
+        if (state == State.SelectChallenge) {
+            state = State.SelectRover;
+        } else if (state == State.SelectRover) {
+            state = State.ReadyToStart;
+            flashTime = System.currentTimeMillis() + 1000;
+            flash = true;
+        } else if (state == State.ReadyToStart) {
+            mainGame.setSelectedRover1(currentlySelectedRover1Type);
+            mainGame.setSelectedRover2(currentlySelectedRover2Type);
+            mainGame.setChallengeScreen(currentlySelectedChallengeDescription.getName());
+        } else {
+            textEntered();
+        }
+    }
+
+    private void back(int player) {
+        if (state == State.SelectRover) {
+            state = State.SelectChallenge;
+        } else if (state == State.ReadyToStart) {
+            state = State.SelectRover;
+        }
     }
 
     private void textEntered() {
@@ -483,8 +841,20 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     @Override
     public boolean keyDown(int keycode) {
-        if (keycode == Keys.ENTER) {
-            textEntered();
+        if (keycode == Keys.LEFT || keycode == Keys.A) {
+            previous(0);
+        } else if (keycode == Keys.J) {
+            previous(1);
+        } else if (keycode == Keys.RIGHT || keycode == Keys.D) {
+            next(0);
+        } else if (keycode == Keys.L) {
+            next(1);
+        } else if (keycode == Keys.DOWN || keycode == Keys.S || keycode == Keys.SPACE || keycode == Keys.ENTER) {
+            select(0);
+        } else if (keycode == Keys.K) {
+            select(1);
+        } else if (keycode == Keys.ESCAPE || keycode == Keys.W || keycode == Keys.UP) {
+            back(0);
         }
         return false;
     }
@@ -549,5 +919,121 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     @Override
     public void gameReady() {
         doStartGame = true;
+    }
+
+    abstract class Local3DDisplay {
+        private PerspectiveCamera camera;
+        private FrameBuffer frameBuffer;
+        private Texture texture;
+        private float rotationAngle = 0;
+        private float x;
+        private float y;
+        private int width;
+        private int height;
+        private float modelWidth;
+        private float modelHeight;
+
+        public Local3DDisplay(int width, int height, float modelWidth, float modelHeight) {
+            this.width = width;
+            this.height = height;
+            this.modelWidth = modelWidth;
+            this.modelHeight = modelHeight;
+
+            create();
+        }
+
+        public void create() {
+            camera = new PerspectiveCamera(45, width, height);
+            camera.position.set(300f * SCALE, 3000 * SCALE, 300f * SCALE);
+            camera.lookAt(0f, 0f, 0f);
+            camera.near = 0.02f;
+            camera.far = 1000f;
+            camera.up.set(UP);
+            camera.fieldOfView = 45f;
+            camera.update();
+
+            frameBuffer = new FrameBuffer(Format.RGBA8888, width, height, true);
+            texture = frameBuffer.getColorBufferTexture();
+        }
+
+        public void dispose() {
+            texture.dispose();
+            frameBuffer.dispose();
+        }
+
+        public void setPosition(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public void setModelDimensions(float modelWidth, float modelHeight) {
+            this.modelWidth = modelWidth;
+            this.modelHeight =  modelHeight;
+        }
+
+        public void update() {
+            rotationAngle = rotationAngle + (float)(Math.PI / 180.0);
+            if (rotationAngle > (float)(rotationAngle * Math.PI * 2f)) {
+                rotationAngle = 0f;
+            }
+
+            float radius = modelWidth > modelHeight ? modelWidth : modelHeight;
+            radius = radius * 0.9f;
+
+            float x = (float)(Math.sin(rotationAngle) * radius) * SCALE;
+            float y = (float)(Math.cos(rotationAngle) * radius) * SCALE;
+
+            camera.position.set(x, radius * SCALE, y);
+            camera.lookAt(0f, 0f, 0f);
+            camera.up.set(UP);
+            camera.update();
+        }
+
+        private void render(ModelBatch modelBatch) {
+            frameBuffer.begin();
+            Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+
+            modelBatch.begin(camera);
+            drawModel(modelBatch, environment, frameBuffer);
+            drawCorners(CHALLENGE_SELECTION_WIDTH, CHALLENGE_SELECTION_HEIGHT);
+            modelBatch.end();
+            frameBuffer.end();
+        }
+
+        private void drawCorners(int width, int height) {
+            cornerCamera.setToOrtho(true, width, height);
+            cornerBatch.setProjectionMatrix(cornerCamera.combined);
+
+            cornerBatch.begin();
+            cornerBatch.setBlendFunction(GL20.GL_ZERO, GL20.GL_SRC_COLOR);
+            cornerBatch.draw(cornerTexture, 0, 0, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, false, false);
+            cornerBatch.draw(cornerTexture, width - CORNER_WIDTH, 0, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, true, false);
+            cornerBatch.draw(cornerTexture, 0,  height - CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, false, true);
+            cornerBatch.draw(cornerTexture, width - CORNER_WIDTH, height - CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, true, true);
+            cornerBatch.end();
+        }
+
+        public void drawTexture(SpriteBatch batch) {
+            batch.draw(texture, x, y, width, height, 0, 0, width, height, false, true);
+        }
+
+        public void drawTextureBorder(ShapeRenderer shapeRenderer) {
+            shapeRenderer.set(ShapeType.Filled);
+            shapeRenderer.setColor(Color.YELLOW);
+            shapeRenderer.rectLine(x - 1, y + CORNER_WIDTH - 2, x - 1, y + height - CORNER_WIDTH + 2, 2, Color.YELLOW, Color.YELLOW);
+            shapeRenderer.rectLine(x + width + 1, y + CORNER_WIDTH - 2, x + width + 1, y + 1 + height - CORNER_WIDTH + 2, 2, Color.YELLOW, Color.YELLOW);
+            shapeRenderer.rectLine(x + CORNER_WIDTH - 2, y - 1, x + width - CORNER_WIDTH + 2, y - 1, 2, Color.YELLOW, Color.YELLOW);
+            shapeRenderer.rectLine(x + CORNER_WIDTH - 2, y + height + 1, x + width - CORNER_WIDTH + 2, y + height + 1, 2, Color.YELLOW, Color.YELLOW);
+            //shapeRenderer.set(ShapeType.Line);
+            shapeRenderer.arc(x - 2 + CORNER_WIDTH, y - 2 + CORNER_WIDTH, CORNER_WIDTH, 180, 90, 5);
+            shapeRenderer.arc(x + 2 + width - CORNER_WIDTH, y - 2 + CORNER_WIDTH, CORNER_WIDTH, 270, 90, 5);
+            shapeRenderer.arc(x + 2 + width - CORNER_WIDTH, y + height + 2 - CORNER_WIDTH, CORNER_WIDTH, 0, 90, 5);
+            shapeRenderer.arc(x - 2 + CORNER_WIDTH, y + height + 2 - CORNER_WIDTH, CORNER_WIDTH, 90, 90, 5);
+        }
+
+        public abstract void drawModel(ModelBatch modelBatch, Environment environment, FrameBuffer frameBuffer);
     }
 }

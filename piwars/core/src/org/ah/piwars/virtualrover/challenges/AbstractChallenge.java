@@ -17,7 +17,7 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 @SuppressWarnings("deprecation")
-public abstract class AbstractChallenge implements Challenge {
+public abstract class AbstractChallenge implements ChallengeArena {
 
     protected ModelInstance challengeModelInstance;
 
@@ -32,6 +32,11 @@ public abstract class AbstractChallenge implements Challenge {
     private DirectionalShadowLight shadowLight;
 
     protected ModelFactory modelFactory;
+
+    private IntMap<VisibleObject> defaultVisibleObjets = new IntMap<VisibleObject>();
+
+    private float width = 2200;
+    private float length = 2200;
 
     public AbstractChallenge(ModelFactory modelFactory) {
         this.modelFactory = modelFactory;
@@ -105,4 +110,25 @@ public abstract class AbstractChallenge implements Challenge {
             }
         }
     }
+
+    @Override
+    public IntMap<VisibleObject> defaultVisibleObjets() {
+        return defaultVisibleObjets ;
+    }
+
+    protected void setDimensions(float width, float length) {
+        this.width = width;
+        this.length = length;
+    }
+
+    @Override
+    public float getWidth() {
+        return width;
+    }
+
+    @Override
+    public float getLength() {
+        return length;
+    }
+
 }

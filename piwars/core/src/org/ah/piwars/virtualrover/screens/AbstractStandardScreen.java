@@ -28,7 +28,7 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.Background;
-import org.ah.piwars.virtualrover.challenges.Challenge;
+import org.ah.piwars.virtualrover.challenges.ChallengeArena;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
@@ -46,9 +46,9 @@ import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener, InputProcessor  {
 
-    protected static Vector3 UP = Vector3.Y;
+    public static Vector3 UP = Vector3.Y;
 
-    protected MainGame game;
+    protected MainGame mainGameApp;
     protected PlatformSpecific platformSpecific;
     protected ServerCommunicationAdapter serverCommunicationAdapter;
 
@@ -69,7 +69,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     protected Console console;
 
-    protected Challenge challenge;
+    protected ChallengeArena challenge;
     protected Background background;
 
     private String bottomMessage;
@@ -110,7 +110,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
 
-        this.game = game;
+        this.mainGameApp = game;
         this.platformSpecific = platformSpecific;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
@@ -161,11 +161,11 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         this.background = background;
     }
 
-    protected Challenge getChallenge() {
+    public ChallengeArena getChallengeArena() {
         return challenge;
     }
 
-    protected void setChallenge(Challenge challenge) {
+    public void setChallengeArena(ChallengeArena challenge) {
         this.challenge = challenge;
     }
 

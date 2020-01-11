@@ -6,16 +6,13 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
-import org.ah.piwars.virtualrover.screens.BlastOffScreen;
-import org.ah.piwars.virtualrover.screens.CanyonsOfMarsScreen;
+import org.ah.piwars.virtualrover.challenges.Challenges;
+import org.ah.piwars.virtualrover.game.rovers.RoverType;
 import org.ah.piwars.virtualrover.screens.ChallengeScreen;
+import org.ah.piwars.virtualrover.screens.ChallengeScreens;
 import org.ah.piwars.virtualrover.screens.ConnectingScreen;
-import org.ah.piwars.virtualrover.screens.EcoDisasterScreen;
 import org.ah.piwars.virtualrover.screens.GreetingScreen;
 import org.ah.piwars.virtualrover.screens.LoadingScreen;
-import org.ah.piwars.virtualrover.screens.MineSweeperScreen;
-import org.ah.piwars.virtualrover.screens.PiNoonScreen;
-import org.ah.piwars.virtualrover.screens.StraightLineSpeedTestScreen;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 import org.ah.themvsus.engine.client.ServerCommunication;
@@ -35,16 +32,16 @@ public class MainGame extends Game {
 
     private Console console;
 
+    private Challenges challenges;
+
     private LoadingScreen loadingScreen;
     private ConnectingScreen connectingScreen;
     private GreetingScreen greetingScreen;
     private ChallengeScreen challengeScreen;
-    private PiNoonScreen piNoonScreen;
-    private EcoDisasterScreen ecoDisasterScreen;
-    private CanyonsOfMarsScreen canyonsOfMarsScreen;
-    private StraightLineSpeedTestScreen straightLineSpeedTestScreen;
-    private BlastOffScreen blastOffScreen;
-    private MineSweeperScreen mineSweeperScreen;
+
+    private ChallengeScreens challengeScreens;
+    private RoverType rover1Selection;
+    private RoverType rover2Selection;
 
     public MainGame(PlatformSpecific platformSpecific) {
         this.platformSpecific = platformSpecific;
@@ -88,21 +85,18 @@ public class MainGame extends Game {
         soundManager.fetchSounds(assetManager);
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, modelFactory);
 
-        greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        piNoonScreen = new PiNoonScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        ecoDisasterScreen = new EcoDisasterScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        canyonsOfMarsScreen = new CanyonsOfMarsScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        straightLineSpeedTestScreen = new StraightLineSpeedTestScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        blastOffScreen = new BlastOffScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        mineSweeperScreen = new MineSweeperScreen(this, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        challenges = new Challenges(modelFactory, assetManager, serverCommunicationAdapter);
+        challengeScreens = new ChallengeScreens(this, platformSpecific, challenges, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, challenges, modelFactory, serverCommunicationAdapter, console);
 
         if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
             if (requestedChallenge == null || "".equals(requestedChallenge)) {
-                requestedChallenge = "PiNoon";
+                greetingScreen.reset();
+                setScreen(greetingScreen);
+            } else {
+                setChallengeScreen(requestedChallenge);
             }
-            serverCommunicationAdapter.startEngine(requestedChallenge, true, platformSpecific.isSimulation());
-            setChallengeScreen(requestedChallenge);
         } else if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
             setScreen(connectingScreen);
             connectingScreen.reset();
@@ -125,21 +119,11 @@ public class MainGame extends Game {
     public void setChallengeScreen(String mapId) {
         Gdx.input.setOnscreenKeyboardVisible(false);
 
-        if ("PiNoon".equals(mapId)) {
-            challengeScreen = piNoonScreen;
-        } else if ("EcoDisaster".equals(mapId)) {
-            challengeScreen = ecoDisasterScreen;
-        } else if ("CanyonsOfMars".equals(mapId)) {
-            challengeScreen = canyonsOfMarsScreen;
-        } else if ("StraightLineSpeedTest".equals(mapId)) {
-            challengeScreen = straightLineSpeedTestScreen;
-        } else if ("BlastOff".equals(mapId)) {
-            challengeScreen = blastOffScreen;
-        } else if ("MineSweeper".equals(mapId)) {
-            challengeScreen = mineSweeperScreen;
-        }
-        challengeScreen.reset();
+        serverCommunicationAdapter.startEngine(mapId, true, platformSpecific.isSimulation());
+
+        challengeScreen = challengeScreens.getChallengeScreen(mapId);
         setScreen(challengeScreen);
+        // challengeScreen.reset();
     }
 
     @Override
@@ -152,8 +136,25 @@ public class MainGame extends Game {
         if (challengeScreen != null) { challengeScreen.dispose(); }
     }
 
-    public void successfullyConnected(String mapId) {
-        serverCommunicationAdapter.startEngine(mapId, false, platformSpecific.isSimulation());
-        setChallengeScreen(mapId);
+    public void setSelectedRover1(RoverType roverType) {
+        rover1Selection = roverType;
+    }
+
+    public RoverType getSelectedRover1() {
+        if (rover1Selection == null) {
+            return RoverType.GCCM16;
+        }
+        return rover1Selection;
+    }
+
+    public void setSelectedRover2(RoverType roverType) {
+        rover2Selection = roverType;
+    }
+
+    public RoverType getSelectedRover2() {
+        if (rover2Selection == null) {
+            return RoverType.CBIS;
+        }
+        return rover2Selection;
     }
 }

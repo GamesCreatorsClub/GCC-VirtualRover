@@ -17,7 +17,6 @@ import org.ah.piwars.virtualrover.camera.CameraControllersManager;
 import org.ah.piwars.virtualrover.camera.CinematicCameraController;
 import org.ah.piwars.virtualrover.challenges.PiNoonArena;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
-import org.ah.piwars.virtualrover.game.rovers.RoverType;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 
@@ -29,9 +28,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
     private CameraControllersManager cameraControllersManager;
     private InputMultiplexer cameraInputMultiplexer;
 
-    private RoverType player1RoverType = RoverType.GCCM16;
-    private RoverType player2RoverType = RoverType.CBIS;
-
     public PiNoonScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
@@ -42,11 +38,10 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
         super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         setBackground(new PerlinNoiseBackground());
-
-        PiNoonArena challenge = new PiNoonArena(modelFactory);
-        challenge.init();
-
-        setChallenge(challenge);
+//
+//        PiNoonArena challenge = new PiNoonArena(modelFactory);
+//        challenge.init();
+//        setChallenge(challenge);
 
         camera = new PerspectiveCamera(45, 800, 480);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
@@ -170,8 +165,8 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
 
             // PiNoonChallenge piNoonArena = (PiNoonChallenge)game.getChallenge();
 
-            /* Rover player1 = */game.spawnRover(1, "Blue", player1RoverType);
-            /* Rover player2 = */game.spawnRover(2, "Green", player2RoverType);
+            /* Rover player1 = */game.spawnRover(1, "Blue", mainGameApp.getSelectedRover1());
+            /* Rover player2 = */game.spawnRover(2, "Green", mainGameApp.getSelectedRover2());
             serverCommunicationAdapter.setLocalPlayerIds(1, 2);
         }
 

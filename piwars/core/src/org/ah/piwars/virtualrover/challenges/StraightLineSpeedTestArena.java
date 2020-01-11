@@ -22,6 +22,7 @@ import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CHICANES_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CHICANE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.COURSE_LENGTH;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.COURSE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CUT_MODIFIER;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.FLOOR_POLYGON;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALLS_POLYGONS;
@@ -48,6 +49,8 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
 
     public StraightLineSpeedTestArena(ModelFactory modelFactory) {
         super(modelFactory);
+
+        setDimensions(COURSE_WIDTH, COURSE_LENGTH);
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
         floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.2f, 0.2f, 1f)));

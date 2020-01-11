@@ -14,6 +14,7 @@ import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.game.challenge.EcoDisasterChallenge.CHALLENGE_WIDTH;
 
 public class EcoDisasterArena extends AbstractChallenge {
 
@@ -30,6 +31,8 @@ public class EcoDisasterArena extends AbstractChallenge {
 
     public EcoDisasterArena(ModelFactory modelFactory) {
         super(modelFactory);
+
+        setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
         floorCamera = new OrthographicCamera(2000, 2000);
         floorCamera.update();

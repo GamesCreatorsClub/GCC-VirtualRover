@@ -7,11 +7,17 @@ import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
 
-public interface Challenge {
+public interface ChallengeArena {
 
     void init();
 
     void dispose();
 
     void render(ModelBatch batch, Environment en, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects);
+
+    float getWidth();
+
+    float getLength();
+
+    IntMap<VisibleObject> defaultVisibleObjets();
 }

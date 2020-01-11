@@ -19,6 +19,7 @@ import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
+import static org.ah.piwars.virtualrover.game.challenge.MineSweeperChallenge.COURSE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.MineSweeperChallenge.MINE_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.MineSweeperChallenge.WALL_HEIGHT;
 import static org.ah.piwars.virtualrover.game.challenge.MineSweeperChallenge.WALL_POLYGONS;
@@ -43,6 +44,8 @@ public class MineSweeperArena extends AbstractChallenge {
         super(modelFactory);
 
         this.serverCommunicationAdapter = serverCommunicationAdapter;
+
+        setDimensions(COURSE_WIDTH, COURSE_WIDTH);
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
         floorOffMaterial = new Material(FLOOR_NOT_LIT_COLOUR);
