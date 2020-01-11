@@ -27,6 +27,7 @@ import static java.util.Arrays.asList;
 
 public class StraightLineSpeedTestChallenge extends AbstractChallenge {
 
+    public static int COURSE_WIDTH = 630 * 2; // 7200
     public static int COURSE_LENGTH = 4800; // 7200
     public static int CHICANE_LENGTH = 800;
     public static float CHICANE_WIDTH = 38;

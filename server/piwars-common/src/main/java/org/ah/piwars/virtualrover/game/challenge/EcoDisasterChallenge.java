@@ -3,10 +3,10 @@ package org.ah.piwars.virtualrover.game.challenge;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
 
+import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
-import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -28,11 +28,13 @@ import static java.util.Arrays.asList;
 
 public class EcoDisasterChallenge extends AbstractChallenge {
 
+    public static final float CHALLENGE_WIDTH = 2200;
+
     private List<Polygon> piNoonPolygons = asList(
-            polygonFromBox(-1100, -1101,  1100, -1100),
-            polygonFromBox(-1101, -1100, -1100,  1100),
-            polygonFromBox(-1100,  1100,  1100,  1101),
-            polygonFromBox( 1100, -1100,  1101,  1100));
+            polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2 - 1,  CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2),
+            polygonFromBox(-CHALLENGE_WIDTH / 2 - 1, -CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2),
+            polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
+            polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
     private int gameMessageId;
     private GameState gameStateGameMessageIsDefinedOn;

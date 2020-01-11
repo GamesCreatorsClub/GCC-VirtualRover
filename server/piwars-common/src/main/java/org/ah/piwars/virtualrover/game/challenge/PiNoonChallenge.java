@@ -32,11 +32,13 @@ import static java.util.Arrays.asList;
 
 public class PiNoonChallenge extends AbstractChallenge {
 
+    public static final float CHALLENGE_WIDTH = 2000;
+
     private List<Polygon> piNoonPolygons = asList(
-            polygonFromBox(-1000, -1001,  1000, -1000),
-            polygonFromBox(-1001, -1000, -1000,  1000),
-            polygonFromBox(-1000,  1000,  1000,  1001),
-            polygonFromBox( 1000, -1000,  1001,  1000));
+            polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2 - 1,  CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2),
+            polygonFromBox(-CHALLENGE_WIDTH / 2 - 1, -CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2),
+            polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
+            polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
     private int gameMessageId;
     private GameState gameStateGameMessageIsDefinedOn;
