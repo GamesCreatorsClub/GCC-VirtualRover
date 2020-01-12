@@ -160,7 +160,7 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
     @Override
     public boolean keyDown(int keycode) {
         super.keyDown(keycode);
-        if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
+        if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne()) {
             PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
 
             // TODO - select rover type properly

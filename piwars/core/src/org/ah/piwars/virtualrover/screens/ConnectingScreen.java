@@ -35,7 +35,7 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
     @Override
     public void render(float delta) {
         if (gameReady) {
-            game.setChallengeScreen(mapId);
+            game.setChallengeScreen(mapId, false);
         } else if (connected) {
             Gdx.gl.glClearColor(0.8f, 1f, 0.8f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);

@@ -103,7 +103,7 @@ public class MainGame extends Game {
                 greetingScreen.reset();
                 setScreen(greetingScreen);
             } else {
-                setChallengeScreen(requestedChallenge);
+                setChallengeScreen(requestedChallenge, true);
             }
         } else if (platformSpecific.hasServerDetails() && platformSpecific.isSimulation()) {
             setScreen(connectingScreen);
@@ -124,10 +124,10 @@ public class MainGame extends Game {
         }
     }
 
-    public void setChallengeScreen(String mapId) {
+    public void setChallengeScreen(String mapId, boolean local) {
         Gdx.input.setOnscreenKeyboardVisible(false);
 
-        serverCommunicationAdapter.startEngine(mapId, true, platformSpecific.isSimulation());
+        serverCommunicationAdapter.startEngine(mapId, local, platformSpecific.isSimulation());
 
         challengeScreen = challengeScreens.getChallengeScreen(mapId);
         setScreen(challengeScreen);

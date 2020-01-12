@@ -57,7 +57,6 @@ import static org.ah.piwars.virtualrover.screens.AbstractStandardScreen.UP;
 
 public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCallback, GameReadyCallback, GameMapCallback, ReceivedRegistrationServerCallback {
 
-
     private enum State {
         None(false, false),
         SelectChallenge(true, false),
@@ -383,8 +382,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         serverCommunicationAdapter.startEngine(mapId, false, platformSpecific.isSimulation());
     }
 
-    private void startGame() {
-        mainGame.setChallengeScreen(mapId);
+    private void startRemoteGame() {
+        mainGame.setChallengeScreen(mapId, false);
     }
 
     private void updateCurrentlySelectedChallenge() {
@@ -533,7 +532,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         }
 
         if (doStartGame) {
-            startGame();
+            startRemoteGame();
         }
     }
 
@@ -632,7 +631,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         } else if (state == State.ReadyToStart) {
             mainGame.setSelectedRover1(currentlySelectedRover1Type);
             mainGame.setSelectedRover2(currentlySelectedRover2Type);
-            mainGame.setChallengeScreen(currentlySelectedChallengeDescription.getName());
+            mainGame.setChallengeScreen(currentlySelectedChallengeDescription.getName(), !currentlySelectedChallengeDescription.isRemote());
         } else {
             textEntered();
         }

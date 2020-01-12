@@ -51,10 +51,11 @@ public class PiNoonAttachmentModelLink implements VisibleObject {
         PiNoonAttachment attachment = game.getCurrentGameState().get(id);
         if (attachment == null) {
             System.err.println("Cannot find attachemtn id " + id + " in " + game.getCurrentGameState());
+        } else {
+            attachmentModel.setBalloonBits(attachment.getBalloonBits());
+            attachmentModel.update(playerModel.getRoverTransform());
+            attachmentModel.render(batch, environment);
         }
-        attachmentModel.setBalloonBits(attachment.getBalloonBits());
-        attachmentModel.update(playerModel.getRoverTransform());
-        attachmentModel.render(batch, environment);
     }
 
     public void setGamePlayerPositionAndOrientation(int x, int y, Quaternion orientation) {
