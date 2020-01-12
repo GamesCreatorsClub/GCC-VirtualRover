@@ -64,6 +64,7 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
 
     @Override
     public void reset() {
+        super.reset();
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.02f;
@@ -101,7 +102,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
         Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
         Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
-        progressEngine();
+        if (!isSuspended()) {
+            progressEngine();
+        }
 
         cameraControllersManager.update();
         camera.update();
@@ -112,10 +115,11 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
 
         batch.begin(camera);
 
-
         challenge.render(batch, environment, null, serverCommunicationAdapter.getVisibleObjects());
         if (serverCommunicationAdapter.isLocal()) {
-            if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
+            if (isSuspended()) {
+                setMiddleMessage("Press ESC to leave", true);
+            } else if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
                 moveRovers();
             } else if (serverCommunicationAdapter.isLocal()) {
                 setMiddleMessage("Press space to begin", true);

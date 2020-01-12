@@ -125,6 +125,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     public void startEngine(String mapId, boolean local, boolean simulation) {
+        sessionId = 0;
+        playerTwoId = 0;
+        gameMessageId = 0;
+        cameraAttachmentId = 0;
+        mineSweeperId = 0;
+
         this.local = local;
         PiWarsGame game = new PiWarsGame(mapId);
         game.setIsServer(local);

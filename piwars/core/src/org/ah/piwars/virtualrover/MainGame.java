@@ -89,6 +89,14 @@ public class MainGame extends Game {
         challengeScreens = new ChallengeScreens(this, platformSpecific, challenges, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
         greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, challenges, modelFactory, serverCommunicationAdapter, console);
 
+        selelectChallenge();
+    }
+
+    public void selelectChallenge() {
+        if (serverCommunicationAdapter.getEngine() != null) {
+            serverCommunicationAdapter.getEngine().resetGame();
+        }
+
         if (platformSpecific.isLocalOnly()) {
             String requestedChallenge = platformSpecific.getRequestedChallenge();
             if (requestedChallenge == null || "".equals(requestedChallenge)) {

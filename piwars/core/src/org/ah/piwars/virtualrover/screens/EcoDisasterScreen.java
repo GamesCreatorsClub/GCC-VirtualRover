@@ -60,6 +60,7 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
 
     @Override
     public void reset() {
+        super.reset();
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.02f;
@@ -95,10 +96,14 @@ public class EcoDisasterScreen extends AbstractStandardScreen implements Challen
 //        Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
 //        Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
 
-        progressEngine();
+        if (!isSuspended()) {
+            progressEngine();
+        }
 
         if (serverCommunicationAdapter.isLocal()) {
-            if (serverCommunicationAdapter.hasPlayerOne()) {
+            if (isSuspended()) {
+                setMiddleMessage("Press ESC to leave", true);
+            } else if (serverCommunicationAdapter.hasPlayerOne()) {
                 moveRovers();
             } else if (serverCommunicationAdapter.isLocal()) {
                 setMiddleMessage("Press space to begin", true);

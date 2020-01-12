@@ -87,6 +87,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected boolean rightAlt;
     protected boolean leftCtrl;
     protected boolean rightCtrl;
+    protected boolean escPressed;
+
+    protected boolean suspended;
 
     protected boolean drawFPS = false;
 
@@ -151,6 +154,11 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         if (gccLogo == null) { gccLogo.dispose(); }
         if (challenge != null) { challenge.dispose(); }
         if (background != null) { background.dispose(); }
+    }
+
+    public void reset() {
+        setMiddleMessage("", false);
+        suspended = false;
     }
 
     protected Background getBackground() {
@@ -346,6 +354,14 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         spriteBatch.end();
     }
 
+    protected boolean isSuspended() {
+        return suspended;
+    }
+
+    protected void leave() {
+        mainGameApp.selelectChallenge();
+    }
+
     @Override
     public void onCommand(Player from, String cmdName, String[] args) {
         if ("hello".equals(cmdName)) {
@@ -403,33 +419,49 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     @Override
     public boolean keyDown(int keycode) {
-
-        if (keycode == Input.Keys.SHIFT_LEFT) {
-            leftShift = true;
-        }
-        if (keycode == Input.Keys.SHIFT_RIGHT) {
-            rightShift = true;
-        }
-        if (keycode == Input.Keys.ALT_LEFT) {
-            leftAlt = true;
-        }
-        if (keycode == Input.Keys.ALT_RIGHT) {
-            rightAlt = true;
-        }
-        if (keycode == Input.Keys.CONTROL_LEFT) {
-            leftCtrl = true;
-        }
-        if (keycode == Input.Keys.CONTROL_RIGHT) {
-            rightCtrl = true;
-        }
-        if (keycode == Input.Keys.F) {
-            drawFPS = !drawFPS;
+        if (!suspended) {
+            if (keycode == Input.Keys.ESCAPE && !escPressed) {
+                suspended = true;
+                escPressed = true;
+            }
+            if (keycode == Input.Keys.SHIFT_LEFT) {
+                leftShift = true;
+            }
+            if (keycode == Input.Keys.SHIFT_RIGHT) {
+                rightShift = true;
+            }
+            if (keycode == Input.Keys.ALT_LEFT) {
+                leftAlt = true;
+            }
+            if (keycode == Input.Keys.ALT_RIGHT) {
+                rightAlt = true;
+            }
+            if (keycode == Input.Keys.CONTROL_LEFT) {
+                leftCtrl = true;
+            }
+            if (keycode == Input.Keys.CONTROL_RIGHT) {
+                rightCtrl = true;
+            }
+            if (keycode == Input.Keys.F) {
+                drawFPS = !drawFPS;
+            }
+        } else {
+            if (keycode == Input.Keys.ESCAPE && !escPressed) {
+                leave();
+                escPressed = true;
+            } else {
+                setMiddleMessage("", true);
+                suspended = false;
+            }
         }
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
+        if (keycode == Input.Keys.ESCAPE) {
+            escPressed = false;
+        }
         if (keycode == Input.Keys.SHIFT_LEFT) {
             leftShift = false;
         }
