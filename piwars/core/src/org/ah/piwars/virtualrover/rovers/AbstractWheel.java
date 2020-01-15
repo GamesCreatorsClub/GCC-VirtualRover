@@ -57,4 +57,6 @@ public abstract class AbstractWheel {
     protected abstract void render(ModelBatch batch, Environment environment);
 
     protected abstract void internalUpdate();
+
+    public abstract void dispose();
 }

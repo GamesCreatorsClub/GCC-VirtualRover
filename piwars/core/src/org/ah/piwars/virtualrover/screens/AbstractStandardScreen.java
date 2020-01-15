@@ -159,6 +159,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     public void reset() {
         setMiddleMessage("", false);
         suspended = false;
+        serverCommunicationAdapter.reset();
     }
 
     protected Background getBackground() {

@@ -131,6 +131,9 @@ public class PiNoonAttachmentModel extends AbstractAttachmentModel {
         public void reset() { popped = false; }
 
         public void pop() { popped = true; }
+
+        public void dispose() {
+        }
     }
 
     public void setBalloonBits(int balloonBits) {
@@ -146,5 +149,12 @@ public class PiNoonAttachmentModel extends AbstractAttachmentModel {
                 }
             }
         }
+    }
+
+    public void dispose() {
+        for (Balloon balloon : balloons) {
+            balloon.dispose();
+        }
+
     }
 }

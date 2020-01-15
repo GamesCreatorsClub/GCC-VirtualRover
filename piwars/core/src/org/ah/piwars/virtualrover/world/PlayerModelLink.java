@@ -101,4 +101,13 @@ public class PlayerModelLink implements VisibleObject {
     public Color getColour() {
         return colour;
     }
+
+    @Override
+    public void dispose() {
+        playerSelection = RoverType.GCCM16;
+        roverModel.dispose();
+        roverModel = null;
+        game = null;
+        roverColour = RoverColour.WHITE;
+    }
 }

@@ -67,4 +67,9 @@ public class PiNoonAttachmentModelLink implements VisibleObject {
     public PiNoonAttachment getAttachmentGameObject() {
         return game.getCurrentGameState().get(id);
     }
+
+    @Override
+    public void dispose() {
+        attachmentModel.dispose();
+    }
 }

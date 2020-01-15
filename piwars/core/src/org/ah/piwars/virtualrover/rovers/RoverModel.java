@@ -22,4 +22,6 @@ public interface RoverModel {
     void setId(int i);
 
     void setColour(Color colour);
+
+    void dispose();
 }

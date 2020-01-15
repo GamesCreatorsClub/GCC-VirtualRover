@@ -22,4 +22,11 @@ public abstract class FourWheelRoverModel extends AbstractRoverModel {
         br.setSpeed(speed);
     }
 
+    @Override
+    public void dispose() {
+        fr.dispose();
+        br.dispose();
+        bl.dispose();
+        fl.dispose();
+    }
 }

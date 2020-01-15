@@ -315,4 +315,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             packetNo++;
         }
     }
+
+    public void reset() {
+        for (VisibleObject visibleObject : allVisibleObjects.values()) {
+            visibleObject.dispose();
+        }
+
+        allVisibleObjects.clear();
+    }
 }

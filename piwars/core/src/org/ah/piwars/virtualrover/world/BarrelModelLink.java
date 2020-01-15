@@ -68,4 +68,8 @@ public class BarrelModelLink implements VisibleObject {
         }
         return Color.WHITE;
     }
+
+    @Override
+    public void dispose() {
+    }
 }

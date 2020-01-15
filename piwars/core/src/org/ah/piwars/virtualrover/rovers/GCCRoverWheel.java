@@ -53,4 +53,8 @@ public class GCCRoverWheel extends AbstractWheel {
         batch.render(tyre, environment);
         batch.render(motor, environment);
     }
+
+    @Override
+    public void dispose() {
+    }
 }

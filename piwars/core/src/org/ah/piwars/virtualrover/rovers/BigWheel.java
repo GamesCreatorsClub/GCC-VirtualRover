@@ -45,8 +45,13 @@ public class BigWheel extends AbstractWheel {
         tyre.transform.set(wheel.transform);
     }
 
+    @Override
     public void render(ModelBatch batch, Environment environment) {
         batch.render(wheel, environment);
         batch.render(tyre, environment);
+    }
+
+    @Override
+    public void dispose() {
     }
 }
