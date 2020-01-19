@@ -25,7 +25,7 @@ import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestCha
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.COURSE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CUT_MODIFIER;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.FLOOR_POLYGON;
-import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALLS_POLYGONS;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALL_HEIGHT;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
@@ -64,7 +64,7 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
         floorModelInstance = new ModelInstance(floorModel);
         floorModelInstance.transform.setToTranslationAndScaling(0, -59f * SCALE, 0, SCALE, SCALE, SCALE);
 
-        for (Polygon wallPolygon : WALLS_POLYGONS) {
+        for (Polygon wallPolygon : WALL_POLYGONS) {
             Model wallModel = extrudePolygonY(modelBuilder, wallPolygon, WALL_HEIGHT, attrs, wallMaterial);
             ModelInstance wallInstance = new ModelInstance(wallModel);
             wallInstance.transform.setToTranslationAndScaling(0, (WALL_HEIGHT / 2 - 59) * SCALE, 0, SCALE, SCALE, SCALE);

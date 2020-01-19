@@ -1,7 +1,6 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
@@ -58,11 +57,7 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
             polygonFromBox(-1100,  1100,  1100,  1101),
             polygonFromBox( 1100, -1100,  1101,  1100));
 
-    private List<Polygon> piNoonPolygons = WALL_POLYGONS;
-
     private Random random = new Random();
-
-    private Quaternion orientation = new Quaternion();
 
     private int stateObjectId;
 
@@ -70,12 +65,8 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
 
     public MineSweeperChallenge(PiWarsGame game, String name) {
         super(game, name);
+        wallPolygons = WALL_POLYGONS;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-    }
-
-    @Override
-    public List<Polygon> getCollisionPolygons() {
-        return piNoonPolygons;
     }
 
     @Override
@@ -275,9 +266,11 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
             }
 
             @Override public void exit(MineSweeperChallenge challenge) {
-                Rover player1 = challenge.getRover();
-                challenge.piwarsGame.removeGameObject(player1.getId());
-                challenge.playerId = 0;
+                Rover rover = challenge.getRover();
+                if (rover != null) {
+                    challenge.piwarsGame.removeGameObject(rover.getId());
+                    challenge.playerId = 0;
+                }
                 challenge.setMessage(null, false);
             }
         };

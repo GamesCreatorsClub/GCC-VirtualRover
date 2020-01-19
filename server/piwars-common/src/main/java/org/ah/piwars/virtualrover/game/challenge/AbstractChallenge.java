@@ -1,5 +1,8 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Quaternion;
+
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
@@ -7,6 +10,10 @@ import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameState;
+
+import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 public abstract class AbstractChallenge implements Challenge {
 
@@ -19,9 +26,18 @@ public abstract class AbstractChallenge implements Challenge {
     protected GameMessageObject cachedGameMessageObject;
     private GameState gameStateGameMessageIsDefinedOn;
 
+    protected Quaternion orientation = new Quaternion();
+
+    protected List<Polygon> wallPolygons = emptyList();
+
     protected AbstractChallenge(PiWarsGame piwarsGame, String name) {
         this.piwarsGame = piwarsGame;
         this.name = name;
+    }
+
+    @Override
+    public List<Polygon> getCollisionPolygons() {
+        return wallPolygons;
     }
 
     public Game getGame() {

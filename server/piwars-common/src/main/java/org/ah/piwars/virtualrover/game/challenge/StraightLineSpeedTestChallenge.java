@@ -41,15 +41,13 @@ public class StraightLineSpeedTestChallenge extends CameraAbstractChallenge {
             polygonForChicane(COURSE_LENGTH / 4, 305)
     );
 
-    public static final List<Polygon> WALLS_POLYGONS = asList(
+    public static final List<Polygon> WALL_POLYGONS = asList(
             polygonFromBox(-COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2, -305),
             polygonFromBox(-COURSE_LENGTH / 2, 305, COURSE_LENGTH / 2, 315)
     );
 
-    public static final Polygon START_POLIGON = polygonFromBox(-COURSE_LENGTH, -315, -COURSE_LENGTH, 315);
-    public static final Polygon END_POLIGON = polygonFromBox(COURSE_LENGTH, -315, COURSE_LENGTH, 315);
-
-    private List<Polygon> piNoonPolygons;
+    public static final Polygon START_POLIGON = polygonFromBox(-COURSE_LENGTH / 2 - 10, -315, -COURSE_LENGTH / 2, 315);
+    public static final Polygon END_POLIGON = polygonFromBox(COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2 + 10, 315);
 
     private Quaternion orientation = new Quaternion();
 
@@ -59,14 +57,9 @@ public class StraightLineSpeedTestChallenge extends CameraAbstractChallenge {
         super(game, name);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
 
-        piNoonPolygons = new ArrayList<Polygon>();
-        piNoonPolygons.addAll(WALLS_POLYGONS);
-        piNoonPolygons.addAll(CHICANES_POLYGONS);
-    }
-
-    @Override
-    public List<Polygon> getCollisionPolygons() {
-        return piNoonPolygons;
+        wallPolygons = new ArrayList<Polygon>();
+        wallPolygons.addAll(WALL_POLYGONS);
+        wallPolygons.addAll(CHICANES_POLYGONS);
     }
 
     @Override
@@ -199,9 +192,11 @@ public class StraightLineSpeedTestChallenge extends CameraAbstractChallenge {
             }
 
             @Override public void exit(StraightLineSpeedTestChallenge challenge) {
-                Rover player1 = challenge.getRover();
-                challenge.piwarsGame.removeGameObject(player1.getId());
-                challenge.playerId = 0;
+                Rover rover = challenge.getRover();
+                if (rover != null) {
+                    challenge.piwarsGame.removeGameObject(rover.getId());
+                    challenge.playerId = 0;
+                }
                 challenge.setMessage(null, false);
             }
         };

@@ -1,7 +1,6 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -28,13 +27,11 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
 
     public static final float CHALLENGE_WIDTH = 2200;
 
-    private List<Polygon> piNoonPolygons = asList(
+    public static final List<Polygon> WALL_POLYGONS = asList(
             polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2 - 1,  CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2),
             polygonFromBox(-CHALLENGE_WIDTH / 2 - 1, -CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2),
             polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
             polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
-
-    private Quaternion orientation = new Quaternion();
 
     private List<BarrelObject> barrels = new ArrayList<BarrelObject>();
 
@@ -42,12 +39,8 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
 
     public EcoDisasterChallenge(PiWarsGame game, String name) {
         super(game, name);
+        wallPolygons = WALL_POLYGONS;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-    }
-
-    @Override
-    public List<Polygon> getCollisionPolygons() {
-        return piNoonPolygons;
     }
 
     @Override
@@ -192,9 +185,11 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
             }
 
             @Override public void exit(EcoDisasterChallenge challenge) {
-                Rover player1 = challenge.getRover();
-                challenge.piwarsGame.removeGameObject(player1.getId());
-                challenge.playerId = 0;
+                Rover rover = challenge.getRover();
+                if (rover != null) {
+                    challenge.piwarsGame.removeGameObject(rover.getId());
+                    challenge.playerId = 0;
+                }
                 challenge.setMessage(null, false);
             }
         };

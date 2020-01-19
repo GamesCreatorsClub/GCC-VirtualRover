@@ -24,7 +24,7 @@ import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_HEIGHT;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.FLOOR_POLYGON;
-import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALLS_POLYGONS;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_HEIGHT;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
@@ -62,7 +62,7 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
 
         alienPosterModel = modelBuilder.createRect(0, -60, -60, 0, -60, 60, 0, 60, 60, 0, 60, -60, 0, 0, 1, alienMaterial, attrs);
 
-        for (Polygon wallPolygon : WALLS_POLYGONS) {
+        for (Polygon wallPolygon : WALL_POLYGONS) {
             Model wallModel = extrudePolygonY(modelBuilder, wallPolygon, WALL_HEIGHT, attrs, wallMaterial);
             ModelInstance wallInstance = new ModelInstance(wallModel);
             wallInstance.transform.setToTranslationAndScaling(0, (WALL_HEIGHT / 2 - 59) * SCALE, 0, SCALE, SCALE, SCALE);

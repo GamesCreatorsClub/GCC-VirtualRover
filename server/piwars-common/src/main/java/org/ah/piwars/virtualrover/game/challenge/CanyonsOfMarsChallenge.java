@@ -1,7 +1,6 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -31,7 +30,7 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
 
     public static final Polygon FLOOR_POLYGON = polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_HEIGHT / 2, CHALLENGE_WIDTH / 2, CHALLENGE_HEIGHT / 2);
 
-    public static final List<Polygon> WALLS_POLYGONS = asList(
+    public static final List<Polygon> WALL_POLYGONS = asList(
                 polygonFromBox(1690, -915, 1700, 915),
                 polygonFromBox(-1700, 905, 1700, 915),
                 polygonFromBox(-1700, -915, -1690, 915),
@@ -49,20 +48,12 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
     public static final Polygon START_POLIGON = polygonFromBox(1015, -920, 1700, -915);
     public static final Polygon END_POLIGON = polygonFromBox(300, -920, 1015, -915);
 
-    private List<Polygon> piNoonPolygons = WALLS_POLYGONS;
-
-    private Quaternion orientation = new Quaternion();
-
     private StateMachine<CanyonsOfMarsChallenge, ChallengeState> stateMachine = new StateMachine<CanyonsOfMarsChallenge, ChallengeState>();
 
     public CanyonsOfMarsChallenge(PiWarsGame game, String name) {
         super(game, name);
+        wallPolygons = WALL_POLYGONS;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-    }
-
-    @Override
-    public List<Polygon> getCollisionPolygons() {
-        return piNoonPolygons;
     }
 
     @Override
@@ -195,9 +186,11 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
             }
 
             @Override public void exit(CanyonsOfMarsChallenge challenge) {
-                Rover player1 = challenge.getRover();
-                challenge.piwarsGame.removeGameObject(player1.getId());
-                challenge.playerId = 0;
+                Rover rover = challenge.getRover();
+                if (rover != null) {
+                    challenge.piwarsGame.removeGameObject(rover.getId());
+                    challenge.playerId = 0;
+                }
                 challenge.setMessage(null, false);
             }
         };

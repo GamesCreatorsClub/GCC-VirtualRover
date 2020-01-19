@@ -1,7 +1,6 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Quaternion;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -15,9 +14,9 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
 import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 import static java.util.Arrays.asList;
@@ -61,25 +60,15 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
             polygonForWall5(-COURSE_WIDTH / 2, 10)
     );
 
-    private List<Polygon> piNoonPolygons;
-
-    private Quaternion orientation = new Quaternion();
+    public static final Polygon START_POLIGON = polygonFromBox(-COURSE_LENGTH / 2 - 10, -COURSE_WIDTH, -COURSE_LENGTH / 2, COURSE_WIDTH);
+    public static final Polygon END_POLIGON = polygonFromBox(COURSE_LENGTH / 2, -COURSE_WIDTH, COURSE_LENGTH / 2 + 10, COURSE_WIDTH);
 
     private StateMachine<BlastOffChallenge, ChallengeState> stateMachine = new StateMachine<BlastOffChallenge, ChallengeState>();
 
-    private PiWarsGame piwarsGame;
-
     public BlastOffChallenge(PiWarsGame game, String name) {
         super(game, name);
+        wallPolygons = WALLS_POLYGONS;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-
-        piNoonPolygons = new ArrayList<Polygon>();
-        piNoonPolygons.addAll(WALLS_POLYGONS);
-    }
-
-    @Override
-    public List<Polygon> getCollisionPolygons() {
-        return piNoonPolygons;
     }
 
     @Override
@@ -178,6 +167,15 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
                     challenge.setMessage(null, false);
                 }
 
+                Rover rover = challenge.getRover();
+                if (polygonsOverlap(START_POLIGON, rover.getCollisionPolygons())) {
+                    challenge.getGameMessage().setMessage("Wrong way!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
+                } else if (polygonsOverlap(END_POLIGON, rover.getCollisionPolygons())) {
+                    challenge.getGameMessage().setMessage("You have finished course! Well done!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
+                }
+
                 CameraAttachment player1Attachment = challenge.getCameraAttachment();
 
                 if (player1Attachment != null) {
@@ -203,9 +201,11 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
             }
 
             @Override public void exit(BlastOffChallenge challenge) {
-                Rover player1 = challenge.getRover();
-                challenge.piwarsGame.removeGameObject(player1.getId());
-                challenge.playerId = 0;
+                Rover rover = challenge.getRover();
+                if (rover != null) {
+                    challenge.piwarsGame.removeGameObject(rover.getId());
+                    challenge.playerId = 0;
+                }
                 challenge.setMessage(null, false);
             }
         };

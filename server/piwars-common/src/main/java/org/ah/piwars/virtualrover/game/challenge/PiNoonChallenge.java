@@ -33,7 +33,7 @@ public class PiNoonChallenge extends AbstractChallenge {
 
     public static final float CHALLENGE_WIDTH = 2000;
 
-    private List<Polygon> piNoonPolygons = asList(
+    public static final List<Polygon> WALL_POLYGONS = asList(
             polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2 - 1,  CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2),
             polygonFromBox(-CHALLENGE_WIDTH / 2 - 1, -CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2),
             polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
@@ -52,12 +52,8 @@ public class PiNoonChallenge extends AbstractChallenge {
 
     public PiNoonChallenge(PiWarsGame game, String name) {
         super(game, name);
+        wallPolygons = WALL_POLYGONS;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-    }
-
-    @Override
-    public List<Polygon> getCollisionPolygons() {
-        return piNoonPolygons;
     }
 
     @Override
@@ -483,11 +479,15 @@ public class PiNoonChallenge extends AbstractChallenge {
 
             @Override public void exit(PiNoonChallenge challenge) {
                 Rover player1 = challenge.getPlayerOne();
+                if (player1 != null) {
+                    challenge.piwarsGame.removeGameObject(player1.getId());
+                    challenge.player1Id = 0;
+                }
                 Rover player2 = challenge.getPlayerTwo();
-                challenge.piwarsGame.removeGameObject(player2.getId());
-                challenge.piwarsGame.removeGameObject(player1.getId());
-                challenge.player1Id = 0;
-                challenge.player2Id = 0;
+                if (player2 != null) {
+                    challenge.piwarsGame.removeGameObject(player2.getId());
+                    challenge.player2Id = 0;
+                }
                 challenge.setMessage(null, false);
             }
         };
