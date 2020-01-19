@@ -6,15 +6,50 @@ from datetime import time
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
+from piwarssim.engine.utils.Polygon import polygon_from_box
 
 
 class MineSweeperChallenge(AbstractChallenge):
+
+    COURSE_WIDTH = 2200
+    WALL_HEIGHT = 200
+
+    MINE_POLYGONS = [
+            polygon_from_box(-1100, -1100,  -550, -550),
+            polygon_from_box(-550, -1100,  0, -550),
+            polygon_from_box(0, -1100,  550, -550),
+            polygon_from_box(550, -1100,  1100, -550),
+
+            polygon_from_box(-1100, -550,  -550, 0),
+            polygon_from_box(-550, -550,  0, 0),
+            polygon_from_box(0, -550,  550, 0),
+            polygon_from_box(550, -550,  1100, 0),
+
+            polygon_from_box(-1100, 0,  -550, 550),
+            polygon_from_box(-550, 0,  0, 550),
+            polygon_from_box(0, 0,  550, 550),
+            polygon_from_box(550, 0,  1100, 550),
+
+            polygon_from_box(-1100, 550,  -550, 1100),
+            polygon_from_box(-550, 550,  0, 1100),
+            polygon_from_box(0, 550,  550, 1100),
+            polygon_from_box(550, 550,  1100, 1100)
+        ]
+
+    WALL_POLYGONS = [
+            polygon_from_box(-1100, -1101,  1100, -1100),
+            polygon_from_box(-1101, -1100, -1100,  1100),
+            polygon_from_box(-1100,  1100,  1100,  1101),
+            polygon_from_box( 1100, -1100,  1101,  1100)
+    ]
+
     def __init__(self):
         super(MineSweeperChallenge, self).__init__("MineSweeper")
         self.camera_id = 0
         self.rover_id = 0
         self.mine_sweeper_status_id = 0
         self._next_event = 0
+        self.wall_polygons = MineSweeperChallenge.WALL_POLYGONS
 
     def after_sim_object_added(self, sim_object):
         super(MineSweeperChallenge, self).after_sim_object_added(sim_object)

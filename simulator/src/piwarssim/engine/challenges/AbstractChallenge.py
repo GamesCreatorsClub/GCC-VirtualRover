@@ -16,6 +16,7 @@ class AbstractChallenge:
 
         self._previous_sim_states.append(self._next_sim_state)
         self._next_sim_state = self._next_sim_state.copy_state(self)
+        self.wall_polygons = []
 
     def get_challenge_id(self):
         return self._challenge_id

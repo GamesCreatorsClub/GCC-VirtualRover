@@ -1,13 +1,24 @@
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
+from piwarssim.engine.utils.Polygon import polygon_from_box
 
 
 class EcoDisasterChallenge(AbstractChallenge):
+    CHALLENGE_WIDTH = 2200
+
+    WALL_POLYGONS = [
+            polygon_from_box(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2 - 1,  CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2),
+            polygon_from_box(-CHALLENGE_WIDTH / 2 - 1, -CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2),
+            polygon_from_box(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
+            polygon_from_box( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2)
+    ]
+
     def __init__(self):
         super(EcoDisasterChallenge, self).__init__("EcoDisaster")
         self.camera_id = 0
         self.rover_id = 0
+        self.wall_polygons = EcoDisasterChallenge.WALL_POLYGONS
 
     def after_sim_object_added(self, sim_object):
         super(EcoDisasterChallenge, self).after_sim_object_added(sim_object)
