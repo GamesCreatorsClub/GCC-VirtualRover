@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
@@ -40,10 +39,6 @@ public class PiNoonChallenge extends AbstractChallenge {
             polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
             polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
-    private int gameMessageId;
-    private GameState gameStateGameMessageIsDefinedOn;
-    private GameMessageObject cachedGameMessageObject;
-
     private String winner;
     private int countdown;
 
@@ -55,11 +50,8 @@ public class PiNoonChallenge extends AbstractChallenge {
 
     private StateMachine<PiNoonChallenge, ChallengeState> stateMachine = new StateMachine<PiNoonChallenge, ChallengeState>();
 
-    private PiWarsGame piwarsGame;
-
-    public PiNoonChallenge(Game game, String name) {
+    public PiNoonChallenge(PiWarsGame game, String name) {
         super(game, name);
-        piwarsGame = (PiWarsGame)game;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
     }
 
@@ -106,7 +98,7 @@ public class PiNoonChallenge extends AbstractChallenge {
         }
 
         for (PiNoonAttachment piNoonAttachment : piNoonAttachments) {
-            GameObject parent = game.getCurrentGameState().get(piNoonAttachment.getParentId());
+            GameObject parent = piwarsGame.getCurrentGameState().get(piNoonAttachment.getParentId());
             if (parent instanceof GameObjectWithPositionAndOrientation) {
                 GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
 
@@ -157,14 +149,14 @@ public class PiNoonChallenge extends AbstractChallenge {
     @Override
     public void afterGameObjectAdded(GameObject gameObject) {
         if (gameObject instanceof Rover) {
-            if (game.isServer()) {
-                PiNoonAttachment attachment = game.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.PiNoonAttachment, game.newId());
+            if (piwarsGame.isServer()) {
+                PiNoonAttachment attachment = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.PiNoonAttachment, piwarsGame.newId());
                 attachment.attachToRover((Rover)gameObject);
-                game.addNewGameObjectImmediately(attachment);
+                piwarsGame.addNewGameObjectImmediately(attachment);
             }
         } else if (gameObject instanceof PiNoonAttachment) {
             PiNoonAttachment attachment = (PiNoonAttachment)gameObject;
-            Rover rover = game.getCurrentGameState().get(attachment.getParentId());
+            Rover rover = piwarsGame.getCurrentGameState().get(attachment.getParentId());
             if (rover != null) {
                 attachment.attachToRover(rover);
             } else {
@@ -178,56 +170,27 @@ public class PiNoonChallenge extends AbstractChallenge {
         if (gameObject instanceof Rover) {
             Rover rover = (Rover)gameObject;
             if (rover.getAttachemntId() != 0) {
-                game.removeGameObject(rover.getAttachemntId());
+                piwarsGame.removeGameObject(rover.getAttachemntId());
             }
         }
     }
 
+    @Override
     protected void setMessage(String message, boolean flashing) {
         getGameMessage().setMessage(message, flashing);
     }
 
-    private GameMessageObject getGameMessage() {
-        GameMessageObject gameMessageObject = null;
-
-        if (gameMessageId != 0) {
-            GameState currentGameState = piwarsGame.getCurrentGameState();
-            gameMessageObject = piwarsGame.getCurrentGameState().get(gameMessageId);
-            if (gameMessageObject != null && gameStateGameMessageIsDefinedOn != null) {
-                gameStateGameMessageIsDefinedOn = null;
-                cachedGameMessageObject = null;
-            } else {
-                if (gameStateGameMessageIsDefinedOn != null) {
-                    if (currentGameState == gameStateGameMessageIsDefinedOn) {
-                        gameMessageObject = cachedGameMessageObject;
-                    } else {
-                        gameStateGameMessageIsDefinedOn = null;
-                        cachedGameMessageObject = null;
-                    }
-                }
-            }
-        }
-
-        if (gameMessageObject == null) {
-            gameStateGameMessageIsDefinedOn = piwarsGame.getCurrentGameState();
-            gameMessageObject = (GameMessageObject) piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.GameMessageObject, piwarsGame.newId());
-            cachedGameMessageObject = gameMessageObject;
-            piwarsGame.addNewGameObject(gameMessageObject);
-            gameMessageId = gameMessageObject.getId();
-        }
-        return gameMessageObject;
-    }
 
     private Rover getPlayerOne() {
         if (player1Id != 0) {
-            return game.getCurrentGameState().get(player1Id);
+            return piwarsGame.getCurrentGameState().get(player1Id);
         }
         return null;
     }
 
     private Rover getPlayerTwo() {
         if (player2Id != 0) {
-            return game.getCurrentGameState().get(player2Id);
+            return piwarsGame.getCurrentGameState().get(player2Id);
         }
         return null;
     }
@@ -307,7 +270,12 @@ public class PiNoonChallenge extends AbstractChallenge {
         }
     }
 
-    private void stopRovers() {
+    @Override
+    protected void resetRover() {
+    }
+
+    @Override
+    protected void stopRovers() {
         Rover player1 = getPlayerOne();
         if (player1 != null) {
             player1.setVelocity(0, 0);

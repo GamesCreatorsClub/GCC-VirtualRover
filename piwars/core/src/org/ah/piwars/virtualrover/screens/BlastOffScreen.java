@@ -2,31 +2,20 @@ package org.ah.piwars.virtualrover.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 
 import org.ah.piwars.virtualrover.MainGame;
 import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
-import org.ah.piwars.virtualrover.camera.CameraControllersManager;
-import org.ah.piwars.virtualrover.camera.CinematicCameraController;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
-import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
-public class BlastOffScreen extends AbstractStandardScreen implements ChallengeScreen {
-
-    private PerspectiveCamera camera;
-    private CameraControllersManager cameraControllersManager;
-    private InputMultiplexer cameraInputMultiplexer;
+public class BlastOffScreen extends AbstractCameraChallengeScreen implements ChallengeScreen {
 
     public BlastOffScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -38,24 +27,6 @@ public class BlastOffScreen extends AbstractStandardScreen implements ChallengeS
         super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         setBackground(new PerlinNoiseBackground());
-
-        camera = new PerspectiveCamera(45, 800, 480);
-        camera.position.set(3900f * SCALE, 480f * SCALE, 300f * SCALE);
-        camera.lookAt(3450f, 0f, 0f);
-        camera.near = 0.02f;
-        camera.far = 1000f;
-
-        cameraInputMultiplexer = new InputMultiplexer();
-        Gdx.input.setInputProcessor(cameraInputMultiplexer);
-        Gdx.input.setCursorCatched(false);
-
-        cameraControllersManager = new CameraControllersManager();
-        cameraInputMultiplexer.addProcessor(this);
-        cameraInputMultiplexer.addProcessor(cameraControllersManager);
-
-        cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, serverCommunicationAdapter));
-        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
-        // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
     }
 
     @Override
@@ -86,74 +57,67 @@ public class BlastOffScreen extends AbstractStandardScreen implements ChallengeS
         super.hide();
     }
 
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
-
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
-
-        if (!isSuspended()) {
-            progressEngine();
-        }
-
-        if (serverCommunicationAdapter.isLocal()) {
-            if (isSuspended()) {
-                setMiddleMessage("Press ESC to leave", true);
-            } else if (serverCommunicationAdapter.hasPlayerOne()) {
-                moveRovers();
-            } else if (serverCommunicationAdapter.isLocal()) {
-                setMiddleMessage("Press space to begin", true);
-            }
-        } else {
-            if (serverCommunicationAdapter.hasPlayerOne()) {
-                moveRovers();
-            }
-        }
-
-        cameraControllersManager.update();
-        camera.update();
-
-        CameraAttachment cameraAttachment = processCameraAttachemnt();
-
-        if (renderBackground) {
-            background.render(camera, batch, environment);
-        }
-
-        batch.begin(camera);
-
-        challenge.render(batch, environment, null, serverCommunicationAdapter.getVisibleObjects());
-
-        batch.end();
-
-        spriteBatch.begin();
-
-        if (drawFPS) {
-            drawFPS();
-        }
-        if (cameraAttachment != null) {
-            showAttachedCamera();
-        }
-        spriteBatch.end();
-
-        drawStandardMessages();
-
-        if (console != null) {
-            console.render();
-        }
-
-        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
-            serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
-        }
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-
-        // TODO add handling of current main camera
-    }
+//    @Override
+//    public void render(float delta) {
+//        Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
+//
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+//        Gdx.gl.glEnable(GL20.GL_BLEND);
+//        Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+//
+//        if (!isSuspended()) {
+//            progressEngine();
+//        }
+//
+//        if (serverCommunicationAdapter.isLocal()) {
+//            if (isSuspended()) {
+//                setMiddleMessage("Press ESC to leave", true);
+//            } else if (serverCommunicationAdapter.hasPlayerOne()) {
+//                moveRovers();
+//            } else if (serverCommunicationAdapter.isLocal()) {
+//                setMiddleMessage("Press space to begin", true);
+//            }
+//        } else {
+//            if (serverCommunicationAdapter.hasPlayerOne()) {
+//                moveRovers();
+//            }
+//        }
+//
+//        cameraControllersManager.update();
+//        camera.update();
+//
+//        CameraAttachment cameraAttachment = processCameraAttachemnt();
+//
+//        if (renderBackground) {
+//            background.render(camera, batch, environment);
+//        }
+//
+//        batch.begin(camera);
+//
+//        challenge.render(batch, environment, null, serverCommunicationAdapter.getVisibleObjects());
+//
+//        batch.end();
+//
+//        spriteBatch.begin();
+//
+//        if (drawFPS) {
+//            drawFPS();
+//        }
+//        if (cameraAttachment != null) {
+//            showAttachedCamera();
+//        }
+//        spriteBatch.end();
+//
+//        drawStandardMessages();
+//
+//        if (console != null) {
+//            console.render();
+//        }
+//
+//        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
+//            serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
+//        }
+//    }
 
     @Override
     public boolean keyDown(int keycode) {

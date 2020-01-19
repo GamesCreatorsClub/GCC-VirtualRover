@@ -3,10 +3,8 @@ package org.ah.piwars.virtualrover.game.challenge;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
 
-import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
-import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
@@ -24,7 +22,7 @@ import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonsOve
 
 import static java.util.Arrays.asList;
 
-public class BlastOffChallenge extends AbstractChallenge {
+public class BlastOffChallenge extends CameraAbstractChallenge {
 
     public static float SQRT2 = (float) Math.sqrt(2);
 
@@ -65,22 +63,14 @@ public class BlastOffChallenge extends AbstractChallenge {
 
     private List<Polygon> piNoonPolygons;
 
-    private int gameMessageId;
-    private GameState gameStateGameMessageIsDefinedOn;
-    private GameMessageObject cachedGameMessageObject;
-
     private Quaternion orientation = new Quaternion();
-
-    private int playerId;
-    private int cameraId;
 
     private StateMachine<BlastOffChallenge, ChallengeState> stateMachine = new StateMachine<BlastOffChallenge, ChallengeState>();
 
     private PiWarsGame piwarsGame;
 
-    public BlastOffChallenge(Game game, String name) {
+    public BlastOffChallenge(PiWarsGame game, String name) {
         super(game, name);
-        piwarsGame = (PiWarsGame)game;
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
 
         piNoonPolygons = new ArrayList<Polygon>();
@@ -110,114 +100,26 @@ public class BlastOffChallenge extends AbstractChallenge {
 
     @Override
     public void beforeGameObjectAdded(GameObject gameObject) {
+        super.beforeGameObjectAdded(gameObject);
     }
 
     @Override
     public void afterGameObjectAdded(GameObject gameObject) {
-        if (gameObject instanceof Rover) {
-            if (game.isServer()) {
-                CameraAttachment cameraAttachment = game.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.CameraAttachment, game.newId());
-                cameraAttachment.attachToRover((Rover)gameObject);
-                game.addNewGameObjectImmediately(cameraAttachment);
-                cameraId = cameraAttachment.getId();
-            }
-            playerId = gameObject.getId();
-            resetRover();
-        } else if (gameObject instanceof CameraAttachment) {
-            CameraAttachment cameraAttachment = (CameraAttachment)gameObject;
-            cameraId = cameraAttachment.getId();
-
-            Rover rover = game.getCurrentGameState().get(cameraAttachment.getParentId());
-            if (rover != null) {
-                cameraAttachment.attachToRover(rover);
-            } else {
-                // TODO add error here!!!
-            }
-        }
+        super.afterGameObjectAdded(gameObject);
     }
 
     @Override
     public void gameObjectRemoved(GameObject gameObject) {
-        if (gameObject instanceof Rover) {
-            Rover rover = (Rover)gameObject;
-            playerId = 0;
-            cameraId = 0;
-            if (rover.getCameraId() != 0) {
-                game.removeGameObject(rover.getAttachemntId());
-            }
-        }
+        super.gameObjectRemoved(gameObject);
     }
 
-    protected void setMessage(String message, boolean flashing) {
-        getGameMessage().setMessage(message, flashing);
-    }
-
-    private GameMessageObject getGameMessage() {
-        GameMessageObject gameMessageObject = null;
-
-        if (gameMessageId != 0) {
-            GameState currentGameState = piwarsGame.getCurrentGameState();
-            gameMessageObject = piwarsGame.getCurrentGameState().get(gameMessageId);
-            if (gameMessageObject != null && gameStateGameMessageIsDefinedOn != null) {
-                gameStateGameMessageIsDefinedOn = null;
-                cachedGameMessageObject = null;
-            } else {
-                if (gameStateGameMessageIsDefinedOn != null) {
-                    if (currentGameState == gameStateGameMessageIsDefinedOn) {
-                        gameMessageObject = cachedGameMessageObject;
-                    } else {
-                        gameStateGameMessageIsDefinedOn = null;
-                        cachedGameMessageObject = null;
-                    }
-                }
-            }
-        }
-
-        if (gameMessageObject == null) {
-            gameStateGameMessageIsDefinedOn = piwarsGame.getCurrentGameState();
-            gameMessageObject = (GameMessageObject) piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.GameMessageObject, piwarsGame.newId());
-            cachedGameMessageObject = gameMessageObject;
-            piwarsGame.addNewGameObject(gameMessageObject);
-            gameMessageId = gameMessageObject.getId();
-        }
-        return gameMessageObject;
-    }
-
-    private Rover getPlayer() {
-        if (playerId != 0) {
-            return game.getCurrentGameState().get(playerId);
-        }
-        return null;
-    }
-
-    private CameraAttachment getCameraAttachment() {
-        Rover rover = getPlayer();
-        if (rover != null) {
-            CameraAttachment cameraAttachment = piwarsGame.getCurrentGameState().get(rover.getCameraId());
-            return cameraAttachment;
-        }
-        return null;
-    }
-
-    private void resetRover() {
-        Rover player1 = getPlayer();
+    @Override
+    protected void resetRover() {
+        Rover player1 = getRover();
         if (player1 != null) {
             orientation.setEulerAnglesRad(0f, 0f, 0f); // (float)(Math.PI / 2f));
             player1.setPosition(-COURSE_LENGTH / 2 + 150, 0);
             player1.setOrientation(orientation);
-        }
-    }
-
-    private void resetBarrels() {
-
-    }
-
-    private void stopRovers() {
-        Rover player1 = getPlayer();
-        if (player1 != null) {
-            player1.setVelocity(0, 0);
-            player1.setTurnSpeed(0);
-            player1.setSpeed(0);
         }
     }
 
@@ -260,7 +162,6 @@ public class BlastOffChallenge extends AbstractChallenge {
 
             @Override public void enter(BlastOffChallenge challenge) {
                 challenge.resetRover();
-                challenge.resetBarrels();
                 setTimer(1000);
                 challenge.setMessage("GO!", false);
                 challenge.getGameMessage().setInGame(true);
@@ -302,7 +203,7 @@ public class BlastOffChallenge extends AbstractChallenge {
             }
 
             @Override public void exit(BlastOffChallenge challenge) {
-                Rover player1 = challenge.getPlayer();
+                Rover player1 = challenge.getRover();
                 challenge.piwarsGame.removeGameObject(player1.getId());
                 challenge.playerId = 0;
                 challenge.setMessage(null, false);

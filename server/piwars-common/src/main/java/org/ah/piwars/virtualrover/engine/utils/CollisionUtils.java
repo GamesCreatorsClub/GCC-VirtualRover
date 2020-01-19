@@ -27,4 +27,22 @@ public class CollisionUtils {
         return false;
     }
 
+    public static boolean polygonsOverlap(Polygon poligon, List<Polygon> ps2) {
+        for (int i = 0; i < ps2.size(); i++) {
+            if (Intersector.overlapConvexPolygons(poligon, ps2.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean pointInPolygons(float x, float y, List<Polygon> ps2) {
+        for (int i = 0; i < ps2.size(); i++) {
+            if (ps2.get(i).contains(x, y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

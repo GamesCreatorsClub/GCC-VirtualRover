@@ -2,13 +2,12 @@ package org.ah.piwars.virtualrover.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -17,22 +16,20 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 import org.ah.piwars.virtualrover.MainGame;
 import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.Background;
+import org.ah.piwars.virtualrover.camera.CameraControllersManager;
+import org.ah.piwars.virtualrover.camera.CinematicCameraController;
 import org.ah.piwars.virtualrover.challenges.ChallengeArena;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
-import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
-import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.ChatColor;
 import org.ah.piwars.virtualrover.view.ChatListener;
@@ -95,15 +92,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     private IntSet unknownObjectIds = new IntSet();
 
-    private PerspectiveCamera attachedCamera;
-    private FrameBuffer attachedCameraFrameBuffer;
-    private Texture attachedCameraTexture;
-    private Vector3 calculatedCameraPosition = new Vector3();
-    private Quaternion calculatedCameraOrientation = new Quaternion();
-    private Vector3 attachedCameraDirection = new Vector3();
-
-    protected byte[] snapshotData = null;
-    protected CameraAttachment cameraAttachment;
+    protected PerspectiveCamera camera;
+    protected CameraControllersManager cameraControllersManager;
+    protected InputMultiplexer cameraInputMultiplexer;
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -133,16 +124,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         hudCamera.setToOrtho(true);
 
-        attachedCamera = new PerspectiveCamera(45, 320, 256);
-        attachedCamera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
-        attachedCamera.lookAt(0f, 0f, 0f);
-        attachedCamera.near = 0.02f;
-        attachedCamera.far = 1000f;
-        attachedCamera.up.set(UP);
-        attachedCamera.fieldOfView = 45f;
-
-        attachedCameraFrameBuffer = new FrameBuffer(Format.RGBA8888, 320, 256, true);
-        attachedCameraTexture = attachedCameraFrameBuffer.getColorBufferTexture();
+        setupCamera(); // TODO not the best idea to override method for constructor
     }
 
     @Override
@@ -150,10 +132,29 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         batch.dispose();
         spriteBatch.dispose();
         fontBig.dispose();
-        attachedCameraFrameBuffer.dispose();
         if (gccLogo == null) { gccLogo.dispose(); }
         if (challenge != null) { challenge.dispose(); }
         if (background != null) { background.dispose(); }
+    }
+
+    protected void setupCamera() {
+        camera = new PerspectiveCamera(45, 800, 480);
+        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(0f, 0f, 0f);
+        camera.near = 0.02f;
+        camera.far = 1000f;
+
+        cameraInputMultiplexer = new InputMultiplexer();
+        Gdx.input.setInputProcessor(cameraInputMultiplexer);
+        Gdx.input.setCursorCatched(false);
+
+        cameraControllersManager = new CameraControllersManager();
+        cameraInputMultiplexer.addProcessor(this);
+        cameraInputMultiplexer.addProcessor(cameraControllersManager);
+
+        cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, serverCommunicationAdapter));
+        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
+        // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
     }
 
     public void reset() {
@@ -245,69 +246,6 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
     }
 
-    protected CameraAttachment processCameraAttachemnt() {
-
-        cameraAttachment = serverCommunicationAdapter.getCameraAttachment();
-        if (cameraAttachment != null) {
-            Rover rover = serverCommunicationAdapter.getEngine().getGame().getCurrentGameState().get(cameraAttachment.getParentId());
-            if (rover != null) {
-                renderAttachedCamera(rover, cameraAttachment);
-            } else {
-                // TODO do something
-            }
-        }
-
-        return cameraAttachment;
-    }
-
-    private void renderAttachedCamera(Rover rover, CameraAttachment cameraAttachment) {
-        Vector3 cameraPosition = cameraAttachment.getPosition();
-        Vector3 roverPosition = rover.getPosition();
-        calculatedCameraPosition.set(cameraPosition);
-
-        calculatedCameraOrientation.set(rover.getOrientation());
-        calculatedCameraOrientation.mul(cameraAttachment.getOrientation());
-
-        rover.getOrientation().transform(calculatedCameraPosition);
-        calculatedCameraPosition.add(roverPosition);
-
-        attachedCameraDirection.set(Vector3.X);
-        calculatedCameraOrientation.transform(attachedCameraDirection);
-
-        attachedCamera.position.x = calculatedCameraPosition.x * SCALE;
-        attachedCamera.position.y = cameraPosition.z * SCALE;
-        attachedCamera.position.z = -calculatedCameraPosition.y * SCALE;
-        attachedCamera.direction.x = attachedCameraDirection.x;
-        attachedCamera.direction.y = attachedCameraDirection.z;
-        attachedCamera.direction.z = -attachedCameraDirection.y;
-        attachedCamera.update();
-
-        attachedCameraFrameBuffer.begin();
-        Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-
-        if (renderBackground) {
-            background.render(attachedCamera, batch, environment);
-        }
-
-        batch.begin(attachedCamera);
-
-        challenge.render(batch, environment, attachedCameraFrameBuffer, serverCommunicationAdapter.getVisibleObjects());
-
-        batch.end();
-
-        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
-            snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
-        }
-        attachedCameraFrameBuffer.end();
-    }
-
-    protected void showAttachedCamera() {
-        spriteBatch.draw(attachedCameraTexture, 0, 0, 320, 256, 0, 0, 320, 256, false, true);
-    }
-
     protected void drawFPS() {
         ClientEngine<PiWarsGame> engine = serverCommunicationAdapter.getEngine();
         AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
@@ -343,7 +281,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
         GameMessageObject gameMessageObject = serverCommunicationAdapter.getGameMessageObject();
 
-        if (gameMessageObject != null && gameMessageObject.getMessage() != null&& !"".equals(gameMessageObject.getMessage())) {
+        if (gameMessageObject != null && gameMessageObject.getMessage() != null && !"".equals(gameMessageObject.getMessage())) {
             middleMessage = "";
             String message = gameMessageObject.getMessage();
             fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) / 2, (Gdx.graphics.getHeight() - fontBig.getLineHeight()) / 2);
