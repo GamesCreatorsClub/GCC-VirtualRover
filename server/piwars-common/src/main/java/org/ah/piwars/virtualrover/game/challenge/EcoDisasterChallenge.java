@@ -56,21 +56,8 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
 
     @Override
     public void process(GameState currentGameState) {
-//        if (cameraId > 0) {
-//            CameraAttachment cameraAttachment = game.getCurrentGameState().get(cameraId);
-//
-//            GameObject parent = game.getCurrentGameState().get(cameraAttachment.getParentId());
-//            if (parent instanceof GameObjectWithPositionAndOrientation) {
-//                GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
-//
-//                Vector3 position = gameObject.getPosition();
-//                cameraAttachment.setPosition(position.x, position.y, position.z);
-//                cameraAttachment.setOrientation(gameObject.getOrientation());
-//            }
 //        }
 
-        for (BarrelObject barrel : barrels) {
-        }
         stateMachine.update(this);
     }
 
@@ -96,7 +83,6 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
             orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
             player1.setPosition(0, 700);
             player1.setOrientation(orientation);
-            // player1.setRoverColour(RoverColour.BLUE);
         }
     }
 
@@ -133,7 +119,6 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
             }
 
             @Override public void exit(EcoDisasterChallenge challenge) {
-                challenge.resetRover();
                 challenge.stopRovers();
             }
         },
@@ -171,7 +156,6 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
             @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(EcoDisasterChallenge challenge) {
-                // PiNoonAttachment player1Attachment = challenge.getPlayerOneAttachment();
 
                 challenge.getGameMessage().setInGame(false);
                 challenge.getGameMessage().setWaiting(false);

@@ -82,19 +82,6 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
 
     @Override
     public void process(GameState currentGameState) {
-//        if (cameraId > 0) {
-//            CameraAttachment cameraAttachment = game.getCurrentGameState().get(cameraId);
-//
-//            GameObject parent = game.getCurrentGameState().get(cameraAttachment.getParentId());
-//            if (parent instanceof GameObjectWithPositionAndOrientation) {
-//                GameObjectWithPositionAndOrientation gameObject = (GameObjectWithPositionAndOrientation)parent;
-//
-//                Vector3 position = gameObject.getPosition();
-//                cameraAttachment.setPosition(position.x, position.y, position.z);
-//                cameraAttachment.setOrientation(gameObject.getOrientation());
-//            }
-//        }
-
         stateMachine.update(this);
     }
 
@@ -108,10 +95,6 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
         super.afterGameObjectAdded(gameObject);
         if (gameObject instanceof Rover) {
             if (piwarsGame.isServer()) {
-//                CameraAttachment cameraAttachment = getCameraAttachment();
-//                orientation.setEulerAngles(30f, 0f, 0f);
-//                cameraAttachment.setOrientation(orientation);
-
                 MineSweeperStateObject mineSweeperStateObject = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.MineSweeperStateObject, piwarsGame.newId());
                 piwarsGame.addNewGameObjectImmediately(mineSweeperStateObject);
                 mineSweeperStateObject.setStateBits(0x0);
