@@ -1,12 +1,19 @@
 package org.ah.piwars.virtualrover.game.objects;
 
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Shape2D;
+
+import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
 import org.ah.themvsus.engine.common.game.MovingGameObjectWithPositionAndOrientation;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
-public class BarrelObject extends MovingGameObjectWithPositionAndOrientation {
+import java.util.ArrayList;
+import java.util.List;
+
+public class BarrelObject extends MovingGameObjectWithPositionAndOrientation implements PiWarsCollidableObject {
 
     public static enum BarrelColour {
         GREEN, RED
@@ -16,8 +23,12 @@ public class BarrelObject extends MovingGameObjectWithPositionAndOrientation {
 
     private BarrelColour barrelColour = BarrelColour.GREEN;
 
+    private Circle circle = new Circle(0, 0, 25);
+    private List<Shape2D> collisionPolygons = new ArrayList<Shape2D>();
+
     public BarrelObject(GameObjectFactory factory, int id) {
         super(factory, id);
+        collisionPolygons.add(circle);
     }
 
     public BarrelColour getBarrelColour() {
@@ -31,6 +42,16 @@ public class BarrelObject extends MovingGameObjectWithPositionAndOrientation {
 
     @Override
     public GameObjectType getType() { return PiWarsGameTypeObject.BarrelObject; }
+
+    public Circle getCirle() {
+        circle.x = position.x;
+        circle.y = position.y;
+        return circle;
+    }
+
+    public Circle getCirleInt() {
+        return circle;
+    }
 
     @Override
     public void serialize(boolean full, Serializer serializer) {
@@ -55,5 +76,11 @@ public class BarrelObject extends MovingGameObjectWithPositionAndOrientation {
     @Override
     public int size(boolean full) {
         return super.size(full) + (full ? 1 : 0);
+    }
+
+    @Override
+    public List<Shape2D> getCollisionPolygons() {
+        getCirle(); // update circle
+        return collisionPolygons;
     }
 }

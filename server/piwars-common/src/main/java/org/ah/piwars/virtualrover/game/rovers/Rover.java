@@ -1,7 +1,9 @@
 package org.ah.piwars.virtualrover.game.rovers;
 
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
@@ -42,7 +44,7 @@ public abstract class Rover extends AbstractPlayer implements PiWarsCollidableOb
     protected float cameraAngle = 45f;
 
     private RoverControls roverControls;
-    protected List<Polygon> polygons;
+    protected List<Shape2D> polygons;
 
     protected Vector2 temp = new Vector2();
 
@@ -181,11 +183,17 @@ public abstract class Rover extends AbstractPlayer implements PiWarsCollidableOb
     }
 
     @Override
-    public List<Polygon> getCollisionPolygons() {
+    public List<Shape2D> getCollisionPolygons() {
 
-        for (Polygon p : polygons) {
-            p.setPosition(position.x, position.y);
-            p.setRotation(getBearing());
+        for (Shape2D s : polygons) {
+            if (s instanceof Polygon) {
+                Polygon p = (Polygon)s;
+                p.setPosition(position.x, position.y);
+                p.setRotation(getBearing());
+            } else if (s instanceof Circle) {
+                Circle c = (Circle)s;
+                c.setPosition(position.x, position.y);
+            }
         }
         return polygons;
 

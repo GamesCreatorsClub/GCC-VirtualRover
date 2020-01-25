@@ -52,7 +52,7 @@ public class PiNoonChallenge extends AbstractChallenge {
 
     public PiNoonChallenge(PiWarsGame game, String name) {
         super(game, name);
-        wallPolygons = WALL_POLYGONS;
+        setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
     }
 

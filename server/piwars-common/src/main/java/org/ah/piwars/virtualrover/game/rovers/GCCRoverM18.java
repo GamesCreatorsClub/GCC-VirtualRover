@@ -4,17 +4,17 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.piwars.virtualrover.engine.utils.CollisionUtils;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 
-import static java.util.Arrays.asList;
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.asShape2DList;
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
 
 public class GCCRoverM18 extends Rover {
 
     public GCCRoverM18(GameObjectFactory factory, int id) {
         super(factory, id, RoverType.GCCM16);
 
-        this.polygons = asList(CollisionUtils.polygonFromBox(-80f,  -55f, 80f,  55f));
+        this.polygons = asShape2DList(polygonFromBox(-80f,  -55f, 80f,  55f));
         this.attachmentPosition = new Vector2(80f, 0);
         this.cameraPosition = new Vector3(75f, 0f, 20f);
         this.cameraOrientation = new Quaternion();

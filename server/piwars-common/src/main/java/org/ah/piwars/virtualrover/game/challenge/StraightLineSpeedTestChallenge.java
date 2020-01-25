@@ -2,6 +2,7 @@ package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -57,7 +58,7 @@ public class StraightLineSpeedTestChallenge extends CameraAbstractChallenge {
         super(game, name);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
 
-        wallPolygons = new ArrayList<Polygon>();
+        wallPolygons = new ArrayList<Shape2D>();
         wallPolygons.addAll(WALL_POLYGONS);
         wallPolygons.addAll(CHICANES_POLYGONS);
     }

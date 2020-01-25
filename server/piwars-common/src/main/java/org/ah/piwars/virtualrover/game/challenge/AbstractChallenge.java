@@ -1,7 +1,7 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -12,6 +12,8 @@ import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameState;
 
 import java.util.List;
+
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.asListOfShape2D;
 
 import static java.util.Collections.emptyList;
 
@@ -28,15 +30,19 @@ public abstract class AbstractChallenge implements Challenge {
 
     protected Quaternion orientation = new Quaternion();
 
-    protected List<Polygon> wallPolygons = emptyList();
+    protected List<Shape2D> wallPolygons = emptyList();
 
     protected AbstractChallenge(PiWarsGame piwarsGame, String name) {
         this.piwarsGame = piwarsGame;
         this.name = name;
     }
 
+    protected void setWallPolygons(List<? extends Shape2D> wallPolygons) {
+        this.wallPolygons = asListOfShape2D(wallPolygons);
+    }
+
     @Override
-    public List<Polygon> getCollisionPolygons() {
+    public List<Shape2D> getCollisionPolygons() {
         return wallPolygons;
     }
 

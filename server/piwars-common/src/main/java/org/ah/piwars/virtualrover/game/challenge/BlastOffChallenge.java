@@ -1,6 +1,7 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -60,14 +61,14 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
             polygonForWall5(-COURSE_WIDTH / 2, 10)
     );
 
-    public static final Polygon START_POLIGON = polygonFromBox(-COURSE_LENGTH / 2 - 10, -COURSE_WIDTH, -COURSE_LENGTH / 2, COURSE_WIDTH);
-    public static final Polygon END_POLIGON = polygonFromBox(COURSE_LENGTH / 2, -COURSE_WIDTH, COURSE_LENGTH / 2 + 10, COURSE_WIDTH);
+    public static final Shape2D START_POLYGON = polygonFromBox(-COURSE_LENGTH / 2 - 10, -COURSE_WIDTH, -COURSE_LENGTH / 2, COURSE_WIDTH);
+    public static final Shape2D END_POLYGON = polygonFromBox(COURSE_LENGTH / 2, -COURSE_WIDTH, COURSE_LENGTH / 2 + 10, COURSE_WIDTH);
 
     private StateMachine<BlastOffChallenge, ChallengeState> stateMachine = new StateMachine<BlastOffChallenge, ChallengeState>();
 
     public BlastOffChallenge(PiWarsGame game, String name) {
         super(game, name);
-        wallPolygons = WALLS_POLYGONS;
+        setWallPolygons(WALLS_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
     }
 
@@ -168,10 +169,10 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
                 }
 
                 Rover rover = challenge.getRover();
-                if (polygonsOverlap(START_POLIGON, rover.getCollisionPolygons())) {
+                if (polygonsOverlap(START_POLYGON, rover.getCollisionPolygons())) {
                     challenge.getGameMessage().setMessage("Wrong way!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
-                } else if (polygonsOverlap(END_POLIGON, rover.getCollisionPolygons())) {
+                } else if (polygonsOverlap(END_POLYGON, rover.getCollisionPolygons())) {
                     challenge.getGameMessage().setMessage("You have finished course! Well done!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
@@ -258,8 +259,6 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
     }
 
     public static Polygon polygonForWall4(float y, float width) {
-        float adjust = (BOTTOM_WALL_ADJUST / 2) ;
-
         Polygon polygon = new Polygon(new float[] {
                 COURSE_LENGTH / 6 - COURSE_WIDTH, y + width / 2 + COURSE_WIDTH,
                 COURSE_LENGTH / 6, y + width / 2,

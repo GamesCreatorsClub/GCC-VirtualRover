@@ -1,7 +1,7 @@
 package org.ah.piwars.virtualrover.game;
 
 
-import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.challenge.Challenge;
 import org.ah.piwars.virtualrover.game.challenge.Challenges;
@@ -52,11 +52,11 @@ public class PiWarsGame extends Game {
         }
 
         if (object instanceof PiWarsCollidableObject) {
-            List<Polygon> roverPolygon = ((PiWarsCollidableObject)object).getCollisionPolygons();
+            List<Shape2D> roverPolygon = ((PiWarsCollidableObject)object).getCollisionPolygons();
             for (GameObjectWithPosition o : objects) {
-                if (o != object && o instanceof Rover) {
-                    List<Polygon> otherRoverPolygon = ((PiWarsCollidableObject)o).getCollisionPolygons();
-                    if (polygonsOverlap(roverPolygon, otherRoverPolygon)) {
+                if (o != object && o instanceof PiWarsCollidableObject) {
+                    List<Shape2D> otherObjectPolygon = ((PiWarsCollidableObject)o).getCollisionPolygons();
+                    if (polygonsOverlap(roverPolygon, otherObjectPolygon)) {
                         return true;
                     }
                 }

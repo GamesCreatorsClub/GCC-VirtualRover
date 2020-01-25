@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntMap;
 
@@ -127,8 +128,10 @@ public class PiNoonArena extends AbstractChallenge {
 
                     shapeRenderer.setColor(playerModel.getColour());
 
-                    for (Polygon polygon : rover.getCollisionPolygons()) {
-                        shapeRenderer.polygon(polygon.getTransformedVertices());
+                    for (Shape2D shape : rover.getCollisionPolygons()) {
+                        if (shape instanceof Polygon) {
+                            shapeRenderer.polygon(((Polygon)shape).getTransformedVertices());
+                        }
                     }
                 } else if (visibleObject instanceof PiNoonAttachmentModelLink) {
                     PiNoonAttachmentModelLink attachmentModel = (PiNoonAttachmentModelLink)visibleObject;

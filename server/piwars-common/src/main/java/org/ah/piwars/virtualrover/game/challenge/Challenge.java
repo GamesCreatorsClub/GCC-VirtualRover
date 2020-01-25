@@ -1,6 +1,6 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
-import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
@@ -13,7 +13,7 @@ public interface Challenge {
 
     void process(GameState currentGameState);
 
-    List<Polygon> getCollisionPolygons();
+    List<? extends Shape2D> getCollisionPolygons();
 
     boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects);
 

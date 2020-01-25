@@ -1,6 +1,7 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -45,14 +46,14 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
                 polygonFromBox(-330, 305, -340, 915)
             );
 
-    public static final Polygon START_POLIGON = polygonFromBox(1015, -920, 1700, -915);
-    public static final Polygon END_POLIGON = polygonFromBox(300, -920, 1015, -915);
+    public static final Shape2D START_POLYGON = polygonFromBox(1015, -920, 1700, -915);
+    public static final Shape2D END_POLYGON = polygonFromBox(300, -920, 1015, -915);
 
     private StateMachine<CanyonsOfMarsChallenge, ChallengeState> stateMachine = new StateMachine<CanyonsOfMarsChallenge, ChallengeState>();
 
     public CanyonsOfMarsChallenge(PiWarsGame game, String name) {
         super(game, name);
-        wallPolygons = WALL_POLYGONS;
+        setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
     }
 
@@ -153,10 +154,10 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
                 }
 
                 Rover rover = challenge.getRover();
-                if (polygonsOverlap(START_POLIGON, rover.getCollisionPolygons())) {
+                if (polygonsOverlap(START_POLYGON, rover.getCollisionPolygons())) {
                     challenge.getGameMessage().setMessage("Wrong way!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
-                } else if (polygonsOverlap(END_POLIGON, rover.getCollisionPolygons())) {
+                } else if (polygonsOverlap(END_POLYGON, rover.getCollisionPolygons())) {
                     challenge.getGameMessage().setMessage("You have finished course! Well done!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
