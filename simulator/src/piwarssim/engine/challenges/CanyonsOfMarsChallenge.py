@@ -1,7 +1,7 @@
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
-from piwarssim.engine.utils.Polygon import polygon_from_box
+from piwarssim.engine.utils.Shapes import polygon_from_box
 
 
 class CanyonsOfMarsChallenge(AbstractChallenge):
@@ -35,6 +35,7 @@ class CanyonsOfMarsChallenge(AbstractChallenge):
         self.camera_id = 0
         self.rover_id = 0
         self.wall_polygons = CanyonsOfMarsChallenge.WALL_POLYGONS
+        self.floor_polygons = [CanyonsOfMarsChallenge.FLOOR_POLYGON]
 
     def after_sim_object_added(self, sim_object):
         super(CanyonsOfMarsChallenge, self).after_sim_object_added(sim_object)

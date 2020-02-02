@@ -13,13 +13,36 @@ class AbstractChallenge:
         self._previous_sim_states = []
         self._new_sim_objects = []
         self._remove_sim_object = []
+        self._min_width = 0
+        self._max_width = 0
+        self._min_length = 0
+        self._max_length = 0
+        self._dimensions_defined = False
 
         self._previous_sim_states.append(self._next_sim_state)
         self._next_sim_state = self._next_sim_state.copy_state(self)
         self.wall_polygons = []
+        self.floor_polygons = []
 
     def get_challenge_id(self):
         return self._challenge_id
+
+    def get_challenge_max_dimensions(self):
+        if not self._dimensions_defined is None:
+            for p in self.floor_polygons:
+                for i in range(len(p.local_vertices)):
+                    x, y = p.local_vertices[i]
+                    if x < self._min_width:
+                        self._min_width = x
+                    if x > self._max_width:
+                        self._max_width = x
+                    if y < self._min_length:
+                        self._min_length = y
+                    if y > self._max_length:
+                        self._max_length = y
+            self._dimensions_defined = True
+
+        return self._min_width, self._max_width, self._min_length, self._max_length
 
     def get_frame_id(self):
         if self._next_sim_state is not None:

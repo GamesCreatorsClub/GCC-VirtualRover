@@ -65,7 +65,7 @@ class WorldRunner:
             self.space.step(0.4)
 
             world_width = self.world.get_width()
-            world_height = self.world.get_height()
+            world_height = self.world.get_length()
 
             sim_rover = self._server_engine.challenge.get_sim_object(self._sim_rover_id)
 
@@ -100,7 +100,7 @@ class WorldRunner:
         self.space.debug_draw(self.draw_options)
         self.robot.draw(self.surface)
         # self.robot.draw(self.screen)
-        self.screen.blit(pygame.transform.scale(self.surface, (self.screen.get_width(), self.screen.get_height())), (0, 0))
+        self.screen.blit(pygame.transform.scale(self.surface, (self.screen.get_width(), self.screen.get_length())), (0, 0))
         if self._snapshot_image is not None:
             self.screen.blit(self._snapshot_image, (0, 0))
         if self._paused:
@@ -164,7 +164,7 @@ class WorldRunner:
         thread.start()
 
         self._font = pygame.font.SysFont("comicsansms", 32)
-        self.surface = pygame.Surface((self.world.get_width(), self.world.get_height()))
+        self.surface = pygame.Surface((self.world.get_width(), self.world.get_length()))
         self.screen = pygame.display.set_mode((800, 800))
         self.draw_options = pymunk.pygame_util.DrawOptions(self.surface)
 
@@ -179,7 +179,7 @@ class WorldRunner:
         step_pressed = False
         running = True
         while running:
-            self.world.update(self.screen.get_width(), self.screen.get_height())
+            self.world.update(self.screen.get_width(), self.screen.get_length())
             pressed = pygame.key.get_pressed()
             if pressed[pygame.K_s]:
                 message = self._message_factory.obtain(MessageCode.ServerRequestScreenshot)

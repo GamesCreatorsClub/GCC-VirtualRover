@@ -186,13 +186,13 @@ class SimulationRunner:
         parser.add_argument('--remote-java-debugging', action='store_true', dest='remote_java_debugging', help="should visualiser started in debug mode waiting for debugger to be attached")
         parser.add_argument('--start-paused', action='store_true', dest='start_paused', help="should simulation start paused")
 
-        self.simulation_adapter.define_arguments(parser)
+        self.simulation_adapter.define_arguments(parser)  # This will allow adapter to add its own parameters
         args = parser.parse_args()
 
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (800, 60)
         pygame.init()
 
-        self.simulation_adapter.process_arguments(args)
+        self.simulation_adapter.process_arguments(args)  # This will create 'simulation_adapter.world' object
 
         self._paused = args.start_paused
 
@@ -206,11 +206,13 @@ class SimulationRunner:
         self._server_engine = ServerEngine(challenge)
         self._sim_rover_id = self._server_engine.challenge.spawn_rover(RoverType.GCC).get_id()
 
-        self._server_engine.process(self._timestamp)
+        self._server_engine.process(self._timestamp)  # Move to '0' seconds position
         self._server_engine.set_screenshot_callback(self._snapshot_handler.snapshot_callback)
 
         self.simulation_adapter.set_server_engine(self._server_engine)
         self.simulation_adapter.set_sim_rover_id(self._sim_rover_id)
+
+        self.simulation_adapter.init_pygame()
 
         serializer_factory = ByteSerializerFactory()
         self._message_factory = MessageFactory()

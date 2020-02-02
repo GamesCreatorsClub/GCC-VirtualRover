@@ -1,47 +1,47 @@
 
-import time
 import random
-from datetime import time
 
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
-from piwarssim.engine.utils.Polygon import polygon_from_box
+from piwarssim.engine.utils.Shapes import polygon_from_box
 
 
 class MineSweeperChallenge(AbstractChallenge):
 
-    COURSE_WIDTH = 2200
+    COURSE_WIDTH = 1600
     WALL_HEIGHT = 200
 
     MINE_POLYGONS = [
-            polygon_from_box(-1100, -1100,  -550, -550),
-            polygon_from_box(-550, -1100,  0, -550),
-            polygon_from_box(0, -1100,  550, -550),
-            polygon_from_box(550, -1100,  1100, -550),
+            polygon_from_box(-COURSE_WIDTH / 2, -COURSE_WIDTH / 2,  -COURSE_WIDTH / 4, -COURSE_WIDTH / 4),
+            polygon_from_box(-COURSE_WIDTH / 4, -COURSE_WIDTH / 2,  0, -COURSE_WIDTH / 4),
+            polygon_from_box(0, -COURSE_WIDTH / 2,  COURSE_WIDTH / 4, -COURSE_WIDTH / 4),
+            polygon_from_box(COURSE_WIDTH / 4, -COURSE_WIDTH / 2,  COURSE_WIDTH / 2, -COURSE_WIDTH / 4),
 
-            polygon_from_box(-1100, -550,  -550, 0),
-            polygon_from_box(-550, -550,  0, 0),
-            polygon_from_box(0, -550,  550, 0),
-            polygon_from_box(550, -550,  1100, 0),
+            polygon_from_box(-COURSE_WIDTH / 2, -COURSE_WIDTH / 4,  -COURSE_WIDTH / 4, 0),
+            polygon_from_box(-COURSE_WIDTH / 4, -COURSE_WIDTH / 4,  0, 0),
+            polygon_from_box(0, -COURSE_WIDTH / 4,  COURSE_WIDTH / 4, 0),
+            polygon_from_box(COURSE_WIDTH / 4, -COURSE_WIDTH / 4,  COURSE_WIDTH / 2, 0),
 
-            polygon_from_box(-1100, 0,  -550, 550),
-            polygon_from_box(-550, 0,  0, 550),
-            polygon_from_box(0, 0,  550, 550),
-            polygon_from_box(550, 0,  1100, 550),
+            polygon_from_box(-COURSE_WIDTH / 2, 0,  -COURSE_WIDTH / 4, COURSE_WIDTH / 4),
+            polygon_from_box(-COURSE_WIDTH / 4, 0,  0, COURSE_WIDTH / 4),
+            polygon_from_box(0, 0,  COURSE_WIDTH / 4, COURSE_WIDTH / 4),
+            polygon_from_box(COURSE_WIDTH / 4, 0,  COURSE_WIDTH / 2, COURSE_WIDTH / 4),
 
-            polygon_from_box(-1100, 550,  -550, 1100),
-            polygon_from_box(-550, 550,  0, 1100),
-            polygon_from_box(0, 550,  550, 1100),
-            polygon_from_box(550, 550,  1100, 1100)
+            polygon_from_box(-COURSE_WIDTH / 2, COURSE_WIDTH / 4,  -COURSE_WIDTH / 4, COURSE_WIDTH / 2),
+            polygon_from_box(-COURSE_WIDTH / 4, COURSE_WIDTH / 4,  0, COURSE_WIDTH / 2),
+            polygon_from_box(0, COURSE_WIDTH / 4,  COURSE_WIDTH / 4, COURSE_WIDTH / 2),
+            polygon_from_box(COURSE_WIDTH / 4, COURSE_WIDTH / 4,  COURSE_WIDTH / 2, COURSE_WIDTH / 2)
         ]
 
     WALL_POLYGONS = [
-            polygon_from_box(-1100, -1101,  1100, -1100),
-            polygon_from_box(-1101, -1100, -1100,  1100),
-            polygon_from_box(-1100,  1100,  1100,  1101),
-            polygon_from_box( 1100, -1100,  1101,  1100)
+            polygon_from_box(-COURSE_WIDTH / 2, -COURSE_WIDTH / 2 - 1,  COURSE_WIDTH / 2, -COURSE_WIDTH / 2),
+            polygon_from_box(-COURSE_WIDTH / 2 - 1, -COURSE_WIDTH / 2, -COURSE_WIDTH / 2,  COURSE_WIDTH / 2),
+            polygon_from_box(-COURSE_WIDTH / 2,  COURSE_WIDTH / 2,  COURSE_WIDTH / 2,  COURSE_WIDTH / 2 + 1),
+            polygon_from_box( COURSE_WIDTH / 2, -COURSE_WIDTH / 2,  COURSE_WIDTH / 2 + 1,  COURSE_WIDTH / 2)
     ]
+
+    FLOOR_POLYGON = polygon_from_box(-COURSE_WIDTH / 2, -COURSE_WIDTH / 2, COURSE_WIDTH / 2, COURSE_WIDTH / 2)
 
     def __init__(self):
         super(MineSweeperChallenge, self).__init__("MineSweeper")
@@ -50,6 +50,7 @@ class MineSweeperChallenge(AbstractChallenge):
         self.mine_sweeper_status_id = 0
         self._next_event = 0
         self.wall_polygons = MineSweeperChallenge.WALL_POLYGONS
+        self.floor_polygons = [MineSweeperChallenge.FLOOR_POLYGON]
 
     def after_sim_object_added(self, sim_object):
         super(MineSweeperChallenge, self).after_sim_object_added(sim_object)

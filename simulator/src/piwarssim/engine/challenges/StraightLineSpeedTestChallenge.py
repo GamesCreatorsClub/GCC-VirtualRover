@@ -1,26 +1,23 @@
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
-from piwarssim.engine.utils.Polygon import Polygon, polygon_from_box
+from piwarssim.engine.utils.Shapes import Polygon, polygon_from_box
 
 
-def polygon_for_chicane(x, y):
-    CHICANE_LENGTH = StraightLineSpeedTestChallenge.CHICANE_LENGTH
-    CHICANE_WIDTH = StraightLineSpeedTestChallenge.CHICANE_WIDTH
-    CUT_MODIFIER = StraightLineSpeedTestChallenge.CUT_MODIFIER
+def polygon_for_chicane(chicane_length, chicane_width, cut_modifier, x, y):
     if y > 0:
         return Polygon([
-            x - CHICANE_LENGTH / 2, y - CHICANE_WIDTH,
-            x - CHICANE_LENGTH / 2 - CHICANE_WIDTH * CUT_MODIFIER, y,
-            x + CHICANE_LENGTH / 2 + CHICANE_WIDTH * CUT_MODIFIER, y,
-            x + CHICANE_LENGTH / 2, y - CHICANE_WIDTH
+            (x - chicane_length / 2, y - chicane_width),
+            (x - chicane_length / 2 - chicane_width * cut_modifier, y),
+            (x + chicane_length / 2 + chicane_width * cut_modifier, y),
+            (x + chicane_length / 2, y - chicane_width)
         ])
     else:
         return Polygon([
-            x - CHICANE_LENGTH / 2 - CHICANE_WIDTH * CUT_MODIFIER, y,
-            x - CHICANE_LENGTH / 2, y + CHICANE_WIDTH,
-            x + CHICANE_LENGTH / 2, y + CHICANE_WIDTH,
-            x + CHICANE_LENGTH / 2 + CHICANE_WIDTH * CUT_MODIFIER, y
+            (x - chicane_length / 2 - chicane_width * cut_modifier, y),
+            (x - chicane_length / 2, y + chicane_width),
+            (x + chicane_length / 2, y + chicane_width),
+            (x + chicane_length / 2 + chicane_width * cut_modifier, y)
         ])
 
 
@@ -33,10 +30,10 @@ class StraightLineSpeedTestChallenge(AbstractChallenge):
     WALL_HEIGHT = 64
     FLOOR_POLYGON = polygon_from_box(-COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2, 315)
     CHICANES_POLYGONS = [
-        polygon_for_chicane(-COURSE_LENGTH / 4, -305),
-        polygon_for_chicane(-COURSE_LENGTH / 4, 305),
-        polygon_for_chicane(COURSE_LENGTH / 4, -305),
-        polygon_for_chicane(COURSE_LENGTH / 4, 305)
+        polygon_for_chicane(CHICANE_LENGTH, CHICANE_WIDTH, CUT_MODIFIER, -COURSE_LENGTH / 4, -305),
+        polygon_for_chicane(CHICANE_LENGTH, CHICANE_WIDTH, CUT_MODIFIER, -COURSE_LENGTH / 4, 305),
+        polygon_for_chicane(CHICANE_LENGTH, CHICANE_WIDTH, CUT_MODIFIER, COURSE_LENGTH / 4, -305),
+        polygon_for_chicane(CHICANE_LENGTH, CHICANE_WIDTH, CUT_MODIFIER, COURSE_LENGTH / 4, 305)
     ]
     WALL_POLYGONS = [
         polygon_from_box(-COURSE_LENGTH / 2, -315, COURSE_LENGTH / 2, -305),
@@ -51,6 +48,7 @@ class StraightLineSpeedTestChallenge(AbstractChallenge):
         self.camera_id = 0
         self.rover_id = 0
         self.wall_polygons = StraightLineSpeedTestChallenge.WALL_POLYGONS + StraightLineSpeedTestChallenge.CHICANES_POLYGONS
+        self.floor_polygons = [StraightLineSpeedTestChallenge.FLOOR_POLYGON]
 
     def after_sim_object_added(self, sim_object):
         super(StraightLineSpeedTestChallenge, self).after_sim_object_added(sim_object)

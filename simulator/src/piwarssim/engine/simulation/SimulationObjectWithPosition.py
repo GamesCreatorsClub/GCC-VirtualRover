@@ -19,10 +19,11 @@ class SimulationObjectWithPosition(SimulationObject):
         self.changed = self.changed \
                        or self.within_resolution(self._position[0], position[0]) \
                        or self.within_resolution(self._position[1], position[1]) \
-                       or self.within_resolution(self._position[2], position[2])
+                       or (len(position) > 2 and self.within_resolution(self._position[2], position[2]))
         self._position[0] = position[0]
         self._position[1] = position[1]
-        self._position[2] = position[2]
+        if len(position) > 2:
+            self._position[2] = position[2]
 
     def set_position_2(self, x, y):
         self.changed = self.changed \
