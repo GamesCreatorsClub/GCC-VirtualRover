@@ -16,9 +16,9 @@ public class GCCRoverM16 extends Rover {
 
         this.polygons = asShape2DList(polygonFromBox(-80f,  -55f, 80f,  55f));
         this.attachmentPosition = new Vector2(80f, 0);
-        this.cameraPosition = new Vector3(75f, 0f, 20f);
+        this.cameraPosition = new Vector3(-40f, 0f, 110f);
         this.cameraOrientation = new Quaternion();
-        this.cameraOrientation.setEulerAngles(10f, 0f, 0f); // positive yaw is down
+        this.cameraOrientation.setEulerAngles(22.5f, 0f, 0f); // positive yaw is down
         this.cameraAngle = 45f;
     }
 }

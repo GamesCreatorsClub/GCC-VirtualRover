@@ -26,36 +26,36 @@ import static java.util.Arrays.asList;
 
 public class MineSweeperChallenge extends CameraAbstractChallenge {
 
-    public static float COURSE_WIDTH = 2200;
+    public static float COURSE_WIDTH = 1600;
 
-    public static float WALL_HEIGHT = 200;
+    public static float WALL_HEIGHT = 300;
 
     public static List<Polygon> MINE_POLYGONS = asList(
-            polygonFromBox(-1100, -1100,  -550, -550),
-            polygonFromBox(-550, -1100,  0, -550),
-            polygonFromBox(0, -1100,  550, -550),
-            polygonFromBox(550, -1100,  1100, -550),
+            polygonFromBox(-COURSE_WIDTH / 2, -COURSE_WIDTH / 2,  -COURSE_WIDTH / 4, -COURSE_WIDTH / 4),
+            polygonFromBox(-COURSE_WIDTH / 4, -COURSE_WIDTH / 2,  0, -COURSE_WIDTH / 4),
+            polygonFromBox(0, -COURSE_WIDTH / 2,  COURSE_WIDTH / 4, -COURSE_WIDTH / 4),
+            polygonFromBox(COURSE_WIDTH / 4, -COURSE_WIDTH / 2,  COURSE_WIDTH / 2, -COURSE_WIDTH / 4),
 
-            polygonFromBox(-1100, -550,  -550, 0),
-            polygonFromBox(-550, -550,  0, 0),
-            polygonFromBox(0, -550,  550, 0),
-            polygonFromBox(550, -550,  1100, 0),
+            polygonFromBox(-COURSE_WIDTH / 2, -COURSE_WIDTH / 4,  -COURSE_WIDTH / 4, 0),
+            polygonFromBox(-COURSE_WIDTH / 4, -COURSE_WIDTH / 4,  0, 0),
+            polygonFromBox(0, -COURSE_WIDTH / 4,  COURSE_WIDTH / 4, 0),
+            polygonFromBox(COURSE_WIDTH / 4, -COURSE_WIDTH / 4,  COURSE_WIDTH / 2, 0),
 
-            polygonFromBox(-1100, 0,  -550, 550),
-            polygonFromBox(-550, 0,  0, 550),
-            polygonFromBox(0, 0,  550, 550),
-            polygonFromBox(550, 0,  1100, 550),
+            polygonFromBox(-COURSE_WIDTH / 2, 0,  -COURSE_WIDTH / 4, COURSE_WIDTH / 4),
+            polygonFromBox(-COURSE_WIDTH / 4, 0,  0, COURSE_WIDTH / 4),
+            polygonFromBox(0, 0,  COURSE_WIDTH / 4, COURSE_WIDTH / 4),
+            polygonFromBox(COURSE_WIDTH / 4, 0,  COURSE_WIDTH / 2, COURSE_WIDTH / 4),
 
-            polygonFromBox(-1100, 550,  -550, 1100),
-            polygonFromBox(-550, 550,  0, 1100),
-            polygonFromBox(0, 550,  550, 1100),
-            polygonFromBox(550, 550,  1100, 1100));
+            polygonFromBox(-COURSE_WIDTH / 2, COURSE_WIDTH / 4,  -COURSE_WIDTH / 4, COURSE_WIDTH / 2),
+            polygonFromBox(-COURSE_WIDTH / 4, COURSE_WIDTH / 4,  0, COURSE_WIDTH / 2),
+            polygonFromBox(0, COURSE_WIDTH / 4,  COURSE_WIDTH / 4, COURSE_WIDTH / 2),
+            polygonFromBox(COURSE_WIDTH / 4, COURSE_WIDTH / 4,  COURSE_WIDTH / 2, COURSE_WIDTH / 2));
 
     public static List<Polygon> WALL_POLYGONS = asList(
-            polygonFromBox(-1100, -1101,  1100, -1100),
-            polygonFromBox(-1101, -1100, -1100,  1100),
-            polygonFromBox(-1100,  1100,  1100,  1101),
-            polygonFromBox( 1100, -1100,  1101,  1100));
+            polygonFromBox(-COURSE_WIDTH / 2, -COURSE_WIDTH / 2 - 1,  COURSE_WIDTH / 2, -COURSE_WIDTH / 2),
+            polygonFromBox(-COURSE_WIDTH / 2 - 1, -COURSE_WIDTH / 2, -COURSE_WIDTH / 2,  COURSE_WIDTH / 2),
+            polygonFromBox(-COURSE_WIDTH / 2,  COURSE_WIDTH / 2,  COURSE_WIDTH / 2,  COURSE_WIDTH / 2 + 1),
+            polygonFromBox( COURSE_WIDTH / 2, -COURSE_WIDTH / 2,  COURSE_WIDTH / 2 + 1,  COURSE_WIDTH / 2));
 
     private Random random = new Random();
 
