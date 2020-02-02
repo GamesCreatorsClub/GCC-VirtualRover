@@ -30,6 +30,11 @@ public class EcoDisasterScreen extends AbstractCameraChallengeScreen implements 
     }
 
     @Override
+    protected void setupRequiredCameraCombination() {
+        cameraCombination = CAMERA_COMBINATIONS[3];
+    }
+
+    @Override
     public void reset() {
         super.reset();
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);

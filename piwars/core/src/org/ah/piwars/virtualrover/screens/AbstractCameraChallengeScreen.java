@@ -226,7 +226,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         if (!this.inGame && inGame) {
             gameStartedTimestamp = System.currentTimeMillis() + CAMERA_CHANGE_DELAY;
             firstTimeout = false;
-            cameraCombination = CAMERA_COMBINATIONS[0];
+            setupRequiredCameraCombination();
         }
         this.inGame = inGame;
 
@@ -290,6 +290,10 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
             serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
         }
+    }
+
+    protected void setupRequiredCameraCombination() {
+        cameraCombination = CAMERA_COMBINATIONS[0];
     }
 
     @Override

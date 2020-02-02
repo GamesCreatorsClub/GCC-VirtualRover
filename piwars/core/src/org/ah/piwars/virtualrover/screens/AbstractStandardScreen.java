@@ -95,6 +95,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected PerspectiveCamera camera;
     protected CameraControllersManager cameraControllersManager;
     protected InputMultiplexer cameraInputMultiplexer;
+    protected CinematicCameraController cinematicCameraController;
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -152,7 +153,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         cameraInputMultiplexer.addProcessor(this);
         cameraInputMultiplexer.addProcessor(cameraControllersManager);
 
-        cameraControllersManager.addCameraController("Cinematic", new CinematicCameraController(camera, serverCommunicationAdapter));
+        cinematicCameraController = new CinematicCameraController(camera, serverCommunicationAdapter);
+        cameraControllersManager.addCameraController("Cinematic", cinematicCameraController);
         cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
     }

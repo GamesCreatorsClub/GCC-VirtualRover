@@ -27,8 +27,8 @@ import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class MineSweeperArena extends AbstractChallenge {
 
-    private Material floorOffMaterial;
-    private Material floorOnMaterial;
+    private Material floorMaterial;
+    // private Material floorOnMaterial;
     private Array<Model> floorModels = new Array<>();
     private Array<ModelInstance> floorInstances = new Array<>();
 
@@ -48,14 +48,14 @@ public class MineSweeperArena extends AbstractChallenge {
         setDimensions(COURSE_WIDTH, COURSE_WIDTH);
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
-        floorOffMaterial = new Material(FLOOR_NOT_LIT_COLOUR);
-        floorOnMaterial = new Material(FLOOR_LIT_COLOUR);
+        floorMaterial = new Material(FLOOR_NOT_LIT_COLOUR);
+        // floorOnMaterial = new Material(FLOOR_LIT_COLOUR);
         wallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.2f, 0.2f, 1f)));
 
         ModelBuilder modelBuilder = new ModelBuilder();
 
         for (Polygon floorPolygon : MINE_POLYGONS) {
-            Model floorModel = extrudePolygonY(modelBuilder, floorPolygon, 10, attrs, floorOffMaterial);
+            Model floorModel = extrudePolygonY(modelBuilder, floorPolygon, 10, attrs, floorMaterial);
             ModelInstance floorModelInstance = new ModelInstance(floorModel);
             floorModelInstance.transform.setToTranslationAndScaling(0, (- 59) * SCALE, 0, SCALE, SCALE, SCALE);
             floorModels.add(floorModel);

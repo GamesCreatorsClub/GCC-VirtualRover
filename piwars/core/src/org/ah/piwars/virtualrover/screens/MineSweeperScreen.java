@@ -27,12 +27,20 @@ public class MineSweeperScreen extends AbstractCameraChallengeScreen implements 
         super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
 
         setBackground(new PerlinNoiseBackground());
+
+        cinematicCameraController.setCameraHeight(1300f);
+        cinematicCameraController.setCameraRadius(1000f);
     }
+//
+//    @Override
+//    protected void setupRequiredCameraCombination() {
+//        cameraCombination = CAMERA_COMBINATIONS[3];
+//    }
 
     @Override
     public void reset() {
         super.reset();
-        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.position.set(300f * SCALE, 780f * SCALE, 300f * SCALE);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.02f;
         camera.far = 1000f;
@@ -40,6 +48,8 @@ public class MineSweeperScreen extends AbstractCameraChallengeScreen implements 
         Gdx.input.setInputProcessor(cameraInputMultiplexer);
         Gdx.input.setCursorCatched(false);
         challenge.init();
+
+        cameraCombination = CAMERA_COMBINATIONS[3];
     }
 
     @Override

@@ -18,12 +18,30 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
     private Vector3 pos1 = new Vector3();
     private Vector3 pos2 = new Vector3();
     private Vector3 midpoint = new Vector3();
+    private float cameraHeight = 700f;
+    private float cameraRadius = 1500f;
 
     private ServerCommunicationAdapter serverCommunicationAdapter;
 
     public CinematicCameraController(PerspectiveCamera camera, ServerCommunicationAdapter serverCommunicationAdapter) {
         this.camera = camera;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
+    }
+
+    public float getCameraHeight() {
+        return cameraHeight;
+    }
+
+    public void setCameraHeight(float cameraHeight) {
+        this.cameraHeight = cameraHeight;
+    }
+
+    public float getCameraRadius() {
+        return cameraRadius;
+    }
+
+    public void setCameraRadius(float cameraRadius) {
+        this.cameraRadius = cameraRadius;
     }
 
     @Override
@@ -53,7 +71,7 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
             } else {
                 midpoint.set(0f, 0f, 0f);
             }
-            pos2.set(1500f * SCALE, 700f * SCALE, 1500f * SCALE);
+            pos2.set(cameraRadius * SCALE, cameraHeight * SCALE, cameraRadius * SCALE);
         }
         camera.lookAt(midpoint);
         camera.position.set(pos2);
