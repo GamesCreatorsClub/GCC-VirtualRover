@@ -53,6 +53,7 @@ public class MainGame extends Game {
         assetManager = new AssetManager();
 
         assetManager.load("GCC_full.png", Texture.class);
+        assetManager.load("PiWarsLogo-small.png", Texture.class);
         assetManager.load("3d/Alien.png", Texture.class);
         assetManager.load("font/basic.fnt", BitmapFont.class);
         assetManager.load("font/copper18.fnt", BitmapFont.class);
@@ -78,8 +79,8 @@ public class MainGame extends Game {
 
     public void finishedLoading() {
         console = new Console();
-        console.raw("Welcome to PiWars Virtual PiNoon v.0.6");
-        console.raw("Games Creators Club () Virtual Rover");
+        console.raw("Welcome to Virtual PiWars v.0.7");
+        console.raw("Games Creators Club Virtual Rover");
         console.raw("(c) Creative Sphere Limited");
 
         soundManager.fetchSounds(assetManager);

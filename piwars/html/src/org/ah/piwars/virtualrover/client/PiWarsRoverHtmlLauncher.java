@@ -92,7 +92,7 @@ public class PiWarsRoverHtmlLauncher extends GwtApplication {
 //        final Image libGDXLogo = new Image(GWT.getModuleBaseURL() + "LibGDX-logo.png");
 //        libGDXLogo.setStyleName("logo");
 //        preloaderPanel.add(libGDXLogo);
-        final Image gccLogo = new Image(GWT.getModuleBaseURL() + "GCC_full.png");
+        final Image gccLogo = new Image(GWT.getModuleBaseURL() + "PiWarsLogo-small.png");
         gccLogo.setStyleName("logo");
         preloaderPanel.add(gccLogo);
         final Panel meterPanel = new SimplePanel();

@@ -60,7 +60,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected SpriteBatch spriteBatch;
     protected BitmapFont fontBig;
     protected BitmapFont fontSmallMono;
-    protected Texture gccLogo;
+    protected Texture logo;
 
     protected boolean renderBackground = false;
 
@@ -133,7 +133,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         batch.dispose();
         spriteBatch.dispose();
         fontBig.dispose();
-        if (gccLogo == null) { gccLogo.dispose(); }
+        if (logo == null) { logo.dispose(); }
         if (challenge != null) { challenge.dispose(); }
         if (background != null) { background.dispose(); }
     }
@@ -199,8 +199,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         if (fontSmallMono == null) {
             fontSmallMono = assetManager.get("font/droidsansmono-15.fnt");
         }
-        if (gccLogo == null) {
-            gccLogo = assetManager.get("GCC_full.png");
+        if (logo == null) {
+            // logo = assetManager.get("GCC_full.png");
+            logo = assetManager.get("PiWarsLogo-small.png");
         }
 
         if (console != null) {
@@ -274,7 +275,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         a++;
         spriteBatch.begin();
         if (!platformSpecific.isSimulation()) {
-            spriteBatch.draw(gccLogo, 0, Gdx.graphics.getHeight() - gccLogo.getHeight());
+            spriteBatch.draw(logo, 0, Gdx.graphics.getHeight() - logo.getHeight());
         }
         if (bottomMessage != null && (!bottomMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
             fontBig.draw(spriteBatch, bottomMessage, 64, 128);
