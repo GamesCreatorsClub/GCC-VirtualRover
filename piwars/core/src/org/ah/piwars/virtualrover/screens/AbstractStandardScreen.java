@@ -75,6 +75,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     private String middleMessage;
     private boolean middleMessageBlink;
 
+    private String topRightMessage;
+
     private GlyphLayout glyphLayout = new GlyphLayout();
     private int a = 0;
 
@@ -254,7 +256,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
 
         String fps = "f:" + Integer.toString(Gdx.graphics.getFramesPerSecond());
-        fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 60, Gdx.graphics.getHeight() - 12);
+        fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 60, Gdx.graphics.getHeight() - 48);
 
         String rtt = "RTT:" + Integer.toString(engine.getAverageRTT()) + "/" + Integer.toString(engine.getMaxRTT()) + "/" + Integer.toString(engine.getCurrentRTT());
         fontSmallMono.draw(spriteBatch, rtt, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 12);
@@ -293,6 +295,12 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) / 2, (Gdx.graphics.getHeight() - fontBig.getLineHeight()) / 2);
         }
 
+        if (gameMessageObject != null && gameMessageObject.hasTimer()) {
+            topRightMessage = "";
+            int timer = gameMessageObject.getTimerTens(serverCommunicationAdapter.getEngine().getGame());
+            String message = (timer / 10) + "." + (timer % 10);
+            fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) - 20, Gdx.graphics.getHeight() - 10);
+        }
         spriteBatch.end();
     }
 

@@ -1,8 +1,10 @@
 package org.ah.piwars.virtualrover.game;
 
+import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
+import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public class GameMessageObject extends GameObject {
@@ -11,6 +13,7 @@ public class GameMessageObject extends GameObject {
     private boolean inGame = false;
     private boolean waiting = false;
     private boolean hasTimer = false;
+    private boolean timerStopped = false;
     private String message = "";
     private int timer = 0;
 
@@ -46,12 +49,29 @@ public class GameMessageObject extends GameObject {
         this.hasTimer = hasTimer;
     }
 
+    public boolean isTimerStopped() {
+        return timerStopped;
+    }
+
+    public void setTimerStopped(boolean timerStopped) {
+        this.timerStopped = timerStopped;
+    }
+
     public int getTimer() {
         return timer;
     }
 
+    public int getTimerTens(Game game) {
+        long tens = game.getGameTickMicros() * timer / 100000L;
+        return (int)tens;
+    }
+
     public void setTimer(int timer) {
         this.timer = timer;
+    }
+
+    public void setTimerTens(int tens, Game game) {
+        this.timer = (int)(tens * 100000L / game.getGameTickMicros());
     }
 
     public void setMessage(String message, boolean flashing) {
@@ -75,10 +95,21 @@ public class GameMessageObject extends GameObject {
     }
 
     @Override
+    public void process(Game game, Iterable<GameObjectWithPosition> objects) {
+        if (hasTimer && !timerStopped && timer > 0) {
+            timer--;
+        }
+    }
+
+    @Override
     public void serialize(boolean full, Serializer serializer) {
         super.serialize(full, serializer);
 
-        serializer.serializeUnsignedByte((flashing ? 1 : 0) + (inGame ? 2 : 0) + (waiting ? 4 : 0) + (hasTimer ? 8 : 0));
+        serializer.serializeUnsignedByte((flashing ? 1 : 0)
+                + (inGame ? 2 : 0)
+                + (waiting ? 4 : 0)
+                + (hasTimer ? 8 : 0)
+                + (timerStopped ? 16 : 0));
         serializer.serializeShort(timer);
         serializer.serializeString(message);
     }
@@ -88,10 +119,11 @@ public class GameMessageObject extends GameObject {
         super.deserialize(full, serializer);
 
         int status = serializer.deserializeUnsignedByte();
-        boolean flashing = (status & 0x1b) != 0;
-        boolean inGame = (status & 0x2b) != 0;
-        boolean waiting = (status & 0x4b) != 0;
-        boolean hasTimer = (status & 0x8b) != 0;
+        boolean flashing = (status & 0x1) != 0;
+        boolean inGame = (status & 0x2) != 0;
+        boolean waiting = (status & 0x4) != 0;
+        boolean hasTimer = (status & 0x8) != 0;
+        boolean timerStopped = (status & 0x10) != 0;
 
         int timer = serializer.deserializeShort();
         String message = serializer.deserializeString();
@@ -100,6 +132,7 @@ public class GameMessageObject extends GameObject {
         changed = changed || inGame != this.inGame;
         changed = changed || waiting != this.waiting;
         changed = changed || hasTimer != this.hasTimer;
+        changed = changed || timerStopped != this.timerStopped;
         changed = changed || (timer != this.timer);
         changed = changed || !this.message.equals(message);
 
@@ -107,6 +140,7 @@ public class GameMessageObject extends GameObject {
         this.inGame = inGame;
         this.waiting = waiting;
         this.hasTimer = hasTimer;
+        this.timerStopped = timerStopped;
         this.message = message;
         this.timer = timer;
     }
@@ -123,6 +157,9 @@ public class GameMessageObject extends GameObject {
         gameMessageObject.flashing = flashing;
         gameMessageObject.inGame = inGame;
         gameMessageObject.waiting = waiting;
+        gameMessageObject.hasTimer = hasTimer;
+        gameMessageObject.timerStopped = timerStopped;
+        gameMessageObject.timer = timer;
         gameMessageObject.message = message;
         return gameMessageObject;
     }

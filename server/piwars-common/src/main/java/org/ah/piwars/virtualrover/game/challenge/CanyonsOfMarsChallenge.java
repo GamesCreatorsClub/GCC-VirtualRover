@@ -3,6 +3,7 @@ package org.ah.piwars.virtualrover.game.challenge;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Shape2D;
 
+import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
@@ -116,8 +117,9 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
                     challenge.playerId = 0;
                 }
 
-                challenge.getGameMessage().setInGame(false);
-                challenge.getGameMessage().setWaiting(true);
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setInGame(false);
+                gameMessageObject.setWaiting(true);
             }
 
             @Override public void update(CanyonsOfMarsChallenge challenge) {
@@ -137,10 +139,13 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
 
             @Override public void enter(CanyonsOfMarsChallenge challenge) {
                 challenge.resetRover();
+                challenge.startTimer(4200);
                 setTimer(1000);
-                challenge.setMessage("GO!", false);
-                challenge.getGameMessage().setInGame(true);
-                challenge.getGameMessage().setWaiting(false);
+
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setMessage("GO!", false);
+                gameMessageObject.setInGame(true);
+                gameMessageObject.setWaiting(false);
 
                 // TODO
                 // challenge.soundManager.playFight();
@@ -149,8 +154,9 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
             @Override public void update(CanyonsOfMarsChallenge challenge) {
                 super.update(challenge);
 
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
                 if (isTimerDone()) {
-                    challenge.setMessage(null, false);
+                    gameMessageObject.setMessage(null, false);
                 }
 
                 Rover rover = challenge.getRover();
@@ -159,6 +165,10 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 } else if (polygonsOverlap(END_POLYGON, rover.getCollisionPolygons())) {
                     challenge.getGameMessage().setMessage("You have finished course! Well done!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
+                } else if (gameMessageObject.getTimer() <= 0) {
+                    challenge.stopTimer();
+                    challenge.getGameMessage().setMessage("Time is up!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
 
@@ -175,9 +185,11 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
             @Override public void enter(CanyonsOfMarsChallenge challenge) {
                 // PiNoonAttachment player1Attachment = challenge.getPlayerOneAttachment();
 
-                challenge.getGameMessage().setInGame(false);
-                challenge.getGameMessage().setWaiting(false);
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setInGame(false);
+                gameMessageObject.setWaiting(false);
                 setTimer(3000);
+                challenge.stopTimer();
             }
 
             @Override public void update(CanyonsOfMarsChallenge challenge) {
@@ -193,6 +205,7 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
                     challenge.playerId = 0;
                 }
                 challenge.setMessage(null, false);
+                challenge.removeTimer();
             }
         };
 

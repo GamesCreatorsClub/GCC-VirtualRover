@@ -6,7 +6,7 @@ import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.GameObject;
 
-public abstract class CameraAbstractChallenge extends AbstractChallenge {
+public abstract class CameraAbstractChallenge extends TimedChallenge {
 
     protected int cameraId;
 

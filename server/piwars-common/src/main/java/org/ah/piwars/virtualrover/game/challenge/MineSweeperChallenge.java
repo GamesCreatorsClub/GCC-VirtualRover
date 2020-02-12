@@ -2,6 +2,7 @@ package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
 
+import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -165,8 +166,9 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
                     challenge.playerId = 0;
                 }
 
-                challenge.getGameMessage().setInGame(false);
-                challenge.getGameMessage().setWaiting(true);
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setInGame(false);
+                gameMessageObject.setWaiting(true);
             }
 
             @Override public void update(MineSweeperChallenge challenge) {
@@ -188,6 +190,7 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
 
             @Override public void enter(MineSweeperChallenge challenge) {
                 challenge.resetRover();
+                challenge.startTimer(3000);
                 setTimer(1000);
                 challenge.setMessage("GO!", false);
                 challenge.getGameMessage().setInGame(true);
@@ -200,8 +203,9 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
             @Override public void update(MineSweeperChallenge challenge) {
                 super.update(challenge);
 
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
                 if (isTimerDone() && !messageRemoved) {
-                    challenge.setMessage(null, false);
+                    gameMessageObject.setMessage(null, false);
                     challenge.change_lights();
                     messageRemoved = true;
                 }
@@ -224,6 +228,12 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
                     }
                 }
 
+                if (gameMessageObject.getTimer() <= 0) {
+                    challenge.stopTimer();
+                    challenge.getGameMessage().setMessage("Time is up!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
+                }
+
                 CameraAttachment player1Attachment = challenge.getCameraAttachment();
 
                 if (player1Attachment != null) {
@@ -237,8 +247,10 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
             @Override public void enter(MineSweeperChallenge challenge) {
                 // PiNoonAttachment player1Attachment = challenge.getPlayerOneAttachment();
 
-                challenge.getGameMessage().setInGame(false);
-                challenge.getGameMessage().setWaiting(false);
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setInGame(false);
+                gameMessageObject.setWaiting(false);
+                challenge.stopTimer();
                 setTimer(3000);
             }
 
@@ -255,6 +267,7 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
                     challenge.playerId = 0;
                 }
                 challenge.setMessage(null, false);
+                challenge.removeTimer();
             }
         };
 

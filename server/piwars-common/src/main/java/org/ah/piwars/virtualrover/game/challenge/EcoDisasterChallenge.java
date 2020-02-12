@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntArray;
 
+import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
@@ -308,8 +309,11 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
                 }
                 challenge.barrels.clear();
 
-                challenge.getGameMessage().setInGame(false);
-                challenge.getGameMessage().setWaiting(true);
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setInGame(false);
+                gameMessageObject.setWaiting(true);
+
+                challenge.removeTimer();
             }
 
             @Override public void update(EcoDisasterChallenge challenge) {
@@ -327,12 +331,15 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
             @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(EcoDisasterChallenge challenge) {
+                challenge.startTimer(3000);
                 challenge.resetRover();
                 challenge.resetBarrels();
                 setTimer(1000);
-                challenge.setMessage("GO!", false);
-                challenge.getGameMessage().setInGame(true);
-                challenge.getGameMessage().setWaiting(false);
+
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setMessage("GO!", false);
+                gameMessageObject.setInGame(true);
+                gameMessageObject.setWaiting(false);
 
                 // TODO
                 // challenge.soundManager.playFight();
@@ -347,6 +354,13 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
 
                 CameraAttachment player1Attachment = challenge.getCameraAttachment();
 
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                if (gameMessageObject.getTimer() <= 0) {
+                    challenge.stopTimer();
+                    challenge.getGameMessage().setMessage("Time is up!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
+                }
+
                 if (player1Attachment != null) {
                 }
             }
@@ -356,8 +370,11 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
             @Override public boolean shouldMoveRovers() { return true; }
 
             @Override public void enter(EcoDisasterChallenge challenge) {
-                challenge.getGameMessage().setInGame(false);
-                challenge.getGameMessage().setWaiting(false);
+                GameMessageObject gameMessageObject = challenge.getGameMessage();
+                gameMessageObject.setInGame(false);
+                gameMessageObject.setWaiting(false);
+                challenge.stopTimer();
+
                 setTimer(3000);
             }
 
@@ -374,6 +391,7 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge {
                     challenge.playerId = 0;
                 }
                 challenge.setMessage(null, false);
+                challenge.removeTimer();
             }
         };
 
