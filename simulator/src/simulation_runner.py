@@ -14,7 +14,7 @@ from piwarssim.engine.challenges.Challenges import Challenges
 from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.message.MessageCode import MessageCode
 from piwarssim.engine.server import ServerEngine
-from piwarssim.engine.simulation.rovers.RoverType import RoverType
+from piwarssim.engine.simulation import PiWarsSimObjectTypes
 from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
 from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
@@ -99,6 +99,7 @@ class SimulationRunner:
         self._server_engine = None
         self._comm_server_module = None
         self._sim_rover_id = None
+        self._sim_game_message_id = None
         self._visualiser = None
         self._snapshot_handler = SnapshotHandler()
         self._paused = False
@@ -204,13 +205,15 @@ class SimulationRunner:
             sys.exit(-1)
         challenge = Challenges.from_name(challenge_name).new_object()
         self._server_engine = ServerEngine(challenge)
-        self._sim_rover_id = self._server_engine.challenge.spawn_rover(RoverType.GCC).get_id()
+        self._sim_rover_id = self._server_engine.challenge.spawn_rover(PiWarsSimObjectTypes.GCCRoverM16).get_id()
+        self._sim_game_message_id = self._server_engine.challenge.create_game_message_object().get_id()
 
         self._server_engine.process(self._timestamp)  # Move to '0' seconds position
         self._server_engine.set_screenshot_callback(self._snapshot_handler.snapshot_callback)
 
         self.simulation_adapter.set_server_engine(self._server_engine)
         self.simulation_adapter.set_sim_rover_id(self._sim_rover_id)
+        self.simulation_adapter.set_game_message_object_id(self._sim_game_message_id)
 
         self.simulation_adapter.init_pygame()
 

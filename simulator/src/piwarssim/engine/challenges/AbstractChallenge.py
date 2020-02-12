@@ -23,6 +23,8 @@ class AbstractChallenge:
         self._next_sim_state = self._next_sim_state.copy_state(self)
         self.wall_polygons = []
         self.floor_polygons = []
+        self._sim_rover_id = None  # Handy id for subclasses needing rover details
+        self._game_message_object_id = None  # Handy id for subclasses needing game message object
 
     def get_challenge_id(self):
         return self._challenge_id
@@ -134,11 +136,23 @@ class AbstractChallenge:
         pass
 
     def spawn_rover(self, rover_type):
-        rover = self._sim_object_factory.obtain(PiWarsSimObjectTypes.GCCRoverM16)
-        # rover.set_id(self.new_id())
+        rover = self._sim_object_factory.obtain(rover_type)
         rover.set_id(1)
         self.add_new_sim_object(rover)
+        self._sim_rover_id = rover.get_id()
         return rover
+
+    def create_game_message_object(self):
+        game_message_object = self._sim_object_factory.obtain(PiWarsSimObjectTypes.GameMessageObject)
+        game_message_object.set_id(self.get_current_sim_state().new_id())
+        self.add_new_sim_object(game_message_object)
+        self._game_message_object_id = game_message_object.get_id()
+        return game_message_object
+
+    def get_game_message_object(self):
+        if self._game_message_object_id is not None:
+            return self.get_sim_object(self._game_message_object_id)
+        return None
 
     def make_barrel(self, barrel_colour):
         barrel = self._sim_object_factory.obtain(PiWarsSimObjectTypes.BarrelObject)

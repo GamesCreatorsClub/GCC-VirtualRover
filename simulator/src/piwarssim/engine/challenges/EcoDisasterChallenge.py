@@ -58,6 +58,12 @@ class EcoDisasterChallenge(AbstractChallenge):
 
         super(EcoDisasterChallenge, self).process(timestamp)
 
+        game_message_object = self.get_game_message_object()
+        if timestamp < 5:
+            game_message_object.message = "Starting Eco Challenge"
+        else:
+            game_message_object.message = ""
+
     def reset_barrels(self):
         odd = True
         while len(self.barrels) < self.numbe_of_barrels:

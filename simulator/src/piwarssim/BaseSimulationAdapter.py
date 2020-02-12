@@ -5,6 +5,7 @@ class BaseSimulationAdapter:
         self.server_engine = None
         self.challenge = None
         self.sim_rover_id = None
+        self.game_message_object_id = None
 
     def set_simulation_runner(self, simulation_runner):
         self.simulation_runner = simulation_runner
@@ -16,12 +17,22 @@ class BaseSimulationAdapter:
     def set_sim_rover_id(self, sim_rover_id):
         self.sim_rover_id = sim_rover_id
 
+    def set_game_message_object_id(self, game_message_object_id):
+        self.game_message_object_id = game_message_object_id
+
     def get_sim_rover_id(self):
         """
         Returns id of rover in simulation.
         :return: id of simulation object representing rover.
         """
         return self.sim_rover_id
+
+    def get_game_message_object_id(self):
+        """
+        Returns id of game message object in simulation.
+        :return: id of simulation object representing game message object.
+        """
+        return self.game_message_object_id
 
     def define_arguments(self, args_parser):
         """
