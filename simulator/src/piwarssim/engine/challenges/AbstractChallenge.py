@@ -4,6 +4,8 @@ from piwarssim.engine.simulation.SimulationObjectFactory import SimulationObject
 
 
 class AbstractChallenge:
+    GAME_TICK_IN_us = 16000
+
     def __init__(self, challenge_id):
         self._challenge_id = challenge_id
         self._sim_object_factory = SimulationObjectFactory()
@@ -25,9 +27,13 @@ class AbstractChallenge:
         self.floor_polygons = []
         self._sim_rover_id = None  # Handy id for subclasses needing rover details
         self._game_message_object_id = None  # Handy id for subclasses needing game message object
+        self._game_tick_micros = AbstractChallenge.GAME_TICK_IN_us
 
     def get_challenge_id(self):
         return self._challenge_id
+
+    def get_game_tick_micros(self):
+        return self._game_tick_micros
 
     def get_challenge_max_dimensions(self):
         if not self._dimensions_defined is None:

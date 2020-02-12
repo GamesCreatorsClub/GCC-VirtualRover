@@ -1,6 +1,7 @@
 import random
 
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
+from piwarssim.engine.simulation.GameMessageSimObject import GameMessageSimObject
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.objects import BarrelColour
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
@@ -45,6 +46,11 @@ class EcoDisasterChallenge(AbstractChallenge):
 
             self.rover_id = sim_object.get_id()
             # reset_rover()
+        if isinstance(sim_object, GameMessageSimObject):
+            game_message_object = self.get_game_message_object()
+            game_message_object.has_timer = True
+            game_message_object.timer_stopped = False
+            game_message_object.set_timer_tens(3000, self)
 
     def process(self, timestamp):
         # if timestamp > self._next_event:
@@ -63,6 +69,7 @@ class EcoDisasterChallenge(AbstractChallenge):
             game_message_object.message = "Starting Eco Challenge"
         else:
             game_message_object.message = ""
+        game_message_object.set_timer_tens((300 - timestamp) * 10, self)
 
     def reset_barrels(self):
         odd = True

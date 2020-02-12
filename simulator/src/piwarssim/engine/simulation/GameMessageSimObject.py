@@ -10,6 +10,7 @@ class GameMessageSimObject(SimulationObject):
         self.in_game = False
         self.waiting = False
         self.has_timer = False
+        self.timer_stopped = False
         self.timer = 0
         self.message = ""
 
@@ -17,9 +18,23 @@ class GameMessageSimObject(SimulationObject):
         self.flashing = False
         self.in_game = False
         self.waiting = False
+        self.has_timer = False
+        self.timer_stopped = False
         self.timer = 0
         self.message = ""
         super(GameMessageSimObject, self).free()
+
+    def set_timer_tens(self, tens, challenge):
+        self.timer = int(tens * 100000 // challenge.get_game_tick_micros())
+
+    def get_timer_tens(self, challenge):
+        return challenge.get_game_tick_micros() * self.timer // 100000
+
+    def set_time(self, timer):
+        self._timer = timer
+
+    def get_timer(self):
+        return self._timer
 
     def set_message(self, message):
         self.message = message
@@ -29,7 +44,8 @@ class GameMessageSimObject(SimulationObject):
 
     def serialize(self, full, serializer):
         super(GameMessageSimObject, self).serialize(full, serializer)
-        serializer.serialize_unsigned_byte((1 if self.flashing else 0) + (2 if self.in_game else 0) + (4 if self.waiting else 0) + (8 if self.has_timer else 0))
+        serializer.serialize_unsigned_byte((1 if self.flashing else 0) + (2 if self.in_game else 0) + (4 if self.waiting else 0)
+                                           + (8 if self.has_timer else 0) + (16 if self.timer_stopped else 0))
         serializer.serialize_short(self.timer)
         serializer.serialize_string(self.message)
 
@@ -43,14 +59,17 @@ class GameMessageSimObject(SimulationObject):
         in_game = (status & 2) != 0
         waiting = (status & 4) != 0
         has_timer = (status & 8) != 0
+        timer_stopped = (status & 16) != 0
 
-        self.changed = self.changed or self.flashing != flashing or self.in_game != in_game or self.waiting != waiting or self.has_timer != has_timer \
+        self.changed = self.changed or self.flashing != flashing \
+                       or self.in_game != in_game or self.waiting != waiting or self.has_timer != has_timer or self.timer_stopped != timer_stopped \
                        or self.timer != timer or self.message != message
 
         self.flashing = flashing
         self.in_game = in_game
         self.waiting = waiting
         self.has_timer = has_timer
+        self.timer_stopped = timer_stopped
         self.timer = timer
         self.message = message
 
@@ -69,4 +88,4 @@ class GameMessageSimObject(SimulationObject):
         return new_object
 
     def __repr__(self):
-        return "GameMessage[" + super(GameMessageSimObject, self).__repr__() + ", in_game=" + str(self.in_game) + ", waiting=" + str(self.waiting) + ", has_timer=" + str(self.has_timer) + ", timer=" + str(self.timer) + ", msg=\"" + self.message + "\"]"
+        return "GameMessage[" + super(GameMessageSimObject, self).__repr__() + ", in_game=" + str(self.in_game) + ", waiting=" + str(self.waiting) + ", has_timer=" + str(self.has_timer) + ", timer_stopped=" + str(self.timer_stopped) + ", timer=" + str(self.timer) + ", msg=\"" + self.message + "\"]"
