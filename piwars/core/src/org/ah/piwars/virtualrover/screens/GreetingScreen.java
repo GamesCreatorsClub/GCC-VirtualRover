@@ -6,6 +6,10 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.controllers.PovDirection;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -21,6 +25,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -52,10 +57,13 @@ import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyC
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.ReceivedRegistrationServerCallback;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.screens.AbstractStandardScreen.UP;
 
-public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCallback, GameReadyCallback, GameMapCallback, ReceivedRegistrationServerCallback {
+public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCallback, GameReadyCallback, GameMapCallback, ReceivedRegistrationServerCallback, ControllerListener {
 
     private enum State {
         None(false, false),
@@ -195,6 +203,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private Rover roverGameObject;
 
     private float startGameTextWidth;
+
+    private List<Controller> connectedControllers = new ArrayList<>();
 
     public void create(MainGame mainGame, PlatformSpecific platformSpecific, ServerCommunicationAdapter serverCommunicationAdapter, Console console) {
         this.mainGame = mainGame;
@@ -442,6 +452,11 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         console.setCamera(camera);
         Gdx.input.setOnscreenKeyboardVisible(platformSpecific.needOnScreenKeyboard());
         Gdx.input.setInputProcessor(this);
+        connectedControllers.clear();
+        for (Controller controller : Controllers.getControllers()) {
+            connectedControllers.add(controller);
+        }
+        Controllers.addListener(this);
     }
 
     @Override
@@ -567,7 +582,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     @Override
     public void hide() {
-
+        Controllers.removeListener(this);
     }
 
     @Override
@@ -1034,5 +1049,55 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         }
 
         public abstract void drawModel(ModelBatch modelBatch, Environment environment, FrameBuffer frameBuffer);
+    }
+
+    @Override
+    public void connected(Controller controller) {
+        connectedControllers.add(controller);
+        System.out.println("Added controller " + connectedControllers.indexOf(controller));
+    }
+
+    @Override
+    public void disconnected(Controller controller) {
+        // System.out.println("Removed controller " + connectedControllers.indexOf(controller));
+        connectedControllers.remove(controller);
+    }
+
+    @Override
+    public boolean buttonDown(Controller controller, int buttonCode) {
+        // System.out.println("Controller " + connectedControllers.indexOf(controller) + " button " + buttonCode + " pressed.");
+        return false;
+    }
+
+    @Override
+    public boolean buttonUp(Controller controller, int buttonCode) {
+        return false;
+    }
+
+    @Override
+    public boolean axisMoved(Controller controller, int axisCode, float value) {
+        // System.out.println("Controller " + connectedControllers.indexOf(controller) + " axis " + axisCode + " - " + value);
+        return false;
+    }
+
+    @Override
+    public boolean povMoved(Controller controller, int povCode, PovDirection value) {
+        // System.out.println("Controller " + connectedControllers.indexOf(controller) + " pov " + povCode + " - " + value);
+        return false;
+    }
+
+    @Override
+    public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) {
+        return false;
+    }
+
+    @Override
+    public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) {
+        return false;
+    }
+
+    @Override
+    public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) {
+        return false;
     }
 }

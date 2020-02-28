@@ -5,6 +5,7 @@
 	<inherits name='com.github.czyzby.websocket.GdxWebSocket' />
 	<inherits name='com.github.czyzby.websocket.GdxWebSocketGwt' />
 	<inherits name='com.github.czyzby.websocket.GdxWebSocketSerialization' />
+	<inherits name='com.badlogic.gdx.controllers.controllers-gwt' />
 	<inherits name='org.ah.themvsus.engine.common' />
 	<entry-point class='org.ah.piwars.virtualrover.client.PiWarsRoverHtmlLauncher' />
 	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>

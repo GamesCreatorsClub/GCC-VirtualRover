@@ -56,6 +56,8 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         api "org.ah.themvsus:engine-client-desktop:$themvsusVersion"
+        api "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
     }
 }
 
@@ -78,6 +80,8 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
+        api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-controllers-android:$gdxVersion"
     }
 }
 
@@ -120,6 +124,9 @@ project(":html") {
         api "com.github.czyzby:gdx-websocket-gwt:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
         api "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersionForczyzby"
         api "com.github.czyzby:gdx-websocket-serialization:$gdxWebSocketsVersion.$gdxVersionForczyzby:sources"
+        api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion:sources"
     }
 }
 
@@ -134,5 +141,6 @@ project(":core") {
         api "org.ah.themvsus:engine-common:$themvsusVersion"
         api "org.ah.themvsus:engine-client:$themvsusVersion"
         api "org.ah.piwars.virtualrover:piwars-common:$piwarsVersion"
+        api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
     }
 }
