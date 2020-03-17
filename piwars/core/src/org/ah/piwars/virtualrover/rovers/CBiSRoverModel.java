@@ -1,13 +1,14 @@
 package org.ah.piwars.virtualrover.rovers;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 
 import java.util.NoSuchElementException;
@@ -18,20 +19,29 @@ public class CBiSRoverModel extends FourWheelRoverModel {
 
     private static float ROVER_SCALE = 26;
 
-    public CBiSRoverModel(ModelFactory modelFactory) throws NoSuchElementException {
-        this("CBiS Rover", modelFactory, Color.WHITE);
+    public CBiSRoverModel(AssetManager assetManager) throws NoSuchElementException {
+        this("CBiS Rover", assetManager, Color.WHITE);
     }
 
-    public CBiSRoverModel(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+    public CBiSRoverModel(String name, AssetManager assetManager, Color colour) throws NoSuchElementException {
         super(name, colour);
 
-        body = new ModelInstance(modelFactory.getcBody(), 0, 0, 0);
+        body = new ModelInstance(assetManager.get("3d/rovers/CBiS_18/body.obj", Model.class), 0, 0, 0);
         body.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
-        fr = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 20f, -27f, -145f, 270);
-        fl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 42f, -27f, 0f, 90);
-        br = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 165f, -27f, -145f, 270);
-        bl = new BigWheel(modelFactory, Color.YELLOW, ROVER_SCALE, 190f, -27f, 0f, 90);
+        Model wheelModel = assetManager.get("3d/rovers/CBiS_18/wheel.obj", Model.class);
+        Model tyreModel = assetManager.get("3d/rovers/CBiS_18/tyre.obj", Model.class);
+
+        fr = new BigWheel(wheelModel, tyreModel, Color.YELLOW, ROVER_SCALE, 20f, -27f, -145f, 270);
+        fl = new BigWheel(wheelModel, tyreModel, Color.YELLOW, ROVER_SCALE, 42f, -27f, 0f, 90);
+        br = new BigWheel(wheelModel, tyreModel, Color.YELLOW, ROVER_SCALE, 165f, -27f, -145f, 270);
+        bl = new BigWheel(wheelModel, tyreModel, Color.YELLOW, ROVER_SCALE, 190f, -27f, 0f, 90);
+    }
+
+    public static void load(AssetManager assetManager) {
+        assetManager.load("3d/rovers/CBiS_18/body.obj", Model.class);
+        assetManager.load("3d/rovers/CBiS_18/tyre.obj", Model.class);
+        assetManager.load("3d/rovers/CBiS_18/wheel.obj", Model.class);
     }
 
     @Override

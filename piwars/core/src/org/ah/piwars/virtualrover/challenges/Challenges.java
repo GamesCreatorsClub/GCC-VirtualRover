@@ -2,7 +2,6 @@ package org.ah.piwars.virtualrover.challenges;
 
 import com.badlogic.gdx.assets.AssetManager;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 
 import java.util.List;
@@ -20,13 +19,13 @@ public class Challenges {
     private BlastOffArena blastOffArena;
     private MineSweeperArena mineSweeperArena;
 
-    public Challenges(ModelFactory modelFactory, AssetManager assetManager, ServerCommunicationAdapter serverCommunicationAdapter) {
-        piNoonArena = new PiNoonArena(modelFactory);
-        ecoDisasterArena = new EcoDisasterArena(modelFactory);
-        canyonsOfMarsArena = new CanyonsOfMarsArena(modelFactory, assetManager);
-        straightLineSpeedTestArena = new StraightLineSpeedTestArena(modelFactory);
-        blastOffArena = new BlastOffArena(modelFactory);
-        mineSweeperArena = new MineSweeperArena(modelFactory, serverCommunicationAdapter);
+    public Challenges(AssetManager assetManager, ServerCommunicationAdapter serverCommunicationAdapter) {
+        piNoonArena = new PiNoonArena(assetManager);
+        ecoDisasterArena = new EcoDisasterArena(assetManager);
+        canyonsOfMarsArena = new CanyonsOfMarsArena(assetManager);
+        straightLineSpeedTestArena = new StraightLineSpeedTestArena(assetManager);
+        blastOffArena = new BlastOffArena(assetManager);
+        mineSweeperArena = new MineSweeperArena(assetManager, serverCommunicationAdapter);
 
         challenges = asList(
 //                new ChallengeDescription("PiNoon", "Pi Noon (Robot vs Robot)", piNoonArena, 2, true),

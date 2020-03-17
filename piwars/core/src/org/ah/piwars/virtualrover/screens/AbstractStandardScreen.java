@@ -21,7 +21,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
 
 import org.ah.piwars.virtualrover.MainGame;
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.Background;
@@ -51,7 +50,6 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     protected AssetManager assetManager;
     protected SoundManager soundManager;
-    protected ModelFactory modelFactory;
 
     protected ModelBatch batch;
     protected Environment environment;
@@ -103,7 +101,6 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
-            ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
 
@@ -111,7 +108,6 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         this.platformSpecific = platformSpecific;
         this.assetManager = assetManager;
         this.soundManager = soundManager;
-        this.modelFactory = modelFactory;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 

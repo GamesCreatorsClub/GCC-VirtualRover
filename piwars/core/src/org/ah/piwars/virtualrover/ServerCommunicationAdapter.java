@@ -1,5 +1,6 @@
 package org.ah.piwars.virtualrover;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.engine.client.PiWarsClientEngine;
@@ -47,7 +48,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     private int cameraAttachmentId;
     private int mineSweeperId;
 
-    private ModelFactory modelFactory;
+    private AssetManager assetManager;
     private boolean local;
 
     private boolean makeCameraSnapshot;
@@ -55,7 +56,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
             Console console,
-            ModelFactory modelFactory) {
+            AssetManager assetManager) {
 
         super(GdxClientLoggingAdapter.getInstance(), serverCommunication);
 
@@ -64,7 +65,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         setMessageFactory(messageFactory);
 
         this.console = console;
-        this.modelFactory = modelFactory;
+        this.assetManager = assetManager;
 
         serverCommunication.setReceiver(this);
 
@@ -180,7 +181,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             PlayerModelLink playerModel = new PlayerModelLink(engine.getGame(), rover.getRoverType(), gameObject.getId(), rover.getAlias());
             playerModel.setRoverColour(rover);
             allVisibleObjects.put(rover.getId(), playerModel);
-            playerModel.makeRobot(modelFactory);
+            playerModel.makeRobot(assetManager);
             rover.setLinkBack(playerModel);
 
             if (rover.getId() != sessionId && playerTwoId <= 0) {
@@ -192,7 +193,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             PlayerModelLink playerModel = (PlayerModelLink)allVisibleObjects.get(piNoonAttachment.getParentId());
 
             PiNoonAttachmentModelLink piNoonAttachmentModel = new PiNoonAttachmentModelLink(engine.getGame(), playerModel.getColour(), piNoonAttachment, playerModel);
-            piNoonAttachmentModel.makeModel(modelFactory);
+            piNoonAttachmentModel.makeModel(assetManager);
             piNoonAttachment.setLinkBack(piNoonAttachmentModel);
 
             allVisibleObjects.put(gameObject.getId(), piNoonAttachmentModel);
@@ -204,7 +205,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             BarrelObject barrelObject = (BarrelObject)gameObject;
             BarrelModelLink barrelModelLink = new BarrelModelLink(engine.getGame(), barrelObject.getId(), barrelObject.getBarrelColour());
             allVisibleObjects.put(barrelObject.getId(), barrelModelLink);
-            barrelModelLink.make(modelFactory);
+            barrelModelLink.make(assetManager);
             barrelObject.setLinkBack(barrelModelLink);
         } else if (gameObject instanceof MineSweeperStateObject) {
             mineSweeperId = gameObject.getId();

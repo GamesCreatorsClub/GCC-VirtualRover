@@ -1,6 +1,7 @@
 package org.ah.piwars.virtualrover.challenges;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -13,7 +14,6 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 @SuppressWarnings("deprecation")
@@ -31,15 +31,15 @@ public abstract class AbstractChallenge implements ChallengeArena {
 
     private DirectionalShadowLight shadowLight;
 
-    protected ModelFactory modelFactory;
+    protected AssetManager assetManager;
 
     private IntMap<VisibleObject> defaultVisibleObjets = new IntMap<VisibleObject>();
 
     private float width = 2200;
     private float length = 2200;
 
-    public AbstractChallenge(ModelFactory modelFactory) {
-        this.modelFactory = modelFactory;
+    public AbstractChallenge(AssetManager assetManager) {
+        this.assetManager = assetManager;
 
         shadowLight = new DirectionalShadowLight(1280, 1280, 8.5f, 8.5f, 0.01f, 100f);
         shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));

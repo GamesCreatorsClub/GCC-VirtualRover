@@ -1,14 +1,15 @@
 package org.ah.piwars.virtualrover.world;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
@@ -36,8 +37,8 @@ public class BarrelModelLink implements VisibleObject {
         this(game, id, fromBarrelColour(barrelColour));
     }
 
-    public void make(ModelFactory modelFactory) {
-        barrelModel = new ModelInstance(modelFactory.getBarrel());
+    public void make(AssetManager assetManager) {
+        barrelModel = new ModelInstance(assetManager.get("3d/challenges/barrel.obj", Model.class));
         barrelModel.transform.scale(SCALE, SCALE, SCALE).rotate(UP, 90).translate(0f, 0f, 20f);
         barrelModel.materials.get(0).set(ColorAttribute.createDiffuse(colour));
     }

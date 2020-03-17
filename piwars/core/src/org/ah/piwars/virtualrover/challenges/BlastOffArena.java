@@ -1,5 +1,6 @@
 package org.ah.piwars.virtualrover.challenges;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -13,7 +14,6 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
@@ -40,8 +40,8 @@ public class BlastOffArena extends AbstractChallenge {
     private Array<Model> lineModels = new Array<>();
     private Array<ModelInstance> lineInstances = new Array<>();
 
-    public BlastOffArena(ModelFactory modelFactory) {
-        super(modelFactory);
+    public BlastOffArena(AssetManager assetManager) {
+        super(assetManager);
 
         setDimensions(COURSE_WIDTH, COURSE_LENGTH);
 
@@ -79,16 +79,6 @@ public class BlastOffArena extends AbstractChallenge {
 
     @Override
     public void init() {
-    }
-
-    protected ModelInstance createChallengeModelInstance(ModelFactory modelFactory) {
-        Model arenaModel = modelFactory.loadModel("arena.obj");
-
-        ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
-
-        return arena;
     }
 
     @Override

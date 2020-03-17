@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 
 import org.ah.piwars.virtualrover.MainGame;
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
@@ -21,10 +20,9 @@ public class EcoDisasterScreen extends AbstractCameraChallengeScreen implements 
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
-            ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
-        super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        super(game, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
 
         setBackground(new PerlinNoiseBackground());
     }

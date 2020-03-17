@@ -1,5 +1,6 @@
 package org.ah.piwars.virtualrover.challenges;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -13,7 +14,6 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
@@ -40,8 +40,8 @@ public class MineSweeperArena extends AbstractChallenge {
     private static ColorAttribute FLOOR_LIT_COLOUR = ColorAttribute.createDiffuse(new Color(0.6f, 0.2f, 0.2f, 1f));
     private static ColorAttribute FLOOR_NOT_LIT_COLOUR = ColorAttribute.createDiffuse(new Color(0.5f, 0.5f, 0.5f, 1f));
 
-    public MineSweeperArena(ModelFactory modelFactory, ServerCommunicationAdapter serverCommunicationAdapter) {
-        super(modelFactory);
+    public MineSweeperArena(AssetManager assetManager, ServerCommunicationAdapter serverCommunicationAdapter) {
+        super(assetManager);
 
         this.serverCommunicationAdapter = serverCommunicationAdapter;
 
@@ -73,16 +73,6 @@ public class MineSweeperArena extends AbstractChallenge {
 
     @Override
     public void init() {
-    }
-
-    protected ModelInstance createChallengeModelInstance(ModelFactory modelFactory) {
-        Model arenaModel = modelFactory.loadModel("arena.obj");
-
-        ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
-
-        return arena;
     }
 
     @Override

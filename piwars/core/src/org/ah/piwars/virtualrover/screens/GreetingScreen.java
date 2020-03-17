@@ -36,7 +36,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import org.ah.piwars.virtualrover.MainGame;
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.PlatformSpecific.RegistrationCallback;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
@@ -147,9 +146,9 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     private boolean doStartGame = false;
     private boolean doLoadMap;
-//    private AssetManager assetManager;
+    private AssetManager assetManager;
 //    private SoundManager soundManager;
-    private ModelFactory modelFactory;
+//    private ModelFactory modelFactory;
     private Challenges challenges;
 
     private int currentlySelectedChallengeIndex;
@@ -167,21 +166,22 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private long flashTime = 0;
     private boolean flash = true;
 
+
     public GreetingScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
             Challenges challenges,
-            ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
 
         this.mainGame = game;
         this.platformSpecific = platformSpecific;
+        this.assetManager = assetManager;
         this.challenges = challenges;
-//        this.assetManager = assetManager;
+        this.assetManager = assetManager;
 //        this.soundManager = soundManager;
-        this.modelFactory = modelFactory;
+//        this.modelFactory = modelFactory;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 
@@ -418,11 +418,11 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             currentlySelectedRover1Model.dispose();
         }
         if (currentlySelectedRover1Type == RoverType.GCCM16) {
-            currentlySelectedRover1Model = new GCCRoverModelM16(modelFactory);
+            currentlySelectedRover1Model = new GCCRoverModelM16(assetManager);
         } else if (currentlySelectedRover1Type == RoverType.GCCM18) {
-            currentlySelectedRover1Model = new GCCRoverModelM18(modelFactory);
+            currentlySelectedRover1Model = new GCCRoverModelM18(assetManager);
         } else if (currentlySelectedRover1Type == RoverType.CBIS) {
-            currentlySelectedRover1Model = new CBiSRoverModel(modelFactory);
+            currentlySelectedRover1Model = new CBiSRoverModel(assetManager);
         }
         currentlySelectedRover1Model.update(roverGameObject);
     }
@@ -438,11 +438,11 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             currentlySelectedRover2Model.dispose();
         }
         if (currentlySelectedRover2Type == RoverType.GCCM16) {
-            currentlySelectedRover2Model = new GCCRoverModelM16(modelFactory);
+            currentlySelectedRover2Model = new GCCRoverModelM16(assetManager);
         } else if (currentlySelectedRover2Type == RoverType.GCCM18) {
-            currentlySelectedRover2Model = new GCCRoverModelM18(modelFactory);
+            currentlySelectedRover2Model = new GCCRoverModelM18(assetManager);
         } else if (currentlySelectedRover2Type == RoverType.CBIS) {
-            currentlySelectedRover2Model = new CBiSRoverModel(modelFactory);
+            currentlySelectedRover2Model = new CBiSRoverModel(assetManager);
         }
         currentlySelectedRover2Model.update(roverGameObject);
     }

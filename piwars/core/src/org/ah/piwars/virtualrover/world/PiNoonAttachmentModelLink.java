@@ -1,11 +1,11 @@
 package org.ah.piwars.virtualrover.world;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Quaternion;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
@@ -31,8 +31,8 @@ public class PiNoonAttachmentModelLink implements VisibleObject {
         this.playerModel = playerModel;
     }
 
-    public void makeModel(ModelFactory modelFactory) {
-        attachmentModel = new PiNoonAttachmentModel(modelFactory, playerModel.getColour());
+    public void makeModel(AssetManager assetManager) {
+        attachmentModel = new PiNoonAttachmentModel(assetManager, playerModel.getColour());
     }
 
     public Color getColour() {

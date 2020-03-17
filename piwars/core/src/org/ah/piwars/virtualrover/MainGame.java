@@ -5,9 +5,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g3d.Model;
 
 import org.ah.piwars.virtualrover.challenges.Challenges;
 import org.ah.piwars.virtualrover.game.rovers.RoverType;
+import org.ah.piwars.virtualrover.rovers.RoverModels;
 import org.ah.piwars.virtualrover.screens.ChallengeScreen;
 import org.ah.piwars.virtualrover.screens.ChallengeScreens;
 import org.ah.piwars.virtualrover.screens.ConnectingScreen;
@@ -28,7 +30,6 @@ public class MainGame extends Game {
 
     private AssetManager assetManager;
     private SoundManager soundManager;
-    private ModelFactory modelFactory;
 
     private Console console;
 
@@ -63,11 +64,22 @@ public class MainGame extends Game {
         // assetManager.load("font/font24.fnt", BitmapFont.class);
         // assetManager.load("font/font32.fnt", BitmapFont.class);
 
+        assetManager.load("3d/FullWheel.obj", Model.class);
+        assetManager.load("3d/rovers/attachments/pi_noon.obj", Model.class);
+        assetManager.load("3d/rovers/attachments/balloon.obj", Model.class);
+        assetManager.load("3d/rovers/attachments/teapot.g3db", Model.class);
+
+        assetManager.load("3d/challenges/barrel.obj", Model.class);
+
+        assetManager.load("3d/challenges/pi-noon-arena.obj", Model.class);
+        assetManager.load("3d/challenges/eco-disaster-arena.obj", Model.class);
+        assetManager.load("3d/challenges/eco-disaster-zone.obj", Model.class);
+
+        RoverModels roverModels = new RoverModels();
+        roverModels.load(assetManager);
+
         soundManager = new SoundManager(!platformSpecific.hasSound());
         soundManager.requestAssets(assetManager);
-
-        modelFactory = new ModelFactory();
-        modelFactory.load();
 
         serverCommunication = platformSpecific.getServerCommunication();
 
@@ -84,11 +96,11 @@ public class MainGame extends Game {
         console.raw("(c) Creative Sphere Limited");
 
         soundManager.fetchSounds(assetManager);
-        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, modelFactory);
+        serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, assetManager);
 
-        challenges = new Challenges(modelFactory, assetManager, serverCommunicationAdapter);
-        challengeScreens = new ChallengeScreens(this, platformSpecific, challenges, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
-        greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, challenges, modelFactory, serverCommunicationAdapter, console);
+        challenges = new Challenges(assetManager, serverCommunicationAdapter);
+        challengeScreens = new ChallengeScreens(this, platformSpecific, challenges, assetManager, soundManager, serverCommunicationAdapter, console);
+        greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, challenges, serverCommunicationAdapter, console);
 
         selelectChallenge();
     }
@@ -139,7 +151,6 @@ public class MainGame extends Game {
     public void dispose() {
         assetManager.dispose();
         soundManager.dispose();
-        modelFactory.dispose();
         if (console != null) { console.dispose(); }
         if (loadingScreen != null) { loadingScreen.dispose(); }
         if (challengeScreen != null) { challengeScreen.dispose(); }

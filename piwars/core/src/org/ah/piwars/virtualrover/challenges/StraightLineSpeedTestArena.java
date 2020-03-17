@@ -1,5 +1,6 @@
 package org.ah.piwars.virtualrover.challenges;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -15,7 +16,6 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
@@ -25,8 +25,8 @@ import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestCha
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.COURSE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CUT_MODIFIER;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.FLOOR_POLYGON;
-import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALL_HEIGHT;
+import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class StraightLineSpeedTestArena extends AbstractChallenge {
@@ -47,8 +47,8 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
     private Array<Model> chicaneModels = new Array<Model>();
     private Array<ModelInstance> chicaneInstances = new Array<ModelInstance>();
 
-    public StraightLineSpeedTestArena(ModelFactory modelFactory) {
-        super(modelFactory);
+    public StraightLineSpeedTestArena(AssetManager assetManager) {
+        super(assetManager);
 
         setDimensions(COURSE_WIDTH, COURSE_LENGTH);
 
@@ -87,16 +87,6 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
 
     @Override
     public void init() {
-    }
-
-    protected ModelInstance createChallengeModelInstance(ModelFactory modelFactory) {
-        Model arenaModel = modelFactory.loadModel("arena.obj");
-
-        ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
-
-        return arena;
     }
 
     @Override

@@ -1,13 +1,14 @@
 package org.ah.piwars.virtualrover.rovers;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 
 import java.util.NoSuchElementException;
@@ -21,24 +22,31 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
 
     private ModelInstance top;
 
-    public GCCRoverModelM18(ModelFactory modelFactory) throws NoSuchElementException {
-        this("GCC Rover M18", modelFactory, Color.WHITE);
+    public GCCRoverModelM18(AssetManager assetManager) throws NoSuchElementException {
+        this("GCC Rover M18", assetManager, Color.WHITE);
     }
 
-    public GCCRoverModelM18(String name, ModelFactory modelFactory, Color colour) throws NoSuchElementException {
+    public GCCRoverModelM18(String name, AssetManager assetManager, Color colour) throws NoSuchElementException {
         super(name, colour);
 
-        body = new ModelInstance(modelFactory.getBody(), 0, 0, 0);
-        top = new ModelInstance(modelFactory.getTop(), 0, 0, 0);
+        body = new ModelInstance(assetManager.get("3d/rovers/gcc_M16/body.obj", Model.class), 0, 0, 0);
+        top = new ModelInstance(assetManager.get("3d/rovers/gcc_M16/top.obj", Model.class), 0, 0, 0);
 
         body.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
 
         top.materials.get(0).set(ColorAttribute.createDiffuse(colour));
 
-        fr = new GCCRoverWheel(modelFactory, Color.ORANGE, 10f, -36.7f, -100f, 270);
-        fl = new GCCRoverWheel(modelFactory, Color.ORANGE, 25f, -36.7f, -10f, 90);
-        br = new GCCRoverWheel(modelFactory, Color.ORANGE, 132f, -36.7f, -100f, 270);
-        bl = new GCCRoverWheel(modelFactory, Color.ORANGE, 150f, -36.7f, -10f, 90);
+        Model motorHolderModel = assetManager.get("3d/rovers/gcc_M16/motor_holder.obj");
+        Model wheelModel = assetManager.get("3d/rovers/gcc_M16/wheel.obj");
+        Model tyreModel = assetManager.get("3d/rovers/gcc_M16/tyre.obj");
+
+        fr = new GCCRoverWheel(motorHolderModel, wheelModel, tyreModel, Color.ORANGE, 10f, -36.7f, -100f, 270);
+        fl = new GCCRoverWheel(motorHolderModel, wheelModel, tyreModel, Color.ORANGE, 25f, -36.7f, -10f, 90);
+        br = new GCCRoverWheel(motorHolderModel, wheelModel, tyreModel, Color.ORANGE, 132f, -36.7f, -100f, 270);
+        bl = new GCCRoverWheel(motorHolderModel, wheelModel, tyreModel, Color.ORANGE, 150f, -36.7f, -10f, 90);
+    }
+
+    public static void load(AssetManager assetManager) {
     }
 
     @Override

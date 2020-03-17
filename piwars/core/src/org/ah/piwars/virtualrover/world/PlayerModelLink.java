@@ -1,12 +1,12 @@
 package org.ah.piwars.virtualrover.world;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -35,11 +35,11 @@ public class PlayerModelLink implements VisibleObject {
         this.name = name;
     }
 
-    public void makeRobot(ModelFactory modelFactory) {
+    public void makeRobot(AssetManager assetManager) {
         if (playerSelection == RoverType.CBIS) {
-            roverModel = new CBiSRoverModel(name, modelFactory, colour);
+            roverModel = new CBiSRoverModel(name, assetManager, colour);
         } else {
-            roverModel = new GCCRoverModelM16(name, modelFactory, colour);
+            roverModel = new GCCRoverModelM16(name, assetManager, colour);
         }
         roverModel.setId(id);
     }

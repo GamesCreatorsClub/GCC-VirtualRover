@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 
 import org.ah.piwars.virtualrover.MainGame;
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
@@ -32,10 +31,9 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
-            ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
-        super(game, platformSpecific, assetManager, soundManager, modelFactory, serverCommunicationAdapter, console);
+        super(game, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
 
         setBackground(new PerlinNoiseBackground());
 //

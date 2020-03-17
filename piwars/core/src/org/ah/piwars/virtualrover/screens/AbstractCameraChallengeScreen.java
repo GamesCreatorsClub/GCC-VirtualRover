@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import org.ah.piwars.virtualrover.MainGame;
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
@@ -78,11 +77,10 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
-            ModelFactory modelFactory,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
 
-        super(game, platformSpecific, assetManager, soundManager, modelFactory,
+        super(game, platformSpecific, assetManager, soundManager,
                 serverCommunicationAdapter, console);
 
         attachedCamera = new PerspectiveCamera(45, 320, 256);

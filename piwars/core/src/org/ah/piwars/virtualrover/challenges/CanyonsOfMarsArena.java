@@ -17,15 +17,14 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_HEIGHT;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.FLOOR_POLYGON;
-import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_HEIGHT;
+import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class CanyonsOfMarsArena extends AbstractChallenge {
@@ -40,8 +39,8 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
     private Array<ModelInstance> wallInstances = new Array<>();
     private Model alienPosterModel;
 
-    public CanyonsOfMarsArena(ModelFactory modelFactory, AssetManager assetManager) {
-        super(modelFactory);
+    public CanyonsOfMarsArena(AssetManager assetManager) {
+        super(assetManager);
 
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_HEIGHT);
 
@@ -114,16 +113,6 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
 
     @Override
     public void init() {
-    }
-
-    protected ModelInstance createChallengeModelInstance(ModelFactory modelFactory) {
-        Model arenaModel = modelFactory.loadModel("arena.obj");
-
-        ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
-
-        return arena;
     }
 
     @Override

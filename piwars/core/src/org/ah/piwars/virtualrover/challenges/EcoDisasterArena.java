@@ -1,5 +1,6 @@
 package org.ah.piwars.virtualrover.challenges;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -10,7 +11,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
@@ -29,8 +29,8 @@ public class EcoDisasterArena extends AbstractChallenge {
 
     private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
 
-    public EcoDisasterArena(ModelFactory modelFactory) {
-        super(modelFactory);
+    public EcoDisasterArena(AssetManager assetManager) {
+        super(assetManager);
 
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
@@ -45,10 +45,10 @@ public class EcoDisasterArena extends AbstractChallenge {
 
     @Override
     public void init() {
-        arenaModel = modelFactory.getEcoDisasterArena();
+        arenaModel = assetManager.get("3d/challenges/eco-disaster-arena.obj");
         arenaModelInstance = new ModelInstance(arenaModel);
 
-        zoneModel = modelFactory.getEcoDisasterZone();
+        zoneModel = assetManager.get("3d/challenges/eco-disaster-zone.obj");;
         clearZoneModelInstance = new ModelInstance(zoneModel);
         contaminatedZoneModelInstance = new ModelInstance(zoneModel);
 

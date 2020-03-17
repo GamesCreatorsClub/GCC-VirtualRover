@@ -1,5 +1,6 @@
 package org.ah.piwars.virtualrover.rovers.attachments;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -11,8 +12,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-
-import org.ah.piwars.virtualrover.ModelFactory;
 
 public class PiNoonAttachmentModel extends AbstractAttachmentModel {
     private static final boolean SHOW_MARKER = true;
@@ -28,21 +27,23 @@ public class PiNoonAttachmentModel extends AbstractAttachmentModel {
 
     private long balloonPeriod = 0;
 
-    public PiNoonAttachmentModel(ModelFactory modelFactory, Color roverColour) {
+    public PiNoonAttachmentModel(AssetManager assetManager, Color roverColour) {
         Color balloonTransparentColour = new Color(roverColour);
         balloonTransparentColour.a = 0.7f;
 
-        marker = new ModelInstance(modelFactory.getMarker(), 0, 0, 0);
+        marker = new ModelInstance(assetManager.get("3d/rovers/attachments/teapot.g3db", Model.class), 0, 0, 0);
         marker.transform.scale(5f, 5f, 5f);
 
         marker.materials.get(0).set(ColorAttribute.createDiffuse(roverColour));
 
-        pinoon = new ModelInstance(modelFactory.getPiNoon(), 0, 0, 0);
+        pinoon = new ModelInstance(assetManager.get("3d/rovers/attachments/pi_noon.obj", Model.class), 0, 0, 0);
         pinoon.materials.get(0).set(ColorAttribute.createDiffuse(Color.GRAY));
 
-        this.balloons[0] = new Balloon(modelFactory.getBaloon(), balloonTransparentColour);
-        this.balloons[1] = new Balloon(modelFactory.getBaloon(), balloonTransparentColour);
-        this.balloons[2] = new Balloon(modelFactory.getBaloon(), balloonTransparentColour);
+        Model ballonModel = assetManager.get("3d/rovers/attachments/balloon.obj");
+
+        this.balloons[0] = new Balloon(ballonModel, balloonTransparentColour);
+        this.balloons[1] = new Balloon(ballonModel, balloonTransparentColour);
+        this.balloons[2] = new Balloon(ballonModel, balloonTransparentColour);
     }
 
     @Override

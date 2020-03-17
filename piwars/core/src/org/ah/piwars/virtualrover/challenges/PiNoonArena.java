@@ -1,6 +1,7 @@
 package org.ah.piwars.virtualrover.challenges;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -24,7 +25,6 @@ import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntMap;
 
-import org.ah.piwars.virtualrover.ModelFactory;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -57,8 +57,8 @@ public class PiNoonArena extends AbstractChallenge {
 
     public boolean showPlan = false;
 
-    public PiNoonArena(ModelFactory modelFactory) {
-        super(modelFactory);
+    public PiNoonArena(AssetManager assetManager) {
+        super(assetManager);
 
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
@@ -90,17 +90,9 @@ public class PiNoonArena extends AbstractChallenge {
 
     @Override
     public void init() {
-        challengeModelInstance = createChallengeModelInstance(modelFactory);
-    }
-
-    protected ModelInstance createChallengeModelInstance(ModelFactory modelFactory) {
-        Model arenaModel = modelFactory.loadModel("arena.obj");
-
-        ModelInstance arena = new ModelInstance(arenaModel);
-        arena.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
-        arena.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
-
-        return arena;
+        challengeModelInstance = new ModelInstance(assetManager.get("3d/challenges/pi-noon-arena.obj", Model.class));
+        challengeModelInstance.transform.setToTranslationAndScaling(0, -70 * SCALE, 0, SCALE, SCALE, SCALE);
+        challengeModelInstance.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.5f, 0.1f, 0.1f, 1f)));
     }
 
     @Override
