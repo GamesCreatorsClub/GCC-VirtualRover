@@ -141,6 +141,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private String password;
 
     private String mapId;
+    private int playerId;
 
     private Preferences preferences;
 
@@ -389,11 +390,11 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     private void doLoadMap() {
-        serverCommunicationAdapter.startEngine(mapId, false, platformSpecific.isSimulation());
+        serverCommunicationAdapter.startEngine(mapId, playerId, false, platformSpecific.isSimulation());
     }
 
     private void startRemoteGame() {
-        mainGame.setChallengeScreen(mapId, false);
+        mainGame.setChallengeScreen(mapId, 1, false);
     }
 
     private void updateCurrentlySelectedChallenge() {
@@ -646,7 +647,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         } else if (state == State.ReadyToStart) {
             mainGame.setSelectedRover1(currentlySelectedRover1Type);
             mainGame.setSelectedRover2(currentlySelectedRover2Type);
-            mainGame.setChallengeScreen(currentlySelectedChallengeDescription.getName(), !currentlySelectedChallengeDescription.isRemote());
+            mainGame.setChallengeScreen(currentlySelectedChallengeDescription.getName(), 1, !currentlySelectedChallengeDescription.isRemote());
         } else {
             textEntered();
         }
@@ -925,8 +926,9 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     @Override
-    public void gameMap(String mapId) {
+    public void gameMap(String mapId, int sessionId) {
         this.mapId = mapId;
+        this.playerId = playerId;
         doLoadMap = true;
     }
 

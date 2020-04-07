@@ -15,6 +15,7 @@ import org.ah.piwars.virtualrover.game.rovers.RoverType;
 import org.ah.piwars.virtualrover.input.PiWarsPlayerInput;
 import org.ah.piwars.virtualrover.rovers.CBiSRoverModel;
 import org.ah.piwars.virtualrover.rovers.GCCRoverModelM16;
+import org.ah.piwars.virtualrover.rovers.GCCRoverModelM18;
 import org.ah.piwars.virtualrover.rovers.RoverModel;
 
 public class PlayerModelLink implements VisibleObject {
@@ -38,6 +39,8 @@ public class PlayerModelLink implements VisibleObject {
     public void makeRobot(AssetManager assetManager) {
         if (playerSelection == RoverType.CBIS) {
             roverModel = new CBiSRoverModel(name, assetManager, colour);
+        } else if (playerSelection == RoverType.GCCM18) {
+            roverModel = new GCCRoverModelM18(name, assetManager, colour);
         } else {
             roverModel = new GCCRoverModelM16(name, assetManager, colour);
         }

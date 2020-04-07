@@ -29,6 +29,7 @@ import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.message.ChatMessage;
 import org.ah.themvsus.engine.common.message.Message;
+import org.ah.themvsus.engine.common.message.ServerClientAuthenticatedMessage;
 
 import java.io.IOException;
 
@@ -71,6 +72,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
         playerOneInputMessage = messageFactory.createPlayerInputCommand();
         playerTwoInputMessage = messageFactory.createPlayerInputCommand();
+    }
+
+    @Override
+    protected void processServerClientAuthenticateMessage(ServerClientAuthenticatedMessage serverInternalMessage) {
+        super.processServerClientAuthenticateMessage(serverInternalMessage);
+        playerOneInputMessage.setSessionId(sessionId);
     }
 
     @Override
@@ -125,8 +132,10 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return local;
     }
 
-    public void startEngine(String mapId, boolean local, boolean simulation) {
+    public void startEngine(String mapId, int playerId, boolean local, boolean simulation) {
         sessionId = 0;
+        this.mapId = mapId;
+        this.playerId = playerId;
         playerTwoId = 0;
         gameMessageId = 0;
         cameraAttachmentId = 0;

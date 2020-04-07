@@ -19,6 +19,7 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
     private boolean connected = false;
     private boolean error = false;
     private String mapId;
+    private int playerId;
     private boolean gameReady;
 
     public ConnectingScreen(MainGame game, AssetManager assetManager) {
@@ -35,7 +36,7 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
     @Override
     public void render(float delta) {
         if (gameReady) {
-            game.setChallengeScreen(mapId, false);
+            game.setChallengeScreen(mapId, playerId, false);
         } else if (connected) {
             Gdx.gl.glClearColor(0.8f, 1f, 0.8f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -58,8 +59,9 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
     }
 
     @Override
-    public void gameMap(String mapId) {
+    public void gameMap(String mapId, int playerId) {
         this.mapId = mapId;
+        this.playerId = playerId;
         this.gameReady = true;
     }
 

@@ -18,9 +18,10 @@ import static java.lang.Math.atan2;
 
 public class GCCRoverModelM18 extends FourWheelRoverModel {
 
-    private ModelInstance body;
-
-    private ModelInstance top;
+    private ModelInstance cover;
+    private ModelInstance display;
+    private ModelInstance bodyTop1;
+    private ModelInstance bodyBottom1;
 
     public GCCRoverModelM18(AssetManager assetManager) throws NoSuchElementException {
         this("GCC Rover M18", assetManager, Color.WHITE);
@@ -29,12 +30,16 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
     public GCCRoverModelM18(String name, AssetManager assetManager, Color colour) throws NoSuchElementException {
         super(name, colour);
 
-        body = new ModelInstance(assetManager.get("3d/rovers/gcc_M16/body.obj", Model.class), 0, 0, 0);
-        top = new ModelInstance(assetManager.get("3d/rovers/gcc_M16/top.obj", Model.class), 0, 0, 0);
+        Model bodyTopModel = assetManager.get("3d/rovers/gcc_M18/rover_2018_shell_top_2.obj");
+        Model bodyBottomModel = assetManager.get("3d/rovers/gcc_M18/rover_2018_shell_bottom_2.obj");
 
-        body.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
+        cover = new ModelInstance(assetManager.get("3d/rovers/gcc_M18/rover_2018_shell_cover.obj", Model.class), 0, 0 ,0);
+        bodyTop1 = new ModelInstance(bodyTopModel, 0, 0, 0);
+        bodyBottom1 = new ModelInstance(bodyBottomModel, 0, 0, 0);
 
-        top.materials.get(0).set(ColorAttribute.createDiffuse(colour));
+        cover.materials.get(0).set(ColorAttribute.createDiffuse(colour));
+        bodyTop1.materials.get(0).set(ColorAttribute.createDiffuse(Color.WHITE));
+        bodyBottom1.materials.get(0).set(ColorAttribute.createDiffuse(Color.CYAN));
 
         Model motorHolderModel = assetManager.get("3d/rovers/gcc_M16/motor_holder.obj");
         Model wheelModel = assetManager.get("3d/rovers/gcc_M16/wheel.obj");
@@ -47,12 +52,15 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
     }
 
     public static void load(AssetManager assetManager) {
+        assetManager.load("3d/rovers/gcc_M18/rover_2018_shell_bottom_2.obj", Model.class);
+        assetManager.load("3d/rovers/gcc_M18/rover_2018_shell_top_2.obj", Model.class);
+        assetManager.load("3d/rovers/gcc_M18/rover_2018_shell_cover.obj", Model.class);
     }
 
     @Override
     public void setColour(Color colour) {
         super.setColour(colour);
-        top.materials.get(0).set(ColorAttribute.createDiffuse(colour));
+        cover.materials.get(0).set(ColorAttribute.createDiffuse(colour));
     }
 
     @Override
@@ -62,15 +70,16 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
         float bearing = rover.getBearing();
 
         transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
-        transform.translate(-80f, 0, 55f);
+        transform.translate(0f, -50, 0f);
 
         fr.getTransform().set(transform);
         fl.getTransform().set(transform);
         br.getTransform().set(transform);
         bl.getTransform().set(transform);
 
-        top.transform.set(transform);
-        body.transform.set(transform);
+        cover.transform.set(transform);
+        bodyTop1.transform.set(transform);
+        bodyBottom1.transform.set(transform);
 
         Vector3 velocity = rover.getVelocity();
         if (abs(rover.getTurnSpeed()) < 0.01f) {
@@ -128,13 +137,14 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
 
     @Override
     public void render(ModelBatch batch, Environment environment) {
-        bl.render(batch, environment);
-        br.render(batch, environment);
-        fl.render(batch, environment);
-        fr.render(batch, environment);
+//        bl.render(batch, environment);
+//        br.render(batch, environment);
+//        fl.render(batch, environment);
+//        fr.render(batch, environment);
 
-        batch.render(top, environment);
-        batch.render(body, environment);
+        batch.render(cover, environment);
+        batch.render(bodyTop1, environment);
+        batch.render(bodyBottom1, environment);
     }
 
     @Override

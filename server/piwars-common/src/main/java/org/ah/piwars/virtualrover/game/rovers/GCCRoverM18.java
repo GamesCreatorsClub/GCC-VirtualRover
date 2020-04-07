@@ -12,7 +12,7 @@ import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFrom
 public class GCCRoverM18 extends Rover {
 
     public GCCRoverM18(GameObjectFactory factory, int id) {
-        super(factory, id, RoverType.GCCM16);
+        super(factory, id, RoverType.GCCM18);
 
         this.polygons = asShape2DList(polygonFromBox(-80f,  -55f, 80f,  55f));
         this.attachmentPosition = new Vector2(80f, 0);

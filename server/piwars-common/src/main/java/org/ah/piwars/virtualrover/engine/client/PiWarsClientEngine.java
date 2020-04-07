@@ -40,7 +40,7 @@ public class PiWarsClientEngine extends ClientEngine<PiWarsGame> {
     }
 
     public void setLocalPlayerIds(int playerOneId, int playerTwoId) {
-        setSessionId(playerOneId);
+        setPlayerId(playerOneId);
         this.playerTwoId = playerTwoId;
     }
 }

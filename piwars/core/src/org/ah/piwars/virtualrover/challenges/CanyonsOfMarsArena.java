@@ -38,6 +38,7 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
     private Array<Model> wallModels = new Array<Model>();
     private Array<ModelInstance> wallInstances = new Array<>();
     private Model alienPosterModel;
+    private ModelInstance bodyTop1;
 
     public CanyonsOfMarsArena(AssetManager assetManager) {
         super(assetManager);
@@ -79,6 +80,10 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
         addVerticalAlien(-1020, 0, true);
 
         addVerticalAlien(-330, 610, true);
+
+        Model bodyTopModel = assetManager.get("3d/rovers/gcc_M18/rover_2018_shell_top_2.obj");
+        bodyTop1 = new ModelInstance(bodyTopModel, 0, 0, 0);
+        bodyTop1.transform.setToScaling(SCALE * 2, SCALE * 2, SCALE * 2);
     }
 
     private void addVerticalAlien(float x, float y, boolean left) {
@@ -130,5 +135,6 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
         for (ModelInstance wall : wallInstances) {
             batch.render(wall, environment);
         }
+        batch.render(bodyTop1, environment);
     }
 }

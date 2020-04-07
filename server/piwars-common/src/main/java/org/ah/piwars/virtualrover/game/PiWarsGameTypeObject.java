@@ -52,6 +52,7 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
     };
 
     protected static GameObjectType[] DEFINED_TYPES = {
+            WaitingPlayerObject,
             GameMessageObject,
             BarrelObject,
             MineSweeperStateObject,
@@ -59,6 +60,6 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
             CameraAttachment,
             GCCRoverM16,
             GCCRoverM18,
-            CBISRover
+            CBISRover,
     };
 }

@@ -23,6 +23,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
     private String alias;
     private String pass;
     private String mapId;
+    private int playerId;
     private State state = State.Nothing;
     private LocalClientLogging logger;
     private PiWarsPlayerInput roverInput;
@@ -108,8 +109,9 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
     }
 
     @Override
-    public void gameMap(String mapId) {
+    public void gameMap(String mapId, int playerId) {
         this.mapId = mapId;
+        this.playerId = playerId;
         logger.info("Got map id " + mapId + " for " + alias);
         setState(State.StartEngine);
     }
