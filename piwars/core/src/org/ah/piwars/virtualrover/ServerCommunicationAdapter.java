@@ -27,6 +27,7 @@ import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
+import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.message.ChatMessage;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.message.ServerClientAuthenticatedMessage;
@@ -117,6 +118,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         playerTwoInputMessage.addInput(playerTwoId, getEngine().getGame().getCurrentFrameId(), -1, playerInput);
     }
 
+    public PlayerInputs getPlayerTwoInputs() {
+        return playerTwoInputMessage.getInputs();
+    }
 
     @Override
     protected void processChatMessage(ChatMessage chatMessage) {

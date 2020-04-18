@@ -285,6 +285,7 @@ public class PiWarsPlayerInput extends PlayerInput {
 
     @Override
     public void assignFrom(PlayerInput playerInput) {
+        super.assignFrom(playerInput);
         PiWarsPlayerInput piwarsPlayerInput = (PiWarsPlayerInput)playerInput;
         moveX = piwarsPlayerInput.moveX;
         moveY = piwarsPlayerInput.moveY;

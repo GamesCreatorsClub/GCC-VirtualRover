@@ -33,7 +33,6 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.SelfSignedCertificate;
 import io.vertx.core.spi.VertxFactory;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.CookieHandler;
 
 public class StartPiWarsTestProject {
 
@@ -111,13 +110,13 @@ public class StartPiWarsTestProject {
         final HttpServer httpsServer = createHttpsServer(vertx, config);
 
         Router httpRouter = Router.router(vertx);
-        httpRouter.route().handler(CookieHandler.create());
+        // httpRouter.route().handler(CookieHandler.create());
 
         Router httpsRouter = Router.router(vertx);
         // httpsRouter.route().handler(CookieHandler.create());
 
-        httpServer.requestHandler(httpRouter::accept);
-        httpsServer.requestHandler(httpsRouter::accept);
+        httpServer.requestHandler(httpRouter);
+        httpsServer.requestHandler(httpsRouter);
 
         MailModule mailModule = new MailModule(vertx, config);
         mailModule.init();
@@ -152,7 +151,7 @@ public class StartPiWarsTestProject {
             solo = true;
         }
 
-        // startHeadlessClient("test1", "123");
+        startHeadlessClient("test1", "123");
         if (solo) {
             startHeadlessClient("test2", "123");
         }
@@ -171,7 +170,6 @@ public class StartPiWarsTestProject {
 
         desktopSpecific.setPreferredServerDetails("127.0.0.1", udpPort);
 
-        PiWarsRoverDesktopLauncher.run(parameters, desktopSpecific);
 
         logger.info("");
         logger.info("Setting up debug run...");
@@ -188,6 +186,8 @@ public class StartPiWarsTestProject {
                 });
             }
         });
+
+        PiWarsRoverDesktopLauncher.run(parameters, desktopSpecific);
 
         while (true) {
             Thread.sleep(100);

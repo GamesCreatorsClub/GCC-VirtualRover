@@ -112,5 +112,6 @@ public class PlayerModelLink implements VisibleObject {
         roverModel = null;
         game = null;
         roverColour = RoverColour.WHITE;
+        roverInput.free();
     }
 }

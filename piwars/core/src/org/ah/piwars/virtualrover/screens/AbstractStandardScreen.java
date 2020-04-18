@@ -37,6 +37,7 @@ import org.ah.piwars.virtualrover.world.PlayerModelLink;
 import org.ah.themvsus.engine.client.AbstractServerCommunication;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
+import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
@@ -229,13 +230,6 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected void progressEngine() {
         ClientEngine<PiWarsGame> engine = serverCommunicationAdapter.getEngine();
         if (engine != null) {
-            long now = System.currentTimeMillis();
-            engine.progressEngine(now, unknownObjectIds);
-
-            if (unknownObjectIds.size > 0) {
-                serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
-            }
-
             PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
             if (playerOne != null) {
                 serverCommunicationAdapter.setPlayerOneInput(playerOne.roverInput);
@@ -243,6 +237,21 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
             if (playerTwo != null) {
                 serverCommunicationAdapter.setPlayerTwoInput(playerTwo.roverInput);
+                PiWarsGame game = engine.getGame();
+                if (game.isServer()) {
+                    PlayerInputs playerTwoInputs = serverCommunicationAdapter.getPlayerTwoInputs();
+                    int currentForwardFrameNo = game.getCurrentFrameId();
+                    if (playerTwoInputs != null) {
+                        playerTwoInputs.trimBeforeFrame(currentForwardFrameNo);
+                    }
+                }
+            }
+
+            long now = System.currentTimeMillis();
+            engine.progressEngine(now, unknownObjectIds);
+
+            if (unknownObjectIds.size > 0) {
+                serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
             }
         }
     }
