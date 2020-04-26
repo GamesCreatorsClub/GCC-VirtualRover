@@ -1,17 +1,25 @@
 package org.ah.themvsus.engine.client;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntSet;
 
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.input.PiWarsPlayerInput;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.AuthenticatedCallback;
+import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameListCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameMapCallback;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
 import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallback;
 
 import java.util.Properties;
 
-public class HeadlessClient implements Runnable, AuthenticatedCallback, GameReadyCallback, GameMapCallback {
+public class HeadlessClient
+    implements
+        Runnable,
+        AuthenticatedCallback,
+        GameReadyCallback,
+        GameMapCallback,
+        GameListCallback {
 
     static enum State {
         Nothing, Authenticate, StartEngine, InGame;
@@ -53,6 +61,7 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
             serverCommunicationAdapter = new HeadlessClientServerCommunicationAdapter(serverCommunication);
             serverCommunicationAdapter.setAuthenticatedCallback(this);
             serverCommunicationAdapter.setGameMapCallback(this);
+            serverCommunicationAdapter.setGameListCallback(this);
             serverCommunicationAdapter.setGameReadyCallback(this);
 
             String udpPortString = config.getProperty("udp.port", "7454");
@@ -125,6 +134,17 @@ public class HeadlessClient implements Runnable, AuthenticatedCallback, GameRead
     @Override
     public void authenticated() {
         logger.info("Player authenticated " + alias);
+        serverCommunicationAdapter.sendRequestGameList();
+    }
+
+    @Override
+    public void gameListCallback(int seq, Array<String> gameIds) {
+        if (Math.abs(seq) == 1 && gameIds.size > 0) {
+            logger.info("Got game list. Joining first game.");
+            serverCommunicationAdapter.sendJoinGame(gameIds.get(0));
+        } else {
+            logger.info("Got game list, but there are no games.");
+        }
     }
 
     private void setState(State state) {

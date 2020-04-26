@@ -4,7 +4,6 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.input.PiWarsPlayerInput;
 import org.ah.piwars.virtualrover.message.PiWarsMessageFactory;
 import org.ah.piwars.virtualrover.message.PiWarsPlayerInputMessage;
-import org.ah.themvsus.engine.common.message.ChatMessage;
 
 public class HeadlessClientServerCommunicationAdapter extends CommonServerCommunicationAdapter<PiWarsGame> {
 
@@ -22,7 +21,7 @@ public class HeadlessClientServerCommunicationAdapter extends CommonServerCommun
     }
 
     @Override
-    protected void processChatMessage(ChatMessage chatMessage) {
+    protected void notifyUser(String origin, String message, String colour) {
     }
 
     public void startEngine(String mapId) {

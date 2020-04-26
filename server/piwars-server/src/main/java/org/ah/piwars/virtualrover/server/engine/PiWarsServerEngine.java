@@ -10,8 +10,9 @@ import org.ah.themvsus.engine.common.game.GameObjectType;
 import org.ah.themvsus.engine.common.game.WaitingPlayer;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.message.MessageFactory;
-import org.ah.themvsus.server.authentication.ThemVsUsAuthentication;
+import org.ah.themvsus.server.authentication.AuthenticationAndAuthorisation;
 import org.ah.themvsus.server.engine.ClientSession;
+import org.ah.themvsus.server.engine.GameLink;
 import org.ah.themvsus.server.engine.ServerEngine;
 
 import java.util.Properties;
@@ -20,7 +21,7 @@ import static org.ah.themvsus.server.log.LogHelper.GAME_LOGGER;
 
 public class PiWarsServerEngine extends ServerEngine<PiWarsGame> {
 
-    public PiWarsServerEngine(PiWarsGame game, ThemVsUsAuthentication themVsUsAuthentication, Properties properties) {
+    public PiWarsServerEngine(PiWarsGame game, AuthenticationAndAuthorisation themVsUsAuthentication, Properties properties) {
         super(game, themVsUsAuthentication, properties);
     }
 
@@ -41,16 +42,24 @@ public class PiWarsServerEngine extends ServerEngine<PiWarsGame> {
         return new PiWarsPlayerInputs();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void authenticationCompleted(ClientSession<?> clientSession) {
-        ((ClientSession<PiWarsGame>)clientSession).setGame(game);
-        int playerId = game.newId();
+    }
 
-        WaitingPlayer player = game.getGameObjectFactory().newGameObjectWithId(GameObjectType.WaitingPlayerObject, playerId);
-        player.updateAlias(clientSession.getAlias());
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void joinGame(String id, ClientSession<?> clientSession) {
+        GameLink<PiWarsGame> gameLink = gameLinks.get(id);
+        if (gameLink != null) {
+            PiWarsGame game = gameLink.game;
+            ((ClientSession<PiWarsGame>)clientSession).setGame(game);
+            int playerId = game.newId();
 
-        clientSession.queueToSend(messageFactory.createServerGameDetails(game.getChallenge().getName(), "", playerId));
+            WaitingPlayer player = game.getGameObjectFactory().newGameObjectWithId(GameObjectType.WaitingPlayerObject, playerId);
+            player.updateAlias(clientSession.getAlias());
+
+            clientSession.queueToSend(messageFactory.createServerGameDetails(gameLink.id, gameLink.name, game.getChallenge().getName(), "", playerId));
+        }
     }
 
     @Override
@@ -58,8 +67,9 @@ public class PiWarsServerEngine extends ServerEngine<PiWarsGame> {
     }
 
     @Override
-    protected void clientReadyAction(ClientSession<?> clientSession) {
-        if (!game.containsObject(clientSession.getSessionId())) {
+    protected void clientReadyAction(ClientSession<PiWarsGame> clientSession) {
+        PiWarsGame game = clientSession.getGame();
+        if (game != null && !game.containsObject(clientSession.getSessionId())) {
             int playerId = clientSession.getPlayerId();
             GameObject waitingPlayer = game.getCurrentGameState().get(playerId);
             if (waitingPlayer != null) {

@@ -8,14 +8,14 @@ import java.util.logging.Level;
 
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.themvsus.server.ServerEngineModule;
-import org.ah.themvsus.server.authentication.ThemVsUsAuthentication;
+import org.ah.themvsus.server.authentication.AuthenticationAndAuthorisation;
 import org.ah.themvsus.server.engine.ServerEngine;
 
 import io.vertx.core.Vertx;
 
 public class PiWarsServerEngineModule extends ServerEngineModule {
 
-    public PiWarsServerEngineModule(Vertx vertx, ThemVsUsAuthentication themVsUsAuthentication, Properties config) {
+    public PiWarsServerEngineModule(Vertx vertx, AuthenticationAndAuthorisation themVsUsAuthentication, Properties config) {
         super(vertx, themVsUsAuthentication, config);
     }
 

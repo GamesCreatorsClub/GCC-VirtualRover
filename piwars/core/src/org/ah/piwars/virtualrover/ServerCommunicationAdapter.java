@@ -28,7 +28,6 @@ import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
-import org.ah.themvsus.engine.common.message.ChatMessage;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.message.ServerClientAuthenticatedMessage;
 
@@ -123,13 +122,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     }
 
     @Override
-    protected void processChatMessage(ChatMessage chatMessage) {
-        String origin = chatMessage.getOrigin();
-        if (origin.length() == 0) {
-            origin = "System";
-        }
-        ChatColor color = ChatColor.BLACK;
-        console.chat(origin, chatMessage.getLine(), color);
+    protected void notifyUser(String origin, String message, String colour) {
+        console.chat(origin, message, ChatColor.fromString(colour));
     }
 
     public boolean isLocal() {

@@ -7,8 +7,7 @@ import org.ah.piwars.virtualrover.desktop.PiWarsRoverDesktopLauncher;
 import org.ah.piwars.virtualrover.server.engine.PiWarsServerEngineModule;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter.GameReadyCallback;
 import org.ah.themvsus.engine.client.HeadlessClient;
-import org.ah.themvsus.engine.common.security.BCrypt;
-import org.ah.themvsus.server.authentication.ThemVsUsSimpleFileRegistrationModule;
+import org.ah.themvsus.server.authentication.SimpleFileRegistrationModule;
 import org.ah.themvsus.server.log.LogHelper;
 import org.ah.themvsus.server.mail.MailModule;
 import org.ah.themvsus.server.util.FileConfigLoader;
@@ -19,10 +18,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.ah.themvsus.engine.common.debug.Debug.DEBUG;
+import static org.ah.themvsus.server.authentication.UserManagementUtils.ensureRole;
+import static org.ah.themvsus.server.authentication.UserManagementUtils.ensureUser;
 
 import static java.util.Arrays.asList;
 
@@ -39,6 +42,8 @@ public class StartPiWarsTestProject {
     public static Properties config;
 
     public static void main(final String... args) throws Exception {
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+
         String configFilename = "themvsus.test.config";
 
         try {
@@ -121,8 +126,9 @@ public class StartPiWarsTestProject {
         MailModule mailModule = new MailModule(vertx, config);
         mailModule.init();
 
-        ThemVsUsSimpleFileRegistrationModule themVsUsAuthentication = new ThemVsUsSimpleFileRegistrationModule(vertx, mailModule, config);
+        SimpleFileRegistrationModule themVsUsAuthentication = new SimpleFileRegistrationModule(vertx, mailModule, config);
         themVsUsAuthentication.init();
+        themVsUsAuthentication.setupReloadSaveThread(threadFactory);
 
         createTestAccounts(themVsUsAuthentication);
 
@@ -145,10 +151,15 @@ public class StartPiWarsTestProject {
         httpsServer.listen(httpsPort);
 
         boolean solo = false;
+        boolean noui = false;
         List<String> localArgs = new ArrayList<String>(asList(args));
         if (localArgs.contains("--solo")) {
             localArgs.remove("--solo");
             solo = true;
+        }
+        if (localArgs.contains("--no-ui")) {
+            localArgs.remove("--no-ui");
+            noui = true;
         }
 
         startHeadlessClient("test1", "123");
@@ -187,7 +198,9 @@ public class StartPiWarsTestProject {
             }
         });
 
-        PiWarsRoverDesktopLauncher.run(parameters, desktopSpecific);
+        if (!noui) {
+            PiWarsRoverDesktopLauncher.run(parameters, desktopSpecific);
+        }
 
         while (true) {
             Thread.sleep(100);
@@ -199,17 +212,15 @@ public class StartPiWarsTestProject {
         headlessClient.init();
     }
 
-    private static void createTestAccounts(ThemVsUsSimpleFileRegistrationModule authenticationModule) {
-        ensureUser(authenticationModule, "test1", "123");
-        ensureUser(authenticationModule, "test2", "123");
-//        ensureUser(authenticationModule, "test3", "123");
-//        ensureUser(authenticationModule, "test4", "123");
-//        ensureUser(authenticationModule, "test5", "123");
-    }
-
-    private static void ensureUser(ThemVsUsSimpleFileRegistrationModule authenticationModule, String alias, String pass) {
-        String passHash = BCrypt.hashpw(pass, BCrypt.makesalt(alias + "themvsushashsalt"));
-        authenticationModule.completeRegistration(alias, "neversend", passHash);
+    private static void createTestAccounts(SimpleFileRegistrationModule authenticationModule) {
+        ensureRole(authenticationModule, "GameAdmin", "CreateGame", "DeleteGame", "ListGames", "GetGameDetails");
+        ensureRole(authenticationModule, "Player", "ListGames", "GetGameDetails", "JoinGame");
+        ensureUser(authenticationModule, "admin", "AdministratorsPassword", "SystemAdmin");
+        ensureUser(authenticationModule, "test1", "123", "GameAdmin", "Player");
+        ensureUser(authenticationModule, "test2", "123", "Player");
+//        ensureUser(authenticationModule, "test3", "123", "Player");
+//        ensureUser(authenticationModule, "test4", "123", "Player");
+//        ensureUser(authenticationModule, "test5", "123", "Player");
     }
 
     private static HttpServer createHttpsServer(Vertx vertx, Properties properties) {
