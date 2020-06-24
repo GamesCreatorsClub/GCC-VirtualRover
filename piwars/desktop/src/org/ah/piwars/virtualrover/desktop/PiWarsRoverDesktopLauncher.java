@@ -1,10 +1,13 @@
 package org.ah.piwars.virtualrover.desktop;
 
 import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplication;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplicationConfiguration;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 
 import org.ah.piwars.virtualrover.MainGame;
 import org.ah.piwars.virtualrover.PlatformSpecific;
@@ -60,14 +63,15 @@ public class PiWarsRoverDesktopLauncher {
     }
 
     public static Application runLWJGL(Parameters parameters, PlatformSpecific desktopSpecific) {
-        LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.x = parameters.getX();
-        config.y = parameters.getY();
-        config.width = parameters.getWidth();
-        config.height = parameters.getHeight();
-        config.fullscreen = parameters.isFullScreen();
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        if (parameters.isFullScreen()) {
+            config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        } else {
+            config.setWindowedMode(parameters.getWidth(), parameters.getHeight());
+            config.setWindowPosition(parameters.getX(), parameters.getY());
+        }
 
-        return new LwjglApplication(new MainGame(desktopSpecific), config);
+        return new Lwjgl3Application(new MainGame(desktopSpecific), config);
     }
 
     public static Application runJOGL(Parameters parameters, PlatformSpecific desktopSpecific) {

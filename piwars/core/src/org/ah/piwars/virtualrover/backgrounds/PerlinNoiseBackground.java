@@ -32,7 +32,7 @@ public class PerlinNoiseBackground implements Background {
         renderable.material = null;
         renderable.worldTransform.idt();
 
-        renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
+        renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.LRU, 1));
 
         String vertexProgram = Gdx.files.internal("background.vs").readString();
         String fragmentProgram = Gdx.files.internal("background.fs").readString();
