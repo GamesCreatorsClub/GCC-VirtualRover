@@ -56,6 +56,7 @@ public class MainGame extends Game {
         assetManager.load("GCC_full.png", Texture.class);
         assetManager.load("PiWarsLogo-small.png", Texture.class);
         assetManager.load("3d/Alien.png", Texture.class);
+        assetManager.load("3d/upthegardenpath.png", Texture.class);
         assetManager.load("font/basic.fnt", BitmapFont.class);
         assetManager.load("font/copper18.fnt", BitmapFont.class);
         // assetManager.load("font/droidsansmono-8.fnt", BitmapFont.class);
@@ -70,6 +71,7 @@ public class MainGame extends Game {
         assetManager.load("3d/rovers/attachments/teapot.g3db", Model.class);
 
         assetManager.load("3d/challenges/barrel.obj", Model.class);
+        assetManager.load("3d/challenges/toy-cube.obj", Model.class);
 
         assetManager.load("3d/challenges/pi-noon-arena.obj", Model.class);
         assetManager.load("3d/challenges/eco-disaster-arena.obj", Model.class);
