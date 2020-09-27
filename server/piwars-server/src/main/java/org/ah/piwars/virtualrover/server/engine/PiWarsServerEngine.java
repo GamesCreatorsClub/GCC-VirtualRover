@@ -33,7 +33,7 @@ public class PiWarsServerEngine extends ServerEngine<PiWarsGame> {
     }
 
     @Override
-    public ClientSession<?> createNewSession() {
+    public ClientSession<PiWarsGame> createNewSession() {
         return super.createNewSession();
     }
 
@@ -58,7 +58,7 @@ public class PiWarsServerEngine extends ServerEngine<PiWarsGame> {
             WaitingPlayer player = game.getGameObjectFactory().newGameObjectWithId(GameObjectType.WaitingPlayerObject, playerId);
             player.updateAlias(clientSession.getAlias());
 
-            clientSession.queueToSend(messageFactory.createServerGameDetails(gameLink.id, gameLink.name, game.getChallenge().getName(), "", playerId));
+            clientSession.queueToSend(messageFactory.createServerGameDetails(gameLink.getId(), gameLink.getName(), game.getChallenge().getName(), "", playerId));
         }
     }
 

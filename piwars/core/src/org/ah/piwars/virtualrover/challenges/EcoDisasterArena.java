@@ -2,7 +2,6 @@ package org.ah.piwars.virtualrover.challenges;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -18,7 +17,7 @@ import static org.ah.piwars.virtualrover.game.challenge.EcoDisasterChallenge.CHA
 
 public class EcoDisasterArena extends AbstractChallenge {
 
-    private OrthographicCamera floorCamera;
+//    private OrthographicCamera floorCamera;
 
     private Model arenaModel;
     private Model zoneModel;
@@ -34,8 +33,8 @@ public class EcoDisasterArena extends AbstractChallenge {
 
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
-        floorCamera = new OrthographicCamera(2000, 2000);
-        floorCamera.update();
+//        floorCamera = new OrthographicCamera(2000, 2000);
+//        floorCamera.update();
 //
 //        List<Attribute> attributesList = new ArrayList<Attribute>();
 //        attributesList.add(TextureAttribute.createDiffuse(frameBuffer.getColorBufferTexture()));
@@ -64,6 +63,9 @@ public class EcoDisasterArena extends AbstractChallenge {
 
     @Override
     public void dispose() {
+        for (VisibleObject localVisibleObject : localVisibleObjects.values()) {
+            localVisibleObject.dispose();
+        }
     }
 
     @Override

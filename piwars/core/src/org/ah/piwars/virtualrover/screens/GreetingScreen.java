@@ -756,6 +756,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         }
     }
 
+    @SuppressWarnings("unused")
     private void setupToReadSignInServer() {
         state = State.SignInServer;
 
@@ -928,6 +929,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     @Override
     public void gameMap(String mapId, int sessionId) {
         this.mapId = mapId;
+        // TODO this makes no sense!!!
         this.playerId = playerId;
         doLoadMap = true;
     }

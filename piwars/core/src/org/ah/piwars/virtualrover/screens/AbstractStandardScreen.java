@@ -74,6 +74,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     private String middleMessage;
     private boolean middleMessageBlink;
 
+    @SuppressWarnings("unused")
     private String topRightMessage;
 
     private GlyphLayout glyphLayout = new GlyphLayout();

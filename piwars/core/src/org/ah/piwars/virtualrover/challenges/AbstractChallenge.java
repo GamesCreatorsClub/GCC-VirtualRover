@@ -38,10 +38,15 @@ public abstract class AbstractChallenge implements ChallengeArena {
     private float width = 2200;
     private float length = 2200;
 
+    // public int shadowTextureSize = 8192;
+    // public int shadowTextureSize = 2048;
+    public int shadowTextureSize = 1280;
+
     public AbstractChallenge(AssetManager assetManager) {
         this.assetManager = assetManager;
 
-        shadowLight = new DirectionalShadowLight(1280, 1280, 8.5f, 8.5f, 0.01f, 100f);
+        shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 8.5f, 8.5f, 0.01f, 100f);
+        // shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 15f, 15f, 0.01f, 100f);
         shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
         shadowEnvironment = new Environment();
         shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
