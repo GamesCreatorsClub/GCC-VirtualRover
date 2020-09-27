@@ -14,16 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BarrelObject extends MovingGameObjectWithPositionAndOrientation implements PiWarsCollidableObject {
-
     public static enum BarrelColour {
         GREEN, RED
     }
+
+    public static final int BARREL_DIAMETER = 25;
 
     public static BarrelColour[] BARREL_COLOUR_VALUES = BarrelColour.values();
 
     private BarrelColour barrelColour = BarrelColour.GREEN;
 
-    private Circle circle = new Circle(0, 0, 25);
+    private Circle circle = new Circle(0, 0, BARREL_DIAMETER);
     private List<Shape2D> collisionPolygons = new ArrayList<Shape2D>();
 
     public BarrelObject(GameObjectFactory factory, int id) {
@@ -31,7 +32,7 @@ public class BarrelObject extends MovingGameObjectWithPositionAndOrientation imp
         collisionPolygons.add(circle);
     }
 
-    public BarrelColour getBarrelColour() {
+    public BarrelColour getColour() {
         return barrelColour;
     }
 

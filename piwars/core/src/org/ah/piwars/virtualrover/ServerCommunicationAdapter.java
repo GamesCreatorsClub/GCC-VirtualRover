@@ -10,6 +10,8 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
+import org.ah.piwars.virtualrover.game.objects.GolfBallObject;
+import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.piwars.virtualrover.input.PiWarsPlayerInput;
 import org.ah.piwars.virtualrover.logging.GdxClientLoggingAdapter;
@@ -20,8 +22,10 @@ import org.ah.piwars.virtualrover.message.ServerRequestScreenshotMessage;
 import org.ah.piwars.virtualrover.view.ChatColor;
 import org.ah.piwars.virtualrover.view.Console;
 import org.ah.piwars.virtualrover.world.BarrelModelLink;
+import org.ah.piwars.virtualrover.world.GolfBallModelLink;
 import org.ah.piwars.virtualrover.world.PiNoonAttachmentModelLink;
 import org.ah.piwars.virtualrover.world.PlayerModelLink;
+import org.ah.piwars.virtualrover.world.ToyCubeModelLink;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
@@ -210,10 +214,28 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             gameMessageId = gameObject.getId();
         } else if (gameObject instanceof BarrelObject) {
             BarrelObject barrelObject = (BarrelObject)gameObject;
-            BarrelModelLink barrelModelLink = new BarrelModelLink(engine.getGame(), barrelObject.getId(), barrelObject.getBarrelColour());
+            BarrelModelLink barrelModelLink = new BarrelModelLink(engine.getGame(), barrelObject.getId(), barrelObject.getColour());
             allVisibleObjects.put(barrelObject.getId(), barrelModelLink);
             barrelModelLink.make(assetManager);
             barrelObject.setLinkBack(barrelModelLink);
+        } else if (gameObject instanceof ToyCubeObject) {
+            ToyCubeObject toyCubeObject = (ToyCubeObject)gameObject;
+            ToyCubeModelLink toyCubeModelLink = new ToyCubeModelLink(engine.getGame(), toyCubeObject.getId(), toyCubeObject.getColour());
+            allVisibleObjects.put(toyCubeObject.getId(), toyCubeModelLink);
+            toyCubeModelLink.make(assetManager);
+            toyCubeObject.setLinkBack(toyCubeModelLink);
+        } else if (gameObject instanceof ToyCubeObject) {
+            ToyCubeObject toyCubeObject = (ToyCubeObject)gameObject;
+            ToyCubeModelLink toyCubeModelLink = new ToyCubeModelLink(engine.getGame(), toyCubeObject.getId(), toyCubeObject.getColour());
+            allVisibleObjects.put(toyCubeObject.getId(), toyCubeModelLink);
+            toyCubeModelLink.make(assetManager);
+            toyCubeObject.setLinkBack(toyCubeModelLink);
+        } else if (gameObject instanceof GolfBallObject) {
+            GolfBallObject golfBallObject = (GolfBallObject)gameObject;
+            GolfBallModelLink golfBallModelLink = new GolfBallModelLink(engine.getGame(), golfBallObject.getId());
+            allVisibleObjects.put(golfBallObject.getId(), golfBallModelLink);
+            golfBallModelLink.make(assetManager);
+            golfBallObject.setLinkBack(golfBallModelLink);
         } else if (gameObject instanceof MineSweeperStateObject) {
             mineSweeperId = gameObject.getId();
         }

@@ -13,6 +13,9 @@ public class Challenges {
     private List<ChallengeDescription> challenges;
 
     private PiNoonArena piNoonArena;
+    private TidyUpTheToysArena tidyUpTheToysArena;
+    private FeedTheFishArena feedTheFishArena;
+    private UpTheGardenPathArena upTheGardenPathArena;
     private EcoDisasterArena ecoDisasterArena;
     private CanyonsOfMarsArena canyonsOfMarsArena;
     private StraightLineSpeedTestArena straightLineSpeedTestArena;
@@ -21,6 +24,9 @@ public class Challenges {
 
     public Challenges(AssetManager assetManager, ServerCommunicationAdapter serverCommunicationAdapter) {
         piNoonArena = new PiNoonArena(assetManager);
+        tidyUpTheToysArena = new TidyUpTheToysArena(assetManager);
+        feedTheFishArena = new FeedTheFishArena(assetManager);
+        upTheGardenPathArena = new UpTheGardenPathArena(assetManager);
         ecoDisasterArena = new EcoDisasterArena(assetManager);
         canyonsOfMarsArena = new CanyonsOfMarsArena(assetManager);
         straightLineSpeedTestArena = new StraightLineSpeedTestArena(assetManager);
@@ -30,6 +36,9 @@ public class Challenges {
         challenges = asList(
 //                new ChallengeDescription("PiNoon", "Pi Noon (Robot vs Robot)", piNoonArena, 2, true),
                 new ChallengeDescription("PiNoon", "Pi Noon (Robot vs Robot)", piNoonArena, 2, false),
+                new ChallengeDescription("TidyUpTheToys", "Tidy Up The Toys", tidyUpTheToysArena, 1, false),
+                new ChallengeDescription("FeedTheFish", "Feed The Fish", feedTheFishArena, 1, false),
+                new ChallengeDescription("UpTheGardenPath", "Up The Garden Path", upTheGardenPathArena, 1, false),
                 new ChallengeDescription("EcoDisaster", "Eco Disaster", ecoDisasterArena, 1, false),
                 new ChallengeDescription("CanyonsOfMars", "Canyons Of Mars (Maze)", canyonsOfMarsArena, 1, false),
                 new ChallengeDescription("StraightLineSpeedTest", "Straight Line Speed Test", straightLineSpeedTestArena, 1, false),
@@ -60,6 +69,12 @@ public class Challenges {
             challenge = blastOffArena;
         } else if ("MineSweeper".equals(mapId)) {
             challenge = mineSweeperArena;
+        } else if ("TidyUpTheToys".equals(mapId)) {
+            challenge = tidyUpTheToysArena;
+        } else if ("FeedTheFish".equals(mapId)) {
+            challenge = feedTheFishArena;
+        } else if ("UpTheGardenPath".equals(mapId)) {
+            challenge = upTheGardenPathArena;
         }
 
         return (T)challenge;

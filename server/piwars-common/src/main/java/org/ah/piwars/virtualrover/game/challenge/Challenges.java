@@ -19,6 +19,12 @@ public class Challenges {
             return new BlastOffChallenge(game, name);
         } else if ("MineSweeper".equals(name)) {
             return new MineSweeperChallenge(game, name);
+        } else if ("TidyUpTheToys".equals(name)) {
+            return new TidyUpTheToysChallenge(game, name);
+        } else if ("FeedTheFish".equals(name)) {
+            return new FeedTheFishChallenge(game, name);
+        } else if ("UpTheGardenPath".equals(name)) {
+            return new UpTheGardenPathChallenge(game, name);
         }
 
         throw new IllegalArgumentException(name + " not known");

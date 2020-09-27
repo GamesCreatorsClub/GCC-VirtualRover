@@ -22,6 +22,9 @@ public class ChallengeScreens {
 
     private PiNoonScreen piNoonScreen;
     private EcoDisasterScreen ecoDisasterScreen;
+    private TidyUpTheToysScreen tidyUpTheToysScreen;
+    private FeedTheFishScreen feedTheFishScreen;
+    private UpTheGardenPathScreen upTheGardenPathScreen;
     private CanyonsOfMarsScreen canyonsOfMarsScreen;
     private StraightLineSpeedTestScreen straightLineSpeedTestScreen;
     private BlastOffScreen blastOffScreen;
@@ -78,6 +81,21 @@ public class ChallengeScreens {
                 mineSweeperScreen = new MineSweeperScreen(mainGame, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
             }
             challengeScreen = mineSweeperScreen;
+        } else if ("TidyUpTheToys".equals(mapId)) {
+            if (tidyUpTheToysScreen == null) {
+                tidyUpTheToysScreen = new TidyUpTheToysScreen(mainGame, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
+            }
+            challengeScreen = tidyUpTheToysScreen;
+        } else if ("FeedTheFish".equals(mapId)) {
+            if (feedTheFishScreen == null) {
+                feedTheFishScreen = new FeedTheFishScreen(mainGame, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
+            }
+            challengeScreen = feedTheFishScreen;
+        } else if ("UpTheGardenPath".equals(mapId)) {
+            if (upTheGardenPathScreen == null) {
+                upTheGardenPathScreen = new UpTheGardenPathScreen(mainGame, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
+            }
+            challengeScreen = upTheGardenPathScreen;
         }
 
         ChallengeArena challengeArena = challenges.getChallengeArena(mapId);

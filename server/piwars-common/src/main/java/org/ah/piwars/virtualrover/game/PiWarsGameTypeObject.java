@@ -3,6 +3,8 @@ package org.ah.piwars.virtualrover.game;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
+import org.ah.piwars.virtualrover.game.objects.GolfBallObject;
+import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.rovers.CBISRover;
 import org.ah.piwars.virtualrover.game.rovers.GCCRoverM16;
 import org.ah.piwars.virtualrover.game.rovers.GCCRoverM18;
@@ -19,6 +21,16 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
     public static GameObjectType BarrelObject = new GameObjectType() {
         @Override public GameObject newObject(GameObjectFactory factory) { return new BarrelObject(factory, 0); }
         @Override public String toString() { return "BarrelObjectType"; }
+    };
+
+    public static GameObjectType ToyCubeObject = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new ToyCubeObject(factory, 0); }
+        @Override public String toString() { return "ToyCubeObjectType"; }
+    };
+
+    public static GameObjectType GolfBallObject = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new GolfBallObject(factory, 0); }
+        @Override public String toString() { return "GolfBallObjectType"; }
     };
 
     public static GameObjectType MineSweeperStateObject = new GameObjectType() {
@@ -55,6 +67,8 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
             WaitingPlayerObject,
             GameMessageObject,
             BarrelObject,
+            ToyCubeObject,
+            GolfBallObject,
             MineSweeperStateObject,
             PiNoonAttachment,
             CameraAttachment,
