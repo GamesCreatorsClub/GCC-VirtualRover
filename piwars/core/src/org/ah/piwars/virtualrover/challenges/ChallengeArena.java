@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
+import org.ah.piwars.virtualrover.game.challenge.Challenge;
 
 public interface ChallengeArena {
 
@@ -20,4 +21,8 @@ public interface ChallengeArena {
     float getLength();
 
     IntMap<VisibleObject> defaultVisibleObjets();
+
+    <T extends Challenge> T getChallenge();
+
+    void setChallenge(Challenge challenge);
 }

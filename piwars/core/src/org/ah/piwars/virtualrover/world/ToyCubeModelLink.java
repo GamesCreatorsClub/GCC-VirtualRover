@@ -15,6 +15,7 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject.ToyCubeColour;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
@@ -34,7 +35,7 @@ public class ToyCubeModelLink implements VisibleObject {
     }
 
     public ToyCubeModelLink(PiWarsGame game, int id, ToyCubeColour toyKubeColour) {
-        this(game, id, fromKubeColour(toyKubeColour));
+        this(game, id, fromCubeColour(toyKubeColour));
     }
 
     public void make(AssetManager assetManager) {
@@ -64,7 +65,7 @@ public class ToyCubeModelLink implements VisibleObject {
         rover.setOrientation(orientation);
     }
 
-    public static Color fromKubeColour(ToyCubeColour kubeColour) {
+    public static Color fromCubeColour(ToyCubeColour kubeColour) {
         if (kubeColour == ToyCubeColour.GREEN) {
             return Color.GREEN;
         } else if (kubeColour == ToyCubeColour.RED) {
@@ -73,6 +74,17 @@ public class ToyCubeModelLink implements VisibleObject {
             return Color.BLUE;
         }
         return Color.WHITE;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public  <T extends GameObject> T getGameObject() {
+        return (T)game.getCurrentGameState().get(id);
+    }
+
+    @Override
+    public Color getColour() {
+        return fromCubeColour(this.<ToyCubeObject>getGameObject().getColour());
     }
 
     @Override

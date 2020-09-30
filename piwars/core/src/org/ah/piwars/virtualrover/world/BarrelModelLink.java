@@ -15,6 +15,7 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject.BarrelColour;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
@@ -68,6 +69,17 @@ public class BarrelModelLink implements VisibleObject {
             return Color.RED;
         }
         return Color.WHITE;
+    }
+
+    @Override
+    public Color getColour() {
+        return fromBarrelColour(this.<BarrelObject>getGameObject().getColour());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public  <T extends GameObject> T getGameObject() {
+        return (T)game.getCurrentGameState().get(id);
     }
 
     @Override

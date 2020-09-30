@@ -15,6 +15,7 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject.ToyCubeColour;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
@@ -59,6 +60,17 @@ public class GolfBallModelLink implements VisibleObject {
         Rover rover = game.getCurrentGameState().get(id);
         rover.setPosition(x, y);
         rover.setOrientation(orientation);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public  <T extends GameObject> T getGameObject() {
+        return (T)game.getCurrentGameState().get(id);
+    }
+
+    @Override
+    public Color getColour() {
+        return Color.LIGHT_GRAY;
     }
 
     @Override

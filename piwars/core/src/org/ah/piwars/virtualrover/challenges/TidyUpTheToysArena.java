@@ -67,7 +67,14 @@ public class TidyUpTheToysArena extends AbstractChallenge {
             wallModels.add(wallModel);
             wallInstances.add(wallInstance);
         }
+
+        prepareDebugAssets();
     }
+
+    @Override protected boolean debugBox2D() { return true; }
+    @Override protected int getChallengeWidth() { return (int)CHALLENGE_WIDTH; }
+    @Override protected int getChallengeHeight() { return (int)CHALLENGE_WIDTH; }
+    @Override protected float getFloorHeight() { return -59f; }
 
     @Override
     public void dispose() {
@@ -92,9 +99,11 @@ public class TidyUpTheToysArena extends AbstractChallenge {
 
     @Override
     protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        batch.render(floorModelInstance, environment);
+        if (!showPlan) { batch.render(floorModelInstance, environment); }
         for (ModelInstance wall : wallInstances) {
             batch.render(wall, environment);
         }
+
+        if (showPlan) { batch.render(debugFloorModelInstance); }
     }
 }

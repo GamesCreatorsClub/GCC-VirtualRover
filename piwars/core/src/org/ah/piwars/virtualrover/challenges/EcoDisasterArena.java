@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
+import org.ah.piwars.virtualrover.game.challenge.EcoDisasterChallenge;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.EcoDisasterChallenge.CHALLENGE_WIDTH;
@@ -26,20 +27,14 @@ public class EcoDisasterArena extends AbstractChallenge {
     private ModelInstance clearZoneModelInstance;
     private ModelInstance contaminatedZoneModelInstance;
 
-    private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
+    public EcoDisasterChallenge ecoDisasterChallenge;
+
+    protected IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
 
     public EcoDisasterArena(AssetManager assetManager) {
         super(assetManager);
 
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
-
-//        floorCamera = new OrthographicCamera(2000, 2000);
-//        floorCamera.update();
-//
-//        List<Attribute> attributesList = new ArrayList<Attribute>();
-//        attributesList.add(TextureAttribute.createDiffuse(frameBuffer.getColorBufferTexture()));
-//        Attribute[] attributes = attributesList.toArray(new Attribute[attributesList.size()]);
-//        arenaModelInstance.materials.get(0).set(attributes);
     }
 
     @Override
@@ -59,7 +54,15 @@ public class EcoDisasterArena extends AbstractChallenge {
 
         contaminatedZoneModelInstance.transform.setToTranslationAndScaling(400 * SCALE, 250 * SCALE, -1000 * SCALE, SCALE, SCALE, SCALE);
         contaminatedZoneModelInstance.materials.get(0).set(ColorAttribute.createDiffuse(new Color(0.8f, 0.8f, 0.0f, 1f)));
+
+        prepareDebugAssets();
     }
+
+    @Override protected boolean debugBox2D() { return true; }
+    @Override protected int getChallengeWidth() { return (int)CHALLENGE_WIDTH; }
+    @Override protected int getChallengeHeight() { return (int)CHALLENGE_WIDTH; }
+    @Override protected float getFloorHeight() { return -54f; }
+
 
     @Override
     public void dispose() {
@@ -69,13 +72,13 @@ public class EcoDisasterArena extends AbstractChallenge {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
+    public void render(ModelBatch batch, Environment environment, FrameBuffer otherFrameBuffer, IntMap<VisibleObject> visibleObjects) {
 
         IntMap<VisibleObject> newMap = new IntMap<VisibleObject>();
         newMap.putAll(visibleObjects);
         newMap.putAll(localVisibleObjects);
 
-        super.render(batch, environment, frameBuffer, newMap);
+        super.render(batch, environment, otherFrameBuffer, newMap);
     }
 
     @Override
@@ -84,5 +87,6 @@ public class EcoDisasterArena extends AbstractChallenge {
         batch.render(clearZoneModelInstance, environment);
         batch.render(contaminatedZoneModelInstance, environment);
 
+        if (showPlan) { batch.render(debugFloorModelInstance); }
     }
 }

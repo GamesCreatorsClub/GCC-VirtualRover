@@ -17,6 +17,7 @@ import org.ah.piwars.virtualrover.rovers.CBiSRoverModel;
 import org.ah.piwars.virtualrover.rovers.GCCRoverModelM16;
 import org.ah.piwars.virtualrover.rovers.GCCRoverModelM18;
 import org.ah.piwars.virtualrover.rovers.RoverModel;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 public class PlayerModelLink implements VisibleObject {
     private int id;
@@ -89,8 +90,10 @@ public class PlayerModelLink implements VisibleObject {
         rover.setOrientation(orientation);
     }
 
-    public Rover getPiWarsRover() {
-        return game.getCurrentGameState().get(id);
+    @Override
+    @SuppressWarnings("unchecked")
+    public  <T extends GameObject> T getGameObject() {
+        return (T)game.getCurrentGameState().get(id);
     }
 
     public Matrix4 getRoverTransform() {
@@ -101,6 +104,7 @@ public class PlayerModelLink implements VisibleObject {
         return null;
     }
 
+    @Override
     public Color getColour() {
         return colour;
     }

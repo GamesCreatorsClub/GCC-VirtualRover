@@ -26,6 +26,7 @@ import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.Background;
 import org.ah.piwars.virtualrover.camera.CameraControllersManager;
 import org.ah.piwars.virtualrover.camera.CinematicCameraController;
+import org.ah.piwars.virtualrover.challenges.AbstractChallenge;
 import org.ah.piwars.virtualrover.challenges.ChallengeArena;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
@@ -179,6 +180,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     public void setChallengeArena(ChallengeArena challenge) {
         this.challenge = challenge;
+        challenge.setChallenge(serverCommunicationAdapter.getEngine().getGame().getChallenge());
     }
 
     protected void setBottomMessage(String message, boolean blink) {
@@ -409,6 +411,27 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
                 setMiddleMessage("", true);
                 suspended = false;
             }
+        }
+        if (keycode == Input.Keys.H && challenge instanceof AbstractChallenge) {
+            AbstractChallenge abstractChallenge = (AbstractChallenge)challenge;
+            if (abstractChallenge.showRovers && !abstractChallenge.showPlan) {
+                abstractChallenge.showRovers = true;
+                abstractChallenge.showPlan = true;
+            } else if (abstractChallenge.showRovers && abstractChallenge.showPlan) {
+                abstractChallenge.showRovers = false;
+                abstractChallenge.showPlan = true;
+            } else {
+                abstractChallenge.showRovers = true;
+                abstractChallenge.showPlan = false;
+            }
+        }
+        if (keycode == Input.Keys.G && challenge instanceof AbstractChallenge) {
+            AbstractChallenge piNoonArena = (AbstractChallenge)challenge;
+            piNoonArena.showShadows = !piNoonArena.showShadows;
+        }
+        if (keycode == Input.Keys.T && challenge instanceof AbstractChallenge) {
+            AbstractChallenge piNoonArena = (AbstractChallenge)challenge;
+            piNoonArena.showRovers = !piNoonArena.showRovers;
         }
         return false;
     }

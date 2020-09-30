@@ -11,6 +11,7 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.piwars.virtualrover.rovers.attachments.PiNoonAttachmentModel;
+import org.ah.themvsus.engine.common.game.GameObject;
 
 public class PiNoonAttachmentModelLink implements VisibleObject {
     public int id;
@@ -64,8 +65,10 @@ public class PiNoonAttachmentModelLink implements VisibleObject {
         rover.setOrientation(orientation);
     }
 
-    public PiNoonAttachment getAttachmentGameObject() {
-        return game.getCurrentGameState().get(id);
+    @Override
+    @SuppressWarnings("unchecked")
+    public  <T extends GameObject> T getGameObject() {
+        return (T)game.getCurrentGameState().get(id);
     }
 
     @Override

@@ -49,13 +49,10 @@ public class PiNoonArena extends AbstractChallenge {
     private ShapeRenderer shapeRenderer;
 
     private Model floorModel;
-
     private ModelInstance floorModelInstance;
 
     private IntMap<VisibleObject> localVisibleObjects = new IntMap<>();
     private IntMap<VisibleObject> allVisibleObjects = new IntMap<VisibleObject>();
-
-    public boolean showPlan = false;
 
     public PiNoonArena(AssetManager assetManager) {
         super(assetManager);
@@ -104,7 +101,7 @@ public class PiNoonArena extends AbstractChallenge {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
+    public void render(ModelBatch batch, Environment environment, FrameBuffer otherFrameBuffer, IntMap<VisibleObject> visibleObjects) {
         if (showPlan) {
             frameBuffer.begin();
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
@@ -116,7 +113,7 @@ public class PiNoonArena extends AbstractChallenge {
                 if (visibleObject instanceof PlayerModelLink) {
                     PlayerModelLink playerModel = (PlayerModelLink)visibleObject;
 
-                    Rover rover = playerModel.getPiWarsRover();
+                    Rover rover = playerModel.getGameObject();
 
                     shapeRenderer.setColor(playerModel.getColour());
 
@@ -128,7 +125,7 @@ public class PiNoonArena extends AbstractChallenge {
                 } else if (visibleObject instanceof PiNoonAttachmentModelLink) {
                     PiNoonAttachmentModelLink attachmentModel = (PiNoonAttachmentModelLink)visibleObject;
 
-                    PiNoonAttachment attachment = attachmentModel.getAttachmentGameObject();
+                    PiNoonAttachment attachment = attachmentModel.getGameObject();
                     shapeRenderer.setColor(attachmentModel.getColour());
 
                     int balloonBits = attachment.getBalloonBits();
@@ -152,7 +149,7 @@ public class PiNoonArena extends AbstractChallenge {
         allVisibleObjects.putAll(visibleObjects);
         allVisibleObjects.putAll(localVisibleObjects);
 
-        super.render(batch, environment, frameBuffer, allVisibleObjects);
+        super.render(batch, environment, otherFrameBuffer, allVisibleObjects);
     }
 
     @Override

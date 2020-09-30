@@ -14,7 +14,6 @@ import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
 import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.piwars.virtualrover.camera.CameraControllersManager;
 import org.ah.piwars.virtualrover.camera.CinematicCameraController;
-import org.ah.piwars.virtualrover.challenges.PiNoonArena;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
@@ -174,28 +173,6 @@ public class PiNoonScreen extends AbstractStandardScreen implements ChallengeScr
 
         if (keycode == Input.Keys.TAB) {
             camera.fieldOfView = 4f;
-        }
-
-        if (keycode == Input.Keys.H && challenge instanceof PiNoonArena) {
-            PiNoonArena piNoonArena = (PiNoonArena)challenge;
-            if (piNoonArena.showRovers && !piNoonArena.showPlan) {
-                piNoonArena.showRovers = true;
-                piNoonArena.showPlan = true;
-            } else if (piNoonArena.showRovers && piNoonArena.showPlan) {
-                piNoonArena.showRovers = false;
-                piNoonArena.showPlan = true;
-            } else {
-                piNoonArena.showRovers = true;
-                piNoonArena.showPlan = false;
-            }
-        }
-        if (keycode == Input.Keys.G && challenge instanceof PiNoonArena) {
-            PiNoonArena piNoonArena = (PiNoonArena)challenge;
-            piNoonArena.showShadows = !piNoonArena.showShadows;
-        }
-        if (keycode == Input.Keys.T && challenge instanceof PiNoonArena) {
-            PiNoonArena piNoonArena = (PiNoonArena)challenge;
-            piNoonArena.showRovers = !piNoonArena.showRovers;
         }
 
         return false;
