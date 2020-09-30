@@ -1,6 +1,7 @@
 package org.ah.piwars.virtualrover.game.physics;
 
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
@@ -107,7 +108,13 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
             float factor = 1000000f / piwarsGame.getGameTickMicros();
 
             roverLinearVelocity.set((roverPosition.x - physicsObject.lastX) * factor, (roverPosition.y - physicsObject.lastY) * factor);
-            roverAngularVelocity = (rover.getBearingRad() - physicsObject.lastAngle) * factor;
+            roverAngularVelocity = rover.getBearingRad() - physicsObject.lastAngle;
+            if (roverAngularVelocity > MathUtils.PI) {
+                roverAngularVelocity = roverAngularVelocity - 2f * MathUtils.PI;
+            } else if (roverAngularVelocity < -MathUtils.PI) {
+                roverAngularVelocity = roverAngularVelocity + 2f * MathUtils.PI;
+            }
+            roverAngularVelocity = roverAngularVelocity * factor;
         }
 
         return true; // We've recorded what rover wanted to do - so we can prevent it doing it for now.
@@ -135,13 +142,16 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
                 Body body = physicsObject.body;
                 gameObject.setPosition(body.getPosition().x, body.getPosition().y);
                 if (gameObject instanceof Rover) {
-                    float bodyAngle = body.getAngle();
-                    gameObject.setBearingRad(bodyAngle);
+//                    float oldBearing = gameObject.getBearingRad();
+                    gameObject.setBearingRad(body.getAngle());
+//                    if (oldBearing != gameObject.getBearingRad()) {
+//                        System.out.println(String.format("OB: %2.5f, LA: %2.5f, NB: %2.5f, BA: %2.5f, AV: %2.5f", oldBearing, physicsObject.lastAngle, gameObject.getBearingRad(), body.getAngle(), roverAngularVelocity));
+//                    }
                 } else {
                     gameObject.setBearingRad(body.getAngle());
                 }
 
-                body.setTransform(body.getPosition().x, body.getPosition().y, gameObject.getBearingRad());
+                //body.setTransform(body.getPosition().x, body.getPosition().y, gameObject.getBearingRad());
                 body.setLinearVelocity(0f, 0f);
                 body.setAngularVelocity(0f);
                 physicsObject.lastX = body.getPosition().x;
@@ -166,11 +176,17 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
         public PhysicsObject(MovingGameObjectWithPositionAndOrientation gameObject) {
             this.objectId = gameObject.getId();
 
-            boolean bullet = false;
-            float friction = 0.2f;
+            boolean bullet;
+            float density;
+            float friction;
             if (gameObject instanceof Rover) {
-//                friction = 0.95f;
+                density = 4f;
                 bullet = true;
+                friction = 0.7f;
+            } else {
+                density = 0.2f;
+                bullet = false;
+                friction = 0.7f;
             }
 
             lastX = gameObject.getPosition().x;
@@ -179,12 +195,12 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
 
             gameObject.setPosition(0, 0);
 
-            body = createBody(gameObject.getPosition().x, gameObject.getPosition().y, lastAngle, ((PiWarsCollidableObject)gameObject).getCollisionPolygons(), friction, bullet);
+            body = createBody(gameObject.getPosition().x, gameObject.getPosition().y, lastAngle, ((PiWarsCollidableObject)gameObject).getCollisionPolygons(), friction, bullet, density);
 
             gameObject.setPosition(lastX, lastY);
         }
 
-        private Body createBody(float x, float y, float bearing, List<Shape2D> shapes, float friction, boolean bullet) {
+        private Body createBody(float x, float y, float bearing, List<Shape2D> shapes, float friction, boolean bullet, float density) {
             BodyDef bodyDef = new BodyDef();
             bodyDef.type = BodyType.DynamicBody;
             bodyDef.bullet = bullet;
@@ -214,7 +230,7 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
                 }
                 FixtureDef fixtureDef = new FixtureDef();
                 fixtureDef.shape = shape;
-                fixtureDef.density = 1f;
+                fixtureDef.density = density;
                 fixtureDef.friction = friction;
                 fixtureDef.restitution = 0f;
 

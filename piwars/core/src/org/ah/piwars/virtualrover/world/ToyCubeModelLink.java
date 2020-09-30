@@ -53,6 +53,7 @@ public class ToyCubeModelLink implements VisibleObject {
 
             kubeModelInstance.transform
                 .setToTranslationAndScaling(position.x * SCALE, 0, -position.y * SCALE, SCALE, SCALE, SCALE)
+                .rotateRad(new Vector3(0, 1, 0), toyKubeObject.getBearingRad())
                 .translate(0f, -ToyCubeObject.KUBE_SIDE_LENGTH / 2f - HEIGHT_FUDGE_FACTOR, 0f);
 //                .translate(0f, -20f, 0f);
         }
