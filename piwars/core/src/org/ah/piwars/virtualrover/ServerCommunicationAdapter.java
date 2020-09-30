@@ -151,8 +151,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         engine.setFollowOnly(simulation);
         this.engine = engine;
 
-        engine.getGame().setGameObjectAddedListener(this);
-        engine.getGame().setGameObjectRemovedListener(this);
+        engine.getGame().addGameObjectAddedListener(this);
+        engine.getGame().addGameObjectRemovedListener(this);
         engine.setPlayerInputs(playerOneInputMessage.getInputs());
         engine.setPlayerTwoInputs(playerTwoInputMessage.getInputs());
         if (!local) {
