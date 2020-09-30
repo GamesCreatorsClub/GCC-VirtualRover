@@ -4,14 +4,12 @@ import com.badlogic.gdx.math.Polygon;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.MineSweeperStateObject;
-import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
-import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
@@ -21,7 +19,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
-import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 import static java.util.Arrays.asList;
 
@@ -68,17 +65,6 @@ public class MineSweeperChallenge extends CameraAbstractChallenge {
         super(game, name);
         setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-    }
-
-    @Override
-    public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
-        if (object instanceof PiWarsCollidableObject) {
-            if (polygonsOverlap(getCollisionPolygons(), ((PiWarsCollidableObject)object).getCollisionPolygons())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @Override

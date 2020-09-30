@@ -9,11 +9,13 @@ import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
+import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
 
 import java.util.List;
 
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.asListOfShape2D;
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 import static java.util.Collections.emptyList;
 
@@ -125,6 +127,30 @@ public abstract class AbstractChallenge implements Challenge {
         }
     }
 
+    @Override
+    public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
+        if (object instanceof Rover) {
+            Rover rover = (Rover)object;
+
+            // Check going outside of arena
+            if (polygonsOverlap(getCollisionPolygons(), rover.getCollisionPolygons())) {
+                return true;
+            }
+            return tryMovingRover(rover, objects);
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param rover
+     * @param objects
+     * @return <code>false</code> if there are not obstacles
+     */
+    protected boolean tryMovingRover(Rover rover, Iterable<GameObjectWithPosition> objects) {
+        return false;
+    }
 
     protected abstract void resetRover();
 }

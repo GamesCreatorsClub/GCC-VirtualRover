@@ -50,6 +50,7 @@ public class ToyCubeObject extends MovingGameObjectWithPositionAndOrientation im
 
     public Polygon getPolygon() {
         kubePolygon.setPosition(position.x, position.y);
+        kubePolygon.setRotation(getBearing());
         return kubePolygon;
     }
 

@@ -1,7 +1,7 @@
 package org.ah.piwars.virtualrover.game;
 
 
-import com.badlogic.gdx.math.Shape2D;
+import com.badlogic.gdx.utils.Array;
 
 import org.ah.piwars.virtualrover.game.challenge.Challenge;
 import org.ah.piwars.virtualrover.game.challenge.Challenges;
@@ -12,10 +12,6 @@ import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
-
-import java.util.List;
-
-import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonsOverlap;
 
 public class PiWarsGame extends Game {
 
@@ -46,22 +42,30 @@ public class PiWarsGame extends Game {
     }
 
     @Override
+    protected void processGameObjects(Array<GameObjectWithPosition> processedGameObjects) {
+        for (GameObject gameObject : getCurrentGameState().gameObjects().values()) {
+            gameObject.process(this, processedGameObjects);
+        }
+    }
+
+    @Override
     public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
         if (challenge != null && challenge.checkForCollision(object, objects)) {
             return true;
         }
 
-        if (object instanceof PiWarsCollidableObject) {
-            List<Shape2D> roverPolygon = ((PiWarsCollidableObject)object).getCollisionPolygons();
-            for (GameObjectWithPosition o : objects) {
-                if (o != object && o instanceof PiWarsCollidableObject) {
-                    List<Shape2D> otherObjectPolygon = ((PiWarsCollidableObject)o).getCollisionPolygons();
-                    if (polygonsOverlap(roverPolygon, otherObjectPolygon)) {
-                        return true;
-                    }
-                }
-            }
-        }
+        // TODO - I think this is superfluous - main check is done in challenge itself!
+//        if (object instanceof PiWarsCollidableObject) {
+//            List<Shape2D> roverPolygon = ((PiWarsCollidableObject)object).getCollisionPolygons();
+//            for (GameObjectWithPosition o : objects) {
+//                if (o != object && o instanceof PiWarsCollidableObject) {
+//                    List<Shape2D> otherObjectPolygon = ((PiWarsCollidableObject)o).getCollisionPolygons();
+//                    if (polygonsOverlap(roverPolygon, otherObjectPolygon)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
 
         return super.checkForCollision(object, objects);
     }

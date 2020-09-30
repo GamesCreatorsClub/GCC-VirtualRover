@@ -9,6 +9,7 @@ import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject.ToyCubeColour;
+import org.ah.piwars.virtualrover.game.physics.Box2DPhysicsWorld;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
@@ -24,7 +25,7 @@ import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFrom
 
 import static java.util.Arrays.asList;
 
-public class TidyUpTheToysChallenge extends CameraAbstractChallenge {
+public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements Box2DPhysicalWorldSimulationChallenge {
 
     public static final float CHALLENGE_WIDTH = 1500;
     public static float WALL_HEIGHT = 200;
@@ -44,37 +45,32 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge {
 
     private StateMachine<TidyUpTheToysChallenge, ChallengeState> stateMachine = new StateMachine<TidyUpTheToysChallenge, ChallengeState>();
 
-//    private KubeObject[] kubeObjects = new KubeObject[0];
+    public Box2DPhysicsWorld physicsWorld;
+
+    // private ToyCubeObject[] kubeObjects = new ToyCubeObject[0];
 
     public TidyUpTheToysChallenge(PiWarsGame game, String name) {
         super(game, name);
         setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
+
+        physicsWorld = new Box2DPhysicsWorld(game, getCollisionPolygons());
     }
 
     @Override
-    public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
-        if (object instanceof Rover) {
-//            Rover rover = (Rover)object;
-//            List<Shape2D> roverPolygons = rover.getCollisionPolygons();
-//            for (GameObjectWithPosition o : objects) {
-//                if (o != object && o instanceof KubeObject) {
-//                    KubeObject kube = ((KubeObject)o);
-//                    Polygon kubePolygon = kube.getPolygon();
-//                    Shape2D collidedShape = findCollidedShape(kubePolygon, roverPolygons);
-//                    if (collidedShape != null && !tryMovingKubes(rover, collidedShape, kube)) {
-//                        return true;
-//                    }
-//                }
-//            }
-        }
+    public Box2DPhysicsWorld getBox2DPhysicalWorld() {
+        return physicsWorld;
+    }
 
-        return false;
+    @Override
+    protected boolean tryMovingRover(Rover rover, Iterable<GameObjectWithPosition> objects) {
+        return physicsWorld.tryMovingRover(rover, objects);
     }
 
     @Override
     public void process(GameState currentGameState) {
         stateMachine.update(this);
+        physicsWorld.updateWorld();
     }
 
     @Override
@@ -128,6 +124,8 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge {
         redCube.setPosition(0,  350);
         greenCube.setPosition(-400,  350);
         blueCube.setPosition(400,  350);
+
+        physicsWorld.updateObjectPositions();
     }
 
     @Override
@@ -153,6 +151,7 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge {
                         game.removeGameObject(barrelId);
                     }
                 }
+                // challenge.barrels.clear();
 
                 GameMessageObject gameMessageObject = challenge.getGameMessage();
                 gameMessageObject.setInGame(false);

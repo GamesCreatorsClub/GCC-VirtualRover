@@ -8,7 +8,6 @@ import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
-import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
@@ -35,26 +34,6 @@ public class UpTheGardenPathChallenge extends CameraAbstractChallenge {
         super(game, name);
         setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
-    }
-
-    @Override
-    public boolean checkForCollision(GameObjectWithPosition object, Iterable<GameObjectWithPosition> objects) {
-        if (object instanceof Rover) {
-//            Rover rover = (Rover)object;
-//            List<Shape2D> roverPolygons = rover.getCollisionPolygons();
-//            for (GameObjectWithPosition o : objects) {
-//                if (o != object && o instanceof BarrelObject) {
-//                    BarrelObject barrel = ((BarrelObject)o);
-//                    Circle barrelCircle = barrel.getCirle();
-//                    Shape2D collidedShape = findCollidedShape(barrelCircle, roverPolygons);
-//                    if (collidedShape != null && !tryMovingBarrels(rover, collidedShape, barrel)) {
-//                        return true;
-//                    }
-//                }
-//            }
-        }
-
-        return false;
     }
 
     @Override

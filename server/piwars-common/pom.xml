@@ -18,6 +18,28 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx</artifactId>
+      <version>${gdxVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx</artifactId>
+      <version>${gdxVersion}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx-box2d</artifactId>
+      <version>${gdxVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx-box2d</artifactId>
+      <version>${gdxVersion}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
       <groupId>org.ah.themvsus</groupId>
       <artifactId>engine-common</artifactId>
     </dependency>
