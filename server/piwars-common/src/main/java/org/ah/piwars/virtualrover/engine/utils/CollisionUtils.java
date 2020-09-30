@@ -3,11 +3,15 @@ package org.ah.piwars.virtualrover.engine.utils;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.badlogic.gdx.math.Intersector.distanceSegmentPoint;
+import static com.badlogic.gdx.math.Intersector.intersectSegmentRectangle;
 
 public class CollisionUtils {
 
@@ -76,7 +80,11 @@ public class CollisionUtils {
         return false;
     }
 
-    public static float getCircleOverlapsPolygonSeqment(Circle c, Polygon p, Vector2 start, Vector2 end) {
+    private static Vector2 start = new Vector2();
+    private static Vector2 end = new Vector2();
+    private static Intersector.MinimumTranslationVector minimalDisplacementVector = new Intersector.MinimumTranslationVector();
+
+    public static void circleOverlapPolygonSeqment(Circle c, Polygon p, Vector2 displacementVector) {
         float x1;
         float y1;
         float x2;
@@ -103,10 +111,13 @@ public class CollisionUtils {
                 start.y = y1;
                 end.x = x2;
                 end.y = y2;
-                return d;
+                Intersector.intersectSegmentCircle(start, end, c, minimalDisplacementVector);
+
+                minimalDisplacementVector.normal.scl(-minimalDisplacementVector.depth - 0.1f);
+                displacementVector.x = minimalDisplacementVector.normal.x;
+                displacementVector.y = minimalDisplacementVector.normal.y;
             }
         }
-        return -1;
     }
 
     public static boolean pointInPolygons(float x, float y, List<Polygon> ps2) {
@@ -135,5 +146,71 @@ public class CollisionUtils {
             }
         }
         return null;
+    }
+
+    public static boolean overlaps(Polygon polygon, Circle circle) {
+        float[] vertices = polygon.getTransformedVertices();
+        int l = vertices.length;
+        for (int i = 0; i < l - 2; i = i + 2) {
+            if (distanceSegmentPoint(vertices[i], vertices[i + 1], vertices[i + 2], vertices[i + 2], circle.x, circle.y) < circle.radius) {
+                return true;
+            }
+        }
+        if (distanceSegmentPoint(vertices[l - 2], vertices[l - 1], vertices[0], vertices[1], circle.x, circle.y) < circle.radius) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean overlaps(Polygon polygon, Rectangle rectangle) {
+        float[] vertices = polygon.getTransformedVertices();
+        int l = vertices.length;
+        for (int i = 0; i < l - 2; i = i + 2) {
+            if (intersectSegmentRectangle(vertices[i], vertices[i + 1], vertices[i + 2], vertices[i + 2], rectangle)) {
+                return true;
+            }
+        }
+        if (intersectSegmentRectangle(vertices[l - 2], vertices[l - 1], vertices[0], vertices[1], rectangle)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean intersectSegmentPolygon(float x1, float y1, float x2, float y2, Polygon polygon) {
+        float[] vertices = polygon.getTransformedVertices();
+        int n = vertices.length;
+        float x3 = vertices[n - 2], y3 = vertices[n - 1];
+        for (int i = 0; i < n; i += 2) {
+                float x4 = vertices[i], y4 = vertices[i + 1];
+                float d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+                if (d != 0) {
+                        float yd = y1 - y3;
+                        float xd = x1 - x3;
+                        float ua = ((x4 - x3) * yd - (y4 - y3) * xd) / d;
+                        if (ua >= 0 && ua <= 1) {
+                                float ub = ((x2 - x1) * yd - (y2 - y1) * xd) / d;
+                                if (ub >= 0 && ub <= 1) {
+                                        return true;
+                                }
+                        }
+                }
+                x3 = x4;
+                y3 = y4;
+        }
+        return false;
+    }
+
+    public static boolean overlaps(Polygon polygon1, Polygon polygon2) {
+        float[] vertices1 = polygon1.getTransformedVertices();
+        int l = vertices1.length;
+        for (int i = 0; i < l - 1; i = i + 2) {
+            if (intersectSegmentPolygon(vertices1[i], vertices1[i + 1], vertices1[i + 2], vertices1[i + 2], polygon2)) {
+                return true;
+            }
+        }
+        if (intersectSegmentPolygon(vertices1[l - 2], vertices1[l - 1], vertices1[0], vertices1[1], polygon2)) {
+            return true;
+        }
+        return false;
     }
 }
