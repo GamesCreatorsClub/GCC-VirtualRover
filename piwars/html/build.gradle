@@ -9,7 +9,6 @@ gwt {
     project.webAppDirName = 'webapp'
 
     compiler {
-        style = "PRETTY"
         strict = true;
         disableCastChecking = true;
     }
@@ -50,7 +49,7 @@ task superDev (type: GwtSuperDev) {
 }
 
 
-task dist(dependsOn: [compileGwt]) {
+task dist(dependsOn: [clean, compileGwt]) {
     doLast {
         file("build/dist").mkdirs()
         copy {

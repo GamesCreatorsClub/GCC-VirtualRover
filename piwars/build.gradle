@@ -1,5 +1,4 @@
 buildscript {
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -23,7 +22,7 @@ allprojects {
         appName = "piwars-virtual-rover"
         gdxVersion = '1.9.11.rpi-SNAPSHOT'
         gdxVersionForczyzby = '1.9.6'
-        roboVMVersion = '2.3.7'
+        roboVMVersion = '2.3.10'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
@@ -109,8 +108,8 @@ project(":html") {
 
     dependencies {
         implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
