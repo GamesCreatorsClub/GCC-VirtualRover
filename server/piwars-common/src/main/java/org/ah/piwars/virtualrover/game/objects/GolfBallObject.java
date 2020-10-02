@@ -17,7 +17,7 @@ public class GolfBallObject extends MovingGameObjectWithPositionAndOrientation i
 
     public static int GOLF_BALL_DIAMETER = 42;
 
-    private Circle circle = new Circle(0, 0, GOLF_BALL_DIAMETER);
+    private Circle circle = new Circle(0, 0, GOLF_BALL_DIAMETER / 2);
     private List<Shape2D> collisionPolygons = new ArrayList<Shape2D>();
 
     public GolfBallObject(GameObjectFactory factory, int id) {

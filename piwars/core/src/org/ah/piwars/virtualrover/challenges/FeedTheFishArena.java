@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.piwars.virtualrover.VisibleObject;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.CHALLENGE_WIDTH;
+import static org.ah.piwars.virtualrover.game.challenge.FeedTheFishChallenge.CHALLENGE_WIDTH;
 import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.FLOOR_POLYGON;
 import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.WALL_HEIGHT;
 import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.WALL_POLYGONS;
@@ -50,24 +50,33 @@ public class FeedTheFishArena extends AbstractChallenge {
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
-        floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.8f, 0.8f, 0.7f, 1f)));
-        wallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.8f, 0.8f, 0.7f, 1f)));
+        floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.6f, 0.6f, 0.55f, 1f)));
+        wallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.6f, 0.6f, 0.55f, 1f)));
 
         ModelBuilder modelBuilder = new ModelBuilder();
-        floorModel = modelBuilder.createBox(3400, 10, 1830, floorMaterial, attrs);
+        //floorModel = modelBuilder.createBox(3400, 10, 1830, floorMaterial, attrs);
         floorModel = extrudePolygonY(modelBuilder, FLOOR_POLYGON, 10, attrs, floorMaterial);
 
+        float downOffset = 61f;
+
         floorModelInstance = new ModelInstance(floorModel);
-        floorModelInstance.transform.setToTranslationAndScaling(0, -59f * SCALE, 0, SCALE, SCALE, SCALE);
+        floorModelInstance.transform.setToTranslationAndScaling(0, -downOffset * SCALE, 0, SCALE, SCALE, SCALE);
 
         for (Polygon wallPolygon : WALL_POLYGONS) {
             Model wallModel = extrudePolygonY(modelBuilder, wallPolygon, WALL_HEIGHT, attrs, wallMaterial);
             ModelInstance wallInstance = new ModelInstance(wallModel);
-            wallInstance.transform.setToTranslationAndScaling(0, (WALL_HEIGHT / 2 - 59) * SCALE, 0, SCALE, SCALE, SCALE);
+            wallInstance.transform.setToTranslationAndScaling(0, (WALL_HEIGHT / 2 - downOffset) * SCALE, 0, SCALE, SCALE, SCALE);
             wallModels.add(wallModel);
             wallInstances.add(wallInstance);
         }
+
+        prepareDebugAssets();
     }
+
+    @Override protected boolean debugBox2D() { return true; }
+    @Override protected int getChallengeWidth() { return (int)CHALLENGE_WIDTH; }
+    @Override protected int getChallengeHeight() { return (int)CHALLENGE_WIDTH; }
+    @Override protected float getFloorHeight() { return -59f; }
 
     @Override
     public void dispose() {
@@ -92,9 +101,11 @@ public class FeedTheFishArena extends AbstractChallenge {
 
     @Override
     protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        batch.render(floorModelInstance, environment);
+        if (!showPlan) { batch.render(floorModelInstance, environment); }
         for (ModelInstance wall : wallInstances) {
             batch.render(wall, environment);
         }
+
+        if (showPlan) { batch.render(debugFloorModelInstance); }
     }
 }

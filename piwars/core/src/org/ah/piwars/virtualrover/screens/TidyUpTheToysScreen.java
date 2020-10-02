@@ -46,6 +46,14 @@ public class TidyUpTheToysScreen extends AbstractCameraChallengeScreen implement
     }
 
     @Override
+    protected void setupCamera() {
+        super.setupCamera();
+
+        cinematicCameraController.setCameraHeight(600);
+        cinematicCameraController.setCameraRadius(900);
+    }
+
+    @Override
     public void dispose() {
         super.dispose();
     }

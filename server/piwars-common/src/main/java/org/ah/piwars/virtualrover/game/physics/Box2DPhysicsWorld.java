@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
+import org.ah.piwars.virtualrover.game.objects.FishTowerObject;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
@@ -30,8 +31,8 @@ import java.util.List;
 
 public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRemovedListener {
 
-    public World world;
-    protected PiWarsGame piwarsGame;
+    private World world;
+    private PiWarsGame piwarsGame;
 
     private IntMap<PhysicsObject> knownObjects = new IntMap<>();
     private Body arenaBody;
@@ -72,6 +73,10 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
         }
     }
 
+    public World getWorld() {
+        return world;
+    }
+
     public void updateObjectPositions() {
         for (PhysicsObject physicalObject : knownObjects.values()) {
             MovingGameObjectWithPositionAndOrientation gameObject = piwarsGame.getCurrentGameState().get(physicalObject.objectId);
@@ -96,6 +101,9 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
         if (knownObjects.containsKey(gameObject.getId())) {
             PhysicsObject removedPhysicsObject = knownObjects.remove(gameObject.getId());
             removedPhysicsObject.dispose();
+        }
+        if (gameObject.getId() == roverId) {
+            roverId = -1;
         }
     }
 
@@ -142,11 +150,11 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
                 Body body = physicsObject.body;
                 gameObject.setPosition(body.getPosition().x, body.getPosition().y);
                 if (gameObject instanceof Rover) {
-//                    float oldBearing = gameObject.getBearingRad();
+                    //float oldBearing = gameObject.getBearingRad();
                     gameObject.setBearingRad(body.getAngle());
-//                    if (oldBearing != gameObject.getBearingRad()) {
-//                        System.out.println(String.format("OB: %2.5f, LA: %2.5f, NB: %2.5f, BA: %2.5f, AV: %2.5f", oldBearing, physicsObject.lastAngle, gameObject.getBearingRad(), body.getAngle(), roverAngularVelocity));
-//                    }
+                    //if (oldBearing != gameObject.getBearingRad()) {
+                    //    System.out.println(String.format("OB: %2.5f, LA: %2.5f, NB: %2.5f, BA: %2.5f, AV: %2.5f", oldBearing, physicsObject.lastAngle, gameObject.getBearingRad(), body.getAngle(), roverAngularVelocity));
+                    //}
                 } else {
                     gameObject.setBearingRad(body.getAngle());
                 }
@@ -154,9 +162,9 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
                 //body.setTransform(body.getPosition().x, body.getPosition().y, gameObject.getBearingRad());
                 body.setLinearVelocity(0f, 0f);
                 body.setAngularVelocity(0f);
-                physicsObject.lastX = body.getPosition().x;
-                physicsObject.lastY = body.getPosition().y;
-                physicsObject.lastAngle = body.getAngle();
+                physicsObject.lastX = gameObject.getPosition().x;
+                physicsObject.lastY = gameObject.getPosition().y;
+                physicsObject.lastAngle = gameObject.getBearingRad();
             }
         }
 
@@ -182,6 +190,10 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
             if (gameObject instanceof Rover) {
                 density = 4f;
                 bullet = true;
+                friction = 0.7f;
+            } else if (gameObject instanceof FishTowerObject) {
+                density = 500f;
+                bullet = false;
                 friction = 0.7f;
             } else {
                 density = 0.2f;

@@ -42,7 +42,7 @@ public class EcoDisasterArena extends AbstractChallenge {
         arenaModel = assetManager.get("3d/challenges/eco-disaster-arena.obj");
         arenaModelInstance = new ModelInstance(arenaModel);
 
-        zoneModel = assetManager.get("3d/challenges/eco-disaster-zone.obj");;
+        zoneModel = assetManager.get("3d/challenges/eco-disaster-zone.obj");
         clearZoneModelInstance = new ModelInstance(zoneModel);
         contaminatedZoneModelInstance = new ModelInstance(zoneModel);
 

@@ -17,7 +17,7 @@
     <gdxWebSocketsVersion>1.9</gdxWebSocketsVersion>
   </properties>
   <dependencies>
-    <dependency>
+<!--     <dependency>
       <groupId>com.badlogicgames.gdx</groupId>
       <artifactId>gdx</artifactId>
       <version>${gdxVersion}</version>
@@ -28,7 +28,7 @@
       <version>${gdxVersion}</version>
       <classifier>sources</classifier>
     </dependency>
-    <dependency>
+ -->    <dependency>
       <groupId>com.badlogicgames.gdx</groupId>
       <artifactId>gdx-box2d</artifactId>
       <version>${gdxVersion}</version>

@@ -10,6 +10,7 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
+import org.ah.piwars.virtualrover.game.objects.FishTowerObject;
 import org.ah.piwars.virtualrover.game.objects.GolfBallObject;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -22,6 +23,7 @@ import org.ah.piwars.virtualrover.message.ServerRequestScreenshotMessage;
 import org.ah.piwars.virtualrover.view.ChatColor;
 import org.ah.piwars.virtualrover.view.Console;
 import org.ah.piwars.virtualrover.world.BarrelModelLink;
+import org.ah.piwars.virtualrover.world.FishTowerModelLink;
 import org.ah.piwars.virtualrover.world.GolfBallModelLink;
 import org.ah.piwars.virtualrover.world.PiNoonAttachmentModelLink;
 import org.ah.piwars.virtualrover.world.PlayerModelLink;
@@ -236,6 +238,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             allVisibleObjects.put(golfBallObject.getId(), golfBallModelLink);
             golfBallModelLink.make(assetManager);
             golfBallObject.setLinkBack(golfBallModelLink);
+        } else if (gameObject instanceof FishTowerObject) {
+            FishTowerObject fishTowerObject = (FishTowerObject)gameObject;
+            FishTowerModelLink fishTowerModelLink = new FishTowerModelLink(engine.getGame(), fishTowerObject.getId());
+            allVisibleObjects.put(fishTowerObject.getId(), fishTowerModelLink);
+            fishTowerModelLink.make(assetManager);
+            fishTowerObject.setLinkBack(fishTowerModelLink);
         } else if (gameObject instanceof MineSweeperStateObject) {
             mineSweeperId = gameObject.getId();
         }

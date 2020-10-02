@@ -198,7 +198,7 @@ public abstract class AbstractChallenge implements ChallengeArena {
 
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-            debugBox2dDebugRenderer.render(((Box2DPhysicalWorldSimulationChallenge)challenge).getBox2DPhysicalWorld().world, debugBox2dCamera.combined);
+            debugBox2dDebugRenderer.render(((Box2DPhysicalWorldSimulationChallenge)challenge).getBox2DPhysicalWorld().getWorld(), debugBox2dCamera.combined);
 
             debugFrameBuffer.end();
         }

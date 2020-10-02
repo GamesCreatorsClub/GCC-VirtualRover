@@ -72,6 +72,9 @@ public class MainGame extends Game {
 
         assetManager.load("3d/challenges/barrel.obj", Model.class);
         assetManager.load("3d/challenges/toy-cube.obj", Model.class);
+        assetManager.load("3d/challenges/golfball.obj", Model.class);
+        assetManager.load("3d/challenges/feed-the-fish-tower.obj", Model.class);
+        assetManager.load("3d/challenges/tidy-up-the-toys-arena.obj", Model.class);
 
         assetManager.load("3d/challenges/pi-noon-arena.obj", Model.class);
         assetManager.load("3d/challenges/eco-disaster-arena.obj", Model.class);

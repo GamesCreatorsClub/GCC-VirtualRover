@@ -52,17 +52,11 @@ public class UpTheGardenPathArena extends AbstractChallenge {
 
 
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
-//        floorMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.8f, 0.8f, 0.7f, 1f)));
-//        floorMaterial = new Material(
-//                TextureAttribute.createDiffuse(assetManager.get("3d/upthegardenpath.png", Texture.class)),
-//                new BlendingAttribute());
         floorMaterial = new Material(
                 TextureAttribute.createDiffuse(assetManager.get("3d/upthegardenpath.png", Texture.class)));
-        wallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.8f, 0.8f, 0.7f, 1f)));
+        wallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.6f, 0.6f, 0.55f, 1f)));
 
         ModelBuilder modelBuilder = new ModelBuilder();
-//        floorModel = modelBuilder.createBox(3400, 10, 1830, floorMaterial, attrs);
-//        floorModel = extrudePolygonY(modelBuilder, FLOOR_POLYGON, 10, attrs, floorMaterial);
         floorModel = modelBuilder.createRect(
                 CHALLENGE_WIDTH / 2, 0, CHALLENGE_WIDTH / 2,
                 CHALLENGE_WIDTH / 2, 0, -CHALLENGE_WIDTH / 2,

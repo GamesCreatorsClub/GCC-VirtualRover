@@ -1,13 +1,19 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.utils.IntArray;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
+import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
+import org.ah.piwars.virtualrover.game.objects.FishTowerObject;
+import org.ah.piwars.virtualrover.game.objects.GolfBallObject;
+import org.ah.piwars.virtualrover.game.physics.Box2DPhysicsWorld;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
+import org.ah.themvsus.engine.common.game.GameObjectWithPosition;
 import org.ah.themvsus.engine.common.game.GameState;
 import org.ah.themvsus.engine.common.input.PlayerInputs;
 import org.ah.themvsus.engine.common.statemachine.State;
@@ -19,9 +25,12 @@ import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFrom
 
 import static java.util.Arrays.asList;
 
-public class FeedTheFishChallenge extends CameraAbstractChallenge {
+public class FeedTheFishChallenge extends CameraAbstractChallenge implements Box2DPhysicalWorldSimulationChallenge {
 
     public static final float CHALLENGE_WIDTH = 1500;
+    public static float WALL_HEIGHT = 200;
+
+    public static final Polygon FLOOR_POLYGON = polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2, CHALLENGE_WIDTH / 2, CHALLENGE_WIDTH / 2);
 
     public static final List<Polygon> WALL_POLYGONS = asList(
             polygonFromBox(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2 - 1,  CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2),
@@ -29,17 +38,35 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge {
             polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
             polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
+    private IntArray golfBalls = new IntArray();
+    private int fishTowerId = 0;
+
     private StateMachine<FeedTheFishChallenge, ChallengeState> stateMachine = new StateMachine<FeedTheFishChallenge, ChallengeState>();
+
+    public Box2DPhysicsWorld physicsWorld;
 
     public FeedTheFishChallenge(PiWarsGame game, String name) {
         super(game, name);
         setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
+
+        physicsWorld = new Box2DPhysicsWorld(game, getCollisionPolygons());
+    }
+
+    @Override
+    public Box2DPhysicsWorld getBox2DPhysicalWorld() {
+        return physicsWorld;
+    }
+
+    @Override
+    protected boolean tryMovingRover(Rover rover, Iterable<GameObjectWithPosition> objects) {
+        return physicsWorld.tryMovingRover(rover, objects);
     }
 
     @Override
     public void process(GameState currentGameState) {
         stateMachine.update(this);
+        physicsWorld.updateWorld();
     }
 
     @Override
@@ -50,9 +77,6 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge {
     @Override
     public void afterGameObjectAdded(GameObject gameObject) {
         super.afterGameObjectAdded(gameObject);
-        if (gameObject instanceof Rover) {
-
-        }
     }
 
     @Override
@@ -64,10 +88,33 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge {
     protected void resetRover() {
         Rover player1 = getRover();
         if (player1 != null) {
-            orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI + Math.PI / 4f));
-            player1.setPosition(0, 700);
+            // orientation.setEulerAnglesRad(0f, 0f, (float)(Math.PI));
+            orientation.setEulerAnglesRad(0f, 0f, 0f);
+            player1.setPosition(-600, -500);
             player1.setOrientation(orientation);
         }
+    }
+
+    private void resetGolfBalls() {
+        while (golfBalls.size < 5) {
+            GolfBallObject golfBall = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.GolfBallObject, piwarsGame.newId());
+            piwarsGame.addNewGameObjectImmediately(golfBall);
+            golfBalls.add(golfBall.getId());
+        }
+
+        for (int i = 0; i < golfBalls.size; i++) {
+            int id = golfBalls.get(i);
+            GolfBallObject golfBall = piwarsGame.getCurrentGameState().get(id);
+            golfBall.setPosition(-500 + i * 250, -200);
+        }
+
+        if (fishTowerId <= 0) {
+            FishTowerObject fishTower = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.FishTowerObject, piwarsGame.newId());
+            piwarsGame.addNewGameObjectImmediately(fishTower);
+            fishTowerId = fishTower.getId();
+            fishTower.setPosition(0f, 500f);
+        }
+        physicsWorld.updateObjectPositions();
     }
 
     @Override
@@ -87,13 +134,13 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge {
                     game.removeGameObject(challenge.playerId);
                     challenge.playerId = 0;
                 }
-//                for (int barrelId : challenge.barrels.items) {
-//                    GameObject barrel = game.getCurrentGameState().get(barrelId);
-//                    if (barrel != null) {
-//                        game.removeGameObject(barrelId);
-//                    }
-//                }
-//                challenge.barrels.clear();
+                for (int barrelId : challenge.golfBalls.items) {
+                    game.removeGameObject(barrelId);
+                }
+                if (challenge.fishTowerId > 0) {
+                    game.removeGameObject(challenge.fishTowerId);
+                }
+                challenge.golfBalls.clear();
 
                 GameMessageObject gameMessageObject = challenge.getGameMessage();
                 gameMessageObject.setInGame(false);
@@ -119,6 +166,7 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge {
             @Override public void enter(FeedTheFishChallenge challenge) {
                 challenge.startTimer(3000);
                 challenge.resetRover();
+                challenge.resetGolfBalls();
                 setTimer(1000);
 
                 GameMessageObject gameMessageObject = challenge.getGameMessage();

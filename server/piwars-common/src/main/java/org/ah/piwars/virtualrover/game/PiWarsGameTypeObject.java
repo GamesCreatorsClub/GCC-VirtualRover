@@ -3,6 +3,7 @@ package org.ah.piwars.virtualrover.game;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
+import org.ah.piwars.virtualrover.game.objects.FishTowerObject;
 import org.ah.piwars.virtualrover.game.objects.GolfBallObject;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.rovers.CBISRover;
@@ -31,6 +32,11 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
     public static GameObjectType GolfBallObject = new GameObjectType() {
         @Override public GameObject newObject(GameObjectFactory factory) { return new GolfBallObject(factory, 0); }
         @Override public String toString() { return "GolfBallObjectType"; }
+    };
+
+    public static GameObjectType FishTowerObject = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new FishTowerObject(factory, 0); }
+        @Override public String toString() { return "FishTowerObjectType"; }
     };
 
     public static GameObjectType MineSweeperStateObject = new GameObjectType() {
@@ -69,6 +75,7 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
             BarrelObject,
             ToyCubeObject,
             GolfBallObject,
+            FishTowerObject,
             MineSweeperStateObject,
             PiNoonAttachment,
             CameraAttachment,

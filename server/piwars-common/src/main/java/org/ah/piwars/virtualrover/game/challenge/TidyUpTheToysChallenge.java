@@ -39,15 +39,13 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
             polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
     private IntArray cubes = new IntArray();
-    private ToyCubeObject redCube;
-    private ToyCubeObject greenCube;
-    private ToyCubeObject blueCube;
+    private int redCubeId;
+    private int greenCubeId;
+    private int blueCubeId;
 
     private StateMachine<TidyUpTheToysChallenge, ChallengeState> stateMachine = new StateMachine<TidyUpTheToysChallenge, ChallengeState>();
 
     public Box2DPhysicsWorld physicsWorld;
-
-    // private ToyCubeObject[] kubeObjects = new ToyCubeObject[0];
 
     public TidyUpTheToysChallenge(PiWarsGame game, String name) {
         super(game, name);
@@ -81,9 +79,6 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
     @Override
     public void afterGameObjectAdded(GameObject gameObject) {
         super.afterGameObjectAdded(gameObject);
-        if (gameObject instanceof Rover) {
-
-        }
     }
 
     @Override
@@ -101,25 +96,31 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
         }
     }
 
+    private ToyCubeObject fetchObjectFromId(int id, ToyCubeColour color) {
+        ToyCubeObject toyCube = null;
+        if (id != 0) {
+            toyCube = piwarsGame.getCurrentGameState().get(id);
+        }
+        if (toyCube == null) {
+            toyCube = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.ToyCubeObject, piwarsGame.newId());
+            toyCube.setColour(color);
+            cubes.add(toyCube.getId());
+            piwarsGame.addNewGameObjectImmediately(toyCube);
+        } else {
+            toyCube.setColour(color);
+        }
+        return toyCube;
+    }
+
     private void resetKubes() {
-        if (redCube == null) {
-            redCube = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.ToyCubeObject, piwarsGame.newId());
-            redCube.setColour(ToyCubeColour.RED);
-            cubes.add(redCube.getId());
-            piwarsGame.addNewGameObjectImmediately(redCube);
-        }
-        if (greenCube == null) {
-            greenCube = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.ToyCubeObject, piwarsGame.newId());
-            greenCube.setColour(ToyCubeColour.GREEN);
-            cubes.add(greenCube.getId());
-            piwarsGame.addNewGameObjectImmediately(greenCube);
-        }
-        if (blueCube == null) {
-            blueCube = piwarsGame.getGameObjectFactory().newGameObjectWithId(PiWarsGameTypeObject.ToyCubeObject, piwarsGame.newId());
-            blueCube.setColour(ToyCubeColour.BLUE);
-            cubes.add(blueCube.getId());
-            piwarsGame.addNewGameObjectImmediately(blueCube);
-        }
+        ToyCubeObject redCube = fetchObjectFromId(redCubeId, ToyCubeColour.RED);
+        redCubeId = redCube.getId();
+
+        ToyCubeObject greenCube = fetchObjectFromId(greenCubeId, ToyCubeColour.GREEN);
+        greenCubeId = greenCube.getId();
+
+        ToyCubeObject blueCube = fetchObjectFromId(blueCubeId, ToyCubeColour.BLUE);
+        blueCubeId = blueCube.getId();
 
         redCube.setPosition(0,  350);
         greenCube.setPosition(-400,  350);
@@ -145,13 +146,13 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
                     game.removeGameObject(challenge.playerId);
                     challenge.playerId = 0;
                 }
-                for (int barrelId : challenge.cubes.items) {
-                    GameObject barrel = game.getCurrentGameState().get(barrelId);
-                    if (barrel != null) {
-                        game.removeGameObject(barrelId);
+                for (int objectId : challenge.cubes.items) {
+                    GameObject gameObject = game.getCurrentGameState().get(objectId);
+                    if (gameObject != null) {
+                        game.removeGameObject(objectId);
                     }
                 }
-                // challenge.barrels.clear();
+                 challenge.cubes.clear();
 
                 GameMessageObject gameMessageObject = challenge.getGameMessage();
                 gameMessageObject.setInGame(false);
@@ -176,6 +177,7 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
 
             @Override public void enter(TidyUpTheToysChallenge challenge) {
                 challenge.startTimer(3000);
+                //challenge.startTimer(100);
                 challenge.resetRover();
                 challenge.resetKubes();
                 setTimer(1000);
