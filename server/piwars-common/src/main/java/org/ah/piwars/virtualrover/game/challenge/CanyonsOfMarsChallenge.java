@@ -151,7 +151,7 @@ public class CanyonsOfMarsChallenge extends CameraAbstractChallenge {
                     challenge.getGameMessage().setMessage("Wrong way!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 } else if (polygonsOverlap(END_POLYGON, rover.getCollisionPolygons())) {
-                    challenge.getGameMessage().setMessage("You have finished course! Well done!", false);
+                    challenge.getGameMessage().setMessage("You have finished the course! Well done!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 } else if (gameMessageObject.getTimer() <= 0) {
                     challenge.stopTimer();

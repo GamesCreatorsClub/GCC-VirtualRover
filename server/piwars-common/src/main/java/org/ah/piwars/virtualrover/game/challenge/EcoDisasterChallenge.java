@@ -2,12 +2,12 @@ package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.IntArray;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
-import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject;
 import org.ah.piwars.virtualrover.game.objects.BarrelObject.BarrelColour;
 import org.ah.piwars.virtualrover.game.physics.Box2DPhysicsWorld;
@@ -38,7 +38,7 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
             polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
             polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
-    private int numberOfBarrels = 12;
+    private int numberOfBarrels = 2;
     private IntArray barrels = new IntArray();
 
     private Random random = new Random();
@@ -47,7 +47,8 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
 
     private Box2DPhysicsWorld physicsWorld;
 
-    private BarrelObject[] barrelObjects = new BarrelObject[0];
+    private Rectangle greenArea;
+    private Rectangle redArea;
 
     public EcoDisasterChallenge(PiWarsGame game, String name) {
         super(game, name);
@@ -55,6 +56,9 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
 
         physicsWorld = new Box2DPhysicsWorld(game, getCollisionPolygons());
+
+        greenArea = new Rectangle( -700, CHALLENGE_WIDTH / 2 - 210, 600, 210);
+        redArea = new Rectangle( 100, CHALLENGE_WIDTH / 2 - 210, 600, 210);
     }
 
     @Override
@@ -126,9 +130,6 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
             barrels.add(barrel.getId());
             odd = !odd;
         }
-        if (barrelObjects.length != barrels.size) {
-            barrelObjects = new BarrelObject[barrels.size];
-        }
         physicsWorld.updateObjectPositions();
     }
 
@@ -150,6 +151,22 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
         boolean doMove = stateMachine.getCurrentState().shouldMoveRovers();
 
         return doMove;
+    }
+    private boolean isComplete() {
+        for (int i = 0; i < barrels.size; i++) {
+            int barrelId = barrels.get(i);
+
+            BarrelObject barrelObject = piwarsGame.getCurrentGameState().get(barrelId);
+
+            if (barrelObject.getColour() == BarrelColour.GREEN
+                    && !greenArea.contains(barrelObject.getPosition().x, barrelObject.getPosition().y)) {
+                return false;
+            } else if (barrelObject.getColour() == BarrelColour.RED
+                    && !redArea.contains(barrelObject.getPosition().x, barrelObject.getPosition().y)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private enum ChallengeState implements State<EcoDisasterChallenge> {
@@ -213,8 +230,6 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
                     challenge.setMessage(null, false);
                 }
 
-                CameraAttachment player1Attachment = challenge.getCameraAttachment();
-
                 GameMessageObject gameMessageObject = challenge.getGameMessage();
                 if (gameMessageObject.getTimer() <= 0) {
                     challenge.stopTimer();
@@ -222,7 +237,10 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
 
-                if (player1Attachment != null) {
+                if (challenge.isComplete()) {
+                    challenge.stopTimer();
+                    challenge.getGameMessage().setMessage("You have sorted waste! Well done!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
             }
         },

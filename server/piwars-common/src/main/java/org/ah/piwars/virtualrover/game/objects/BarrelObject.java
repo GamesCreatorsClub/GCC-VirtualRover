@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.PiWarsCollidableObject;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
+import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
 import org.ah.themvsus.engine.common.game.MovingGameObjectWithPositionAndOrientation;
@@ -83,5 +84,13 @@ public class BarrelObject extends MovingGameObjectWithPositionAndOrientation imp
     public List<Shape2D> getCollisionPolygons() {
         getCirle(); // update circle
         return collisionPolygons;
+    }
+
+    @Override
+    protected GameObject copyInt(GameObject newObject) {
+        super.copyInt(newObject);
+        BarrelObject newMovingObject = (BarrelObject)newObject;
+        newMovingObject.barrelColour = barrelColour;
+        return newObject;
     }
 }

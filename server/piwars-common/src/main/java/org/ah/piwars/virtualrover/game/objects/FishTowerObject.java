@@ -20,8 +20,11 @@ public class FishTowerObject extends MovingGameObjectWithPositionAndOrientation 
 
     private List<Shape2D> collisionPolygons = new ArrayList<Shape2D>();
 
+    private Polygon completeBase;
+
     public FishTowerObject(GameObjectFactory factory, int id) {
         super(factory, id);
+        completeBase = new Polygon(makeFullPolygonVertices());
         collisionPolygons.add(new Polygon(makeLeftPolygonVertices()));
         collisionPolygons.add(new Polygon(makeRightPolygonVertices()));
         collisionPolygons.add(new Polygon(makeBackPolygonVertices()));
@@ -45,9 +48,27 @@ public class FishTowerObject extends MovingGameObjectWithPositionAndOrientation 
         return super.size(full);
     }
 
+    public Polygon getCompleteBasePolygon() {
+        completeBase.setPosition(position.x, position.y);
+        completeBase.setRotation(getBearing());
+        return completeBase;
+    }
+
     @Override
     public List<Shape2D> getCollisionPolygons() {
+        for (Shape2D shape : collisionPolygons) {
+            Polygon poligon = (Polygon)shape;
+            poligon.setPosition(position.x, position.y);
+            poligon.setRotation(getBearing());
+        }
         return collisionPolygons;
+    }
+
+
+    private float[] makeFullPolygonVertices() {
+        float half = TOWER_WIDTH / 2.0f;
+        return new float[] { -half, half, half, half,
+                            half, -half, -half, -half};
     }
 
     private float[] makeLeftPolygonVertices() {

@@ -1,12 +1,12 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.IntArray;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
-import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.objects.FishTowerObject;
 import org.ah.piwars.virtualrover.game.objects.GolfBallObject;
 import org.ah.piwars.virtualrover.game.physics.Box2DPhysicsWorld;
@@ -21,6 +21,8 @@ import org.ah.themvsus.engine.common.statemachine.StateMachine;
 
 import java.util.List;
 
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.distance2;
+import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.overlaps;
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
 
 import static java.util.Arrays.asList;
@@ -124,6 +126,34 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge implements Box
         return doMove;
     }
 
+    private boolean isComplete() {
+        if (fishTowerId > 0) {
+            FishTowerObject fishTower = piwarsGame.getCurrentGameState().get(fishTowerId);
+            if (fishTower != null) {
+                float ftx = fishTower.getPosition().x;
+                float fty = fishTower.getPosition().y;
+                float diag2 = 2 * (FishTowerObject.TOWER_WIDTH / 2f) * (FishTowerObject.TOWER_WIDTH / 2f);
+                float side2 = FishTowerObject.TOWER_WIDTH / 2f * FishTowerObject.TOWER_WIDTH / 2f;
+                Polygon completeBasePolygon = fishTower.getCompleteBasePolygon();
+                for (int i = 0; i < golfBalls.size; i++) {
+                    int id = golfBalls.get(i);
+                    GolfBallObject golfBall = piwarsGame.getCurrentGameState().get(id);
+
+                    Circle circle = (Circle)golfBall.getCollisionPolygons().get(0);
+
+                    float dist2 = distance2(ftx, fty, circle.x, circle.y);
+
+                    if (dist2 > diag2 || (dist2 > side2 && !overlaps(completeBasePolygon, circle))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private enum ChallengeState implements State<FeedTheFishChallenge> {
 
         WAITING_START() {
@@ -185,8 +215,6 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge implements Box
                     challenge.setMessage(null, false);
                 }
 
-                CameraAttachment player1Attachment = challenge.getCameraAttachment();
-
                 GameMessageObject gameMessageObject = challenge.getGameMessage();
                 if (gameMessageObject.getTimer() <= 0) {
                     challenge.stopTimer();
@@ -194,7 +222,10 @@ public class FeedTheFishChallenge extends CameraAbstractChallenge implements Box
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
 
-                if (player1Attachment != null) {
+                if (challenge.isComplete()) {
+                    challenge.stopTimer();
+                    challenge.getGameMessage().setMessage("You have fed all the fish! Well done!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
             }
         },

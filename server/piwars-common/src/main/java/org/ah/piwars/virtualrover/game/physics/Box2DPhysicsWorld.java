@@ -114,6 +114,7 @@ public class Box2DPhysicsWorld implements GameObjectAddedListener, GameObjectRem
             Vector3 roverPosition = rover.getPosition();
 
             float factor = 1000000f / piwarsGame.getGameTickMicros();
+            factor = factor * 3f;
 
             roverLinearVelocity.set((roverPosition.x - physicsObject.lastX) * factor, (roverPosition.y - physicsObject.lastY) * factor);
             roverAngularVelocity = rover.getBearingRad() - physicsObject.lastAngle;
