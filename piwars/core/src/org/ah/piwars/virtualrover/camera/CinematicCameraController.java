@@ -22,6 +22,7 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
     private float cameraRadius = 1500f;
 
     private ServerCommunicationAdapter serverCommunicationAdapter;
+    private boolean flipXPosition;
 
     public CinematicCameraController(PerspectiveCamera camera, ServerCommunicationAdapter serverCommunicationAdapter) {
         this.camera = camera;
@@ -42,6 +43,14 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
 
     public void setCameraRadius(float cameraRadius) {
         this.cameraRadius = cameraRadius;
+    }
+
+    public boolean isFlipXPosition() {
+        return flipXPosition;
+    }
+
+    public void setFlipXPosition(boolean flipXPosition) {
+        this.flipXPosition = flipXPosition;
     }
 
     @Override
@@ -71,7 +80,7 @@ public class CinematicCameraController extends InputAdapter implements ActiveCam
             } else {
                 midpoint.set(0f, 0f, 0f);
             }
-            pos2.set(cameraRadius * SCALE, cameraHeight * SCALE, cameraRadius * SCALE);
+            pos2.set(cameraRadius * SCALE, cameraHeight * SCALE, (flipXPosition ? -1f : 1f) * cameraRadius * SCALE);
         }
         camera.lookAt(midpoint);
         camera.position.set(pos2);

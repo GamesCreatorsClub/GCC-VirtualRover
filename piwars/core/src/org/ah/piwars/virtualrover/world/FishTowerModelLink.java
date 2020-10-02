@@ -22,7 +22,7 @@ import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
 public class FishTowerModelLink implements VisibleObject {
 
-    public final Color FISH_TOWER_COLOUR = Color.PURPLE;
+    public final Color FISH_TOWER_COLOUR = new Color(.8f, 0f, 0f, 1f);
 
     public int id;
     public PiWarsGame game;

@@ -100,6 +100,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected InputMultiplexer cameraInputMultiplexer;
     protected CinematicCameraController cinematicCameraController;
 
+    protected DirectionalLight directionalLight;
+
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
@@ -119,9 +121,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
-        DirectionalLight light = new DirectionalLight();
-        light.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
-        environment.add(light);
+        directionalLight = new DirectionalLight();
+        directionalLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        environment.add(directionalLight);
 
         hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         hudCamera.setToOrtho(true);

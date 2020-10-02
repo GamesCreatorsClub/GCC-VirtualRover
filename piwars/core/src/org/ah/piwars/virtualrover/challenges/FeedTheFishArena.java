@@ -71,6 +71,8 @@ public class FeedTheFishArena extends AbstractChallenge {
         }
 
         prepareDebugAssets();
+
+        shadowLight.direction.set(0.5f, -1f, -0.5f);
     }
 
     @Override protected boolean debugBox2D() { return true; }

@@ -54,19 +54,19 @@ public abstract class AbstractChallenge implements ChallengeArena {
     public boolean showShadows = true;
     public boolean showPlan = false;
 
-    private ModelBatch modelBatch;
-    private ModelBatch shadowBatch;
+    protected ModelBatch modelBatch;
+    protected ModelBatch shadowBatch;
 
-    private Environment shadowEnvironment;
+    protected Environment shadowEnvironment;
 
-    private DirectionalShadowLight shadowLight;
+    protected DirectionalShadowLight shadowLight;
 
     protected AssetManager assetManager;
 
     private IntMap<VisibleObject> defaultVisibleObjets = new IntMap<VisibleObject>();
 
-    private float width = 2200;
-    private float length = 2200;
+    protected float width = 2200;
+    protected float length = 2200;
 
     // public int shadowTextureSize = 8192;
     // public int shadowTextureSize = 2048;

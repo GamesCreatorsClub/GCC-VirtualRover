@@ -49,8 +49,11 @@ public class FeedTheFishScreen extends AbstractCameraChallengeScreen implements 
     protected void setupCamera() {
         super.setupCamera();
 
+        directionalLight.direction.set(0.5f, -1f, -0.5f);
+
         cinematicCameraController.setCameraHeight(600);
         cinematicCameraController.setCameraRadius(-900);
+        cinematicCameraController.setFlipXPosition(true);
     }
 
     @Override
