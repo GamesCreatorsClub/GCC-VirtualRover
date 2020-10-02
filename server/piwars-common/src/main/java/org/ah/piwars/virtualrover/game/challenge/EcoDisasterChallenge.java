@@ -152,6 +152,7 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
 
         return doMove;
     }
+
     private boolean isComplete() {
         for (int i = 0; i < barrels.size; i++) {
             int barrelId = barrels.get(i);

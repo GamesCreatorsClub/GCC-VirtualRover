@@ -205,6 +205,9 @@ public abstract class AbstractChallenge implements ChallengeArena {
 
         if (showPlan && debugVisibleObjects()) {
             debugFrameBuffer.begin();
+            Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
             debugShapeRenderer.begin();
 
             for (VisibleObject visibleObject : visibleObjects.values()) {

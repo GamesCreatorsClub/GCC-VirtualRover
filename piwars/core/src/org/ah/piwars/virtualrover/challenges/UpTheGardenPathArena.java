@@ -14,15 +14,21 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
+import org.ah.piwars.virtualrover.game.challenge.UpTheGardenPathChallenge;
+import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.piwars.virtualrover.world.PlayerModelLink;
+
+import static com.badlogic.gdx.math.MathUtils.PI;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.CHALLENGE_WIDTH;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.WALL_HEIGHT;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.WALL_POLYGONS;
+import static org.ah.piwars.virtualrover.game.challenge.UpTheGardenPathChallenge.CHALLENGE_WIDTH;
+import static org.ah.piwars.virtualrover.game.challenge.UpTheGardenPathChallenge.WALL_HEIGHT;
+import static org.ah.piwars.virtualrover.game.challenge.UpTheGardenPathChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class UpTheGardenPathArena extends AbstractChallenge {
@@ -50,10 +56,8 @@ public class UpTheGardenPathArena extends AbstractChallenge {
     public void init() {
         setDimensions(CHALLENGE_WIDTH, CHALLENGE_WIDTH);
 
-
         int attrs = Usage.Position | Usage.ColorUnpacked  | Usage.TextureCoordinates | Usage.Normal;
-        floorMaterial = new Material(
-                TextureAttribute.createDiffuse(assetManager.get("3d/upthegardenpath.png", Texture.class)));
+        floorMaterial = new Material(TextureAttribute.createDiffuse(assetManager.get("3d/upthegardenpath.png", Texture.class)));
         wallMaterial = new Material(ColorAttribute.createDiffuse(new Color(0.6f, 0.6f, 0.55f, 1f)));
 
         ModelBuilder modelBuilder = new ModelBuilder();
@@ -66,6 +70,7 @@ public class UpTheGardenPathArena extends AbstractChallenge {
 
         floorModelInstance = new ModelInstance(floorModel);
         floorModelInstance.transform.setToTranslationAndScaling(0, -59f * SCALE, 0, SCALE, SCALE, SCALE);
+        floorModelInstance.transform.rotateRad(0f, 1f, 0f, -PI / 2f);
 
         for (Polygon wallPolygon : WALL_POLYGONS) {
             Model wallModel = extrudePolygonY(modelBuilder, wallPolygon, WALL_HEIGHT, attrs, wallMaterial);
@@ -74,7 +79,14 @@ public class UpTheGardenPathArena extends AbstractChallenge {
             wallModels.add(wallModel);
             wallInstances.add(wallInstance);
         }
+
+        prepareDebugAssets();
     }
+
+    @Override protected boolean debugVisibleObjects() { return true; }
+    @Override protected int getChallengeWidth() { return (int)CHALLENGE_WIDTH; }
+    @Override protected int getChallengeHeight() { return (int)CHALLENGE_WIDTH; }
+    @Override protected float getFloorHeight() { return -55f; }
 
     @Override
     public void dispose() {
@@ -95,6 +107,42 @@ public class UpTheGardenPathArena extends AbstractChallenge {
         newMap.putAll(localVisibleObjects);
 
         super.render(batch, environment, frameBuffer, newMap);
+
+        if (showPlan) {
+            batch.render(debugFloorModelInstance);
+
+            debugFrameBuffer.begin();
+            debugShapeRenderer.begin();
+
+            for (VisibleObject visibleObject : visibleObjects.values()) {
+                if (visibleObject instanceof PlayerModelLink) {
+                    PlayerModelLink playerModel = (PlayerModelLink) visibleObject;
+
+                    Rover rover = playerModel.getGameObject();
+
+                    Color colour = playerModel.getColour();
+                    if (colour.equals(Color.WHITE)) {
+                        colour = Color.BLACK;
+                    }
+                    debugShapeRenderer.setColor(colour);
+
+                    for (Shape2D shape : rover.getCollisionPolygons()) {
+                        if (shape instanceof Polygon) {
+                            debugShapeRenderer.polygon(((Polygon) shape).getTransformedVertices());
+                        }
+                    }
+                }
+            }
+
+            debugShapeRenderer.setColor(Color.PINK);
+            float[] vertices = ((UpTheGardenPathChallenge)challenge).getPathLine().getTransformedVertices();
+            for (int i = 0; i < vertices.length - 2; i = i + 2) {
+                debugShapeRenderer.line(vertices[i], vertices[i + 1], vertices[i + 2], vertices[i + 3]);
+            }
+
+            debugShapeRenderer.end();
+            debugFrameBuffer.end();
+        }
     }
 
     @Override
@@ -103,5 +151,8 @@ public class UpTheGardenPathArena extends AbstractChallenge {
         for (ModelInstance wall : wallInstances) {
             batch.render(wall, environment);
         }
+
+        if (showPlan) { batch.render(debugFloorModelInstance); }
+
     }
 }

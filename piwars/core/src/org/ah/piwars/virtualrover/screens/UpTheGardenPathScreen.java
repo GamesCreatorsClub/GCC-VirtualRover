@@ -46,6 +46,17 @@ public class UpTheGardenPathScreen extends AbstractCameraChallengeScreen impleme
     }
 
     @Override
+    protected void setupCamera() {
+        super.setupCamera();
+
+        directionalLight.direction.set(0.5f, -1f, -0.5f);
+
+        cinematicCameraController.setCameraHeight(800);
+        cinematicCameraController.setCameraRadius(-800);
+        cinematicCameraController.setFlipXPosition(true);
+    }
+
+    @Override
     public void dispose() {
         super.dispose();
     }

@@ -1,12 +1,12 @@
 package org.ah.piwars.virtualrover.game.challenge;
 
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.IntArray;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.game.PiWarsGameTypeObject;
-import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.objects.ToyCubeObject.ToyCubeColour;
 import org.ah.piwars.virtualrover.game.physics.Box2DPhysicsWorld;
@@ -47,12 +47,16 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
 
     public Box2DPhysicsWorld physicsWorld;
 
+    private Rectangle tidyUpArea;
+
     public TidyUpTheToysChallenge(PiWarsGame game, String name) {
         super(game, name);
         setWallPolygons(WALL_POLYGONS);
         stateMachine.setCurrentState(ChallengeState.WAITING_START);
 
         physicsWorld = new Box2DPhysicsWorld(game, getCollisionPolygons());
+
+        tidyUpArea = new Rectangle(-750, -300, 150, 350);
     }
 
     @Override
@@ -136,6 +140,37 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
         return doMove;
     }
 
+    private boolean isComplete() {
+
+        if (redCubeId <= 0 || greenCubeId <= 0 || blueCubeId <= 0) {
+            return false;
+        }
+
+        ToyCubeObject redObject = piwarsGame.getCurrentGameState().get(redCubeId);
+        ToyCubeObject greenObject = piwarsGame.getCurrentGameState().get(greenCubeId);
+        ToyCubeObject blueObject = piwarsGame.getCurrentGameState().get(blueCubeId);
+
+        if (redObject == null || greenObject == null || blueObject == null) {
+            return false;
+        }
+
+        if (!tidyUpArea.contains(redObject.getPosition().x, redObject.getPosition().y)
+                || !tidyUpArea.contains(greenObject.getPosition().x, greenObject.getPosition().y)
+                || !tidyUpArea.contains(blueObject.getPosition().x, blueObject.getPosition().y)) {
+            return false;
+        }
+
+        if (blueObject.getPosition().y < greenObject.getPosition().y) {
+            return false;
+        }
+
+        if (greenObject.getPosition().y < redObject.getPosition().y) {
+            return false;
+        }
+
+        return true;
+    }
+
     private enum ChallengeState implements State<TidyUpTheToysChallenge> {
 
         WAITING_START() {
@@ -198,8 +233,6 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
                     challenge.setMessage(null, false);
                 }
 
-                CameraAttachment player1Attachment = challenge.getCameraAttachment();
-
                 GameMessageObject gameMessageObject = challenge.getGameMessage();
                 if (gameMessageObject.getTimer() <= 0) {
                     challenge.stopTimer();
@@ -207,7 +240,10 @@ public class TidyUpTheToysChallenge extends CameraAbstractChallenge implements B
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
 
-                if (player1Attachment != null) {
+                if (challenge.isComplete()) {
+                    challenge.stopTimer();
+                    challenge.getGameMessage().setMessage("You have tidied the toys! Well done!", false);
+                    challenge.stateMachine.toState(ChallengeState.END, challenge);
                 }
             }
         },

@@ -60,7 +60,7 @@ public class TidyUpTheToysArena extends AbstractChallenge {
     @Override protected boolean debugBox2D() { return true; }
     @Override protected int getChallengeWidth() { return (int)CHALLENGE_WIDTH; }
     @Override protected int getChallengeHeight() { return (int)CHALLENGE_WIDTH; }
-    @Override protected float getFloorHeight() { return -59f; }
+    @Override protected float getFloorHeight() { return -55f; }
 
     @Override
     public void dispose() {

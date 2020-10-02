@@ -15,6 +15,12 @@ import static com.badlogic.gdx.math.Intersector.intersectSegmentRectangle;
 
 public class CollisionUtils {
 
+    private CollisionUtils() { }
+
+    public static float distance2(float x1, float y1, float x2, float y2) {
+        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    }
+
     public static Polygon polygonFromBox(float minX, float minY, float maxX, float maxY) {
         Polygon polygon = new Polygon(new float[] {
                 minX, minY,
@@ -199,16 +205,19 @@ public class CollisionUtils {
         }
         return false;
     }
-
     public static boolean overlaps(Polygon polygon1, Polygon polygon2) {
+        return overlaps(polygon1, polygon2, false);
+    }
+
+    public static boolean overlaps(Polygon polygon1, Polygon polygon2, boolean polyline) {
         float[] vertices1 = polygon1.getTransformedVertices();
         int l = vertices1.length;
-        for (int i = 0; i < l - 1; i = i + 2) {
-            if (intersectSegmentPolygon(vertices1[i], vertices1[i + 1], vertices1[i + 2], vertices1[i + 2], polygon2)) {
+        for (int i = 0; i < l - 2; i = i + 2) {
+            if (intersectSegmentPolygon(vertices1[i], vertices1[i + 1], vertices1[i + 2], vertices1[i + 3], polygon2)) {
                 return true;
             }
         }
-        if (intersectSegmentPolygon(vertices1[l - 2], vertices1[l - 1], vertices1[0], vertices1[1], polygon2)) {
+        if (!polyline && intersectSegmentPolygon(vertices1[l - 2], vertices1[l - 1], vertices1[0], vertices1[1], polygon2)) {
             return true;
         }
         return false;
