@@ -3,10 +3,8 @@ package org.ah.piwars.virtualrover.challenges;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
@@ -17,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.StraightLineSpeedTestChallenge.CHICANES_POLYGONS;
@@ -102,15 +101,15 @@ public class StraightLineSpeedTestArena extends AbstractChallenge {
     }
 
     @Override
-    protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        batch.render(floorModelInstance, environment);
+    protected void renderChallenge(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        renderingContext.modelBatch.render(floorModelInstance, renderingContext.environment);
         for (ModelInstance wall : wallInstances) {
-            batch.render(wall, environment);
+            renderingContext.modelBatch.render(wall, renderingContext.environment);
         }
         for (ModelInstance chicane : chicaneInstances) {
-            batch.render(chicane, environment);
+            renderingContext.modelBatch.render(chicane, renderingContext.environment);
         }
-        batch.render(line, environment);
+        renderingContext.modelBatch.render(line, renderingContext.environment);
     }
 
     public static class ChicaneBShapeuilder extends BoxShapeBuilder {

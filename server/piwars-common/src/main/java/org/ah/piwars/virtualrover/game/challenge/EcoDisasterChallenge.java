@@ -38,7 +38,7 @@ public class EcoDisasterChallenge extends CameraAbstractChallenge implements Box
             polygonFromBox(-CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1),
             polygonFromBox( CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2 + 1,  CHALLENGE_WIDTH / 2));
 
-    private int numberOfBarrels = 2;
+    private int numberOfBarrels = 12;
     private IntArray barrels = new IntArray();
 
     private Random random = new Random();

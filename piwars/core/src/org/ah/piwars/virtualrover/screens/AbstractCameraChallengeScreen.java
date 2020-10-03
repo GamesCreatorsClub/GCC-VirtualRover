@@ -3,6 +3,7 @@ package org.ah.piwars.virtualrover.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import org.ah.piwars.virtualrover.MainGame;
 import org.ah.piwars.virtualrover.PlatformSpecific;
 import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
+import org.ah.piwars.virtualrover.backgrounds.PerlinNoiseBackground;
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -23,7 +25,7 @@ import org.ah.piwars.virtualrover.view.Console;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
-public abstract class AbstractCameraChallengeScreen extends AbstractStandardScreen  {
+public abstract class AbstractCameraChallengeScreen extends AbstractStandardScreen implements ChallengeScreen {
 
     protected enum CameraType {
         NONE, FIRST_PERSON, THIRD_PERSON
@@ -34,6 +36,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         FIRST_PERSON_ONLY(CameraType.FIRST_PERSON, CameraType.NONE, true),
         FIRST_PERSON_AND_THIRD_PERSON(CameraType.FIRST_PERSON, CameraType.THIRD_PERSON, true),
         THIRD_PERSION_ONLY(CameraType.THIRD_PERSON, CameraType.NONE, true),
+        THIRD_PERSION_ONLY_NON_CYCLABLE(CameraType.THIRD_PERSON, CameraType.NONE, false),
         SIMULATION(CameraType.THIRD_PERSON, CameraType.FIRST_PERSON, false);
 
         private CameraType main;
@@ -72,6 +75,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
     protected long gameStartedTimestamp = 0;
     protected boolean firstTimeout = false;
     protected boolean inGame;
+    protected boolean smallCameraEnabled = true;
 
     protected AbstractCameraChallengeScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -96,6 +100,8 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
 
         thirdPersonCameraFrameBuffer = new FrameBuffer(Format.RGBA8888, 320, 256, true);
         thirdPersonCameraTexture = thirdPersonCameraFrameBuffer.getColorBufferTexture();
+
+        setBackground(new PerlinNoiseBackground());
     }
 
     @Override
@@ -145,14 +151,16 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
         if (renderBackground) {
-            background.render(camera, batch, environment);
+            background.render(camera, modelBatch, environment);
         }
 
-        batch.begin(camera);
+        modelBatch.begin(camera);
 
-        challenge.render(batch, environment, thirdPersonCameraFrameBuffer, serverCommunicationAdapter.getVisibleObjects());
+        renderingContext.frameBuffer = thirdPersonCameraFrameBuffer;
 
-        batch.end();
+        renderChallenge(renderingContext);
+
+        modelBatch.end();
 
         if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
             snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
@@ -168,14 +176,16 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
         if (renderBackground) {
-            background.render(attachedCamera, batch, environment);
+            background.render(attachedCamera, modelBatch, environment);
         }
 
-        batch.begin(attachedCamera);
+        modelBatch.begin(attachedCamera);
 
-        challenge.render(batch, environment, attachedCameraFrameBuffer, serverCommunicationAdapter.getVisibleObjects());
+        renderingContext.frameBuffer = attachedCameraFrameBuffer;
 
-        batch.end();
+        renderChallenge(renderingContext);
+
+        modelBatch.end();
 
         if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
             snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
@@ -257,16 +267,19 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         }
 
         if (renderBackground) {
-            background.render(mainCamera, batch, environment);
+            background.render(mainCamera, modelBatch, environment);
         }
 
-        batch.begin(mainCamera);
+        modelBatch.begin(mainCamera);
 
-        challenge.render(batch, environment, null, serverCommunicationAdapter.getVisibleObjects());
+        renderingContext.frameBuffer = null;
 
-        batch.end();
+        renderChallenge(renderingContext);
+
+        modelBatch.end();
 
         spriteBatch.begin();
+        drawScore();
 
         if (drawFPS) {
             drawFPS();
@@ -287,6 +300,52 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
 
         if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
             serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
+        }
+    }
+
+    private void drawScore() {
+        // TODO sort out score
+        //        if (serverCommunicationAdapter.hasPlayerOne() && serverCommunicationAdapter.hasPlayerTwo()) {
+        //            font.draw(spriteBatch, serverCommunicationAdapter.getPlayerOne().getScore() + " - " + serverCommunicationAdapter.getPlayerTwo().getScore(), Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 40);
+        //        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void renderChallenge(RenderingContext renderingContext) {
+        if (renderingContext.showShadows) {
+            Camera cam = renderingContext.modelBatch.getCamera();
+            renderingContext.modelBatch.end();
+            if (renderingContext.frameBuffer != null) { renderingContext.frameBuffer.end(); }
+
+            shadowLight.begin(Vector3.Zero, cam.direction);
+            shadowBatch.begin(shadowLight.getCamera());
+
+            renderingContext.modelBatch = shadowBatch;
+            renderingContext.environment = environment;
+            challenge.render(renderingContext, serverCommunicationAdapter.getVisibleObjects());
+
+            shadowBatch.end();
+            shadowLight.end();
+
+            if (renderingContext.frameBuffer != null) {
+                renderingContext.frameBuffer.begin();
+                Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
+//                Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
+//                Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
+//                Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
+            }
+            modelBatch.begin(cam);
+
+            renderingContext.modelBatch = modelBatch;
+            renderingContext.environment = shadowEnvironment;
+            challenge.render(renderingContext, serverCommunicationAdapter.getVisibleObjects());
+
+            renderingContext.modelBatch.end();
+            renderingContext.modelBatch.begin(cam);
+        } else {
+            renderingContext.modelBatch = modelBatch;
+            renderingContext.environment = environment;
+            challenge.render(renderingContext, serverCommunicationAdapter.getVisibleObjects());
         }
     }
 
@@ -318,15 +377,11 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
                 }
             }
         }
+
+        if (keycode == Input.Keys.TAB) {
+            camera.fieldOfView = 4f;
+        }
+
         return res;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return super.keyUp(keycode);
-    }
-
-    @Override public boolean keyTyped(char character) {
-        return super.keyTyped(character);
     }
 }

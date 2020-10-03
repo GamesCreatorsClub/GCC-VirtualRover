@@ -3,25 +3,23 @@ package org.ah.piwars.virtualrover.challenges;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.FeedTheFishChallenge.CHALLENGE_WIDTH;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.FLOOR_POLYGON;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.WALL_HEIGHT;
-import static org.ah.piwars.virtualrover.game.challenge.TidyUpTheToysChallenge.WALL_POLYGONS;
+import static org.ah.piwars.virtualrover.game.challenge.FeedTheFishChallenge.FLOOR_POLYGON;
+import static org.ah.piwars.virtualrover.game.challenge.FeedTheFishChallenge.WALL_HEIGHT;
+import static org.ah.piwars.virtualrover.game.challenge.FeedTheFishChallenge.WALL_POLYGONS;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.extrudePolygonY;
 
 public class FeedTheFishArena extends AbstractChallenge {
@@ -71,8 +69,6 @@ public class FeedTheFishArena extends AbstractChallenge {
         }
 
         prepareDebugAssets();
-
-        shadowLight.direction.set(0.5f, -1f, -0.5f);
     }
 
     @Override protected boolean debugBox2D() { return true; }
@@ -92,22 +88,22 @@ public class FeedTheFishArena extends AbstractChallenge {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
+    public void render(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
 
         IntMap<VisibleObject> newMap = new IntMap<VisibleObject>();
         newMap.putAll(visibleObjects);
         newMap.putAll(localVisibleObjects);
 
-        super.render(batch, environment, frameBuffer, newMap);
+        super.render(renderingContext, newMap);
     }
 
     @Override
-    protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        if (!showPlan) { batch.render(floorModelInstance, environment); }
+    protected void renderChallenge(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        if (!renderingContext.showPlan) { renderingContext.modelBatch.render(floorModelInstance, renderingContext.environment); }
         for (ModelInstance wall : wallInstances) {
-            batch.render(wall, environment);
+            renderingContext.modelBatch.render(wall, renderingContext.environment);
         }
 
-        if (showPlan) { batch.render(debugFloorModelInstance); }
+        if (renderingContext.showPlan) { renderingContext.modelBatch.render(debugFloorModelInstance); }
     }
 }

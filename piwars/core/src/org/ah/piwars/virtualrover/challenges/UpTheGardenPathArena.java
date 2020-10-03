@@ -4,15 +4,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.utils.Array;
@@ -21,6 +18,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.challenge.UpTheGardenPathChallenge;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 import org.ah.piwars.virtualrover.world.PlayerModelLink;
 
 import static com.badlogic.gdx.math.MathUtils.PI;
@@ -100,16 +98,16 @@ public class UpTheGardenPathArena extends AbstractChallenge {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
+    public void render(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
 
         IntMap<VisibleObject> newMap = new IntMap<VisibleObject>();
         newMap.putAll(visibleObjects);
         newMap.putAll(localVisibleObjects);
 
-        super.render(batch, environment, frameBuffer, newMap);
+        super.render(renderingContext, newMap);
 
-        if (showPlan) {
-            batch.render(debugFloorModelInstance);
+        if (renderingContext.showPlan) {
+            renderingContext.modelBatch.render(debugFloorModelInstance);
 
             debugFrameBuffer.begin();
             debugShapeRenderer.begin();
@@ -146,13 +144,13 @@ public class UpTheGardenPathArena extends AbstractChallenge {
     }
 
     @Override
-    protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        batch.render(floorModelInstance, environment);
+    protected void renderChallenge(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        renderingContext.modelBatch.render(floorModelInstance, renderingContext.environment);
         for (ModelInstance wall : wallInstances) {
-            batch.render(wall, environment);
+            renderingContext.modelBatch.render(wall, renderingContext.environment);
         }
 
-        if (showPlan) { batch.render(debugFloorModelInstance); }
+        if (renderingContext.showPlan) { renderingContext.modelBatch.render(debugFloorModelInstance); }
 
     }
 }

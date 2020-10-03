@@ -4,10 +4,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -18,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.game.challenge.CanyonsOfMarsChallenge.CHALLENGE_HEIGHT;
@@ -125,10 +124,10 @@ public class CanyonsOfMarsArena extends AbstractChallenge {
     }
 
     @Override
-    protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        batch.render(floorModelInstance, environment);
+    protected void renderChallenge(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        renderingContext.modelBatch.render(floorModelInstance, renderingContext.environment);
         for (ModelInstance wall : wallInstances) {
-            batch.render(wall, environment);
+            renderingContext.modelBatch.render(wall, renderingContext.environment);
         }
     }
 }

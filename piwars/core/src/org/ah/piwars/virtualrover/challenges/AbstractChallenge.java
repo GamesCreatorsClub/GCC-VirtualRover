@@ -2,7 +2,6 @@ package org.ah.piwars.virtualrover.challenges;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -10,15 +9,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Attribute;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
-import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -26,7 +20,6 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.IntMap;
 
@@ -36,6 +29,7 @@ import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.challenge.Box2DPhysicalWorldSimulationChallenge;
 import org.ah.piwars.virtualrover.game.challenge.Challenge;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 import org.ah.piwars.virtualrover.world.PiNoonAttachmentModelLink;
 import org.ah.piwars.virtualrover.world.PlayerModelLink;
 
@@ -45,21 +39,9 @@ import java.util.List;
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.createRect;
 
-@SuppressWarnings("deprecation")
 public abstract class AbstractChallenge implements ChallengeArena {
 
     protected ModelInstance challengeModelInstance;
-
-    public boolean showRovers = true;
-    public boolean showShadows = true;
-    public boolean showPlan = false;
-
-    protected ModelBatch modelBatch;
-    protected ModelBatch shadowBatch;
-
-    protected Environment shadowEnvironment;
-
-    protected DirectionalShadowLight shadowLight;
 
     protected AssetManager assetManager;
 
@@ -67,10 +49,6 @@ public abstract class AbstractChallenge implements ChallengeArena {
 
     protected float width = 2200;
     protected float length = 2200;
-
-    // public int shadowTextureSize = 8192;
-    // public int shadowTextureSize = 2048;
-    public int shadowTextureSize = 1280;
 
     protected Challenge challenge;
 
@@ -87,17 +65,6 @@ public abstract class AbstractChallenge implements ChallengeArena {
 
     public AbstractChallenge(AssetManager assetManager) {
         this.assetManager = assetManager;
-
-        shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 8.5f, 8.5f, 0.01f, 100f);
-        // shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 15f, 15f, 0.01f, 100f);
-        shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
-        shadowEnvironment = new Environment();
-        shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
-        shadowEnvironment.add(shadowLight);
-        shadowEnvironment.shadowMap = shadowLight;
-
-        modelBatch = new ModelBatch();
-        shadowBatch = new ModelBatch(new DepthShaderProvider());
     }
 
     protected boolean debugVisibleObjects() { return false; }
@@ -153,47 +120,15 @@ public abstract class AbstractChallenge implements ChallengeArena {
         if (debugFloorModel != null) { debugFloorModel.dispose(); }
         if (debugFloorMesh != null) { debugFloorMesh.dispose(); }
         if (debugShapeRenderer != null) { debugShapeRenderer.dispose(); }
-
-        shadowBatch.dispose();
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects) {
-        if (showShadows) {
-            Camera cam = batch.getCamera();
-            batch.end();
-            if (frameBuffer != null) { frameBuffer.end(); }
+    public void render(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
 
-            shadowLight.begin(Vector3.Zero, cam.direction);
-            shadowBatch.begin(shadowLight.getCamera());
+        renderChallenge(renderingContext, visibleObjects);
+        renderVisibleObjects(renderingContext, visibleObjects);
 
-            renderChallenge(shadowBatch, environment, visibleObjects);
-            renderVisibleObjects(shadowBatch, environment, visibleObjects);
-
-            shadowBatch.end();
-            shadowLight.end();
-
-            if (frameBuffer != null) {
-                frameBuffer.begin();
-                Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
-//                Gdx.gl20.glDepthFunc(GL20.GL_LEQUAL);
-//                Gdx.gl.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
-//                Gdx.gl20.glPolygonOffset(1.0f, 1.0f);
-            }
-            modelBatch.begin(cam);
-
-            renderChallenge(modelBatch, shadowEnvironment, visibleObjects);
-            renderVisibleObjects(modelBatch, shadowEnvironment, visibleObjects);
-
-            modelBatch.end();
-            batch.begin(cam);
-        } else {
-            // batch.render(challengeModelInstance, environment);
-
-            renderChallenge(batch, environment, visibleObjects);
-            renderVisibleObjects(batch, environment, visibleObjects);
-        }
-        if (showPlan && debugBox2D()) {
+        if (renderingContext.showPlan && debugBox2D()) {
             debugFrameBuffer.begin();
 
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
@@ -203,7 +138,7 @@ public abstract class AbstractChallenge implements ChallengeArena {
             debugFrameBuffer.end();
         }
 
-        if (showPlan && debugVisibleObjects()) {
+        if (renderingContext.showPlan && debugVisibleObjects()) {
             debugFrameBuffer.begin();
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -266,14 +201,14 @@ public abstract class AbstractChallenge implements ChallengeArena {
         }
     }
 
-    protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        batch.render(challengeModelInstance, environment);
+    protected void renderChallenge(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        renderingContext.modelBatch.render(challengeModelInstance, renderingContext.environment);
     }
 
-    protected void renderVisibleObjects(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        if (showRovers) {
+    protected void renderVisibleObjects(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        if (renderingContext.showRovers) {
             for (VisibleObject visibleObject : visibleObjects.values()) {
-                visibleObject.render(batch, environment);
+                visibleObject.render(renderingContext.modelBatch, renderingContext.environment);
             }
         }
     }

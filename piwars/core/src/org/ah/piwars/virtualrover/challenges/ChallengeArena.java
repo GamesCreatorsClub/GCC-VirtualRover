@@ -1,12 +1,10 @@
 package org.ah.piwars.virtualrover.challenges;
 
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.challenge.Challenge;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 
 public interface ChallengeArena {
 
@@ -14,7 +12,7 @@ public interface ChallengeArena {
 
     void dispose();
 
-    void render(ModelBatch batch, Environment en, FrameBuffer frameBuffer, IntMap<VisibleObject> visibleObjects);
+    void render(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects);
 
     float getWidth();
 

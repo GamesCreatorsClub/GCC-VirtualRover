@@ -10,33 +10,30 @@ import org.ah.piwars.virtualrover.game.PiWarsGame;
 import org.ah.piwars.virtualrover.utils.SoundManager;
 import org.ah.piwars.virtualrover.view.Console;
 
-public class PiNoonScreen extends AbstractCameraChallengeScreen {
+public class SingleRoverCameraChallengeScreen extends AbstractCameraChallengeScreen  {
 
-    public PiNoonScreen(MainGame game,
+    protected SingleRoverCameraChallengeScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
             SoundManager soundManager,
             ServerCommunicationAdapter serverCommunicationAdapter,
             Console console) {
-        super(game, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
-    }
 
-    @Override
-    protected void setupRequiredCameraCombination() {
-        cameraCombination = CAMERA_COMBINATIONS[4];
+        super(game, platformSpecific, assetManager, soundManager,
+                serverCommunicationAdapter, console);
     }
 
     @Override
     public boolean keyDown(int keycode) {
-        super.keyDown(keycode);
-        if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
+        boolean res = super.keyDown(keycode);
+
+        if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne()) {
             PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
 
-            game.spawnRover(1, "Blue", mainGameApp.getSelectedRover1());
-            game.spawnRover(2, "Green", mainGameApp.getSelectedRover2());
-            serverCommunicationAdapter.setLocalPlayerIds(1, 2);
+            game.spawnRover(1, "Player", mainGameApp.getSelectedRover1());
+            serverCommunicationAdapter.setLocalPlayerIds(1);
         }
 
-        return false;
+        return res;
     }
 }

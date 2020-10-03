@@ -22,6 +22,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -106,6 +108,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     private ModelBatch modelBatch;
     protected Environment environment;
+    protected DirectionalLight directionalLight;
 
     private Local3DDisplay challenge;
     private Local3DDisplay rover1;
@@ -116,7 +119,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private FrameBuffer cornerFrameBuffer;
     private Texture cornerTexture;
 
-    private SpriteBatch batch;
+    private SpriteBatch spriteBatch;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     private OrthographicCamera camera;
@@ -167,7 +170,6 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private long flashTime = 0;
     private boolean flash = true;
 
-
     public GreetingScreen(MainGame game,
             PlatformSpecific platformSpecific,
             AssetManager assetManager,
@@ -215,7 +217,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
         font = new BitmapFont(Gdx.files.internal("font/copper18.fnt"), Gdx.files.internal("font/copper18.png"), false);
 
-        batch = new SpriteBatch();
+        spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
 
@@ -223,6 +225,12 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         camera.setToOrtho(true);
 
         modelBatch = new ModelBatch();
+
+        environment = new Environment();
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+        directionalLight = new DirectionalLight();
+        directionalLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        environment.add(directionalLight);
 
         createScene();
 
@@ -242,12 +250,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
                 currentlySelectedChallengeArena.getLength()) {
 
                     @Override
-                    public void drawModel(ModelBatch modelbatch, Environment environment, FrameBuffer frameBuffer) {
-                        currentlySelectedChallengeArena.render(
-                                modelBatch,
-                                environment,
-                                frameBuffer,
-                                currentlySelectedChallengeArena.defaultVisibleObjets());
+                    public void drawModel(RenderingContext renderingContext) {
+                        currentlySelectedChallengeArena.render(renderingContext, currentlySelectedChallengeArena.defaultVisibleObjets());
                     }
         };
 
@@ -258,8 +262,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
                 290) {
 
                     @Override
-                    public void drawModel(ModelBatch modelbatch, Environment environment, FrameBuffer frameBuffer) {
-                        currentlySelectedRover1Model.render(modelBatch, environment);
+                    public void drawModel(RenderingContext renderingContext) {
+                        currentlySelectedRover1Model.render(renderingContext.modelBatch, renderingContext.environment);
                     }
         };
 
@@ -270,8 +274,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
                 290) {
 
                     @Override
-                    public void drawModel(ModelBatch modelbatch, Environment environment, FrameBuffer frameBuffer) {
-                        currentlySelectedRover2Model.render(modelBatch, environment);
+                    public void drawModel(RenderingContext renderingContext) {
+                        currentlySelectedRover2Model.render(renderingContext.modelBatch, renderingContext.environment);
                     }
         };
 
@@ -305,7 +309,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     private void createScene() {
         viewport = new ScreenViewport(camera);
-        stage = new Stage(viewport, batch);
+        stage = new Stage(viewport, spriteBatch);
         skin = new Skin();
 
         // Generate a 1x1 white texture and store it in the skin named "white".
@@ -387,6 +391,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         doStartGame = false;
         // setupToReadSignInServer();
         state = State.SelectChallenge;
+        updateCurrentlySelectedChallenge();
     }
 
     private void doLoadMap() {
@@ -470,24 +475,24 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         screenHeight = Gdx.graphics.getHeight();
         if (state.displaySelectingChallenge) {
             challenge.update();
-            challenge.render(modelBatch);
+            challenge.render();
             challenge.setPosition((screenWidth - CHALLENGE_SELECTION_WIDTH) / 2, screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET);
         }
         if (state.displaySelectingRovers) {
             if (currentlySelectedChallengeDescription.getMaxRovers() == 2) {
                 rover1.update();
-                rover1.render(modelBatch);
+                rover1.render();
                 rover1.setPosition(
                         screenWidth * 5 / 16 - CHALLENGE_SELECTION_WIDTH / 2,
                         screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
                 rover2.update();
-                rover2.render(modelBatch);
+                rover2.render();
                 rover2.setPosition(
                         screenWidth * 11 / 16 - CHALLENGE_SELECTION_WIDTH / 2,
                         screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
             } else {
                 rover1.update();
-                rover1.render(modelBatch);
+                rover1.render();
                 rover1.setPosition(
                         (screenWidth - CHALLENGE_SELECTION_WIDTH) / 2,
                         screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
@@ -499,45 +504,45 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         Gdx.gl.glClearColor(0.35f, 0.21f, 0.06f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.setProjectionMatrix(camera.combined);
+        spriteBatch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
 
         shapeRenderer.begin();
         if (state.displaySelectingChallenge) { challenge.drawTextureBorder(shapeRenderer); }
         if (state.displaySelectingRovers) { rover1.drawTextureBorder(shapeRenderer); }
         shapeRenderer.end();
-        batch.begin();
-        drawStateHelpText(batch);
+        spriteBatch.begin();
+        drawStateHelpText(spriteBatch);
         if (state.displaySelectingChallenge) {
-            challenge.drawTexture(batch);
-            font.draw(batch, currentlySelectedChallengeDescription.getDescription(), (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20, screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET);
+            challenge.drawTexture(spriteBatch);
+            font.draw(spriteBatch, currentlySelectedChallengeDescription.getDescription(), (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20, screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET);
         }
         if (state.displaySelectingRovers) {
             if (currentlySelectedChallengeDescription.getMaxRovers() == 2) {
-                rover1.drawTexture(batch);
-                rover2.drawTexture(batch);
-                font.draw(batch, currentlySelectedRover1Type.getName(),
+                rover1.drawTexture(spriteBatch);
+                rover2.drawTexture(spriteBatch);
+                font.draw(spriteBatch, currentlySelectedRover1Type.getName(),
                         screenWidth * 5 / 16 - CHALLENGE_SELECTION_WIDTH / 2 + 20,
                         screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN * 2);
 
-                font.draw(batch, currentlySelectedRover2Type.getName(),
+                font.draw(spriteBatch, currentlySelectedRover2Type.getName(),
                         screenWidth * 11 / 16 - CHALLENGE_SELECTION_WIDTH / 2 + 20,
                         screenHeight - CHALLENGE_SELECTION_HEIGHT - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN * 2);
             } else {
-                rover1.drawTexture(batch);
-                font.draw(batch, currentlySelectedRover1Type.getName(),
+                rover1.drawTexture(spriteBatch);
+                font.draw(spriteBatch, currentlySelectedRover1Type.getName(),
                         (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20,
                         screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET - ROVER_SELECTION_HEIGHT - MARGIN);
             }
         }
         if (state == State.ReadyToStart && flash) {
 
-            font.draw(batch, START_GAME_TEXT,
+            font.draw(spriteBatch, START_GAME_TEXT,
                 (screenWidth - startGameTextWidth) / 2,
                 screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET - ROVER_SELECTION_HEIGHT * 2f - MARGIN *2 );
         }
 
-        batch.end();
+        spriteBatch.end();
 
         stage.draw();
 
@@ -588,7 +593,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     @Override
     public void dispose() {
-        batch.dispose();
+        spriteBatch.dispose();
         challenge.dispose();
         cornerTexture.dispose();
         cornerFrameBuffer.dispose();
@@ -930,7 +935,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     public void gameMap(String mapId, int sessionId) {
         this.mapId = mapId;
         // TODO this makes no sense!!!
-        this.playerId = playerId;
+        // this.playerId = playerId;
         doLoadMap = true;
     }
 
@@ -950,6 +955,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         private int height;
         private float modelWidth;
         private float modelHeight;
+
+        private RenderingContext renderingContext;
 
         public Local3DDisplay(int width, int height, float modelWidth, float modelHeight) {
             this.width = width;
@@ -972,6 +979,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
             frameBuffer = new FrameBuffer(Format.RGBA8888, width, height, true);
             texture = frameBuffer.getColorBufferTexture();
+            renderingContext = new RenderingContext(modelBatch, environment, frameBuffer);
         }
 
         public void dispose() {
@@ -996,7 +1004,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             }
 
             float radius = modelWidth > modelHeight ? modelWidth : modelHeight;
-            radius = radius * 0.9f;
+            radius = radius * 1.2f;
 
             float x = (float)(Math.sin(rotationAngle) * radius) * SCALE;
             float y = (float)(Math.cos(rotationAngle) * radius) * SCALE;
@@ -1007,18 +1015,19 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             camera.update();
         }
 
-        private void render(ModelBatch modelBatch) {
-            frameBuffer.begin();
+        private void render() {
+            renderingContext.frameBuffer.begin();
             Gdx.gl.glClearColor(0.6f, 0.75f, 1f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
-            modelBatch.begin(camera);
-            drawModel(modelBatch, environment, frameBuffer);
+            renderingContext.modelBatch = modelBatch;
+            renderingContext.modelBatch.begin(camera);
+            drawModel(renderingContext);
             drawCorners(CHALLENGE_SELECTION_WIDTH, CHALLENGE_SELECTION_HEIGHT);
-            modelBatch.end();
-            frameBuffer.end();
+            renderingContext.modelBatch.end();
+            renderingContext.frameBuffer.end();
         }
 
         private void drawCorners(int width, int height) {
@@ -1052,7 +1061,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             shapeRenderer.arc(x - 2 + CORNER_WIDTH, y + height + 2 - CORNER_WIDTH, CORNER_WIDTH, 90, 90, 5);
         }
 
-        public abstract void drawModel(ModelBatch modelBatch, Environment environment, FrameBuffer frameBuffer);
+        public abstract void drawModel(RenderingContext renderingContext);
     }
 
     @Override

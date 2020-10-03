@@ -73,10 +73,10 @@ public class PiNoonChallenge extends AbstractChallenge {
         for (GameObject o : currentGameState.gameObjects().values()) {
             if (o instanceof Rover) {
                 if (o.isAdded()) {
-                    if (player1Id == 0) {
+                    if (player1Id == 0 && o.getId() == 1) {
                         player1Id = o.getId();
                         resetPlayer1Rover();
-                    } else if (player2Id == 0) {
+                    } else if (player2Id == 0 && o.getId() == 2) {
                         player2Id = o.getId();
                         resetPlayer2Rover();
                     }

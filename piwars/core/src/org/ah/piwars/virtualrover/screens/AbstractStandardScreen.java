@@ -16,7 +16,9 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
 
@@ -42,6 +44,7 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener, InputProcessor  {
 
     public static Vector3 UP = Vector3.Y;
@@ -53,8 +56,17 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected AssetManager assetManager;
     protected SoundManager soundManager;
 
-    protected ModelBatch batch;
+    protected ModelBatch modelBatch;
     protected Environment environment;
+
+    // public int shadowTextureSize = 8192;
+//  public int shadowTextureSize = 4096;
+    // public int shadowTextureSize = 2048;
+    public int shadowTextureSize = 1280;
+
+    protected DirectionalShadowLight shadowLight;
+    protected Environment shadowEnvironment;
+    protected ModelBatch shadowBatch;
 
     protected OrthographicCamera hudCamera;
     protected SpriteBatch spriteBatch;
@@ -93,6 +105,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     protected boolean drawFPS = false;
 
+    protected RenderingContext renderingContext;
+
     private IntSet unknownObjectIds = new IntSet();
 
     protected PerspectiveCamera camera;
@@ -116,7 +130,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
 
-        batch = new ModelBatch();
+        modelBatch = new ModelBatch();
         spriteBatch = new SpriteBatch();
 
         environment = new Environment();
@@ -125,15 +139,27 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         directionalLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
         environment.add(directionalLight);
 
+        shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 8.5f, 8.5f, 0.01f, 100f);
+        // shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 15f, 15f, 0.01f, 100f);
+        shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        shadowEnvironment = new Environment();
+        shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+        shadowEnvironment.add(shadowLight);
+        shadowEnvironment.shadowMap = shadowLight;
+
+        shadowBatch = new ModelBatch(new DepthShaderProvider());
         hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         hudCamera.setToOrtho(true);
+
+        renderingContext = new RenderingContext(modelBatch, environment, null);
 
         setupCamera(); // TODO not the best idea to override method for constructor
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
+        shadowBatch.dispose();
+        modelBatch.dispose();
         spriteBatch.dispose();
         fontBig.dispose();
         if (logo == null) { logo.dispose(); }
@@ -162,10 +188,19 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
     }
 
+    protected void resetCameraPosition() {
+        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(0f, 0f, 0f);
+    }
+
     public void reset() {
         setMiddleMessage("", false);
         suspended = false;
         serverCommunicationAdapter.reset();
+
+        resetCameraPosition();
+
+        challenge.init();
     }
 
     protected Background getBackground() {
@@ -415,25 +450,22 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             }
         }
         if (keycode == Input.Keys.H && challenge instanceof AbstractChallenge) {
-            AbstractChallenge abstractChallenge = (AbstractChallenge)challenge;
-            if (abstractChallenge.showRovers && !abstractChallenge.showPlan) {
-                abstractChallenge.showRovers = true;
-                abstractChallenge.showPlan = true;
-            } else if (abstractChallenge.showRovers && abstractChallenge.showPlan) {
-                abstractChallenge.showRovers = false;
-                abstractChallenge.showPlan = true;
+            if (renderingContext.showRovers && !renderingContext.showPlan) {
+                renderingContext.showRovers = true;
+                renderingContext.showPlan = true;
+            } else if (renderingContext.showRovers && renderingContext.showPlan) {
+                renderingContext.showRovers = false;
+                renderingContext.showPlan = true;
             } else {
-                abstractChallenge.showRovers = true;
-                abstractChallenge.showPlan = false;
+                renderingContext.showRovers = true;
+                renderingContext.showPlan = false;
             }
         }
         if (keycode == Input.Keys.G && challenge instanceof AbstractChallenge) {
-            AbstractChallenge piNoonArena = (AbstractChallenge)challenge;
-            piNoonArena.showShadows = !piNoonArena.showShadows;
+            renderingContext.showShadows = !renderingContext.showShadows;
         }
         if (keycode == Input.Keys.T && challenge instanceof AbstractChallenge) {
-            AbstractChallenge piNoonArena = (AbstractChallenge)challenge;
-            piNoonArena.showRovers = !piNoonArena.showRovers;
+            renderingContext.showRovers = !renderingContext.showRovers;
         }
         return false;
     }

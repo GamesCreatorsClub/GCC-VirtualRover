@@ -9,10 +9,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Attribute;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
@@ -28,6 +26,7 @@ import com.badlogic.gdx.utils.IntMap;
 import org.ah.piwars.virtualrover.VisibleObject;
 import org.ah.piwars.virtualrover.game.attachments.PiNoonAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
 import org.ah.piwars.virtualrover.world.PiNoonAttachmentModelLink;
 import org.ah.piwars.virtualrover.world.PlayerModelLink;
 
@@ -35,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ah.piwars.virtualrover.MainGame.SCALE;
-import static org.ah.piwars.virtualrover.game.challenge.EcoDisasterChallenge.CHALLENGE_WIDTH;
+import static org.ah.piwars.virtualrover.game.challenge.PiNoonChallenge.CHALLENGE_WIDTH;
 import static org.ah.piwars.virtualrover.utils.MeshUtils.createRect;
 
 public class PiNoonArena extends AbstractChallenge {
@@ -101,8 +100,8 @@ public class PiNoonArena extends AbstractChallenge {
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment, FrameBuffer otherFrameBuffer, IntMap<VisibleObject> visibleObjects) {
-        if (showPlan) {
+    public void render(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        if (renderingContext.showPlan) {
             frameBuffer.begin();
             Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -149,12 +148,12 @@ public class PiNoonArena extends AbstractChallenge {
         allVisibleObjects.putAll(visibleObjects);
         allVisibleObjects.putAll(localVisibleObjects);
 
-        super.render(batch, environment, otherFrameBuffer, allVisibleObjects);
+        super.render(renderingContext, allVisibleObjects);
     }
 
     @Override
-    protected void renderChallenge(ModelBatch batch, Environment environment, IntMap<VisibleObject> visibleObjects) {
-        super.renderChallenge(batch, environment, visibleObjects);
-        if (showPlan) { batch.render(floorModelInstance); }
+    protected void renderChallenge(RenderingContext renderingContext, IntMap<VisibleObject> visibleObjects) {
+        super.renderChallenge(renderingContext, visibleObjects);
+        if (renderingContext.showPlan) { renderingContext.modelBatch.render(floorModelInstance); }
     }
 }
