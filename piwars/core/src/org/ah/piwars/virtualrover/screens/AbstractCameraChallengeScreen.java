@@ -150,7 +150,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
-        if (renderBackground) {
+        if (renderingContext.renderBackground) {
             background.render(camera, modelBatch, environment);
         }
 
@@ -175,7 +175,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 
-        if (renderBackground) {
+        if (renderingContext.renderBackground) {
             background.render(attachedCamera, modelBatch, environment);
         }
 
@@ -266,7 +266,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
             mainCamera = attachedCamera;
         }
 
-        if (renderBackground) {
+        if (renderingContext.renderBackground) {
             background.render(mainCamera, modelBatch, environment);
         }
 
@@ -278,6 +278,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
 
         modelBatch.end();
 
+        spriteBatch.setProjectionMatrix(hudCamera.combined);
         spriteBatch.begin();
         drawScore();
 
@@ -290,9 +291,9 @@ public abstract class AbstractCameraChallengeScreen extends AbstractStandardScre
         } else if (cameraCombination.getSmall() == CameraType.THIRD_PERSON) {
             showSmallCamera(thirdPersonCameraTexture);
         }
-        spriteBatch.end();
 
         drawStandardMessages();
+        spriteBatch.end();
 
         if (console != null) {
             console.render();

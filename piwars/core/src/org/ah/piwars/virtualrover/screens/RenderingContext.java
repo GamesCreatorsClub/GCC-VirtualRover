@@ -8,6 +8,7 @@ public class RenderingContext {
     public boolean showRovers = true;
     public boolean showShadows = true;
     public boolean showPlan = false;
+    public boolean renderBackground = false;
 
     public Environment environment;
     public ModelBatch modelBatch;

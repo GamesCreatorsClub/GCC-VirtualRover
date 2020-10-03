@@ -6,8 +6,11 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -19,6 +22,9 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
 
@@ -48,6 +54,10 @@ import static org.ah.piwars.virtualrover.MainGame.SCALE;
 public abstract class AbstractStandardScreen extends ScreenAdapter implements ChatListener, InputProcessor  {
 
     public static Vector3 UP = Vector3.Y;
+    public static final int CORNER_WIDTH = 7;
+
+    protected int width;
+    protected int height;
 
     protected MainGame mainGameApp;
     protected PlatformSpecific platformSpecific;
@@ -73,8 +83,6 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected BitmapFont fontBig;
     protected BitmapFont fontSmallMono;
     protected Texture logo;
-
-    protected boolean renderBackground = false;
 
     protected Console console;
 
@@ -115,6 +123,10 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     protected CinematicCameraController cinematicCameraController;
 
     protected DirectionalLight directionalLight;
+    private FrameBuffer textBackgroundCornerFrameBuffer;
+    private Texture textBackgroundCornerTexture;
+    private FrameBuffer textBackgroundFrameBuffer;
+    private Texture textBackgroundTexture;
 
     protected AbstractStandardScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -129,6 +141,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         this.soundManager = soundManager;
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.console = console;
+
+        this.width = Gdx.graphics.getWidth();
+        this.height = Gdx.graphics.getHeight();
 
         modelBatch = new ModelBatch();
         spriteBatch = new SpriteBatch();
@@ -148,12 +163,42 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         shadowEnvironment.shadowMap = shadowLight;
 
         shadowBatch = new ModelBatch(new DepthShaderProvider());
-        hudCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        hudCamera = new OrthographicCamera(width, height);
         hudCamera.setToOrtho(true);
 
         renderingContext = new RenderingContext(modelBatch, environment, null);
 
         setupCamera(); // TODO not the best idea to override method for constructor
+
+        createTextBackgroundPanel();
+    }
+
+    private void createTextBackgroundPanel() {
+        OrthographicCamera cornerCamera = new OrthographicCamera(CORNER_WIDTH, CORNER_WIDTH);
+        cornerCamera.setToOrtho(true, CORNER_WIDTH, CORNER_WIDTH);
+
+        textBackgroundFrameBuffer = new FrameBuffer(Format.RGBA8888, 16, 16, false);
+        textBackgroundTexture = textBackgroundFrameBuffer.getColorBufferTexture();
+
+        textBackgroundFrameBuffer.begin();
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.3f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        textBackgroundFrameBuffer.end();
+
+        textBackgroundCornerFrameBuffer = new FrameBuffer(Format.RGBA8888, CORNER_WIDTH, CORNER_WIDTH, false);
+        textBackgroundCornerTexture = textBackgroundCornerFrameBuffer.getColorBufferTexture();
+
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setProjectionMatrix(cornerCamera.combined);
+        textBackgroundCornerFrameBuffer.begin();
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(0.0f, 0.0f, 0.0f, 0.3f);
+        shapeRenderer.circle(CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH);
+        shapeRenderer.end();
+        textBackgroundCornerFrameBuffer.end();
     }
 
     @Override
@@ -168,7 +213,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     }
 
     protected void setupCamera() {
-        camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera = new PerspectiveCamera(45, width, height);
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.02f;
@@ -258,6 +303,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
 
     @Override
     public void resize(int width, int height) {
+        this.width = width;
+        this.height = height;
         if (console != null) {
             console.setConsoleWidth(width);
         }
@@ -304,29 +351,25 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         ClientEngine<PiWarsGame> engine = serverCommunicationAdapter.getEngine();
         AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
 
-        spriteBatch.setProjectionMatrix(hudCamera.combined);
         String fps = "f:" + Integer.toString(Gdx.graphics.getFramesPerSecond());
-        fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 60, Gdx.graphics.getHeight() - 48);
+        fontSmallMono.draw(spriteBatch, fps, width - 60, height - 48);
 
         String rtt = "RTT:" + Integer.toString(engine.getAverageRTT()) + "/" + Integer.toString(engine.getMaxRTT()) + "/" + Integer.toString(engine.getCurrentRTT());
-        fontSmallMono.draw(spriteBatch, rtt, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 12);
+        fontSmallMono.draw(spriteBatch, rtt, width - 200, height - 12);
 
         String debugDelay = "DD:" + Integer.toString(abstractServerCommunication.getReceivingDelay()) + "/" + Integer.toString(abstractServerCommunication.getSendingDelay());
-        fontSmallMono.draw(spriteBatch, debugDelay, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 30);
+        fontSmallMono.draw(spriteBatch, debugDelay, width - 200, height - 30);
 
         String frameTickInfo = "RUDA:" + Integer.toString(engine.getRebuiltFramesNumber())
                                        + "/" + Integer.toString(engine.getSpedUpFrames())
                                        + "/" + Integer.toString(engine.getSlowedDownFrames())
                                        + "/" + Integer.toString(engine.getAdjustedForMissingInputsFrames());
-        fontSmallMono.draw(spriteBatch, frameTickInfo, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 48);
-        spriteBatch.end();
+        fontSmallMono.draw(spriteBatch, frameTickInfo, width - 200, height - 48);
     }
 
 
     protected void drawStandardMessages() {
         a++;
-        spriteBatch.setProjectionMatrix(hudCamera.combined);
-        spriteBatch.begin();
         if (!platformSpecific.isSimulation()) {
             spriteBatch.draw(logo, 0, Gdx.graphics.getHeight() - logo.getHeight());
         }
@@ -340,19 +383,49 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         if (gameMessageObject != null && gameMessageObject.getMessage() != null && !"".equals(gameMessageObject.getMessage())) {
             middleMessage = "";
             String message = gameMessageObject.getMessage();
-            fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) / 2, (Gdx.graphics.getHeight() - fontBig.getLineHeight()) / 2);
+            float textWidth = textWidth(fontBig, message);
+            drawText(spriteBatch, fontBig, message, (width - textWidth) / 2, (height - fontBig.getLineHeight()) / 2, textWidth);
+
         } else if (middleMessage != null && (!middleMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
             String message = middleMessage;
-            fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) / 2, (Gdx.graphics.getHeight() - fontBig.getLineHeight()) / 2);
+            float textWidth = textWidth(fontBig, message);
+            drawText(spriteBatch, fontBig, message, (width - textWidth) / 2, (height - fontBig.getLineHeight()) / 2, textWidth);
         }
 
         if (gameMessageObject != null && gameMessageObject.hasTimer()) {
             topRightMessage = "";
             int timer = gameMessageObject.getTimerTens(serverCommunicationAdapter.getEngine().getGame());
             String message = (timer / 10) + "." + (timer % 10);
-            fontBig.draw(spriteBatch, message, (Gdx.graphics.getWidth() - textWidth(fontBig, message)) - 20, Gdx.graphics.getHeight() - 10);
+            float textWidth = textWidth(fontBig, message);
+            drawText(spriteBatch, fontBig, message, (width - textWidth) - 20, height - 10, textWidth);
         }
-        spriteBatch.end();
+    }
+
+    private void drawText(SpriteBatch spriteBatch, BitmapFont font, String message, float x, float y, float textWidth) {
+        font.setColor(Color.BLACK);
+        if (message.length() < 8) {
+            font.draw(spriteBatch, message, x - 1, y - 1);
+            font.draw(spriteBatch, message, x, y - 1);
+            font.draw(spriteBatch, message, x + 1, y - 1);
+            font.draw(spriteBatch, message, x - 1, y);
+            font.draw(spriteBatch, message, x + 1, y);
+            font.draw(spriteBatch, message, x - 1, y + 1);
+            font.draw(spriteBatch, message, x, y - 1);
+            font.draw(spriteBatch, message, x + 1, y + 1);
+        } else {
+            float lineHeight = font.getLineHeight();
+            //  float x, float y, float width, float height, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX, boolean flipY
+            spriteBatch.draw(textBackgroundTexture, x, y - lineHeight - CORNER_WIDTH, textWidth, CORNER_WIDTH);
+            spriteBatch.draw(textBackgroundTexture, x - CORNER_WIDTH, y - lineHeight, textWidth + CORNER_WIDTH + CORNER_WIDTH, lineHeight);
+            spriteBatch.draw(textBackgroundTexture, x, y, textWidth, CORNER_WIDTH);
+            spriteBatch.draw(textBackgroundCornerTexture, x - CORNER_WIDTH, y - lineHeight - CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, false, false);
+            spriteBatch.draw(textBackgroundCornerTexture, x - CORNER_WIDTH, y, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, false, true);
+            spriteBatch.draw(textBackgroundCornerTexture, x + textWidth, y - lineHeight - CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, true, false);
+            spriteBatch.draw(textBackgroundCornerTexture, x + textWidth, y, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, true, true);
+            y = y - 4;
+        }
+        fontBig.setColor(Color.WHITE);
+        fontBig.draw(spriteBatch, message, x, y);
     }
 
     protected boolean isSuspended() {
@@ -472,6 +545,9 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         }
         if (keycode == Input.Keys.T && challenge instanceof AbstractChallenge) {
             renderingContext.showRovers = !renderingContext.showRovers;
+        }
+        if (keycode == Input.Keys.B && challenge instanceof AbstractChallenge) {
+            renderingContext.renderBackground = !renderingContext.renderBackground;
         }
         return false;
     }

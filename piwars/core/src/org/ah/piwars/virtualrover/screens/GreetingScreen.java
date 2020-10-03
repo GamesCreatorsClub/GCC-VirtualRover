@@ -221,7 +221,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
 
-        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera = new OrthographicCamera(screenWidth, screenHeight);
         camera.setToOrtho(true);
 
         modelBatch = new ModelBatch();
@@ -471,8 +471,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
             flash = !flash;
             flashTime = System.currentTimeMillis() + 1000;
         }
-        screenWidth = Gdx.graphics.getWidth();
-        screenHeight = Gdx.graphics.getHeight();
+
         if (state.displaySelectingChallenge) {
             challenge.update();
             challenge.render();
@@ -569,6 +568,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
 
     @Override
     public void resize(int width, int height) {
+        this.screenWidth = width;
+        this.screenHeight = height;
         console.setConsoleWidth(width);
         stage.getViewport().update(width, height);
         camera.setToOrtho(true, width, height);
@@ -600,7 +601,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     public void updateCamera() {
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.setToOrtho(false, screenWidth, screenHeight);
         camera.update();
     }
 
