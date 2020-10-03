@@ -168,7 +168,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     }
 
     protected void setupCamera() {
-        camera = new PerspectiveCamera(45, 800, 480);
+        camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.02f;
@@ -262,8 +262,12 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             console.setConsoleWidth(width);
         }
         if (hudCamera != null) {
-            hudCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            hudCamera.setToOrtho(false, width, height);
             hudCamera.update();
+        }
+        if (camera != null) {
+            camera.viewportWidth = width;
+            camera.viewportHeight = height;
         }
     }
 
@@ -300,6 +304,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         ClientEngine<PiWarsGame> engine = serverCommunicationAdapter.getEngine();
         AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
 
+        spriteBatch.setProjectionMatrix(hudCamera.combined);
         String fps = "f:" + Integer.toString(Gdx.graphics.getFramesPerSecond());
         fontSmallMono.draw(spriteBatch, fps, Gdx.graphics.getWidth() - 60, Gdx.graphics.getHeight() - 48);
 
@@ -314,12 +319,13 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
                                        + "/" + Integer.toString(engine.getSlowedDownFrames())
                                        + "/" + Integer.toString(engine.getAdjustedForMissingInputsFrames());
         fontSmallMono.draw(spriteBatch, frameTickInfo, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 48);
-
+        spriteBatch.end();
     }
 
 
     protected void drawStandardMessages() {
         a++;
+        spriteBatch.setProjectionMatrix(hudCamera.combined);
         spriteBatch.begin();
         if (!platformSpecific.isSimulation()) {
             spriteBatch.draw(logo, 0, Gdx.graphics.getHeight() - logo.getHeight());
