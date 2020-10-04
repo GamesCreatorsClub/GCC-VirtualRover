@@ -16,3 +16,21 @@ task createPom  {
         }
     }.writeTo("pom.xml")
 }
+
+//.    compileJava.dependsOn(addTimestamp)
+
+task addTimestamp {
+    doFirst {
+        def mainGameFilename = "src/org/ah/piwars/virtualrover/MainGame.java"
+        def mainGameFile = new File(mainGameFilename)
+        def mainGameSource = mainGameFile.text
+
+        String timestamp = new Date().format("yyyyMMddHHmm")
+
+        mainGameSource = mainGameSource.replaceAll("String timestamp = \"#([^\"]*)\";", "String timestamp = \"#" + timestamp + "\";")
+
+        mainGameFile.text = mainGameSource
+    }
+}
+
+build.dependsOn addTimestamp

@@ -95,8 +95,16 @@ public class MainGame extends Game {
     }
 
     public void finishedLoading() {
+        String timestamp = "#202010041202";
+
+        String version = "v.0.8";
+
+        if (timestamp.startsWith("#")) {
+            version = version + " (" + timestamp.substring(1) + ")";
+        }
+
         console = new Console();
-        console.raw("Welcome to Virtual PiWars v.0.7");
+        console.raw("Welcome to Virtual PiWars " + version);
         console.raw("Games Creators Club Virtual Rover");
         console.raw("(c) Creative Sphere Limited");
 
