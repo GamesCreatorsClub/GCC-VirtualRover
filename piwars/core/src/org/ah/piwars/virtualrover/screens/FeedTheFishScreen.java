@@ -20,6 +20,11 @@ public class FeedTheFishScreen extends SingleRoverCameraChallengeScreen {
     }
 
     @Override
+    protected void setupRequiredCameraCombination() {
+        cameraCombination = CAMERA_COMBINATIONS[3];
+    }
+
+    @Override
     protected void resetCameraPosition() {
         super.resetCameraPosition();
 

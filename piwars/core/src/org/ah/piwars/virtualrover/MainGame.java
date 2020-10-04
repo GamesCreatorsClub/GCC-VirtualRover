@@ -110,6 +110,16 @@ public class MainGame extends Game {
         selelectChallenge();
     }
 
+
+    public void returnToMainScreen() {
+        if (serverCommunicationAdapter.getEngine() != null) {
+            serverCommunicationAdapter.getEngine().resetGame();
+        }
+
+        greetingScreen.reset();
+        setScreen(greetingScreen);
+    }
+
     public void selelectChallenge() {
         if (serverCommunicationAdapter.getEngine() != null) {
             serverCommunicationAdapter.getEngine().resetGame();

@@ -454,18 +454,6 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     }
 
     @Override
-    public void show() {
-        console.setCamera(camera);
-        Gdx.input.setOnscreenKeyboardVisible(platformSpecific.needOnScreenKeyboard());
-        Gdx.input.setInputProcessor(this);
-        connectedControllers.clear();
-        for (Controller controller : Controllers.getControllers()) {
-            connectedControllers.add(controller);
-        }
-        Controllers.addListener(this);
-    }
-
-    @Override
     public void render(float delta) {
         if (flashTime < System.currentTimeMillis()) {
             flash = !flash;
@@ -585,6 +573,18 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     @Override
     public void resume() {
 
+    }
+
+    @Override
+    public void show() {
+        console.setCamera(camera);
+        Gdx.input.setOnscreenKeyboardVisible(platformSpecific.needOnScreenKeyboard());
+        Gdx.input.setInputProcessor(this);
+        connectedControllers.clear();
+        for (Controller controller : Controllers.getControllers()) {
+            connectedControllers.add(controller);
+        }
+        Controllers.addListener(this);
     }
 
     @Override

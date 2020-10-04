@@ -181,7 +181,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         textBackgroundTexture = textBackgroundFrameBuffer.getColorBufferTexture();
 
         textBackgroundFrameBuffer.begin();
-        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.3f);
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         textBackgroundFrameBuffer.end();
 
@@ -195,7 +195,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(0.0f, 0.0f, 0.0f, 0.3f);
+        shapeRenderer.setColor(0.0f, 0.0f, 0.0f, 0.1f);
         shapeRenderer.circle(CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH);
         shapeRenderer.end();
         textBackgroundCornerFrameBuffer.end();
@@ -292,6 +292,8 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
             console.setCamera(hudCamera);
             console.addListener(this);
         }
+        Gdx.input.setInputProcessor(cameraInputMultiplexer);
+        Gdx.input.setCursorCatched(false);
     }
 
     @Override
@@ -433,7 +435,7 @@ public abstract class AbstractStandardScreen extends ScreenAdapter implements Ch
     }
 
     protected void leave() {
-        mainGameApp.selelectChallenge();
+        mainGameApp.returnToMainScreen();
     }
 
     @Override
