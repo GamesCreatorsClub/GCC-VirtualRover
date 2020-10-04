@@ -35,15 +35,16 @@ public class Challenges {
 
         challenges = asList(
 //                new ChallengeDescription("PiNoon", "Pi Noon (Robot vs Robot)", piNoonArena, 2, true),
-                new ChallengeDescription("PiNoon", "Pi Noon (Robot vs Robot)", piNoonArena, 2, false),
-                new ChallengeDescription("TidyUpTheToys", "Tidy Up The Toys", tidyUpTheToysArena, 1, false),
-                new ChallengeDescription("FeedTheFish", "Feed The Fish", feedTheFishArena, 1, false),
-                new ChallengeDescription("UpTheGardenPath", "Up The Garden Path", upTheGardenPathArena, 1, false),
-                new ChallengeDescription("EcoDisaster", "Eco Disaster", ecoDisasterArena, 1, false),
-                new ChallengeDescription("CanyonsOfMars", "Canyons Of Mars (Maze)", canyonsOfMarsArena, 1, false),
-                new ChallengeDescription("StraightLineSpeedTest", "Straight Line Speed Test", straightLineSpeedTestArena, 1, false),
-                new ChallengeDescription("BlastOff", "Blast Off Speed Test", blastOffArena, 1, false),
-                new ChallengeDescription("MineSweeper", "MineS weeper", mineSweeperArena, 1, false));
+                new ChallengeDescription("PiNoon", "", "Pi Noon (Robot vs Robot)", piNoonArena, 2, false),
+                new ChallengeDescription("TidyUpTheToys", "2021", "Tidy Up The Toys", tidyUpTheToysArena, 1, false),
+                new ChallengeDescription("FeedTheFish", "2021", "Feed The Fish", feedTheFishArena, 1, false),
+                new ChallengeDescription("UpTheGardenPath", "2021", "Up The Garden Path", upTheGardenPathArena, 1, false),
+                new ChallengeDescription("EcoDisaster", "2020", "Eco Disaster", ecoDisasterArena, 1, false),
+                new ChallengeDescription("MineSweeper", "2020", "MineS weeper", mineSweeperArena, 1, false),
+                new ChallengeDescription("CanyonsOfMars", "2019", "Canyons Of Mars (Maze)", canyonsOfMarsArena, 1, false),
+                new ChallengeDescription("BlastOff", "2019", "Blast Off Speed Test", blastOffArena, 1, false),
+                new ChallengeDescription("StraightLineSpeedTest", "2018", "Straight Line Speed Test", straightLineSpeedTestArena, 1, false)
+        );
 
         for (ChallengeDescription challenge : challenges) {
             challenge.getChallengeArena().init();

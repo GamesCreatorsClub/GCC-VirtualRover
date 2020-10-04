@@ -4,6 +4,8 @@ public class ChallengeDescription {
 
     private String name;
 
+    private String year;
+
     private String description;
 
     private ChallengeArena challengeArena;
@@ -12,8 +14,9 @@ public class ChallengeDescription {
 
     private int maxRovers = 1;
 
-    public ChallengeDescription(String name, String description, ChallengeArena challengeArena, int maxRovers, boolean remote) {
+    public ChallengeDescription(String name, String year, String description, ChallengeArena challengeArena, int maxRovers, boolean remote) {
         this.name = name;
+        this.year = year;
         this.description = description;
         this.challengeArena = challengeArena;
         this.maxRovers = maxRovers;
@@ -22,6 +25,10 @@ public class ChallengeDescription {
 
     public String getName() {
         return name;
+    }
+
+    public String getYear() {
+        return year;
     }
 
     public String getDescription() {

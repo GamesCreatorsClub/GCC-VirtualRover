@@ -125,6 +125,8 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     private OrthographicCamera camera;
     private Viewport viewport;
 
+    private GlyphLayout glyphLayout = new GlyphLayout();
+
     private Stage stage;
     private Skin skin;
     private TextButton signInButton;
@@ -502,7 +504,24 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         drawStateHelpText(spriteBatch);
         if (state.displaySelectingChallenge) {
             challenge.drawTexture(spriteBatch);
-            font.draw(spriteBatch, currentlySelectedChallengeDescription.getDescription(), (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20, screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET);
+            String year = currentlySelectedChallengeDescription.getYear();
+            String description = currentlySelectedChallengeDescription.getDescription();
+            float lineHeight = font.getLineHeight();
+            if (year == null || "".equals(year)) {
+                font.draw(spriteBatch, description,
+                        (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET);
+            } else {
+                year = "(" + year + ")";
+                float descriptionWidth = textWidth(font, description);
+                float yearWidth = textWidth(font, year);
+                font.draw(spriteBatch, description,
+                        (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET + lineHeight / 2f);
+                font.draw(spriteBatch, year,
+                        (screenWidth + CHALLENGE_SELECTION_WIDTH) / 2 + 20 + descriptionWidth / 2 - yearWidth / 2,
+                        screenHeight - CHALLENGE_SELECTION_HEIGHT / 2 - TOP_OFFSET - lineHeight / 2f);
+            }
         }
         if (state.displaySelectingRovers) {
             if (currentlySelectedChallengeDescription.getMaxRovers() == 2) {
@@ -1113,5 +1132,10 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
     @Override
     public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) {
         return false;
+    }
+
+    protected float textWidth(BitmapFont font, String text) {
+        glyphLayout.setText(font, text);
+        return glyphLayout.width;
     }
 }
