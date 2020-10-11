@@ -7,11 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.Model;
 
+import org.ah.piwars.virtualrover.challenges.ChallengeScreen;
 import org.ah.piwars.virtualrover.challenges.Challenges;
 import org.ah.piwars.virtualrover.game.rovers.RoverType;
 import org.ah.piwars.virtualrover.rovers.RoverModels;
-import org.ah.piwars.virtualrover.screens.ChallengeScreen;
-import org.ah.piwars.virtualrover.screens.ChallengeScreens;
 import org.ah.piwars.virtualrover.screens.ConnectingScreen;
 import org.ah.piwars.virtualrover.screens.GreetingScreen;
 import org.ah.piwars.virtualrover.screens.LoadingScreen;
@@ -40,7 +39,6 @@ public class MainGame extends Game {
     private GreetingScreen greetingScreen;
     private ChallengeScreen challengeScreen;
 
-    private ChallengeScreens challengeScreens;
     private RoverType rover1Selection;
     private RoverType rover2Selection;
 
@@ -111,8 +109,7 @@ public class MainGame extends Game {
         soundManager.fetchSounds(assetManager);
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, assetManager);
 
-        challenges = new Challenges(assetManager, serverCommunicationAdapter);
-        challengeScreens = new ChallengeScreens(this, platformSpecific, challenges, assetManager, soundManager, serverCommunicationAdapter, console);
+        challenges = new Challenges(this, platformSpecific, assetManager, soundManager, serverCommunicationAdapter, console);
         greetingScreen = new GreetingScreen(this, platformSpecific, assetManager, soundManager, challenges, serverCommunicationAdapter, console);
 
         selelectChallenge();
@@ -165,9 +162,8 @@ public class MainGame extends Game {
 
         serverCommunicationAdapter.startEngine(mapId, playerId, local, platformSpecific.isSimulation());
 
-        challengeScreen = challengeScreens.getChallengeScreen(mapId);
+        challengeScreen = challenges.getChallengeScreen(mapId);
         setScreen(challengeScreen);
-        // challengeScreen.reset();
     }
 
     @Override

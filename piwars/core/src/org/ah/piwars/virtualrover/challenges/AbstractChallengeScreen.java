@@ -1,0 +1,621 @@
+package org.ah.piwars.virtualrover.challenges;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.IntSet;
+
+import org.ah.piwars.virtualrover.MainGame;
+import org.ah.piwars.virtualrover.PlatformSpecific;
+import org.ah.piwars.virtualrover.ServerCommunicationAdapter;
+import org.ah.piwars.virtualrover.backgrounds.Background;
+import org.ah.piwars.virtualrover.camera.CameraControllersManager;
+import org.ah.piwars.virtualrover.camera.CinematicCameraController;
+import org.ah.piwars.virtualrover.game.GameMessageObject;
+import org.ah.piwars.virtualrover.game.PiWarsGame;
+import org.ah.piwars.virtualrover.screens.RenderingContext;
+import org.ah.piwars.virtualrover.utils.SoundManager;
+import org.ah.piwars.virtualrover.view.ChatColor;
+import org.ah.piwars.virtualrover.view.ChatListener;
+import org.ah.piwars.virtualrover.view.Console;
+import org.ah.piwars.virtualrover.world.PlayerModelLink;
+import org.ah.themvsus.engine.client.AbstractServerCommunication;
+import org.ah.themvsus.engine.client.ClientEngine;
+import org.ah.themvsus.engine.common.game.Player;
+import org.ah.themvsus.engine.common.input.PlayerInputs;
+
+import static org.ah.piwars.virtualrover.MainGame.SCALE;
+
+@SuppressWarnings("deprecation")
+public abstract class AbstractChallengeScreen extends ScreenAdapter implements ChatListener, InputProcessor  {
+
+    public static Vector3 UP = Vector3.Y;
+    public static final int CORNER_WIDTH = 7;
+
+    protected int width;
+    protected int height;
+
+    protected MainGame mainGameApp;
+    protected PlatformSpecific platformSpecific;
+    protected ServerCommunicationAdapter serverCommunicationAdapter;
+
+    protected AssetManager assetManager;
+    protected SoundManager soundManager;
+
+    protected ModelBatch modelBatch;
+    protected Environment environment;
+
+    // public int shadowTextureSize = 8192;
+//  public int shadowTextureSize = 4096;
+    // public int shadowTextureSize = 2048;
+    public int shadowTextureSize = 1280;
+
+    protected DirectionalShadowLight shadowLight;
+    protected Environment shadowEnvironment;
+    protected ModelBatch shadowBatch;
+
+    protected OrthographicCamera hudCamera;
+    protected SpriteBatch spriteBatch;
+    protected BitmapFont fontBig;
+    protected BitmapFont fontSmallMono;
+    protected Texture logo;
+
+    protected Console console;
+
+    protected ChallengeArena challenge;
+    protected Background background;
+
+    private String bottomMessage;
+    private boolean bottomMessageBlink;
+
+    private String middleMessage;
+    private boolean middleMessageBlink;
+
+    @SuppressWarnings("unused")
+    private String topRightMessage;
+
+    private GlyphLayout glyphLayout = new GlyphLayout();
+    private int a = 0;
+
+    protected boolean leftShift;
+    protected boolean rightShift;
+    protected boolean leftAlt;
+    protected boolean rightAlt;
+    protected boolean leftCtrl;
+    protected boolean rightCtrl;
+    protected boolean escPressed;
+
+    protected boolean suspended;
+
+    protected boolean drawFPS = false;
+
+    protected RenderingContext renderingContext;
+
+    private IntSet unknownObjectIds = new IntSet();
+
+    protected PerspectiveCamera camera;
+    protected CameraControllersManager cameraControllersManager;
+    protected InputMultiplexer cameraInputMultiplexer;
+    protected CinematicCameraController cinematicCameraController;
+
+    protected DirectionalLight directionalLight;
+    private FrameBuffer textBackgroundCornerFrameBuffer;
+    private Texture textBackgroundCornerTexture;
+    private FrameBuffer textBackgroundFrameBuffer;
+    private Texture textBackgroundTexture;
+
+    protected AbstractChallengeScreen(MainGame game,
+            PlatformSpecific platformSpecific,
+            AssetManager assetManager,
+            SoundManager soundManager,
+            ServerCommunicationAdapter serverCommunicationAdapter,
+            Console console) {
+
+        this.mainGameApp = game;
+        this.platformSpecific = platformSpecific;
+        this.assetManager = assetManager;
+        this.soundManager = soundManager;
+        this.serverCommunicationAdapter = serverCommunicationAdapter;
+        this.console = console;
+
+        this.width = Gdx.graphics.getWidth();
+        this.height = Gdx.graphics.getHeight();
+
+        modelBatch = new ModelBatch();
+        spriteBatch = new SpriteBatch();
+
+        environment = new Environment();
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+        directionalLight = new DirectionalLight();
+        directionalLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        environment.add(directionalLight);
+
+        shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 8.5f, 8.5f, 0.01f, 100f);
+        // shadowLight = new DirectionalShadowLight(shadowTextureSize, shadowTextureSize, 15f, 15f, 0.01f, 100f);
+        shadowLight.set(1f, 1f, 1f, new Vector3(-0.5f, -1f, 0.5f));
+        shadowEnvironment = new Environment();
+        shadowEnvironment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
+        shadowEnvironment.add(shadowLight);
+        shadowEnvironment.shadowMap = shadowLight;
+
+        shadowBatch = new ModelBatch(new DepthShaderProvider());
+        hudCamera = new OrthographicCamera(width, height);
+        hudCamera.setToOrtho(true);
+
+        renderingContext = new RenderingContext(modelBatch, environment, null);
+
+        setupCamera(); // TODO not the best idea to override method for constructor
+
+        createTextBackgroundPanel();
+    }
+
+    private void createTextBackgroundPanel() {
+        OrthographicCamera cornerCamera = new OrthographicCamera(CORNER_WIDTH, CORNER_WIDTH);
+        cornerCamera.setToOrtho(true, CORNER_WIDTH, CORNER_WIDTH);
+
+        textBackgroundFrameBuffer = new FrameBuffer(Format.RGBA8888, 16, 16, false);
+        textBackgroundTexture = textBackgroundFrameBuffer.getColorBufferTexture();
+
+        textBackgroundFrameBuffer.begin();
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        textBackgroundFrameBuffer.end();
+
+        textBackgroundCornerFrameBuffer = new FrameBuffer(Format.RGBA8888, CORNER_WIDTH, CORNER_WIDTH, false);
+        textBackgroundCornerTexture = textBackgroundCornerFrameBuffer.getColorBufferTexture();
+
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setProjectionMatrix(cornerCamera.combined);
+        textBackgroundCornerFrameBuffer.begin();
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(0.0f, 0.0f, 0.0f, 0.1f);
+        shapeRenderer.circle(CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH);
+        shapeRenderer.end();
+        textBackgroundCornerFrameBuffer.end();
+    }
+
+    @Override
+    public void dispose() {
+        shadowBatch.dispose();
+        modelBatch.dispose();
+        spriteBatch.dispose();
+        fontBig.dispose();
+        if (logo == null) { logo.dispose(); }
+        if (challenge != null) { challenge.dispose(); }
+        if (background != null) { background.dispose(); }
+    }
+
+    protected void setupCamera() {
+        camera = new PerspectiveCamera(45, width, height);
+        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(0f, 0f, 0f);
+        camera.near = 0.02f;
+        camera.far = 1000f;
+
+        cameraInputMultiplexer = new InputMultiplexer();
+        Gdx.input.setInputProcessor(cameraInputMultiplexer);
+        Gdx.input.setCursorCatched(false);
+
+        cameraControllersManager = new CameraControllersManager();
+        cameraInputMultiplexer.addProcessor(this);
+        cameraInputMultiplexer.addProcessor(cameraControllersManager);
+
+        cinematicCameraController = new CinematicCameraController(camera, serverCommunicationAdapter);
+        cameraControllersManager.addCameraController("Cinematic", cinematicCameraController);
+        cameraControllersManager.addCameraController("Default", new CameraInputController(camera));
+        // cameraControllersManager.addCameraController("Other", new CinematicCameraController2(camera, players));
+    }
+
+    protected void resetCameraPosition() {
+        camera.position.set(300f * SCALE, 480f * SCALE, 300f * SCALE);
+        camera.lookAt(0f, 0f, 0f);
+    }
+
+    public void reset() {
+        setMiddleMessage("", false);
+        suspended = false;
+        serverCommunicationAdapter.reset();
+
+        resetCameraPosition();
+
+        challenge.init();
+    }
+
+    protected Background getBackground() {
+        return background;
+    }
+
+    protected void setBackground(Background background) {
+        this.background = background;
+    }
+
+    public ChallengeArena getChallengeArena() {
+        return challenge;
+    }
+
+    public void setChallengeArena(ChallengeArena challenge) {
+        this.challenge = challenge;
+        challenge.setChallenge(serverCommunicationAdapter.getEngine().getGame().getChallenge());
+    }
+
+    protected void setBottomMessage(String message, boolean blink) {
+        this.bottomMessage = message;
+        this.bottomMessageBlink = blink;
+    }
+
+    protected void setMiddleMessage(String message, boolean blink) {
+        this.middleMessage = message;
+        this.middleMessageBlink = blink;
+    }
+
+    @Override
+    public void show() {
+        if (fontBig == null) {
+            fontBig = assetManager.get("font/basic.fnt");
+        }
+        if (fontSmallMono == null) {
+            fontSmallMono = assetManager.get("font/droidsansmono-15.fnt");
+        }
+        if (logo == null) {
+            // logo = assetManager.get("GCC_full.png");
+            logo = assetManager.get("PiWarsLogo-small.png");
+        }
+
+        if (console != null) {
+            console.setCamera(hudCamera);
+            console.addListener(this);
+        }
+        Gdx.input.setInputProcessor(cameraInputMultiplexer);
+        Gdx.input.setCursorCatched(false);
+    }
+
+    @Override
+    public void hide() {
+        if (console != null) {
+            console.removeListener(this);
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        this.width = width;
+        this.height = height;
+        if (console != null) {
+            console.setConsoleWidth(width);
+        }
+        if (hudCamera != null) {
+            hudCamera.setToOrtho(false, width, height);
+            hudCamera.update();
+        }
+        if (camera != null) {
+            camera.viewportWidth = width;
+            camera.viewportHeight = height;
+        }
+    }
+
+    protected void progressEngine() {
+        ClientEngine<PiWarsGame> engine = serverCommunicationAdapter.getEngine();
+        if (engine != null) {
+            PlayerModelLink playerOne = serverCommunicationAdapter.getPlayerOneVisualObject();
+            if (playerOne != null) {
+                serverCommunicationAdapter.setPlayerOneInput(playerOne.roverInput);
+            }
+            PlayerModelLink playerTwo = serverCommunicationAdapter.getPlayerTwoVisualObject();
+            if (playerTwo != null) {
+                serverCommunicationAdapter.setPlayerTwoInput(playerTwo.roverInput);
+                PiWarsGame game = engine.getGame();
+                if (game.isServer()) {
+                    PlayerInputs playerTwoInputs = serverCommunicationAdapter.getPlayerTwoInputs();
+                    int currentForwardFrameNo = game.getCurrentFrameId();
+                    if (playerTwoInputs != null) {
+                        playerTwoInputs.trimBeforeFrame(currentForwardFrameNo);
+                    }
+                }
+            }
+
+            long now = System.currentTimeMillis();
+            engine.progressEngine(now, unknownObjectIds);
+
+            if (unknownObjectIds.size > 0) {
+                serverCommunicationAdapter.requestFullUpdate(unknownObjectIds);
+            }
+        }
+    }
+
+    protected void drawFPS() {
+        ClientEngine<PiWarsGame> engine = serverCommunicationAdapter.getEngine();
+        AbstractServerCommunication<?> abstractServerCommunication = serverCommunicationAdapter.getServerCommmunication();
+
+        String fps = "f:" + Integer.toString(Gdx.graphics.getFramesPerSecond());
+        fontSmallMono.draw(spriteBatch, fps, width - 60, height - 48);
+
+        String rtt = "RTT:" + Integer.toString(engine.getAverageRTT()) + "/" + Integer.toString(engine.getMaxRTT()) + "/" + Integer.toString(engine.getCurrentRTT());
+        fontSmallMono.draw(spriteBatch, rtt, width - 200, height - 12);
+
+        String debugDelay = "DD:" + Integer.toString(abstractServerCommunication.getReceivingDelay()) + "/" + Integer.toString(abstractServerCommunication.getSendingDelay());
+        fontSmallMono.draw(spriteBatch, debugDelay, width - 200, height - 30);
+
+        String frameTickInfo = "RUDA:" + Integer.toString(engine.getRebuiltFramesNumber())
+                                       + "/" + Integer.toString(engine.getSpedUpFrames())
+                                       + "/" + Integer.toString(engine.getSlowedDownFrames())
+                                       + "/" + Integer.toString(engine.getAdjustedForMissingInputsFrames());
+        fontSmallMono.draw(spriteBatch, frameTickInfo, width - 200, height - 48);
+    }
+
+
+    protected void drawStandardMessages() {
+        a++;
+        if (!platformSpecific.isSimulation()) {
+            spriteBatch.draw(logo, 0, Gdx.graphics.getHeight() - logo.getHeight());
+        }
+        if (bottomMessage != null && (!bottomMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
+            fontBig.draw(spriteBatch, bottomMessage, 64, 128);
+            // font.draw(spriteBatch, "Press space to start", margin, margin * 2);
+        }
+
+        GameMessageObject gameMessageObject = serverCommunicationAdapter.getGameMessageObject();
+
+        if (gameMessageObject != null && gameMessageObject.getMessage() != null && !"".equals(gameMessageObject.getMessage())) {
+            middleMessage = "";
+            String message = gameMessageObject.getMessage();
+            float textWidth = textWidth(fontBig, message);
+            drawText(spriteBatch, fontBig, message, (width - textWidth) / 2, (height - fontBig.getLineHeight()) / 2, textWidth);
+
+        } else if (middleMessage != null && (!middleMessageBlink || Math.floor(a / 20.0) % 2 == 0)) {
+            String message = middleMessage;
+            float textWidth = textWidth(fontBig, message);
+            drawText(spriteBatch, fontBig, message, (width - textWidth) / 2, (height - fontBig.getLineHeight()) / 2, textWidth);
+        }
+
+        if (gameMessageObject != null && gameMessageObject.hasTimer()) {
+            topRightMessage = "";
+            int timer = gameMessageObject.getTimerTens(serverCommunicationAdapter.getEngine().getGame());
+            String message = (timer / 10) + "." + (timer % 10);
+            float textWidth = textWidth(fontBig, message);
+            drawText(spriteBatch, fontBig, message, (width - textWidth) - 20, height - 10, textWidth);
+        }
+    }
+
+    private void drawText(SpriteBatch spriteBatch, BitmapFont font, String message, float x, float y, float textWidth) {
+        font.setColor(Color.BLACK);
+        if (message.length() < 8) {
+            font.draw(spriteBatch, message, x - 1, y - 1);
+            font.draw(spriteBatch, message, x, y - 1);
+            font.draw(spriteBatch, message, x + 1, y - 1);
+            font.draw(spriteBatch, message, x - 1, y);
+            font.draw(spriteBatch, message, x + 1, y);
+            font.draw(spriteBatch, message, x - 1, y + 1);
+            font.draw(spriteBatch, message, x, y - 1);
+            font.draw(spriteBatch, message, x + 1, y + 1);
+        } else {
+            float lineHeight = font.getLineHeight();
+            //  float x, float y, float width, float height, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX, boolean flipY
+            spriteBatch.draw(textBackgroundTexture, x, y - lineHeight - CORNER_WIDTH, textWidth, CORNER_WIDTH);
+            spriteBatch.draw(textBackgroundTexture, x - CORNER_WIDTH, y - lineHeight, textWidth + CORNER_WIDTH + CORNER_WIDTH, lineHeight);
+            spriteBatch.draw(textBackgroundTexture, x, y, textWidth, CORNER_WIDTH);
+            spriteBatch.draw(textBackgroundCornerTexture, x - CORNER_WIDTH, y - lineHeight - CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, false, false);
+            spriteBatch.draw(textBackgroundCornerTexture, x - CORNER_WIDTH, y, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, false, true);
+            spriteBatch.draw(textBackgroundCornerTexture, x + textWidth, y - lineHeight - CORNER_WIDTH, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, true, false);
+            spriteBatch.draw(textBackgroundCornerTexture, x + textWidth, y, CORNER_WIDTH, CORNER_WIDTH, 0, 0, CORNER_WIDTH, CORNER_WIDTH, true, true);
+            y = y - 4;
+        }
+        fontBig.setColor(Color.WHITE);
+        fontBig.draw(spriteBatch, message, x, y);
+    }
+
+    protected boolean isSuspended() {
+        return suspended;
+    }
+
+    protected void leave() {
+        mainGameApp.returnToMainScreen();
+    }
+
+    @Override
+    public void onCommand(Player from, String cmdName, String[] args) {
+        if ("hello".equals(cmdName)) {
+            console.chat("Bot", "Hello", ChatColor.PURPLE);
+        } else if ("help".equals(cmdName)) {
+            console.raw(ChatColor.PURPLE + "/hello" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "says hello");
+            console.raw(ChatColor.PURPLE + "/time" + ChatColor.GREEN + "gives current time in millis");
+            console.raw(ChatColor.PURPLE + "/help" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "Shows this");
+            console.raw(ChatColor.PURPLE + "/cpu" + ChatColor.YELLOW + " | " + ChatColor.GREEN + "Shows this");
+        } else if ("colors".equals(cmdName)) {
+            console.raw(ChatColor.RED + "o" + ChatColor.ORANGE + "o" + ChatColor.YELLOW + "o" + ChatColor.GREEN + "o" + ChatColor.BLUE + "o" + ChatColor.INDIGO
+                    + "o" + ChatColor.PURPLE + "o" + ChatColor.GRAY + "o" + ChatColor.BLACK + "o");
+        } else if ("time".equals(cmdName)) {
+            console.info(ChatColor.INDIGO + "millis: " + ChatColor.GREEN + System.currentTimeMillis());
+        } else {
+            console.error("Unknow command, type /help for list");
+        }
+    }
+
+    protected void moveRovers() {
+        PlayerModelLink player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
+        if (player1 != null) {
+            player1.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
+            player1.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
+            player1.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
+            player1.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ? 1f : 0f);
+            player1.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.Z));
+            player1.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.X));
+            player1.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.C));
+            player1.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.V));
+        }
+
+        PlayerModelLink player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
+        if (player2 != null) {
+            player2.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
+            player2.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
+            player2.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
+            player2.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) ? 1f : 0f);
+            player2.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.N));
+            player2.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.M));
+            player2.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.COMMA));
+            player2.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.PERIOD));
+        }
+    }
+
+    @Override
+    public void onChat(String playerName, String text) {
+
+    }
+
+    @Override
+    public void onText(String text) {
+
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        if (!suspended) {
+            if (keycode == Input.Keys.ESCAPE && !escPressed) {
+                suspended = true;
+                escPressed = true;
+            }
+            if (keycode == Input.Keys.SHIFT_LEFT) {
+                leftShift = true;
+            }
+            if (keycode == Input.Keys.SHIFT_RIGHT) {
+                rightShift = true;
+            }
+            if (keycode == Input.Keys.ALT_LEFT) {
+                leftAlt = true;
+            }
+            if (keycode == Input.Keys.ALT_RIGHT) {
+                rightAlt = true;
+            }
+            if (keycode == Input.Keys.CONTROL_LEFT) {
+                leftCtrl = true;
+            }
+            if (keycode == Input.Keys.CONTROL_RIGHT) {
+                rightCtrl = true;
+            }
+            if (keycode == Input.Keys.F) {
+                drawFPS = !drawFPS;
+            }
+        } else {
+            if (keycode == Input.Keys.ESCAPE && !escPressed) {
+                leave();
+                escPressed = true;
+            } else {
+                setMiddleMessage("", true);
+                suspended = false;
+            }
+        }
+        if (keycode == Input.Keys.H && challenge instanceof AbstractChallenge) {
+            if (renderingContext.showRovers && !renderingContext.showPlan) {
+                renderingContext.showRovers = true;
+                renderingContext.showPlan = true;
+            } else if (renderingContext.showRovers && renderingContext.showPlan) {
+                renderingContext.showRovers = false;
+                renderingContext.showPlan = true;
+            } else {
+                renderingContext.showRovers = true;
+                renderingContext.showPlan = false;
+            }
+        }
+        if (keycode == Input.Keys.G && challenge instanceof AbstractChallenge) {
+            renderingContext.showShadows = !renderingContext.showShadows;
+        }
+        if (keycode == Input.Keys.T && challenge instanceof AbstractChallenge) {
+            renderingContext.showRovers = !renderingContext.showRovers;
+        }
+        if (keycode == Input.Keys.B && challenge instanceof AbstractChallenge) {
+            renderingContext.renderBackground = !renderingContext.renderBackground;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        if (keycode == Input.Keys.ESCAPE) {
+            escPressed = false;
+        }
+        if (keycode == Input.Keys.SHIFT_LEFT) {
+            leftShift = false;
+        }
+        if (keycode == Input.Keys.SHIFT_RIGHT) {
+            rightShift = false;
+        }
+        if (keycode == Input.Keys.ALT_LEFT) {
+            leftAlt = false;
+        }
+        if (keycode == Input.Keys.ALT_RIGHT) {
+            rightAlt = false;
+        }
+        if (keycode == Input.Keys.CONTROL_LEFT) {
+            leftCtrl = false;
+        }
+        if (keycode == Input.Keys.CONTROL_RIGHT) {
+            rightCtrl = false;
+        }
+        return false;
+    }
+
+    @Override public boolean keyTyped(char character) {
+        if (character == '=') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            serverCommmunication.setSendingDelay(serverCommmunication.getSendingDelay() + 5);
+        } else if (character == '-') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            int newSendingDelay = serverCommmunication.getSendingDelay() - 5;
+            if (newSendingDelay < 0) {
+                newSendingDelay = 0;
+            }
+            serverCommmunication.setSendingDelay(newSendingDelay);
+        } else if (character == '+') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            serverCommmunication.setReceivingDelay(serverCommmunication.getReceivingDelay() + 5);
+        } else if (character == '_') {
+            AbstractServerCommunication<?> serverCommmunication = serverCommunicationAdapter.getServerCommmunication();
+            int newReceivingDelay = serverCommmunication.getReceivingDelay() - 5;
+            if (newReceivingDelay < 0) {
+                newReceivingDelay = 0;
+            }
+            serverCommmunication.setReceivingDelay(newReceivingDelay);
+        }
+        return false;
+    }
+
+    @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) { return false; }
+
+    @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) { return false; }
+
+    @Override public boolean touchDragged(int screenX, int screenY, int pointer) { return false; }
+
+    @Override public boolean mouseMoved(int screenX, int screenY) { return false; }
+
+    @Override public boolean scrolled(int amount) { return false; }
+
+    protected float textWidth(BitmapFont font, String text) {
+        glyphLayout.setText(font, text);
+        return glyphLayout.width;
+    }
+}
