@@ -17,11 +17,9 @@ task createPom  {
     }.writeTo("pom.xml")
 }
 
-//.    compileJava.dependsOn(addTimestamp)
-
 task addTimestamp {
     doFirst {
-        def mainGameFilename = "src/org/ah/piwars/virtualrover/MainGame.java"
+        def mainGameFilename = "$rootDir/core/src/org/ah/piwars/virtualrover/MainGame.java"
         def mainGameFile = new File(mainGameFilename)
         def mainGameSource = mainGameFile.text
 
@@ -33,4 +31,6 @@ task addTimestamp {
     }
 }
 
-build.dependsOn addTimestamp
+compileJava {
+    dependsOn addTimestamp
+}

@@ -93,7 +93,7 @@ public class MainGame extends Game {
     }
 
     public void finishedLoading() {
-        String timestamp = "#202010041202";
+        String timestamp = "#202010111953";
 
         String version = "v.0.8";
 
