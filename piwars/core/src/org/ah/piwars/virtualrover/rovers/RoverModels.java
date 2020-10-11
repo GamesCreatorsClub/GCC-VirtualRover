@@ -13,5 +13,4 @@ public class RoverModels {
         GCCRoverModelM18.load(assetManager);
         CBiSRoverModel.load(assetManager);
     }
-
 }

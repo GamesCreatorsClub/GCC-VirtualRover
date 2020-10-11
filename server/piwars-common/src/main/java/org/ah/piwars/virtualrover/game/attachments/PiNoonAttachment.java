@@ -31,9 +31,9 @@ public class PiNoonAttachment extends GameObjectWithPositionAndOrientation imple
     public PiNoonAttachment(GameObjectFactory factory, int id) {
         super(factory, id);
 
-        balloons[0] = new Vector2(0f, -45f);
-        balloons[1] = new Vector2(75f, 0f);
-        balloons[2] = new Vector2(0f, 45f);
+        balloons[0] = new Vector2(0f, -35f);
+        balloons[1] = new Vector2(35f, 0f);
+        balloons[2] = new Vector2(0f, 35f);
         for (int i = 0; i < ballonsTempCircle.length; i++) {
             ballonsTempCircle[i] = new Circle(0,  0, BALLOONS_RADIUS);
         }

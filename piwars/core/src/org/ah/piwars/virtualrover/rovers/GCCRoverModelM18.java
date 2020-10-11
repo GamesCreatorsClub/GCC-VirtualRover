@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -18,10 +19,12 @@ import static java.lang.Math.atan2;
 
 public class GCCRoverModelM18 extends FourWheelRoverModel {
 
+    private static Color ROVER_COLOUR = new Color(0, 0.5f, 0.7f, 1);
+
     private ModelInstance cover;
-    private ModelInstance display;
     private ModelInstance bodyTop1;
     private ModelInstance bodyBottom1;
+    private Matrix4 bodyTransform = new Matrix4();
 
     public GCCRoverModelM18(AssetManager assetManager) throws NoSuchElementException {
         this("GCC Rover M18", assetManager, Color.WHITE);
@@ -39,7 +42,7 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
 
         cover.materials.get(0).set(ColorAttribute.createDiffuse(colour));
         bodyTop1.materials.get(0).set(ColorAttribute.createDiffuse(Color.WHITE));
-        bodyBottom1.materials.get(0).set(ColorAttribute.createDiffuse(Color.CYAN));
+        bodyBottom1.materials.get(0).set(ColorAttribute.createDiffuse(ROVER_COLOUR));
 
         Model motorHolderModel = assetManager.get("3d/rovers/gcc_M16/motor_holder.obj");
         Model wheelModel = assetManager.get("3d/rovers/gcc_M16/wheel.obj");
@@ -68,18 +71,19 @@ public class GCCRoverModelM18 extends FourWheelRoverModel {
         super.update(rover);
 
         float bearing = rover.getBearing();
+        bodyTransform.set(transform);
+//        bodyTransform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
+        bodyTransform.translate(0f, -50, 0f);
+//        transform.translate(-80f, 0, 55f);
 
-        transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
-        transform.translate(0f, -50, 0f);
+        fr.getTransform().set(bodyTransform);
+        fl.getTransform().set(bodyTransform);
+        br.getTransform().set(bodyTransform);
+        bl.getTransform().set(bodyTransform);
 
-        fr.getTransform().set(transform);
-        fl.getTransform().set(transform);
-        br.getTransform().set(transform);
-        bl.getTransform().set(transform);
-
-        cover.transform.set(transform);
-        bodyTop1.transform.set(transform);
-        bodyBottom1.transform.set(transform);
+        cover.transform.set(bodyTransform);
+        bodyTop1.transform.set(bodyTransform);
+        bodyBottom1.transform.set(bodyTransform);
 
         Vector3 velocity = rover.getVelocity();
         if (abs(rover.getTurnSpeed()) < 0.01f) {

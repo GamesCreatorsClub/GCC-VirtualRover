@@ -66,16 +66,16 @@ public class PiNoonAttachmentModel extends AbstractAttachmentModel {
         balloonPeriod++;
 
         sharpPointMatrix.set(roverTransform);
-        sharpPointMatrix.translate(-139f, 159f, -56.25f);
+        sharpPointMatrix.translate(-195f, 159f, 0f);
         sharpPointPos = sharpPointMatrix.getTranslation(sharpPointPos);
 
         for (Balloon balloon : this.balloons) {
             balloon.balloon.transform.set(roverTransform);
         }
 
-        balloons[0].balloon.transform.translate(15f, 178f, -70f);
-        balloons[1].balloon.transform.translate(-15f, 178f, -50f);
-        balloons[2].balloon.transform.translate(15f, 158f, -30f);
+        balloons[0].balloon.transform.translate(-50f, 170f, 0f);
+        balloons[1].balloon.transform.translate(-50f, 175f, 0f);
+        balloons[2].balloon.transform.translate(-50f, 160f, 0f);
 
         balloons[0].balloon.transform.rotate(new Vector3(1, 1, 0), (float) (-50 + (Math.sin(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
         balloons[1].balloon.transform.rotate(new Vector3(0, 0, 1), (float) (45 + (Math.cos(balloonPeriod / (Math.random() * 4f + 60f)) * 5f)));
@@ -83,7 +83,7 @@ public class PiNoonAttachmentModel extends AbstractAttachmentModel {
 
         pinoon.transform.set(roverTransform);
 
-        pinoon.transform.translate(-10f, 8f, -66f);
+        pinoon.transform.translate(-66f, 8f, -10f);
         pinoon.transform.rotate(new Vector3(0, 1, 0), 180);
 
         if (SHOW_MARKER) {

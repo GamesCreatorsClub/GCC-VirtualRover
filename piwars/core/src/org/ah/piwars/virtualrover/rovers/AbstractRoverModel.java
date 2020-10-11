@@ -79,6 +79,9 @@ public abstract class AbstractRoverModel implements RoverModel {
             pos.lerp(position, 0.5f);
         }
         transform.setToTranslationAndScaling(position.x * SCALE, 0, -position.y * SCALE, SCALE, SCALE, SCALE);
+
+        float bearing = rover.getBearing();
+        transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
     }
 
     protected static float fixAngle(float degrees) {
@@ -94,5 +97,6 @@ public abstract class AbstractRoverModel implements RoverModel {
         return speedMPS * Gdx.graphics.getDeltaTime() * 1000; // in millimetres
     }
 
+    @Override
     public abstract void dispose();
 }

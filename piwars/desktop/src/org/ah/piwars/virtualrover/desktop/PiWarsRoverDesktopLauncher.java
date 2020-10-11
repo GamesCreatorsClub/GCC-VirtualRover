@@ -1,13 +1,10 @@
 package org.ah.piwars.virtualrover.desktop;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplication;
 import com.badlogic.gdx.backends.jogamp.JoglNewtApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 
 import org.ah.piwars.virtualrover.MainGame;
 import org.ah.piwars.virtualrover.PlatformSpecific;

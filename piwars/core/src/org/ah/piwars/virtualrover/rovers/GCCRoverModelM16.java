@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -21,6 +22,8 @@ public class GCCRoverModelM16 extends FourWheelRoverModel {
     private ModelInstance body;
 
     private ModelInstance top;
+
+    private Matrix4 bodyTransform = new Matrix4();
 
     public GCCRoverModelM16(AssetManager assetManager) throws NoSuchElementException {
         this("GCC Rover M16", assetManager, Color.WHITE);
@@ -66,17 +69,17 @@ public class GCCRoverModelM16 extends FourWheelRoverModel {
         super.update(rover);
 
         float bearing = rover.getBearing();
+        bodyTransform.set(transform);
+        //bodyTransform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
+        bodyTransform.translate(-80f, 0, 55f);
 
-        transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
-        transform.translate(-80f, 0, 55f);
+        fr.getTransform().set(bodyTransform);
+        fl.getTransform().set(bodyTransform);
+        br.getTransform().set(bodyTransform);
+        bl.getTransform().set(bodyTransform);
 
-        fr.getTransform().set(transform);
-        fl.getTransform().set(transform);
-        br.getTransform().set(transform);
-        bl.getTransform().set(transform);
-
-        top.transform.set(transform);
-        body.transform.set(transform);
+        top.transform.set(bodyTransform);
+        body.transform.set(bodyTransform);
 
         Vector3 velocity = rover.getVelocity();
         if (abs(rover.getTurnSpeed()) < 0.01f) {

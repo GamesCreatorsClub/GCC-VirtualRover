@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 import org.ah.piwars.virtualrover.game.rovers.Rover;
@@ -15,9 +16,11 @@ import java.util.NoSuchElementException;
 
 public class CBiSRoverModel extends FourWheelRoverModel {
 
+    private static float ROVER_SCALE = 26;
+
     private ModelInstance body;
 
-    private static float ROVER_SCALE = 26;
+    private Matrix4 bodyTransform = new Matrix4();
 
     public CBiSRoverModel(AssetManager assetManager) throws NoSuchElementException {
         this("CBiS Rover", assetManager, Color.WHITE);
@@ -54,20 +57,21 @@ public class CBiSRoverModel extends FourWheelRoverModel {
     public void update(Rover rover) {
         super.update(rover);
 
-        float bearing = rover.getBearing();
+        //float bearing = rover.getBearing();
 
-        transform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
-        transform.translate(-80f, 0, 55f);
+        bodyTransform.set(transform);
+        // bodyTransform.rotate(new Vector3(0, 1, 0), 180 + bearing); // 180 + is because of all rover models are made 'backwards'
+        bodyTransform.translate(-80f, 0, 55f);
 
-        body.transform.set(transform);
+        body.transform.set(bodyTransform);
 
         body.transform.translate(7.8f, -1.6f, 0f);
         body.transform.rotate(new Vector3(0, 1, 0), 90);
 
-        fr.getTransform().set(transform);
-        fl.getTransform().set(transform);
-        br.getTransform().set(transform);
-        bl.getTransform().set(transform);
+        fr.getTransform().set(bodyTransform);
+        fl.getTransform().set(bodyTransform);
+        br.getTransform().set(bodyTransform);
+        bl.getTransform().set(bodyTransform);
 
         setWheelSpeeds(rover.getSpeed());
 
