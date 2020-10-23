@@ -4,9 +4,10 @@ from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientatio
 from piwarssim.engine.utils.Shapes import Circle
 
 
-class BarrelColour(Enum):
+class ToyCubeColour(Enum):
     Green = ()
     Red = ()
+    Blue = ()
 
     def __new__(cls):
         value = len(cls.__members__)
@@ -19,27 +20,27 @@ class BarrelColour(Enum):
 
     @staticmethod
     def from_ordinal(ordinal):
-        for enum_obj in BarrelColour:
+        for enum_obj in ToyCubeColour:
             if enum_obj.value == ordinal:
                 return enum_obj
 
 
-class BarrelSimObject(MovingSimulationObjectWithPositionAndOrientation):
+class ToyCubeSimObject(MovingSimulationObjectWithPositionAndOrientation):
 
     def __init__(self, factory, sim_object_id, sim_object_type):
-        super(BarrelSimObject, self).__init__(factory, sim_object_id, sim_object_type)
-        self._barrel_colour = BarrelColour.Green
+        super(ToyCubeSimObject, self).__init__(factory, sim_object_id, sim_object_type)
+        self._cube_colour = ToyCubeColour.Green
         self.circle = Circle(0, 0, 25)
 
     def free(self):
-        super(BarrelSimObject, self).free()
+        super(ToyCubeSimObject, self).free()
 
-    def get_barrel_colour(self):
-        return self._barrel_colour
+    def get_cube_colour(self):
+        return self._cube_colour
 
-    def set_barrel_colour(self, barrel_colour):
-        self.changed = self.changed or self._barrel_colour != barrel_colour
-        self._barrel_colour = barrel_colour
+    def set_cube_colour(self, barrel_colour):
+        self.changed = self.changed or self._cube_colour != barrel_colour
+        self._cube_colour = barrel_colour
 
     def get_circle(self):
         position = self.get_position()
@@ -54,28 +55,28 @@ class BarrelSimObject(MovingSimulationObjectWithPositionAndOrientation):
     #     super(BarrelSimObject, self).set_position_2(x, y)
     #
     def serialize(self, full, serializer):
-        super(BarrelSimObject, self).serialize(full, serializer)
+        super(ToyCubeSimObject, self).serialize(full, serializer)
         if full:
-            serializer.serialize_unsigned_byte(self._barrel_colour.ordinal())
+            serializer.serialize_unsigned_byte(self._cube_colour.ordinal())
 
     def deserialize(self, full, serializer):
-        super(BarrelSimObject, self).deserialize(full, serializer)
+        super(ToyCubeSimObject, self).deserialize(full, serializer)
         if full:
             barrel_colour_ordinal = serializer.deserialize_unsigned_byte()
-            barrel_colour = BarrelColour.from_ordinal(barrel_colour_ordinal)
+            barrel_colour = ToyCubeColour.from_ordinal(barrel_colour_ordinal)
             if barrel_colour is None:
-                barrel_colour = BarrelColour.Green
+                barrel_colour = ToyCubeColour.Green
 
-            self._barrel_colour = barrel_colour
+            self._cube_colour = barrel_colour
 
     def size(self, full):
-        return super(BarrelSimObject, self).size(full) + (1 if full else 0)
+        return super(ToyCubeSimObject, self).size(full) + (1 if full else 0)
 
     def copy_internal(self, new_object):
-        super(BarrelSimObject, self).copy_internal(new_object)
-        new_object._barrel_colour = self._barrel_colour
+        super(ToyCubeSimObject, self).copy_internal(new_object)
+        new_object._barrel_colour = self._cube_colour
 
         return new_object
 
     def __repr__(self):
-        return "Barrel[" + super(BarrelSimObject, self).__repr__() + "]"
+        return "ToyCube[" + super(ToyCubeSimObject, self).__repr__() + "]"

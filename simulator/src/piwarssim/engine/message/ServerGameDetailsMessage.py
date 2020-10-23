@@ -3,48 +3,46 @@ from enum import Enum
 from piwarssim.engine.message.Message import Message
 
 
-class ServerInternalState(Enum):
-    NoneState = ()
-    AuthenticateSuccessful = ()
-    AuthenticateFailed = ()
-    RegistrationSuccessful = ()
-    RegistrationFailed = ()
-    SessionClosed = ()
-    RegistrationServerURL = ()
-    GameMap = ()
-
-    def __new__(cls):
-        value = len(cls.__members__)
-        obj = object.__new__(cls)
-        obj._value_ = value
-        return obj
-
-    def ordinal(self):
-        return self.value
-
-    @staticmethod
-    def from_ordinal(ordinal):
-        for enum_obj in ServerInternalState:
-            if enum_obj.value == ordinal:
-                return enum_obj
-
-
-class ServerInternalMessage(Message):
+class ServerGameDetailsMessage(Message):
     def __init__(self, factory, message_type):
-        super(ServerInternalMessage, self).__init__(factory, message_type)
-        self._state = None
-        self._message = None
+        super(ServerGameDetailsMessage, self).__init__(factory, message_type)
+        self._game_id = ""
+        self._game_name = ""
+        self._map_id = ""
+        self._player_id = 0
+        self._message = ""
 
     def free(self):
-        super(ServerInternalMessage, self).free()
-        self._state = None
-        self._message = None
+        super(ServerGameDetailsMessage, self).free()
+        self._game_id = ""
+        self._game_name = ""
+        self._map_id = ""
+        self._player_id = 0
+        self._message = ""
 
-    def get_state(self):
-        return self._state
+    def get_game_id(self):
+        return self._game_id
 
-    def set_state(self, state):
-        self._state = state
+    def set_game_id(self, game_id):
+        self._game_id = game_id
+
+    def get_game_name(self):
+        return self._game_name
+
+    def set_game_name(self, game_name):
+        self._game_name = game_name
+
+    def get_map_id(self):
+        return self._map_id
+
+    def set_map_id(self, map_id):
+        self._map_id = map_id
+
+    def get_player_id(self):
+        return self._player_id
+
+    def set_player_id(self, player_id):
+        self._player_id = player_id
 
     def get_message(self):
         return self._message
@@ -53,37 +51,25 @@ class ServerInternalMessage(Message):
         self._message = message
 
     def size(self):
-        return super(ServerInternalMessage, self).size() + 1 + 2 + (len(self._message) if self._message is not None else 0)
+        return super(ServerGameDetailsMessage, self).size() + 2\
+               + 1 + (len(self._game_id) if self._game_id is not None else 0) \
+               + 1 + (len(self._game_name) if self._game_name is not None else 0) \
+               + 1 + (len(self._map_id) if self._map_id is not None else 0) \
+               + 1 \
+               + 1 + (len(self._message) if self._message is not None else 0)
 
     def deserialize_impl(self, deserializer):
         # super(ServerInternalMessage, self).deserialize_impl(deserializer)
-        self._state = ServerInternalState.from_ordinal(deserializer.deserialize_unsigned_byte())
+        self._game_id = deserializer.deserialize_short_string()
+        self._game_name = deserializer.deserialize_short_string()
+        self._map_id = deserializer.deserialize_short_string()
+        self._player_id = deserializer.deserialize_unsigned_short()
         self._message = deserializer.deserialize_string()
 
     def serialize_impl(self, serializer):
         # super(ServerInternalMessage, self).serialize_impl(serializer)
-        serializer.serialize_unsigned_byte(self._state.ordinal())
+        serializer.serialize_short_string(self._game_id)
+        serializer.serialize_short_string(self._game_name)
+        serializer.serialize_short_string(self._map_id)
+        serializer.serialize_unsigned_short(self._player_id)
         serializer.serialize_string(self._message)
-
-
-if __name__ == '__main__':
-    # Simple test
-    from piwarssim.engine.message.MessageCode import MessageCode
-    from piwarssim.engine.transfer.ByteSerializer import ByteSerializer
-
-    serializer = ByteSerializer(None)
-
-    message = ServerInternalMessage(None, MessageCode.ServerInternal)
-    message_received = ServerInternalMessage(None, MessageCode.ServerInternal)
-    for state in ServerInternalState:
-
-        serializer.setup()
-        message.set_state(state)
-        message.set_message("MSG:" + str(state))
-
-        message.serialize(serializer)
-        message_code = serializer.deserialize_int()
-        message_received.deserialize(serializer)
-
-        print(str(MessageCode.from_ordinal(message_code)) + ", state "+ str(message_received.get_state()) + "'s ordinal "
-              + str(message_received.get_state().ordinal()) + "; msg='" + message_received.get_message() + "'")

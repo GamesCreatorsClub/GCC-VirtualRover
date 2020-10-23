@@ -7,7 +7,6 @@ from piwarssim.engine.message.ClientInternalMessage import ClientInternalMessage
 from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage
 from piwarssim.engine.message.MultiObjectRequestForFullUpdateMessage import MultiObjectRequestForFullUpdateMessage
 from piwarssim.engine.message.MessageFactory import MessageFactory
-from piwarssim.engine.message.ServerInternalMessage import ServerInternalState
 from piwarssim.engine.message.ClientScreenshotMessage import ClientScreenshotMessage
 
 
@@ -46,8 +45,11 @@ class ServerEngine:
                     authenticated_message.set_session_id(1)
                     self.send_message(authenticated_message)
 
-                    server_internal_message = self._message_factory.obtain(MessageCode.ServerInternal)
-                    server_internal_message.set_state(ServerInternalState.GameMap)
+                    server_internal_message = self._message_factory.obtain(MessageCode.ServerGameDetails)
+                    server_internal_message.set_game_id(self.challenge.get_challenge_id())
+                    server_internal_message.set_game_name(self.challenge.get_challenge_id())
+                    server_internal_message.set_map_id(self.challenge.get_challenge_id())
+                    server_internal_message.set_player_id(1)
                     server_internal_message.set_message(self.challenge.get_challenge_id())
                     self.send_message(server_internal_message)
                 elif message.get_state() == ClientInternalState.ClientReady:

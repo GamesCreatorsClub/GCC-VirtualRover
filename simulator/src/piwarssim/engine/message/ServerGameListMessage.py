@@ -3,94 +3,41 @@ from enum import Enum
 from piwarssim.engine.message.Message import Message
 
 
-class ServerGameDetailsMessage(Message):
+class ServerGameListMessage(Message):
     def __init__(self, factory, message_type):
-        super(ServerGameDetailsMessage, self).__init__(factory, message_type)
-        self._game_id = ""
-        self._game_name = ""
-        self._map_id = ""
-        self._player_id = 0
-        self._message = ""
+        super(ServerGameListMessage, self).__init__(factory, message_type)
+        self._seq = 0
+        self._game_list = []
 
     def free(self):
-        super(ServerGameDetailsMessage, self).free()
-        self._game_id = ""
-        self._game_name = ""
-        self._map_id = ""
-        self._player_id = 0
-        self._message = ""
+        super(ServerGameListMessage, self).free()
+        self._seq = 0
+        self._game_list = []
 
-    def get_game_id(self):
-        return self._game_id
+    def get_seq(self):
+        return self._seq
 
-    def set_game_id(self, game_id):
-        self._game_id = game_id
+    def set_seq(self, seq):
+        self._seq = seq
 
-    def get_game_name(self):
-        return self._game_name
-
-    def set_game_name(self, game_name):
-        self._game_name = game_name
-
-    def get_map_id(self):
-        return self._map_id
-
-    def set_map_id(self, map_id):
-        self._map_id = map_id
-
-    def get_player_id(self):
-        return self._player_id
-
-    def set_player_id(self, player_id):
-        self._player_id = player_id
-
-    def get_message(self):
-        return self._message
-
-    def set_message(self, message):
-        self._message = message
+    def get_game_list(self):
+        return self._game_list
 
     def size(self):
-        return super(ServerGameDetailsMessage, self).size() + 2\
-               + 1 + (len(self._game_id) if self._game_id is not None else 0) \
-               + 1 + (len(self._game_name) if self._game_name is not None else 0) \
-               + 1 + (len(self._map_id) if self._map_id is not None else 0) \
-               + 1 \
-               + 1 + (len(self._message) if self._message is not None else 0)
+        return super(ServerGameListMessage, self).size() + 2 + len(self._game_list) + sum([len(s) for s in self._game_list])
 
     def deserialize_impl(self, deserializer):
         # super(ServerInternalMessage, self).deserialize_impl(deserializer)
-        self._game_id = deserializer.deserialize_short_string()
-        self._game_name = deserializer.deserialize_short_string()
-        self._map_id = deserializer.deserialize_short_string()
-        self._player_id = deserializer.deserialize_unsigned_short()
-        self._message = deserializer.deserialize_string()
+        self._seq = deserializer.deserialize_byte()
+        size = deserializer.deserialize_unsigned_byte()
+        self._game_list = []
+        for i in range(size):
+            self._game_list.append(deserializer.deserialize_short_string())
+
 
     def serialize_impl(self, serializer):
         # super(ServerInternalMessage, self).serialize_impl(serializer)
-        serializer.serialize_short_string(self._game_id)
-        serializer.serialize_short_string(self._game_name)
-        serializer.serialize_short_string(self._map_id)
-        serializer.serialize_unsigned_short(self._player_id)
-        serializer.serialize_string(self._message)
-
-
-if __name__ == '__main__':
-    # Simple test
-    from piwarssim.engine.message.MessageCode import MessageCode
-    from piwarssim.engine.transfer.ByteSerializer import ByteSerializer
-
-    serializer = ByteSerializer(None)
-
-    message = ServerGameDetailsMessage(None, MessageCode.ServerInternal)
-    message_received = ServerGameDetailsMessage(None, MessageCode.ServerInternal)
-
-    serializer.setup()
-    message.set_
-
-    message.serialize(serializer)
-    message_code = serializer.deserialize_int()
-    message_received.deserialize(serializer)
-
-    print(str(MessageCode.from_ordinal(message_code)) + ", state "+ str(message_received.get_state()) + "'s ordinal "
-          + str(message_received.get_state().ordinal()) + "; msg='" + message_received.get_message() + "'")
+        serializer.serialize_byte(self._seq)
+        serializer.serialize_unsigned_byte(len(self._game_list))
+        for s in self._game_list:
+            serializer.serialize_short_string(s)

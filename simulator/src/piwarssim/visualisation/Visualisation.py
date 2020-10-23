@@ -96,7 +96,7 @@ class Visualisation():
 
     def run(self):
         command = [self.get_java_executable()]
-
+        command += ["-XstartOnFirstThread"]
         if self.is_remote_java_debugging():
             command += ["-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"]
 

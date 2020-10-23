@@ -11,7 +11,6 @@ class ServerInternalState(Enum):
     RegistrationFailed = ()
     SessionClosed = ()
     RegistrationServerURL = ()
-    GameMap = ()
 
     def __new__(cls):
         value = len(cls.__members__)

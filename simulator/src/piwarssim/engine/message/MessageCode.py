@@ -1,11 +1,14 @@
 from enum import Enum
 
+from piwarssim.engine.message.ClientJoinGameMessage import ClientJoinGameMessage
 from piwarssim.engine.message.NopMessage import NopMessage
 from piwarssim.engine.message.ErrorContainerMessage import ErrorContainerMessage
 from piwarssim.engine.message.MultiObjectUpdateMessage import MultiObjectUpdateMessage
 from piwarssim.engine.message.MultiObjectRemovedMessage import MultiObjectRemovedMessage
 from piwarssim.engine.message.MultiObjectRequestForFullUpdateMessage import MultiObjectRequestForFullUpdateMessage
 from piwarssim.engine.message.ClientInternalMessage import ClientInternalMessage
+from piwarssim.engine.message.ServerGameDetailsMessage import ServerGameDetailsMessage
+from piwarssim.engine.message.ServerGameListMessage import ServerGameListMessage
 from piwarssim.engine.message.ServerInternalMessage import ServerInternalMessage
 from piwarssim.engine.message.ServerClientAuthenticatedMessage import ServerClientAuthenticatedMessage
 from piwarssim.engine.message.ClientAuthenticateMessage import ClientAuthenticateMessage
@@ -26,9 +29,12 @@ class MessageCode(Enum):
     MultiObjectUpdate = (lambda factory: MultiObjectUpdateMessage(factory, MessageCode.MultiObjectUpdate),)
     MultiObjectRemoved = (lambda factory: MultiObjectRemovedMessage(factory, MessageCode.MultiObjectRemoved),)
     MultiObjectRequestForFullUpdate = (lambda factory: MultiObjectRequestForFullUpdateMessage(factory, MessageCode.MultiObjectRequestForFullUpdate),)
-    ClientInternal = (lambda factory: ClientInternalMessage(factory, MessageCode.ClientInternal),)
     ServerInternal = (lambda factory: ServerInternalMessage(factory, MessageCode.ServerInternal),)
+    ClientInternal = (lambda factory: ClientInternalMessage(factory, MessageCode.ClientInternal),)
+    ClientJoinGame = (lambda factory: ClientJoinGameMessage(factory, MessageCode.ClientJoinGame),)
     ServerClientAuthenticated = (lambda factory: ServerClientAuthenticatedMessage(factory, MessageCode.ServerClientAuthenticated),)
+    ServerGameDetails = (lambda factory: ServerGameDetailsMessage(factory, MessageCode.ServerGameDetails),)
+    ServerGameList = (lambda factory: ServerGameListMessage(factory, MessageCode.ServerGameList),)
     ClientAuthenticate = (lambda factory: ClientAuthenticateMessage(factory, MessageCode.ClientAuthenticate),)
     ClientRegister = (lambda factory: ClientRegisterMessage(factory, MessageCode.ClientRegister),)
     PlayerInput = (lambda factory: PlayerInputMessage(factory,MessageCode.PlayerInput), )
