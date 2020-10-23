@@ -24,6 +24,9 @@ import static org.ah.piwars.virtualrover.screens.GreetingScreen.RIGHT_ARROW;
 
 public class ChallengeSelectionActor extends Group {
 
+    public static final ChangeChallengeEvent CHANGE_CHALLENGE_EVENT = new ChangeChallengeEvent();
+    public static final SelectChallengeEvent SELECT_CHALLENGE_EVENT = new SelectChallengeEvent();
+
     private int selectedChallengeIndex;
     private ChallengeDescription selectedChallengeDescription;
     private ChallengeArena selectedChallengeArena;
@@ -37,7 +40,6 @@ public class ChallengeSelectionActor extends Group {
     private Button rightButton;
     private Button selectChallengeButton;
 
-    private ChangeEvent changeEvent = new ChangeEvent();
     private boolean selecting;
 
     public ChallengeSelectionActor(
@@ -92,7 +94,7 @@ public class ChallengeSelectionActor extends Group {
         selectChallengeButton.setPosition((width - selectChallengeButton.getWidth()) / 2, - selectChallengeButton.getHeight() * 1.5f);
         selectChallengeButton.addListener(new ChangeListener() {
             @Override public void changed(ChangeEvent event, Actor actor) {
-                fire(changeEvent);
+                fire(SELECT_CHALLENGE_EVENT);
             }});
 
         addActor(selectChallengeButton);
@@ -180,12 +182,18 @@ public class ChallengeSelectionActor extends Group {
     public void previous() {
         selectedChallengeIndex = selectedChallengeIndex - 1;
         updateSelectedChallenge();
-        fire(changeEvent);
+        fire(CHANGE_CHALLENGE_EVENT);
     }
 
     public void next() {
         selectedChallengeIndex = selectedChallengeIndex + 1;
         updateSelectedChallenge();
-        fire(changeEvent);
+        fire(CHANGE_CHALLENGE_EVENT);
+    }
+
+    public static class SelectChallengeEvent extends ChangeEvent {
+    }
+
+    public static class ChangeChallengeEvent extends ChangeEvent {
     }
 }

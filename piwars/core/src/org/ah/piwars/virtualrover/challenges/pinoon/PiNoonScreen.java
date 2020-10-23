@@ -27,17 +27,30 @@ public class PiNoonScreen extends AbstractCameraChallengeScreen {
         cameraCombination = CAMERA_COMBINATIONS[4];
     }
 
+    private void startChallenge() {
+        PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
+
+        game.spawnRover(1, "Blue", mainGameApp.getSelectedRover1());
+        game.spawnRover(2, "Green", mainGameApp.getSelectedRover2());
+        serverCommunicationAdapter.setLocalPlayerIds(1, 2);
+    }
+
     @Override
     public boolean keyDown(int keycode) {
         super.keyDown(keycode);
         if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
-            PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
-
-            game.spawnRover(1, "Blue", mainGameApp.getSelectedRover1());
-            game.spawnRover(2, "Green", mainGameApp.getSelectedRover2());
-            serverCommunicationAdapter.setLocalPlayerIds(1, 2);
+            startChallenge();
         }
 
         return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (button == Input.Buttons.LEFT && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne() && !serverCommunicationAdapter.hasPlayerTwo()) {
+            startChallenge();
+        }
+
+        return super.touchUp(screenX, screenY, pointer, button);
     }
 }

@@ -59,6 +59,9 @@ import org.ah.themvsus.engine.client.ServerCommunication.ServerConnectionCallbac
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ah.piwars.virtualrover.screens.greetingscreen.ChallengeSelectionActor.CHANGE_CHALLENGE_EVENT;
+import static org.ah.piwars.virtualrover.screens.greetingscreen.ChallengeSelectionActor.SELECT_CHALLENGE_EVENT;
+
 public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCallback, GameReadyCallback, GameMapCallback, ReceivedRegistrationServerCallback, ControllerListener {
 
     private enum State {
@@ -85,7 +88,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         }
     }
 
-    private static final String START_GAME_TEXT = "Press SPACE to start";
+    private static final String START_GAME_TEXT = "Click or press SPACE to start";
 
     public static final int ARROW_BUTTON_WIDTH = 14;
     public static final int ARROW_BUTTON_MARGIN = 5;
@@ -349,10 +352,12 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         challengeSelectionActor.addListener(new ChangeListener() {
             @Override public void changed(ChangeEvent event, Actor actor) {
                 if (actor == challengeSelectionActor) {
-                    if (state == State.SelectRover) {
+                    if (event == CHANGE_CHALLENGE_EVENT && state != State.SelectChallenge) {
                         // set new selected course
-                        setState(State.SelectRover);
-                    } else if (state == State.SelectChallenge) {
+                        setState(State.SelectChallenge);
+                    }
+                    if (event == SELECT_CHALLENGE_EVENT && state == State.SelectChallenge) {
+                        // set new selected course
                         select(0);
                     }
                 }
@@ -378,7 +383,7 @@ public class GreetingScreen implements Screen, InputProcessor, AuthenticatedCall
         roverSelectionActor.setVisible(false);
         stage.addActor(roverSelectionActor);
 
-        startGameButton = new TextButton("Press SPACE to start", skin);
+        startGameButton = new TextButton(START_GAME_TEXT, skin);
         startGameButton.setSize(startGameButton.getPrefWidth() + ARROW_BUTTON_MARGIN * 4, startGameButton.getPrefHeight() * 2 + ARROW_BUTTON_MARGIN);
         startGameButton.addListener(new ChangeListener() {
             @Override public void changed(ChangeEvent event, Actor actor) {

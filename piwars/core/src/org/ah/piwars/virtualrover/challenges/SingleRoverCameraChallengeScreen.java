@@ -23,17 +23,30 @@ public class SingleRoverCameraChallengeScreen extends AbstractCameraChallengeScr
                 serverCommunicationAdapter, console);
     }
 
+    private void startChallenge() {
+        PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
+
+        game.spawnRover(1, "Player", mainGameApp.getSelectedRover1());
+        serverCommunicationAdapter.setLocalPlayerIds(1);
+    }
+
     @Override
     public boolean keyDown(int keycode) {
         boolean res = super.keyDown(keycode);
 
         if (keycode == Input.Keys.SPACE && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne()) {
-            PiWarsGame game = serverCommunicationAdapter.getEngine().getGame();
-
-            game.spawnRover(1, "Player", mainGameApp.getSelectedRover1());
-            serverCommunicationAdapter.setLocalPlayerIds(1);
+            startChallenge();
         }
 
         return res;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (button == Input.Buttons.LEFT && serverCommunicationAdapter.isLocal() && !serverCommunicationAdapter.hasPlayerOne()) {
+            startChallenge();
+        }
+
+        return super.touchUp(screenX, screenY, pointer, button);
     }
 }

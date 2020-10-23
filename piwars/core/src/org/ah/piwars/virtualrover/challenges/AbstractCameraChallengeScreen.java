@@ -103,6 +103,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
         thirdPersonCameraTexture = thirdPersonCameraFrameBuffer.getColorBufferTexture();
 
         setBackground(new PerlinNoiseBackground());
+
     }
 
     @Override
@@ -223,7 +224,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
             } else if (serverCommunicationAdapter.hasPlayerOne()) {
                 moveRovers();
             } else if (serverCommunicationAdapter.isLocal()) {
-                setMiddleMessage("Press space to begin", true);
+                setMiddleMessage("Click or press space to begin", true);
             }
         } else {
             if (serverCommunicationAdapter.hasPlayerOne()) {
@@ -293,6 +294,10 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
             showSmallCamera(thirdPersonCameraTexture);
         }
 
+        if (this.inGame && this.touchX > 0 && this.touchY > 0) {
+            drawTouchDrag(spriteBatch, player1Inputs);
+        }
+
         drawStandardMessages();
         spriteBatch.end();
 
@@ -300,7 +305,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
             console.render();
         }
 
-        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
+        if (serverCommunicationAdapter.isMakeCameraSnapshot() && snapshotData != null) {
             serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
         }
     }

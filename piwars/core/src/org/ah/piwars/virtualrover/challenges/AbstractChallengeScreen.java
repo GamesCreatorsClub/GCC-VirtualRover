@@ -55,6 +55,13 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
     public static Vector3 UP = Vector3.Y;
     public static final int CORNER_WIDTH = 7;
 
+    protected static final int ARROW_WIDTH = 32;
+    protected static final int ARROW_HEIGHT = 32;
+
+    protected static final Color VERY_TRANSPARENT = new Color(1f, 1f, 1f, .2f);
+    protected static final Color TRANSPARENT = new Color(1f, 1f, 1f, .5f);
+    protected static final Color SLIGHTLY_TRANSPARENT = new Color(1f, 1f, 1f, .7f);
+
     protected int width;
     protected int height;
 
@@ -107,6 +114,8 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
     protected boolean leftCtrl;
     protected boolean rightCtrl;
     protected boolean escPressed;
+    protected LocalPlayerInputs player1Inputs = new LocalPlayerInputs();
+    protected LocalPlayerInputs player2Inputs = new LocalPlayerInputs();
 
     protected boolean suspended;
 
@@ -126,6 +135,14 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
     private Texture textBackgroundCornerTexture;
     private FrameBuffer textBackgroundFrameBuffer;
     private Texture textBackgroundTexture;
+    protected int touchX;
+    protected int touchY;
+    private FrameBuffer upDownArrowFrameBuffer;
+    private Texture upDownArrowTexture;
+    private FrameBuffer leftRightArrowFrameBuffer;
+    private Texture leftRightArrowTexture;
+    private FrameBuffer dotFrameBuffer;
+    private Texture dotTexture;
 
     protected AbstractChallengeScreen(MainGame game,
             PlatformSpecific platformSpecific,
@@ -170,6 +187,54 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
         setupCamera(); // TODO not the best idea to override method for constructor
 
         createTextBackgroundPanel();
+        createArrow();
+    }
+
+    private void createArrow() {
+        OrthographicCamera arrowCamera = new OrthographicCamera(ARROW_WIDTH, ARROW_HEIGHT);
+        arrowCamera.setToOrtho(true, ARROW_WIDTH, ARROW_HEIGHT);
+
+        upDownArrowFrameBuffer = new FrameBuffer(Format.RGBA8888, ARROW_WIDTH, ARROW_HEIGHT, false);
+        upDownArrowTexture = upDownArrowFrameBuffer.getColorBufferTexture();
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setProjectionMatrix(arrowCamera.combined);
+        upDownArrowFrameBuffer.begin();
+        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(1f, 1f, 1f, 1f);
+        shapeRenderer.triangle(0, 0, ARROW_WIDTH / 2, ARROW_HEIGHT, ARROW_WIDTH, 0);
+        shapeRenderer.end();
+        upDownArrowFrameBuffer.end();
+
+        leftRightArrowFrameBuffer = new FrameBuffer(Format.RGBA8888, ARROW_WIDTH, ARROW_HEIGHT, false);
+        leftRightArrowTexture = leftRightArrowFrameBuffer.getColorBufferTexture();
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setProjectionMatrix(arrowCamera.combined);
+        leftRightArrowFrameBuffer.begin();
+        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(1f, 1f, 1f, 1f);
+        shapeRenderer.triangle(0, 0, ARROW_WIDTH, ARROW_HEIGHT / 2, 0, ARROW_HEIGHT);
+        shapeRenderer.end();
+        leftRightArrowFrameBuffer.end();
+
+        dotFrameBuffer = new FrameBuffer(Format.RGBA8888, ARROW_WIDTH, ARROW_HEIGHT, false);
+        dotTexture = dotFrameBuffer.getColorBufferTexture();
+
+        shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setProjectionMatrix(arrowCamera.combined);
+        dotFrameBuffer.begin();
+        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(1f, 1f, 1f, 1f);
+        shapeRenderer.circle(ARROW_WIDTH / 2, ARROW_WIDTH / 2, ARROW_WIDTH / 2 - 1);
+        shapeRenderer.end();
+        dotFrameBuffer.end();
     }
 
     private void createTextBackgroundPanel() {
@@ -209,6 +274,10 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
         if (logo == null) { logo.dispose(); }
         if (challenge != null) { challenge.dispose(); }
         if (background != null) { background.dispose(); }
+        if (upDownArrowTexture != null) { upDownArrowTexture.dispose(); }
+        if (upDownArrowFrameBuffer != null) { upDownArrowFrameBuffer.dispose(); }
+        if (dotTexture != null) { dotTexture.dispose(); }
+        if (dotFrameBuffer != null) { dotFrameBuffer.dispose(); }
     }
 
     protected void setupCamera() {
@@ -429,6 +498,28 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
         fontBig.draw(spriteBatch, message, x, y);
     }
 
+    protected void drawTouchDrag(SpriteBatch spriteBatch, LocalPlayerInputs input) {
+        int x = this.touchX;
+        int y = height - this.touchY;
+
+        spriteBatch.setColor(input.y < 0f ? SLIGHTLY_TRANSPARENT: VERY_TRANSPARENT);
+        spriteBatch.draw(upDownArrowTexture, x - ARROW_WIDTH / 2, y - ARROW_HEIGHT * 2, ARROW_WIDTH, ARROW_HEIGHT, 0, 0, ARROW_WIDTH, ARROW_HEIGHT, true, true);
+
+        spriteBatch.setColor(input.y > 0f ? SLIGHTLY_TRANSPARENT : VERY_TRANSPARENT);
+        spriteBatch.draw(upDownArrowTexture, x - ARROW_WIDTH / 2,  y + ARROW_HEIGHT, ARROW_WIDTH, ARROW_HEIGHT, 0, 0, ARROW_WIDTH, ARROW_HEIGHT, true, false);
+
+        spriteBatch.setColor(input.rotateX < 0f ? SLIGHTLY_TRANSPARENT : VERY_TRANSPARENT);
+        spriteBatch.draw(leftRightArrowTexture, x + ARROW_WIDTH , y - ARROW_HEIGHT / 2, ARROW_WIDTH, ARROW_HEIGHT, 0, 0, ARROW_WIDTH, ARROW_HEIGHT, false, false);
+
+        spriteBatch.setColor(input.rotateX > 0f ? SLIGHTLY_TRANSPARENT : VERY_TRANSPARENT);
+        spriteBatch.draw(leftRightArrowTexture, x - ARROW_WIDTH * 2, y - ARROW_HEIGHT / 2, ARROW_WIDTH, ARROW_HEIGHT, 0, 0, ARROW_WIDTH, ARROW_HEIGHT, true, false);
+
+        spriteBatch.setColor(TRANSPARENT);
+        spriteBatch.draw(dotTexture, x - ARROW_WIDTH / 2, y - ARROW_HEIGHT / 2);
+
+        spriteBatch.setColor(Color.WHITE);
+    }
+
     protected boolean isSuspended() {
         return suspended;
     }
@@ -459,26 +550,30 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
     protected void moveRovers() {
         PlayerModelLink player1 = serverCommunicationAdapter.getPlayerOneVisualObject();
         if (player1 != null) {
-            player1.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.W) ? 1f : Gdx.input.isKeyPressed(Input.Keys.S) ? -1f : 0f);
-            player1.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.A) ? 1f : Gdx.input.isKeyPressed(Input.Keys.D) ? -1f : 0f);
-            player1.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.Q) ? 1f : Gdx.input.isKeyPressed(Input.Keys.E) ? -1f : 0f);
-            player1.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ? 1f : 0f);
-            player1.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.Z));
-            player1.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.X));
-            player1.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.C));
-            player1.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.V));
+            player1.roverInput.moveY(player1Inputs.y);
+            player1.roverInput.moveX(player1Inputs.x);
+            player1.roverInput.rotateX(player1Inputs.rotateX);
+            player1.roverInput.rotateY(player1Inputs.rotateY);
+            player1.roverInput.rightTrigger(player1Inputs.rightTrigger);
+            player1.roverInput.leftTrigger(player1Inputs.leftTrigger);
+            player1.roverInput.circle(player1Inputs.circle);
+            player1.roverInput.cross(player1Inputs.cross);
+            player1.roverInput.square(player1Inputs.square);
+            player1.roverInput.triangle(player1Inputs.triangle);
         }
 
         PlayerModelLink player2 = serverCommunicationAdapter.getPlayerTwoVisualObject();
         if (player2 != null) {
-            player2.roverInput.moveY(Gdx.input.isKeyPressed(Input.Keys.I) ? 1f : Gdx.input.isKeyPressed(Input.Keys.K) ? -1f : 0f);
-            player2.roverInput.moveX(Gdx.input.isKeyPressed(Input.Keys.J) ? 1f : Gdx.input.isKeyPressed(Input.Keys.L) ? -1f : 0f);
-            player2.roverInput.rotateX(Gdx.input.isKeyPressed(Input.Keys.U) ? 1f : Gdx.input.isKeyPressed(Input.Keys.O) ? -1f : 0f);
-            player2.roverInput.rightTrigger(Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT) ? 1f : 0f);
-            player2.roverInput.circle(Gdx.input.isKeyPressed(Input.Keys.N));
-            player2.roverInput.cross(Gdx.input.isKeyPressed(Input.Keys.M));
-            player2.roverInput.square(Gdx.input.isKeyPressed(Input.Keys.COMMA));
-            player2.roverInput.triangle(Gdx.input.isKeyPressed(Input.Keys.PERIOD));
+            player2.roverInput.moveY(player2Inputs.y);
+            player2.roverInput.moveX(player2Inputs.x);
+            player2.roverInput.rotateX(player2Inputs.rotateX);
+            player2.roverInput.rotateY(player2Inputs.rotateY);
+            player2.roverInput.rightTrigger(player2Inputs.rightTrigger);
+            player2.roverInput.leftTrigger(player2Inputs.leftTrigger);
+            player2.roverInput.circle(player2Inputs.circle);
+            player2.roverInput.cross(player2Inputs.cross);
+            player2.roverInput.square(player2Inputs.square);
+            player2.roverInput.triangle(player2Inputs.triangle);
         }
     }
 
@@ -519,6 +614,68 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
             }
             if (keycode == Input.Keys.F) {
                 drawFPS = !drawFPS;
+            }
+
+            if (keycode == Input.Keys.W) {
+                player1Inputs.y = 1f;
+            } else if (keycode == Input.Keys.S) {
+                player1Inputs.y = -1f;
+            }
+            if (keycode == Input.Keys.A) {
+                player1Inputs.x = 1f;
+            } else if (keycode == Input.Keys.D) {
+                player1Inputs.x = -1f;
+            }
+            if (keycode == Input.Keys.Q) {
+                player1Inputs.rotateX = 1f;
+            } else if (keycode == Input.Keys.E) {
+                player1Inputs.rotateX = -1f;
+            }
+            if (keycode == Input.Keys.SHIFT_LEFT) {
+                player1Inputs.rightTrigger = 1f;
+            }
+            if (keycode == Input.Keys.Z) {
+                player1Inputs.circle = true;
+            }
+            if (keycode == Input.Keys.X) {
+                player1Inputs.cross = true;
+            }
+            if (keycode == Input.Keys.C) {
+                player1Inputs.square = true;
+            }
+            if (keycode == Input.Keys.V) {
+                player1Inputs.triangle = true;
+            }
+
+            if (keycode == Input.Keys.I) {
+                player2Inputs.y = 1f;
+            } else if (keycode == Input.Keys.K) {
+                player2Inputs.y = -1f;
+            }
+            if (keycode == Input.Keys.J) {
+                player2Inputs.x = 1f;
+            } else if (keycode == Input.Keys.L) {
+                player2Inputs.x = -1f;
+            }
+            if (keycode == Input.Keys.U) {
+                player2Inputs.rotateX = 1f;
+            } else if (keycode == Input.Keys.O) {
+                player2Inputs.rotateX = -1f;
+            }
+            if (keycode == Input.Keys.SHIFT_RIGHT) {
+                player2Inputs.rightTrigger = 1f;
+            }
+            if (keycode == Input.Keys.N) {
+                player2Inputs.circle = true;
+            }
+            if (keycode == Input.Keys.M) {
+                player2Inputs.cross = true;
+            }
+            if (keycode == Input.Keys.COMMA) {
+                player2Inputs.square = true;
+            }
+            if (keycode == Input.Keys.PERIOD) {
+                player2Inputs.triangle = true;
             }
         } else {
             if (keycode == Input.Keys.ESCAPE && !escPressed) {
@@ -576,6 +733,119 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
         if (keycode == Input.Keys.CONTROL_RIGHT) {
             rightCtrl = false;
         }
+        if (keycode == Input.Keys.F) {
+            drawFPS = !drawFPS;
+        }
+
+        if (keycode == Input.Keys.W) {
+            if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+                player1Inputs.y = -1f;
+            } else {
+                player1Inputs.y = 0f;
+            }
+        } else if (keycode == Input.Keys.S) {
+            if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+                player1Inputs.y = 1f;
+            } else {
+                player1Inputs.y = 0f;
+            }
+        }
+        if (keycode == Input.Keys.A) {
+            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+                player1Inputs.x = -1f;
+            } else {
+                player1Inputs.x = 0f;
+            }
+        } else if (keycode == Input.Keys.D) {
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+                player1Inputs.x = 1f;
+            } else {
+                player1Inputs.x = 0f;
+            }
+        }
+        if (keycode == Input.Keys.Q) {
+            if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+                player1Inputs.rotateX = -1f;
+            } else {
+                player1Inputs.rotateX = 0f;
+            }
+        } else if (keycode == Input.Keys.E) {
+            if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+                player1Inputs.rotateX = 1f;
+            } else {
+                player1Inputs.rotateX = 0f;
+            }
+        }
+        if (keycode == Input.Keys.SHIFT_LEFT) {
+            player1Inputs.rightTrigger = 0;
+        }
+        if (keycode == Input.Keys.Z) {
+            player1Inputs.circle = false;
+        }
+        if (keycode == Input.Keys.X) {
+            player1Inputs.cross = false;
+        }
+        if (keycode == Input.Keys.C) {
+            player1Inputs.square = false;
+        }
+        if (keycode == Input.Keys.V) {
+            player1Inputs.triangle = false;
+        }
+
+        if (keycode == Input.Keys.I) {
+            if (Gdx.input.isKeyPressed(Input.Keys.K)) {
+                player2Inputs.y = -1f;
+            } else {
+                player2Inputs.y = 0f;
+            }
+        } else if (keycode == Input.Keys.K) {
+            if (Gdx.input.isKeyPressed(Input.Keys.I)) {
+                player2Inputs.y = 1f;
+            } else {
+                player2Inputs.y = 0f;
+            }
+        }
+        if (keycode == Input.Keys.J) {
+            if (Gdx.input.isKeyPressed(Input.Keys.L)) {
+                player2Inputs.x = -1f;
+            } else {
+                player2Inputs.x = 0f;
+            }
+        } else if (keycode == Input.Keys.L) {
+            if (Gdx.input.isKeyPressed(Input.Keys.J)) {
+                player2Inputs.x = 1f;
+            } else {
+                player2Inputs.x = 0f;
+            }
+        }
+        if (keycode == Input.Keys.U) {
+            if (Gdx.input.isKeyPressed(Input.Keys.O)) {
+                player2Inputs.rotateX = -1f;
+            } else {
+                player2Inputs.rotateX = 0f;
+            }
+        } else if (keycode == Input.Keys.O) {
+            if (Gdx.input.isKeyPressed(Input.Keys.U)) {
+                player2Inputs.rotateX = 1f;
+            } else {
+                player2Inputs.rotateX = 0f;
+            }
+        }
+        if (keycode == Input.Keys.SHIFT_RIGHT) {
+            player2Inputs.rightTrigger = 0;
+        }
+        if (keycode == Input.Keys.M) {
+            player2Inputs.circle = false;
+        }
+        if (keycode == Input.Keys.N) {
+            player2Inputs.cross = false;
+        }
+        if (keycode == Input.Keys.COMMA) {
+            player2Inputs.square = false;
+        }
+        if (keycode == Input.Keys.PERIOD) {
+            player2Inputs.triangle = false;
+        }
         return false;
     }
 
@@ -604,11 +874,55 @@ public abstract class AbstractChallengeScreen extends ScreenAdapter implements C
         return false;
     }
 
-    @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) { return false; }
+    @Override public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        this.touchX = screenX;
+        this.touchY = screenY;
 
-    @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) { return false; }
+        return false;
+    }
 
-    @Override public boolean touchDragged(int screenX, int screenY, int pointer) { return false; }
+    @Override public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        player1Inputs.y = 0f;
+        player1Inputs.rotateX = 0f;
+        this.touchX = -1;
+        this.touchY = -1;
+        return false;
+    }
+
+    @Override public boolean touchDragged(int screenX, int screenY, int pointer) {
+        if (this.touchX < 0) { this.touchX = screenX; }
+        if (this.touchY < 0) { this.touchY = screenY; }
+
+        int xDelta = screenX - touchX;
+        int yDelta = screenY - touchY;
+        int absXDelta = xDelta >= 0 ? xDelta : -xDelta;
+        int absYDelta = yDelta >= 0 ? yDelta : -yDelta;
+
+        if (absXDelta > absYDelta) {
+            if (xDelta > ARROW_WIDTH / 2) {
+                player1Inputs.rotateX = -1f;
+            } else if (xDelta < -ARROW_WIDTH / 2) {
+                player1Inputs.rotateX = 1f;
+            } else {
+                player1Inputs.rotateX = 0f;
+            }
+            player1Inputs.y = 0f;
+        } else if (absYDelta > absXDelta) {
+            if (yDelta > ARROW_HEIGHT / 2) {
+                player1Inputs.y = -1f;
+            } else if (yDelta < -ARROW_HEIGHT / 2) {
+                player1Inputs.y = 1f;
+            } else {
+                player1Inputs.y = 0f;
+            }
+            player1Inputs.rotateX = 0f;
+        } else {
+            player1Inputs.x = 0f;
+            player1Inputs.rotateX = 0f;
+        }
+
+        return false;
+    }
 
     @Override public boolean mouseMoved(int screenX, int screenY) { return false; }
 
