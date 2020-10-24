@@ -1,10 +1,13 @@
 """Simple Eco Disaster Example"""
+import pygame
 import pymunk
 import worlds.abstract_world
+from piwarssim.engine.simulation.objects import BarrelSimObject, BarrelColour
+from lib import categories
 
 
 class BarrelBody(pymunk.Body):
-    def __init__(self, green_barrel, mass=0, moment=0, body_type=pymunk.Body.DYNAMIC):
+    def __init__(self, green_barrel, mass=1, moment=10, body_type=pymunk.Body.DYNAMIC):
         super(BarrelBody, self).__init__(mass=mass, moment=moment, body_type=body_type)
         self._local_object = None
         self._green_barrel = green_barrel
@@ -34,3 +37,37 @@ class World(worlds.abstract_world.AbstractWorld):
     #     box_body.position = (x, y)
     #     self.space.add(box_body, box_shape)
     #     box_shape.color = pygame.color.THECOLORS["white"]
+
+    def synchronise_challenge(self, challenge):
+        super(World, self).synchronise_challenge(challenge)
+
+    def to_pymunk_body(self, object, object_id):
+        super(World, self).to_pymunk_body(object, object_id)
+
+        if isinstance(object, BarrelSimObject):
+            pos = self.translate_from_sim_2(object.get_position())
+            box_body = BarrelBody(object.get_barrel_colour() == BarrelColour.Green, body_type=pymunk.Body.DYNAMIC)
+            box_body.set_local_object(object_id)
+            box_body.position = pos
+            box_shape = pymunk.Circle(box_body, 25)
+            box_shape.elasticity = 0.9999999
+            box_shape.friction = 0.5
+            # box_shape.density = 0.1
+            # box_shape.mass = 1
+            # box_shape.friction = 0.7
+            self.space.add(box_body, box_shape)
+            box_shape.filter = categories.marker_filter
+            if object.get_barrel_colour() == BarrelColour.Green:
+                box_shape.color = pygame.color.THECOLORS["green"]
+            else:
+                box_shape.color = pygame.color.THECOLORS["red"]
+
+            # pivot = pymunk.PivotJoint(self.space.static_body, box_body, (0, 0), (0, 0))
+            # self.space.add(pivot)
+            # pivot.max_bias = 0  # disable joint correction
+            # pivot.max_Force = 1000  # emulate linear friction
+            #
+            # gear = pymunk.GearJoint(self.space.static_body, box_body, 0.0, 1.0)
+            # self.space.add(gear)
+            # gear.max_bias = 0  # disable joint correction
+            # gear.max_force = 5000  # emulate angular friction

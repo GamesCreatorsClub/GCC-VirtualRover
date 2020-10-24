@@ -22,6 +22,7 @@ from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
 from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
 from piwarssim.visualisation.Visualisation import Visualisation
 from worlds.eco_disaster import BarrelBody
+from worlds.tidy_up_the_toys import ToyCubeBody
 
 
 class WorldRunner:
@@ -88,6 +89,17 @@ class WorldRunner:
                         local_object = self._server_engine.challenge.get_sim_object(local_object_id)
 
                     local_object.set_position_2(barrel_body.position.x - world_width // 2, world_height // 2 - barrel_body.position.y)
+                elif isinstance(object, ToyCubeBody):
+                    toy_cube_body = object
+                    local_object_id = toy_cube_body.get_local_object()
+                    if local_object_id is None:
+                        local_object = self._server_engine.challenge.toy_cube_barrel(toy_cube_body.cube_colour())
+                        local_object_id = local_object.get_id()
+                        toy_cube_body.set_local_object(local_object_id)
+                    else:
+                        local_object = self._server_engine.challenge.get_sim_object(local_object_id)
+
+                    local_object.set_position_and_bearing_rad(toy_cube_body.position.x - world_width // 2, world_height // 2 - toy_cube_body.position.y, 0, toy_cube_body.angle)
 
             self._server_engine.process(self._tick)
             self._server_engine.send_update()

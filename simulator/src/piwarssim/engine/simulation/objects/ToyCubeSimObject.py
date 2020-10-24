@@ -38,9 +38,9 @@ class ToyCubeSimObject(MovingSimulationObjectWithPositionAndOrientation):
     def get_cube_colour(self):
         return self._cube_colour
 
-    def set_cube_colour(self, barrel_colour):
-        self.changed = self.changed or self._cube_colour != barrel_colour
-        self._cube_colour = barrel_colour
+    def set_cube_colour(self, cubel_colour):
+        self.changed = self.changed or self._cube_colour != cubel_colour
+        self._cube_colour = cubel_colour
 
     def get_circle(self):
         position = self.get_position()
@@ -62,19 +62,19 @@ class ToyCubeSimObject(MovingSimulationObjectWithPositionAndOrientation):
     def deserialize(self, full, serializer):
         super(ToyCubeSimObject, self).deserialize(full, serializer)
         if full:
-            barrel_colour_ordinal = serializer.deserialize_unsigned_byte()
-            barrel_colour = ToyCubeColour.from_ordinal(barrel_colour_ordinal)
-            if barrel_colour is None:
-                barrel_colour = ToyCubeColour.Green
+            cube_colour_ordinal = serializer.deserialize_unsigned_byte()
+            cube_colour = ToyCubeColour.from_ordinal(cube_colour_ordinal)
+            if cube_colour is None:
+                cube_colour = ToyCubeColour.Green
 
-            self._cube_colour = barrel_colour
+            self._cube_colour = cube_colour
 
     def size(self, full):
         return super(ToyCubeSimObject, self).size(full) + (1 if full else 0)
 
     def copy_internal(self, new_object):
         super(ToyCubeSimObject, self).copy_internal(new_object)
-        new_object._barrel_colour = self._cube_colour
+        new_object._cube_colour = self._cube_colour
 
         return new_object
 

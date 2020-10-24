@@ -4,3 +4,5 @@ from piwarssim.engine.challenges.CanyonsOfMarsChallenge import CanyonsOfMarsChal
 from piwarssim.engine.challenges.EcoDisasterChallenge import EcoDisasterChallenge
 from piwarssim.engine.challenges.MineSweeperChallenge import MineSweeperChallenge
 from piwarssim.engine.challenges.StraightLineSpeedTestChallenge import StraightLineSpeedTestChallenge
+from piwarssim.engine.challenges.TidyUpTheToysChallenge import TidyUpTheToysChallenge
+from piwarssim.engine.challenges.FeedTheFishChallenge import FeedTheFishChallenge

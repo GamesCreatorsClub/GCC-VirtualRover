@@ -3,7 +3,7 @@ import random
 from piwarssim.engine.challenges.AbstractChallenge import AbstractChallenge
 from piwarssim.engine.simulation.GameMessageSimObject import GameMessageSimObject
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
-from piwarssim.engine.simulation.objects import BarrelColour
+from piwarssim.engine.simulation.objects import BarrelColour, ToyCubeColour
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
 from piwarssim.engine.utils.Shapes import polygon_from_box
 
@@ -64,14 +64,23 @@ class TidyUpTheToysChallenge(AbstractChallenge):
 
     def reset_toy_cubes(self):
 
-        self.red_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
-        self.green_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
-        self.blue_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
+        if self.red_cube is None:
+            self.red_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
+            self.red_cube.set_id(self.new_id())
+            self.red_cube.set_cube_colour(ToyCubeColour.Red)
+            self.add_new_sim_object_immediately(self.red_cube)
+        if self.green_cube is None:
+            self.green_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
+            self.green_cube.set_id(self.new_id())
+            self.green_cube.set_cube_colour(ToyCubeColour.Green)
+            self.add_new_sim_object_immediately(self.green_cube)
+        if self.blue_cube is None:
+            self.blue_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
+            self.blue_cube.set_id(self.new_id())
+            self.blue_cube.set_cube_colour(ToyCubeColour.Blue)
+            self.add_new_sim_object_immediately(self.blue_cube)
 
         self.red_cube.set_position_2(0,  350)
         self.green_cube.set_position_2(-400,  350)
         self.blue_cube.set_position_2(400,  350)
 
-        self.add_new_sim_object_immediately(self.red_cube)
-        self.add_new_sim_object_immediately(self.green_cube)
-        self.add_new_sim_object_immediately(self.blue_cube)

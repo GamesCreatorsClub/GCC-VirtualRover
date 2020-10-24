@@ -8,9 +8,7 @@ from importlib import import_module
 from lib.robot import Robot
 
 from piwarssim import BaseSimulationAdapter
-from piwarssim.engine.simulation.objects import BarrelColour
 from simulation_runner import SimulationRunner
-from worlds.eco_disaster import BarrelBody
 
 
 class PymunkWorldSimulationAdapter(BaseSimulationAdapter):

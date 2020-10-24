@@ -166,3 +166,10 @@ class AbstractChallenge:
         barrel.set_barrel_colour(barrel_colour)
         self.add_new_sim_object(barrel)
         return barrel
+
+    def toy_cube_barrel(self, cube_colour):
+        toy_cube = self._sim_object_factory.obtain(PiWarsSimObjectTypes.ToyCubeObject)
+        toy_cube.set_id(self._next_sim_state.new_id())
+        toy_cube.set_barrel_colour(cube_colour)
+        self.add_new_sim_object(toy_cube)
+        return toy_cube
