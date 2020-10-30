@@ -1,4 +1,7 @@
 class Behaviour:
+
+    TURNING_DISTANCE = 160
+
     def __init__(self, robot):
         self.robot = robot
 
@@ -8,11 +11,11 @@ class Behaviour:
         self.robot.set_right(100)
         try:
             while True:
-                if self.robot.dist_mid.get_distance() > 80:
-                    yield
+                if self.robot.dist_mid.get_distance() > Behaviour.TURNING_DISTANCE:
                     self.robot.set_left(100)
+                    yield
                 else:
-                    while self.robot.dist_mid.get_distance() < 80:
+                    while self.robot.dist_mid.get_distance() < Behaviour.TURNING_DISTANCE:
                         self.robot.set_left(-100)
                         yield
         finally:

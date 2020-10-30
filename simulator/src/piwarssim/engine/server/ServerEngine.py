@@ -82,10 +82,11 @@ class ServerEngine:
         pass
 
     def send_message(self, message):
-        serialiser = self._serializer_factory.obtain()
-        serialiser.setup()
-        message.serialize(serialiser)
-        self._sender(serialiser.get_buffer())
+        if self._serializer_factory is not None:
+            serialiser = self._serializer_factory.obtain()
+            serialiser.setup()
+            message.serialize(serialiser)
+            self._sender(serialiser.get_buffer())
 
     def send_full_update(self):
         current_state = self.challenge.get_current_sim_state()  # TODO shouldn't it be get_previous_sim_state() ?

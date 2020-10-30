@@ -9,6 +9,7 @@ from lib.robot import Robot
 
 from piwarssim import BaseSimulationAdapter
 from simulation_runner import SimulationRunner
+from worlds.abstract_world import PymunkBody
 
 
 class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
@@ -39,9 +40,9 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
         behaviour_module = import_module("behaviours." + args.behaviour_module)
         world_module = import_module("worlds." + args.world_module)
 
-        self.robot = Robot()
-
         self.space.damping = 0.2
+
+        self.robot = Robot()
         self.space.add(self.robot.body, self.robot.shape)
 
         self.running_behaviour = behaviour_module.Behaviour(self.robot.controls).run()
@@ -83,22 +84,24 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
         sim_rover.set_bearing(270 - self.robot.body.angle * 180 / math.pi)
         sim_rover.changed = False
 
-        # for body in self.space.bodies:
-        #     if isinstance(body, BarrelBody):
-        #         barrel_body = body
-        #         local_object_id = barrel_body.get_local_object()
-        #         if local_object_id is None:
-        #             if barrel_body.is_green():
-        #                 local_object = self.challenge.make_barrel(BarrelColour.Green)
-        #             else:
-        #                 local_object = self.challenge.make_barrel(BarrelColour.Red)
-        #             local_object_id = local_object.get_id()
-        #             barrel_body.set_local_object(local_object_id)
-        #         else:
-        #             local_object = self.challenge.get_sim_object(local_object_id)
-        #
-        #         # local_object.set_position_2(barrel_body.position.x - world_width // 2, world_height // 2 - barrel_body.position.y)
-        #         local_object.set_position_v(self.world.translate_to_sim(barrel_body.position.x, barrel_body.position.y))
+        for body in self.space.bodies:
+            if isinstance(body, PymunkBody):
+                local_object_id = body.get_local_object()
+                if local_object_id is None:
+                    # TODO - add to_sim_body method on AbstractWorld for subclasses to implement
+                    # self.world.to_pymunk_body()
+                    # if barrel_body.is_green():
+                    #     local_object = self.challenge.make_barrel(BarrelColour.Green)
+                    # else:
+                    #     local_object = self.challenge.make_barrel(BarrelColour.Red)
+                    # local_object_id = local_object.get_id()
+                    # barrel_body.set_local_object(local_object_id)
+                    raise Exception("Non implemented")
+                else:
+                    local_object = self.challenge.get_sim_object(local_object_id)
+
+                # local_object.set_position_v2(body.position.x - world_width // 2, world_height // 2 - body.position.y)
+                local_object.set_position_and_bearing_rad(body.position.x - world_width // 2, world_height // 2 - body.position.y, 0, body.angle)
 
         self.server_engine.process(timestamp)
         self.server_engine.send_update()

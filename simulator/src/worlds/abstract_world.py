@@ -1,9 +1,25 @@
 import pymunk
 import pygame
 
+from lib import categories
 from piwarssim.engine.simulation.objects import BarrelSimObject, BarrelColour, ToyCubeSimObject, ToyCubeColour, FishTowerSimObject, GolfBallSimObject
 
 from piwarssim.engine.simulation.rovers import AbstractRoverSimObject
+
+
+class PymunkBody(pymunk.Body):
+    def __init__(self, mass=1, moment=10, body_type=pymunk.Body.DYNAMIC):
+        super(PymunkBody, self).__init__(mass=mass, moment=moment, body_type=body_type)
+        self._local_object = None
+        self.shape = None
+
+    def get_local_object(self):
+        return self._local_object
+
+    def set_local_object(self, local_object):
+        self._local_object = local_object
+
+
 
 
 class AbstractWorld:
@@ -47,6 +63,7 @@ class AbstractWorld:
         for wall in walls:
             wall.elasticity = 0.95
             wall.friction = 0.9
+            wall.filter = categories.wall_filter
         self.space.add(walls)
 
         sim_rover = None
@@ -60,9 +77,10 @@ class AbstractWorld:
 
         if sim_rover is None:
             sim_rover = self._find_rover(challenge)
+
         self.robot.body.position = self.translate_from_sim_2(sim_rover.get_position())  # self._width / 2, self._length / 2
 
-    def to_pymunk_body(self, object, object_id):
+    def to_pymunk_body(self, sim_object, object_id):
         pass
 
     @staticmethod

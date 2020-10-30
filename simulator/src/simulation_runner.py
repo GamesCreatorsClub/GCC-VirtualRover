@@ -46,7 +46,7 @@ class SnapshotHandler:
         self._delay = snapshot_delay
 
     def get_snapshot_delay(self):
-        self._delay
+        return self._delay
 
     def snapshot_requested(self):
         return self._state != SnapshotState.Idle
@@ -149,21 +149,24 @@ class SimulationRunner:
         #     paused = player_input.circle()
         #     # print(str(player_inputs_array[0]))
         #
-        if self._is_connected_method() \
-                and self._server_engine.is_client_ready() \
-                and not self._snapshot_handler.wait_for_snapshot(self._timestamp) \
+
+        if (self._is_connected_method is None
+                    or (self._is_connected_method())
+                        and self._server_engine.is_client_ready()
+                        and not self._snapshot_handler.wait_for_snapshot(self._timestamp)) \
                 and (not self._paused or self._step):
             self.simulation_adapter.update(self._timestamp)
             self._timestamp += self._delta_tick
 
     def draw(self):
-        self._screen.fill((1.0, 0, 0))
+        self._screen.fill((1.0, 0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         self.simulation_adapter.draw(self._screen, self._screen_world_rect)
 
         if self._snapshot_handler.image is not None:
             self._screen.blit(self._snapshot_handler.image, (0, 0))
         if self._paused:
             self._screen.blit(self._font.render("Paused", True, (255, 255, 255)), (10, 0))
+        self._screen.blit(self._font.render(f"{self._timestamp:3.2f}", True, (255, 255, 255)), (700, 0))
         pygame.display.flip()
 
     def request_snapshot(self, snapshot_received_callback=None):
@@ -178,9 +181,9 @@ class SimulationRunner:
         self.simulation_adapter.set_simulation_runner(self)
 
         parser = argparse.ArgumentParser(description="Simulation runner")
-        group = parser.add_mutually_exclusive_group(required=True)
+        group = parser.add_mutually_exclusive_group(required=False)
         group.add_argument('--tcp', action='store_true', help="use TCP to connect to UI")
-        group.add_argument('--udp', action='store_false', help="use UDP to connect to UI")
+        group.add_argument('--udp', action='store_true', help="use UDP to connect to UI")
         parser.add_argument('--challenge', dest='challenge', help="name of challenge to simulate")
         parser.add_argument('--no-visualiser', action='store_true', dest='no_visualiser', help="don't start visualiser")
         parser.add_argument('--debug-java', action='store_true', dest='debug_java', help="should visualiser asked to output debug")
@@ -222,13 +225,14 @@ class SimulationRunner:
 
         if args.tcp:
             self._comm_server_module = TCPServerModule(self._server_engine, serializer_factory, self._message_factory)
-        else:
+        elif args.udp:
             self._comm_server_module = UDPServerModule(self._server_engine, serializer_factory, self._message_factory)
 
-        self._is_connected_method = self._comm_server_module.is_connected
+        if args.tcp or args.udp:
+            self._is_connected_method = self._comm_server_module.is_connected
 
-        thread = Thread(target=self._comm_server_module.process, daemon=True)
-        thread.start()
+            thread = Thread(target=self._comm_server_module.process, daemon=True)
+            thread.start()
 
         self._font = pygame.font.SysFont("comicsansms", 32)
         self._screen = pygame.display.set_mode((800, 800))

@@ -1,37 +1,39 @@
 """Simple Eco Disaster Example"""
-import pygame
 import pymunk
+
 import worlds.abstract_world
-from piwarssim.engine.simulation.objects import ToyCubeSimObject, ToyCubeColour, GolfBallSimObject, FishTowerSimObject
 from lib import categories
+from piwarssim.engine.simulation.objects import GolfBallSimObject, FishTowerSimObject
 
 TOWER_WIDTH = 200
 TOWER_HALF_WIDTH = TOWER_WIDTH // 2
 GOLF_BALL_DIAMETER = 42
 
 
-class GolfBallBody(pymunk.Body):
-    def __init__(self, mass=0, moment=0, body_type=pymunk.Body.DYNAMIC):
-        super(GolfBallBody, self).__init__(mass=mass, moment=moment, body_type=body_type)
-        self._local_object = None
+class GolfBallBody(worlds.abstract_world.PymunkBody):
+    def __init__(self, sim_object, pos):
+        super(GolfBallBody, self).__init__()
 
-    def get_local_object(self):
-        return self._local_object
+        self.set_local_object(sim_object.get_id())
+        self.position = pos
+        self.shape = pymunk.Circle(self, GOLF_BALL_DIAMETER // 2)
+        self.shape.mass = 10
+        self.shape.filter = categories.object_filter
+        self.shape.elasticity = 0.9999999
+        self.shape.friction = 0.5
 
-    def set_local_object(self, local_object):
-        self._local_object = local_object
 
+class FishTowerBody(worlds.abstract_world.PymunkBody):
+    def __init__(self, sim_object, pos):
+        super(FishTowerBody, self).__init__()
 
-class FishTowerBody(pymunk.Body):
-    def __init__(self, mass=0, moment=0, body_type=pymunk.Body.DYNAMIC):
-        super(FishTowerBody, self).__init__(mass=mass, moment=moment, body_type=body_type)
-        self._local_object = None
-
-    def get_local_object(self):
-        return self._local_object
-
-    def set_local_object(self, local_object):
-        self._local_object = local_object
+        self.set_local_object(sim_object.get_id())
+        self.position = pos
+        self.shape = pymunk.Poly.create_box(self, (TOWER_WIDTH, TOWER_WIDTH))
+        self.shape.mass = 1000
+        self.shape.filter = categories.object_filter
+        self.shape.elasticity = 0.9999999
+        self.shape.friction = 0.5
 
 
 class World(worlds.abstract_world.AbstractWorld):
@@ -42,64 +44,10 @@ class World(worlds.abstract_world.AbstractWorld):
     def update(self, world_screen_rect):
         super(World, self).update(world_screen_rect)
 
-    # def mouse_pressed(self, x, y):
-    #     self._green_barrel = not self._green_barrel
-    #     box_body = BarrelBody(self._green_barrel, body_type=pymunk.Body.STATIC)
-    #     box_shape = pymunk.Circle(box_body, 25)
-    #     box_body.position = (x, y)
-    #     self.space.add(box_body, box_shape)
-    #     box_shape.color = pygame.color.THECOLORS["white"]
-
-    def to_pymunk_body(self, object, object_id):
-        if isinstance(object, GolfBallSimObject):
-            pos = self.translate_from_sim_2(object.get_position())
-            box_body = GolfBallBody(body_type=pymunk.Body.DYNAMIC)
-            box_body.set_local_object(object_id)
-            box_body.position = pos
-            box_shape = pymunk.Circle(box_body, GOLF_BALL_DIAMETER // 2)
-            box_shape.density = 0.1
-            box_shape.mass = 1
-            box_shape.friction = 0.7
-            box_shape.elasticity = 0.9999999
-            self.space.add(box_body, box_shape)
-            box_shape.filter = categories.marker_filter
-
-            pivot = pymunk.PivotJoint(self.space.static_body, box_body, (0, 0), (0, 0))
-            self.space.add(pivot)
-            pivot.max_bias = 0  # disable joint correction
-            pivot.max_Force = 1000  # emulate linear friction
-
-            gear = pymunk.GearJoint(self.space.static_body, box_body, 0.0, 1.0)
-            self.space.add(gear)
-            gear.max_bias = 0  # disable joint correction
-            gear.max_force = 5000  # emulate angular friction
-        elif isinstance(object, FishTowerSimObject):
-            pos = self.translate_from_sim_2(object.get_position())
-            box_body = FishTowerBody(body_type=pymunk.Body.DYNAMIC)
-            box_body.set_local_object(object_id)
-            box_body.position = pos
-            box_shape = pymunk.Poly(
-                box_body,
-                [
-                    (-TOWER_HALF_WIDTH, -TOWER_HALF_WIDTH),
-                    (TOWER_HALF_WIDTH, -TOWER_HALF_WIDTH),
-                    (TOWER_HALF_WIDTH, TOWER_HALF_WIDTH),
-                    (-TOWER_HALF_WIDTH, TOWER_HALF_WIDTH)
-                ],
-                radius=TOWER_HALF_WIDTH)
-            box_shape.density = 0.1
-            box_shape.mass = 1
-            box_shape.friction = 0.7
-            box_shape.elasticity = 0.9999999
-            self.space.add(box_body, box_shape)
-            box_shape.filter = categories.marker_filter
-
-            pivot = pymunk.PivotJoint(self.space.static_body, box_body, (0, 0), (0, 0))
-            self.space.add(pivot)
-            pivot.max_bias = 0  # disable joint correction
-            pivot.max_Force = 1000  # emulate linear friction
-
-            gear = pymunk.GearJoint(self.space.static_body, box_body, 0.0, 1.0)
-            self.space.add(gear)
-            gear.max_bias = 0  # disable joint correction
-            gear.max_force = 5000  # emulate angular friction
+    def to_pymunk_body(self, sim_object, object_id):
+        if isinstance(sim_object, GolfBallSimObject):
+            golf_ball_body = GolfBallBody(sim_object, self.translate_from_sim_2(sim_object.get_position()))
+            self.space.add(golf_ball_body, golf_ball_body.shape)
+        elif isinstance(sim_object, FishTowerSimObject):
+            fish_tower_body = FishTowerBody(sim_object, self.translate_from_sim_2(sim_object.get_position()))
+            self.space.add(fish_tower_body, fish_tower_body.shape)
