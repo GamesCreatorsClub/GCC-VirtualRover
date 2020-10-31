@@ -68,3 +68,6 @@ class SimulationObjectWithPosition(SimulationObject):
 
     def within_resolution(self, a, b):
         return abs(a - b) < 0.1
+
+    def get_shape(self):
+        return None

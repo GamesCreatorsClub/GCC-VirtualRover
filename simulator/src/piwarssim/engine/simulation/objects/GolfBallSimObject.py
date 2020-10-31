@@ -6,16 +6,9 @@ class GolfBallSimObject(MovingSimulationObjectWithPositionAndOrientation):
 
     def __init__(self, factory, sim_object_id, sim_object_type):
         super(GolfBallSimObject, self).__init__(factory, sim_object_id, sim_object_type)
-        self.circle = Circle(0, 0, 25)
 
     def free(self):
         super(GolfBallSimObject, self).free()
-
-    def get_circle(self):
-        position = self.get_position()
-        self.circle.x = position[0]
-        self.circle.y = position[1]
-        return self.circle
 
     def serialize(self, full, serializer):
         super(GolfBallSimObject, self).serialize(full, serializer)
@@ -33,3 +26,6 @@ class GolfBallSimObject(MovingSimulationObjectWithPositionAndOrientation):
 
     def __repr__(self):
         return "GolfBall[" + super(GolfBallSimObject, self).__repr__() + "]"
+
+    def get_shape(self):
+        return Circle(21)

@@ -1,6 +1,7 @@
 from enum import Enum
 
 from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
+from piwarssim.engine.utils import Shapes
 from piwarssim.engine.utils.Shapes import Circle
 
 
@@ -29,7 +30,7 @@ class BarrelSimObject(MovingSimulationObjectWithPositionAndOrientation):
     def __init__(self, factory, sim_object_id, sim_object_type):
         super(BarrelSimObject, self).__init__(factory, sim_object_id, sim_object_type)
         self._barrel_colour = BarrelColour.Green
-        self.circle = Circle(0, 0, 25)
+        self.circle = Circle(25)
 
     def free(self):
         super(BarrelSimObject, self).free()
@@ -47,12 +48,6 @@ class BarrelSimObject(MovingSimulationObjectWithPositionAndOrientation):
         self.circle.y = position[1]
         return self.circle
 
-    # def set_position_v(self, position):
-    #     super(BarrelSimObject, self).set_position_v(position)
-    #
-    # def set_position_2(self, x, y):
-    #     super(BarrelSimObject, self).set_position_2(x, y)
-    #
     def serialize(self, full, serializer):
         super(BarrelSimObject, self).serialize(full, serializer)
         if full:
@@ -79,3 +74,6 @@ class BarrelSimObject(MovingSimulationObjectWithPositionAndOrientation):
 
     def __repr__(self):
         return "Barrel[" + super(BarrelSimObject, self).__repr__() + "]"
+
+    def get_shape(self):
+        return Circle(self.circle.get_radius())

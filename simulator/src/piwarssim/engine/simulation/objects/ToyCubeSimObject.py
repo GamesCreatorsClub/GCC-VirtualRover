@@ -1,7 +1,7 @@
 from enum import Enum
 
 from piwarssim.engine.simulation.MovingSimulationObjectWithPositionAndOrientation import MovingSimulationObjectWithPositionAndOrientation
-from piwarssim.engine.utils.Shapes import Circle
+from piwarssim.engine.utils.Shapes import Polygon
 
 
 class ToyCubeColour(Enum):
@@ -30,7 +30,6 @@ class ToyCubeSimObject(MovingSimulationObjectWithPositionAndOrientation):
     def __init__(self, factory, sim_object_id, sim_object_type):
         super(ToyCubeSimObject, self).__init__(factory, sim_object_id, sim_object_type)
         self._cube_colour = ToyCubeColour.Green
-        self.circle = Circle(0, 0, 25)
 
     def free(self):
         super(ToyCubeSimObject, self).free()
@@ -42,18 +41,6 @@ class ToyCubeSimObject(MovingSimulationObjectWithPositionAndOrientation):
         self.changed = self.changed or self._cube_colour != cubel_colour
         self._cube_colour = cubel_colour
 
-    def get_circle(self):
-        position = self.get_position()
-        self.circle.x = position[0]
-        self.circle.y = position[1]
-        return self.circle
-
-    # def set_position_v(self, position):
-    #     super(BarrelSimObject, self).set_position_v(position)
-    #
-    # def set_position_2(self, x, y):
-    #     super(BarrelSimObject, self).set_position_2(x, y)
-    #
     def serialize(self, full, serializer):
         super(ToyCubeSimObject, self).serialize(full, serializer)
         if full:
@@ -80,3 +67,6 @@ class ToyCubeSimObject(MovingSimulationObjectWithPositionAndOrientation):
 
     def __repr__(self):
         return "ToyCube[" + super(ToyCubeSimObject, self).__repr__() + "]"
+
+    def get_shape(self):
+        return Polygon.box(50)

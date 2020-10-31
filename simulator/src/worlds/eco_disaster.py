@@ -12,12 +12,11 @@ class BarrelBody(worlds.abstract_world.PymunkBody):
         self._green_barrel = sim_object.get_barrel_colour() == BarrelColour.Green
         self.set_local_object(sim_object.get_id())
         self.position = pos
-        self.shape = pymunk.Circle(self, 25)
+        self.shape = self.from_shape(sim_object)
         self.shape.mass = 20
         self.shape.filter = categories.object_filter
         self.shape.elasticity = 0.1
         self.shape.friction = 0.5
-        self.shape.surface_velocity
 
         if sim_object.get_barrel_colour() == BarrelColour.Green:
             self.shape.color = pygame.color.THECOLORS["green"]

@@ -3,6 +3,7 @@ from enum import Enum
 
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
+from piwarssim.engine.utils import Polygon
 
 
 class CBISRover(AbstractRoverSimObject):
@@ -16,3 +17,6 @@ class CBISRover(AbstractRoverSimObject):
 
     def __repr__(self):
         return "CBISRover[" + super(CBISRover, self).__repr__() + "]"
+
+    def get_shape(self):
+        return Polygon.box(200, 150)

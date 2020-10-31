@@ -1,8 +1,7 @@
 
-from enum import Enum
-
 from piwarssim.engine.simulation.rovers.AbstractRoverSimObject import AbstractRoverSimObject
 from piwarssim.engine.simulation.rovers.RoverType import RoverType
+from piwarssim.engine.utils import Polygon
 
 
 class GCCRoverM16(AbstractRoverSimObject):
@@ -16,3 +15,6 @@ class GCCRoverM16(AbstractRoverSimObject):
 
     def __repr__(self):
         return "GCCRover[" + super(GCCRoverM16, self).__repr__() + "]"
+
+    def get_shape(self):
+        return Polygon.box(160, 110)

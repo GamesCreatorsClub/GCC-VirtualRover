@@ -1,2 +1,2 @@
 
-from piwarssim.engine.utils.Shapes import Polygon, Circle
+from piwarssim.engine.utils.Shapes import Shape2D, Circle, Polygon

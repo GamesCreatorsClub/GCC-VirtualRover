@@ -5,6 +5,7 @@ from lib import categories
 from lib.robot import Robot
 
 from piwarssim.engine.simulation.rovers import AbstractRoverSimObject
+from piwarssim.engine.utils import Circle, Polygon
 
 
 class PymunkBody(pymunk.Body):
@@ -18,6 +19,13 @@ class PymunkBody(pymunk.Body):
 
     def set_local_object(self, local_object):
         self._local_object = local_object
+
+    def from_shape(self, sim_object):
+        sim_shape = sim_object.get_shape()
+        if isinstance(sim_shape, Circle):
+            return pymunk.Circle(self, sim_shape.get_radius())
+        elif isinstance(sim_shape, Polygon):
+            return pymunk.Circle(self, sim_shape.get_vertices())
 
 
 class PymunkAbstractWorld:
