@@ -1,19 +1,19 @@
 """Simple Mine Sweeper Example"""
 
 from piwarssim.engine.simulation import PiWarsSimObjectTypes
-from worlds.abstract_world import AbstractWorld
+from worlds.abstract_world import PymunkAbstractWorld
 
 
 WIDTH = 2200
 HEIGHT = 2200
 
 
-class World(AbstractWorld):
-    def __init__(self, space, robot):
-        super(World, self).__init__("MineSweeper", space, robot, WIDTH, HEIGHT)
+class WorldPymunk(PymunkAbstractWorld):
+    def __init__(self):
+        super(WorldPymunk, self).__init__("MineSweeper", WIDTH, HEIGHT)
 
     def update(self, world_screen_rect):
-        super(World, self).update(world_screen_rect)
+        super(WorldPymunk, self).update(world_screen_rect)
 
     # def mouse_pressed(self, x, y):
     #     self._green_barrel = not self._green_barrel

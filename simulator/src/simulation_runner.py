@@ -155,7 +155,7 @@ class SimulationRunner:
                         and self._server_engine.is_client_ready()
                         and not self._snapshot_handler.wait_for_snapshot(self._timestamp)) \
                 and (not self._paused or self._step):
-            self.simulation_adapter.update(self._timestamp)
+            self.simulation_adapter.update(self._timestamp, self._delta_tick)
             self._timestamp += self._delta_tick
 
     def draw(self):
@@ -218,7 +218,7 @@ class SimulationRunner:
         self.simulation_adapter.set_sim_rover_id(self._sim_rover_id)
         self.simulation_adapter.set_game_message_object_id(self._sim_game_message_id)
 
-        self.simulation_adapter.init_pygame()
+        self.simulation_adapter.init()
 
         serializer_factory = ByteSerializerFactory()
         self._message_factory = MessageFactory()
@@ -257,6 +257,7 @@ class SimulationRunner:
 
             self.update()
             self.draw()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False

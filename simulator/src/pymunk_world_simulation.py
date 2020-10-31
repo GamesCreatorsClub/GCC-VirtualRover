@@ -15,10 +15,11 @@ from worlds.abstract_world import PymunkBody
 class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
     def __init__(self):
         super(PymunkWorldSimulationAdapter, self).__init__()
-        self.space = pymunk.Space()
+        self.space = None
         self._draw_options = None
+        self._behaviour_module = None
         self.running_behaviour = None
-        self.robot = None
+        self._world_module = None
         self.world = None
         self._surface = None
 
@@ -28,7 +29,6 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
 
     def set_server_engine(self, server_engine):
         super(PymunkWorldSimulationAdapter, self).set_server_engine(server_engine)
-        self.world.synchronise_challenge(self.challenge)
 
     def process_arguments(self, args):
         super(PymunkWorldSimulationAdapter, self).process_arguments(args)
@@ -37,55 +37,49 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
 
         pymunk.pygame_util.positive_y_is_up = False
 
-        behaviour_module = import_module("behaviours." + args.behaviour_module)
-        world_module = import_module("worlds." + args.world_module)
+        self._behaviour_module = import_module("behaviours." + args.behaviour_module)
+        self._world_module = import_module("worlds." + args.world_module)
 
-        self.space.damping = 0.2
+        self.world = self._world_module.World()
+        self.space = self.world.space
 
-        self.robot = Robot()
-        self.space.add(self.robot.body, self.robot.shape)
-
-        self.running_behaviour = behaviour_module.Behaviour(self.robot.controls).run()
-        self.world = world_module.World(self.space, self.robot)
-        self._surface = None
-        self._draw_options = None
-
-    def init_pygame(self):
-        self._surface = pygame.Surface((self.world.get_width(), self.world.get_length()))
+    def init(self):
+        self.world.synchronise_challenge(self.challenge)
+        size = (self.world.get_width(), self.world.get_length())
+        self._surface = pygame.Surface(size, pygame.SRCALPHA)
         self._draw_options = pymunk.pygame_util.DrawOptions(self._surface)
+        self.running_behaviour = self._behaviour_module.Behaviour(self.world.robot.controls).run()
 
     def get_challenge_name(self):
         return self.world.get_challenge_name()
 
-    def update(self, timestamp):
+    def update(self, timestamp, delta):
         '''
         This method is synchronising values from pymunk physics engine to 'challenge' object (the world in piwarssim 'package'
         which is used for UI and reading camera input)
-        :param timestamp:
+        :param timestamp: absolute time
+        :param delta: delta time passed since last call to this method
         :return:
         '''
-        super(PymunkWorldSimulationAdapter, self).update(timestamp)
+        super(PymunkWorldSimulationAdapter, self).update(timestamp, delta)
 
         try:
             next(self.running_behaviour)
         except StopIteration:
             pass
 
-        self.robot.update(self.space)
-        self.space.step(0.4)
-
         world_width = self.world.get_width()
         world_height = self.world.get_length()
 
-        sim_rover = self.challenge.get_sim_object(self.sim_rover_id)
-
-        # sim_rover.set_position_2(self.robot.body.position.x - world_width // 2, world_height // 2 - self.robot.body.position.y)
-        sim_rover.set_position_v(self.world.translate_to_sim(self.robot.body.position.x, self.robot.body.position.y))
-        sim_rover.set_bearing(270 - self.robot.body.angle * 180 / math.pi)
-        sim_rover.changed = False
-
+        # Synchronise from Pymunk world to Simulation
         for body in self.space.bodies:
-            if isinstance(body, PymunkBody):
+            if isinstance(body, Robot):
+                sim_rover = self.challenge.get_sim_object(body.sim_rover_id)
+                sim_rover.set_position_v(self.world.translate_to_sim(body.position.x, body.position.y))
+                sim_rover.set_bearing(270 - body.angle * 180 / math.pi)
+                sim_rover.changed = False
+                body.update(self.space)
+            elif isinstance(body, PymunkBody):
                 local_object_id = body.get_local_object()
                 if local_object_id is None:
                     # TODO - add to_sim_body method on AbstractWorld for subclasses to implement
@@ -103,6 +97,7 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
                 # local_object.set_position_v2(body.position.x - world_width // 2, world_height // 2 - body.position.y)
                 local_object.set_position_and_bearing_rad(body.position.x - world_width // 2, world_height // 2 - body.position.y, 0, body.angle)
 
+        self.space.step(delta)
         self.server_engine.process(timestamp)
         self.server_engine.send_update()
 
@@ -110,9 +105,9 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
         super(PymunkWorldSimulationAdapter, self).draw(screen, screen_world_rect)
         self.world.update(screen_world_rect)
 
-        self._surface.fill((1.0, 0, 0))
+        self._surface.fill((255, 255, 255, 128))
+        self.world.draw(self._surface)
         self.space.debug_draw(self._draw_options)
-        self.robot.draw(self._surface)
         screen.blit(pygame.transform.scale(self._surface, (screen_world_rect.width, screen_world_rect.height)), (screen_world_rect.x, screen_world_rect.y))
 
 

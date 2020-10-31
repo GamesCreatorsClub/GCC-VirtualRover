@@ -18,7 +18,7 @@ class ToyCubeBody(worlds.abstract_world.PymunkBody):
         self.set_local_object(sim_object.get_id())
         self.position = pos
         self.shape = pymunk.Poly.create_box(self, (TOY_CUBE_SIDE_LENGTH, TOY_CUBE_SIDE_LENGTH))
-        self.shape.mass = 10
+        self.shape.mass = 30
         self.shape.filter = categories.object_filter
         self.shape.elasticity = 0.9999999
         self.shape.friction = 0.5
@@ -34,19 +34,14 @@ class ToyCubeBody(worlds.abstract_world.PymunkBody):
         return self._cube_colour
 
 
-class World(worlds.abstract_world.AbstractWorld):
-    def __init__(self, space, robot):
-        super(World, self).__init__("TidyUpTheToys", space, robot)
-        # self._green_barrel = True
-
-    def update(self, world_screen_rect):
-        super(World, self).update(world_screen_rect)
-
-    def synchronise_challenge(self, challenge):
-        super(World, self).synchronise_challenge(challenge)
+class World(worlds.abstract_world.PymunkAbstractWorld):
+    def __init__(self):
+        super(World, self).__init__("TidyUpTheToys")
 
     def to_pymunk_body(self, sim_object, object_id):
         if isinstance(sim_object, ToyCubeSimObject):
             toy_cube_body = ToyCubeBody(sim_object, self.translate_from_sim_2(sim_object.get_position()))
 
             self.space.add(toy_cube_body, toy_cube_body.shape)
+        else:
+            super(World, self).to_pymunk_body(sim_object, object_id)

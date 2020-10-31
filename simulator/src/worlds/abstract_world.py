@@ -2,7 +2,7 @@ import pymunk
 import pygame
 
 from lib import categories
-from piwarssim.engine.simulation.objects import BarrelSimObject, BarrelColour, ToyCubeSimObject, ToyCubeColour, FishTowerSimObject, GolfBallSimObject
+from lib.robot import Robot
 
 from piwarssim.engine.simulation.rovers import AbstractRoverSimObject
 
@@ -20,16 +20,15 @@ class PymunkBody(pymunk.Body):
         self._local_object = local_object
 
 
-
-
-class AbstractWorld:
-    def __init__(self, challenge_name, space, robot):
+class PymunkAbstractWorld:
+    def __init__(self, challenge_name):
         self._width = 0
         self._length = 0
         self._mouse_pressed = False
         self._challenge_name = challenge_name
-        self.space = space
-        self.robot = robot
+        self.space = pymunk.Space()
+        self.space.damping = 0.01
+        self.robot = None
         self._challenge_dimensions = 0, 0, 0, 0
 
     def get_challenge_name(self):
@@ -55,8 +54,6 @@ class AbstractWorld:
         self._length = d[3] - d[2]
 
         polygon_vertices = [[self.translate_from_sim(p[0], p[1]) for p in p.local_vertices] for p in challenge.wall_polygons]
-        # for vertices in polygon_vertices:
-        #     vertices.reverse()
 
         walls = [pymunk.Poly(self.space.static_body, v, radius=1) for v in polygon_vertices]
 
@@ -66,22 +63,15 @@ class AbstractWorld:
             wall.filter = categories.wall_filter
         self.space.add(walls)
 
-        sim_rover = None
         sim_state = challenge.get_current_sim_state()
         for object_id in sim_state:
-            object = sim_state[object_id]
-            if isinstance(object, AbstractRoverSimObject):
-                sim_rover = object
-            else:
-                self.to_pymunk_body(object, object_id)
-
-        if sim_rover is None:
-            sim_rover = self._find_rover(challenge)
-
-        self.robot.body.position = self.translate_from_sim_2(sim_rover.get_position())  # self._width / 2, self._length / 2
+            self.to_pymunk_body(sim_state[object_id], object_id)
 
     def to_pymunk_body(self, sim_object, object_id):
-        pass
+        if isinstance(sim_object, AbstractRoverSimObject):
+            self.robot = Robot(sim_object)
+            self.robot.position = self.translate_from_sim_2(sim_object.get_position())  # self._width / 2, self._length / 2
+            self.space.add(self.robot, self.robot.shape)
 
     @staticmethod
     def _find_rover(challenge):
@@ -116,6 +106,9 @@ class AbstractWorld:
 
         elif not pygame.mouse.get_pressed()[0] and self._mouse_pressed:
             self._mouse_pressed = False
+
+    def draw(self, surface):
+        self.robot.draw(surface)
 
     def mouse_pressed(self, x, y):
         pass

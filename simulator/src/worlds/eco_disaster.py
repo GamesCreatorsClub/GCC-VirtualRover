@@ -13,10 +13,11 @@ class BarrelBody(worlds.abstract_world.PymunkBody):
         self.set_local_object(sim_object.get_id())
         self.position = pos
         self.shape = pymunk.Circle(self, 25)
-        self.shape.mass = 10
+        self.shape.mass = 20
         self.shape.filter = categories.object_filter
-        self.shape.elasticity = 0.9999999
+        self.shape.elasticity = 0.1
         self.shape.friction = 0.5
+        self.shape.surface_velocity
 
         if sim_object.get_barrel_colour() == BarrelColour.Green:
             self.shape.color = pygame.color.THECOLORS["green"]
@@ -27,9 +28,9 @@ class BarrelBody(worlds.abstract_world.PymunkBody):
         return self._green_barrel
 
 
-class World(worlds.abstract_world.AbstractWorld):
-    def __init__(self, space, robot):
-        super(World, self).__init__("EcoDisaster", space, robot)
+class World(worlds.abstract_world.PymunkAbstractWorld):
+    def __init__(self):
+        super(World, self).__init__("EcoDisaster")
         # self._green_barrel = True
 
     def update(self, world_screen_rect):
@@ -43,12 +44,9 @@ class World(worlds.abstract_world.AbstractWorld):
     #     self.space.add(box_body, box_shape)
     #     box_shape.color = pygame.color.THECOLORS["white"]
 
-    def synchronise_challenge(self, challenge):
-        super(World, self).synchronise_challenge(challenge)
-
     def to_pymunk_body(self, sim_object, object_id):
-        super(World, self).to_pymunk_body(sim_object, object_id)
-
         if isinstance(sim_object, BarrelSimObject):
             box_body = BarrelBody(sim_object, self.translate_from_sim_2(sim_object.get_position()))
             self.space.add(box_body, box_body.shape)
+        else:
+            super(World, self).to_pymunk_body(sim_object, object_id)

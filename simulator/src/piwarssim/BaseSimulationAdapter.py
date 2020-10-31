@@ -49,11 +49,12 @@ class BaseSimulationAdapter:
         """
         pass
 
-    def update(self, timestamp):
+    def update(self, timestamp, delta):
         """
         Invoked for every tick of the loop with current timestamp.
 
-        :param timestamp: simulation timestamp
+        :param timestamp: absolute simulation timestamp
+        :param delta: delta time passed since last call
         """
         pass
 

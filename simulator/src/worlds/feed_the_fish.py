@@ -30,15 +30,15 @@ class FishTowerBody(worlds.abstract_world.PymunkBody):
         self.set_local_object(sim_object.get_id())
         self.position = pos
         self.shape = pymunk.Poly.create_box(self, (TOWER_WIDTH, TOWER_WIDTH))
-        self.shape.mass = 1000
+        self.shape.mass = 2000
         self.shape.filter = categories.object_filter
         self.shape.elasticity = 0.9999999
         self.shape.friction = 0.5
 
 
-class World(worlds.abstract_world.AbstractWorld):
-    def __init__(self, space, robot):
-        super(World, self).__init__("FeedTheFish", space, robot)
+class World(worlds.abstract_world.PymunkAbstractWorld):
+    def __init__(self):
+        super(World, self).__init__("FeedTheFish")
         # self._green_barrel = True
 
     def update(self, world_screen_rect):
@@ -51,3 +51,5 @@ class World(worlds.abstract_world.AbstractWorld):
         elif isinstance(sim_object, FishTowerSimObject):
             fish_tower_body = FishTowerBody(sim_object, self.translate_from_sim_2(sim_object.get_position()))
             self.space.add(fish_tower_body, fish_tower_body.shape)
+        else:
+            super(World, self).to_pymunk_body(sim_object, object_id)
