@@ -142,6 +142,8 @@ class AbstractChallenge:
         pass
 
     def spawn_rover(self, rover_type):
+        if not rover_type.is_rover():
+            raise AttributeError("'rover_type' must reflect real rover not any other sim object")
         rover = self._sim_object_factory.obtain(rover_type)
         rover.set_id(1)
         self.add_new_sim_object(rover)

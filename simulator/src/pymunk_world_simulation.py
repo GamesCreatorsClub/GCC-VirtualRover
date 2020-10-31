@@ -45,9 +45,11 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
 
     def init(self):
         self.world.synchronise_challenge(self.challenge)
+
         size = (self.world.get_width(), self.world.get_length())
         self._surface = pygame.Surface(size, pygame.SRCALPHA)
         self._draw_options = pymunk.pygame_util.DrawOptions(self._surface)
+
         self.running_behaviour = self._behaviour_module.Behaviour(self.world.robot.controls).run()
 
     def get_challenge_name(self):
@@ -114,4 +116,5 @@ class PymunkWorldSimulationAdapter(BaseSimulationAdapter):
 if __name__ == '__main__':
 
     runner = SimulationRunner(PymunkWorldSimulationAdapter())
+    runner.init()
     runner.main()

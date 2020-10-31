@@ -2,8 +2,9 @@ from enum import Enum
 
 
 class RoverType(Enum):
-    GCC = (0, "GCC Rover")
-    CBIS = (1, "CBiS-Education")
+    GCCRoverM16 = (0, "GCC Rover M16")
+    GCCRoverM18 = (0, "GCC Rover M18")
+    CBISRover = (1, "CBiS-Education")
 
     def __new__(cls, type_id, name):
         value = len(cls.__members__)

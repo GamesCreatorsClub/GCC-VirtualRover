@@ -15,6 +15,7 @@ from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.message.MessageCode import MessageCode
 from piwarssim.engine.server import ServerEngine
 from piwarssim.engine.simulation import PiWarsSimObjectTypes
+from piwarssim.engine.simulation.rovers import RoverType
 from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
 from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
@@ -157,6 +158,7 @@ class SimulationRunner:
                 and (not self._paused or self._step):
             self.simulation_adapter.update(self._timestamp, self._delta_tick)
             self._timestamp += self._delta_tick
+            self._step = False
 
     def draw(self):
         self._screen.fill((1.0, 0, 0), special_flags=pygame.BLEND_RGBA_MULT)
@@ -177,7 +179,7 @@ class SimulationRunner:
             self._visualiser.stop()
         sys.exit(0)
 
-    def main(self):
+    def init(self):
         self.simulation_adapter.set_simulation_runner(self)
 
         parser = argparse.ArgumentParser(description="Simulation runner")
@@ -185,6 +187,7 @@ class SimulationRunner:
         group.add_argument('--tcp', action='store_true', help="use TCP to connect to UI")
         group.add_argument('--udp', action='store_true', help="use UDP to connect to UI")
         parser.add_argument('--challenge', dest='challenge', help="name of challenge to simulate")
+        parser.add_argument('--rover', dest='rover', default="GCCRoverM16", help="name of challenge to simulate")
         parser.add_argument('--no-visualiser', action='store_true', dest='no_visualiser', help="don't start visualiser")
         parser.add_argument('--debug-java', action='store_true', dest='debug_java', help="should visualiser asked to output debug")
         parser.add_argument('--remote-java-debugging', action='store_true', dest='remote_java_debugging', help="should visualiser started in debug mode waiting for debugger to be attached")
@@ -192,9 +195,6 @@ class SimulationRunner:
 
         self.simulation_adapter.define_arguments(parser)  # This will allow adapter to add its own parameters
         args = parser.parse_args()
-
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (800, 60)
-        pygame.init()
 
         self.simulation_adapter.process_arguments(args)  # This will create 'simulation_adapter.world' object
 
@@ -206,37 +206,12 @@ class SimulationRunner:
             print("    (from piwarsim.challenges.Challenges enum) or implement get_challenge_name")
             print("    from BaseSimulationAdapter class.")
             sys.exit(-1)
-        challenge = Challenges.from_name(challenge_name).new_object()
-        self._server_engine = ServerEngine(challenge)
-        self._sim_rover_id = self._server_engine.challenge.spawn_rover(PiWarsSimObjectTypes.GCCRoverM16).get_id()
-        self._sim_game_message_id = self._server_engine.challenge.create_game_message_object().get_id()
 
-        self._server_engine.process(self._timestamp)  # Move to '0' seconds position
-        self._server_engine.set_screenshot_callback(self._snapshot_handler.snapshot_callback)
-
-        self.simulation_adapter.set_server_engine(self._server_engine)
-        self.simulation_adapter.set_sim_rover_id(self._sim_rover_id)
-        self.simulation_adapter.set_game_message_object_id(self._sim_game_message_id)
-
-        self.simulation_adapter.init()
-
-        serializer_factory = ByteSerializerFactory()
-        self._message_factory = MessageFactory()
-
-        if args.tcp:
-            self._comm_server_module = TCPServerModule(self._server_engine, serializer_factory, self._message_factory)
-        elif args.udp:
-            self._comm_server_module = UDPServerModule(self._server_engine, serializer_factory, self._message_factory)
+        self.setup_pygame()
+        self.setup_server_engine(challenge_name, args.rover)
 
         if args.tcp or args.udp:
-            self._is_connected_method = self._comm_server_module.is_connected
-
-            thread = Thread(target=self._comm_server_module.process, daemon=True)
-            thread.start()
-
-        self._font = pygame.font.SysFont("comicsansms", 32)
-        self._screen = pygame.display.set_mode((800, 800))
-        self._screen_world_rect = pygame.Rect(0, 0, 800, 800)
+            self.setup_connection(args.tcp)
 
         time.sleep(0.2)
 
@@ -249,6 +224,49 @@ class SimulationRunner:
                 self._visualiser.set_remote_java_debugging(True)
             self._visualiser.start()
 
+    def setup_pygame(self):
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (800, 60)
+        pygame.init()
+
+        self._font = pygame.font.SysFont("comicsansms", 32)
+        self._screen = pygame.display.set_mode((800, 800))
+        self._screen_world_rect = pygame.Rect(0, 0, 800, 800)
+
+    def setup_server_engine(self, challenge_name, rover_name="GCCRoverM16"):
+        rover = PiWarsSimObjectTypes.from_name(rover_name)
+        if not rover.is_rover():
+            print(f"Selected rover name {rover_name} is not a rover")
+            sys.exit(-1)
+
+        challenge = Challenges.from_name(challenge_name).new_object()
+        self._server_engine = ServerEngine(challenge)
+        self._sim_rover_id = self._server_engine.challenge.spawn_rover(rover).get_id()
+        self._sim_game_message_id = self._server_engine.challenge.create_game_message_object().get_id()
+
+        self._server_engine.process(self._timestamp)  # Move to '0' seconds position
+        self._server_engine.set_screenshot_callback(self._snapshot_handler.snapshot_callback)
+
+        self.simulation_adapter.set_server_engine(self._server_engine)
+        self.simulation_adapter.set_sim_rover_id(self._sim_rover_id)
+        self.simulation_adapter.set_game_message_object_id(self._sim_game_message_id)
+
+        self.simulation_adapter.init()
+
+    def setup_connection(self, tcp):
+        serializer_factory = ByteSerializerFactory()
+        self._message_factory = MessageFactory()
+
+        if tcp:
+            self._comm_server_module = TCPServerModule(self._server_engine, serializer_factory, self._message_factory)
+        else:
+            self._comm_server_module = UDPServerModule(self._server_engine, serializer_factory, self._message_factory)
+
+        self._is_connected_method = self._comm_server_module.is_connected
+
+        thread = Thread(target=self._comm_server_module.process, daemon=True)
+        thread.start()
+
+    def main(self):
         on_mac = platform.system() == 'Darwin'
 
         previous_pressed = pygame.key.get_pressed()

@@ -8,6 +8,7 @@ from piwarssim.engine.message.PlayerInputMessage import PlayerInputMessage
 from piwarssim.engine.message.MultiObjectRequestForFullUpdateMessage import MultiObjectRequestForFullUpdateMessage
 from piwarssim.engine.message.MessageFactory import MessageFactory
 from piwarssim.engine.message.ClientScreenshotMessage import ClientScreenshotMessage
+from piwarssim.engine.simulation import PiWarsSimObjectTypes
 
 
 class ServerEngine:
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     server_engine.challenge = pi_noon_challenge
 
     # pi_noon_challenge.process(0) # 1 second into the game
-    rover = pi_noon_challenge.spawn_rover(RoverType.GCC)
+    rover = pi_noon_challenge.spawn_rover(PiWarsSimObjectTypes.GCCRoverM16)
 
     t = 0
     server_engine.process(t)

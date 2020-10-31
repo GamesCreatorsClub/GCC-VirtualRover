@@ -157,7 +157,7 @@ class WorldRunner:
         self.world = world_module.World(self.space, self.robot)
 
         self._server_engine = ServerEngine(self.world.get_challenge())
-        self._sim_rover_id = self._server_engine.challenge.spawn_rover(RoverType.GCC).get_id()
+        self._sim_rover_id = self._server_engine.challenge.spawn_rover(PiWarsSimObjectTypes.GCCRoverM16).get_id()
 
         self._server_engine.process(self._tick)
         self._server_engine.set_screenshot_callback(self.screenshot_callback)
