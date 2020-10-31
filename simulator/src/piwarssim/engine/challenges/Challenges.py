@@ -8,6 +8,7 @@ from piwarssim.engine.challenges.MineSweeperChallenge import MineSweeperChalleng
 from piwarssim.engine.challenges.StraightLineSpeedTestChallenge import StraightLineSpeedTestChallenge
 from piwarssim.engine.challenges.TidyUpTheToysChallenge import TidyUpTheToysChallenge
 from piwarssim.engine.challenges.FeedTheFishChallenge import FeedTheFishChallenge
+from piwarssim.engine.challenges.UpTheGardenPathChallenge import UpTheGardenPathChallenge
 
 
 def raise_not_implemented():
@@ -23,6 +24,7 @@ class Challenges(Enum):
     MineSweeper = (lambda : MineSweeperChallenge(),)
     TidyUpTheToys = (lambda : TidyUpTheToysChallenge(),)
     FeedTheFish = (lambda : FeedTheFishChallenge(),)
+    UpTheGardenPath = (lambda : UpTheGardenPathChallenge(),)
 
     def __new__(cls, new_object_function):
         value = len(cls.__members__)

@@ -6,3 +6,4 @@ from piwarssim.engine.challenges.MineSweeperChallenge import MineSweeperChalleng
 from piwarssim.engine.challenges.StraightLineSpeedTestChallenge import StraightLineSpeedTestChallenge
 from piwarssim.engine.challenges.TidyUpTheToysChallenge import TidyUpTheToysChallenge
 from piwarssim.engine.challenges.FeedTheFishChallenge import FeedTheFishChallenge
+from piwarssim.engine.challenges.UpTheGardenPathChallenge import UpTheGardenPathChallenge
