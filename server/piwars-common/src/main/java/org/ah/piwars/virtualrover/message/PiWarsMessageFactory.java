@@ -23,8 +23,9 @@ public class PiWarsMessageFactory extends MessageFactory {
         return playerInputCommand;
     }
 
-    public ClientScreenshotMessage createClientScreenshotMessage(int packetNo, int totalPackets, byte[] pixels, int off, int len) {
+    public ClientScreenshotMessage createClientScreenshotMessage(int cameraId, int packetNo, int totalPackets, byte[] pixels, int off, int len) {
         ClientScreenshotMessage clientRegisterMessage = newMessage(PiWarsMessageCode.ClientScreenshot);
+        clientRegisterMessage.setCameraId(cameraId);
         clientRegisterMessage.setPacketNo(packetNo);
         clientRegisterMessage.setTotalPackets(totalPackets);
         clientRegisterMessage.setBuffer(pixels, off, len);

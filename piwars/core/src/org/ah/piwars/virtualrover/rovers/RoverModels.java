@@ -12,5 +12,6 @@ public class RoverModels {
         GCCRoverModelM16.load(assetManager);
         GCCRoverModelM18.load(assetManager);
         CBiSRoverModel.load(assetManager);
+        MacFeegleModel.load(assetManager);
     }
 }

@@ -9,6 +9,7 @@ import org.ah.piwars.virtualrover.game.objects.ToyCubeObject;
 import org.ah.piwars.virtualrover.game.rovers.CBISRover;
 import org.ah.piwars.virtualrover.game.rovers.GCCRoverM16;
 import org.ah.piwars.virtualrover.game.rovers.GCCRoverM18;
+import org.ah.piwars.virtualrover.game.rovers.MacFeegleRover;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import org.ah.themvsus.engine.common.game.GameObjectType;
@@ -69,6 +70,11 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
         @Override public String toString() { return "CBISRoverType"; }
     };
 
+    public static GameObjectType MacFeegleRover = new GameObjectType() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new MacFeegleRover(factory, -1); }
+        @Override public String toString() { return "MacFeegleType"; }
+    };
+
     protected static GameObjectType[] DEFINED_TYPES = {
             WaitingPlayerObject,
             GameMessageObject,
@@ -82,5 +88,6 @@ public abstract class PiWarsGameTypeObject extends GameObjectType {
             GCCRoverM16,
             GCCRoverM18,
             CBISRover,
+            MacFeegleRover,
     };
 }

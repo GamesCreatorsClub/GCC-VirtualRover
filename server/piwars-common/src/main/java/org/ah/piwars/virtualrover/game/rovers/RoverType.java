@@ -17,6 +17,11 @@ public enum RoverType {
     CBIS(1, "CBiS-Education") {
         @Override public RoverControls createRoverControls() { return new TankRoverControls(); }
         @Override public GameObjectType getGameObjectType() { return PiWarsGameTypeObject.CBISRover; }
+    },
+
+    MacFeegle(1, "MacFeegle") {
+        @Override public RoverControls createRoverControls() { return new TankRoverControls(); }
+        @Override public GameObjectType getGameObjectType() { return PiWarsGameTypeObject.MacFeegleRover; }
     };
 
     private int id;

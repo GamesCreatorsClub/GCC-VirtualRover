@@ -48,19 +48,19 @@ public abstract class CameraAbstractChallenge extends TimedChallenge {
         if (gameObject instanceof Rover) {
             Rover rover = (Rover)gameObject;
             cameraId = 0;
-            if (rover.getCameraId() != 0) {
-                piwarsGame.removeGameObject(rover.getAttachemntId());
+            for (int cameraId : rover.getCameraId()) {
+                piwarsGame.removeGameObject(cameraId);
             }
         }
     }
 
 
-    protected CameraAttachment getCameraAttachment() {
-        Rover rover = getRover();
-        if (rover != null) {
-            CameraAttachment cameraAttachment = piwarsGame.getCurrentGameState().get(rover.getCameraId());
-            return cameraAttachment;
-        }
-        return null;
-    }
+//    protected CameraAttachment getCameraAttachment() {
+//        Rover rover = getRover();
+//        if (rover != null) {
+//            CameraAttachment cameraAttachment = piwarsGame.getCurrentGameState().get(rover.getCameraId());
+//            return cameraAttachment;
+//        }
+//        return null;
+//    }
 }

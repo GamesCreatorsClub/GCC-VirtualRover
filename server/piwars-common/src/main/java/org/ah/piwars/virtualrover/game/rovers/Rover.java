@@ -36,7 +36,8 @@ public abstract class Rover extends AbstractPlayer implements PiWarsCollidableOb
 
     private RoverColour roverColour = RoverColour.WHITE;
     private int attachmentId;
-    private int cameraId;
+    private int[] cameraIds = new int[0];
+    protected boolean stereoCamera = false;
 
     protected Vector2 attachmentPosition;
     protected Vector3 cameraPosition;
@@ -59,7 +60,7 @@ public abstract class Rover extends AbstractPlayer implements PiWarsCollidableOb
     public void free() {
         roverColour = RoverColour.WHITE;
         attachmentId = 0;
-        cameraId = 0;
+        cameraIds = new int[0];
         super.free();
     }
 
@@ -108,12 +109,16 @@ public abstract class Rover extends AbstractPlayer implements PiWarsCollidableOb
         this.attachmentId = attachmentId;
     }
 
-    public int getCameraId() {
-        return cameraId;
+    public int[] getCameraId() {
+        return cameraIds;
     }
 
     public void addCamera(int cameraId) {
-        this.cameraId = cameraId;
+        int[] newCameraIds = new int[cameraIds.length + 1];
+        System.arraycopy(cameraIds, 0, newCameraIds, 0, cameraIds.length);
+
+        newCameraIds[cameraIds.length] = cameraId;
+        cameraIds = newCameraIds;
     }
 
     @Override
@@ -177,7 +182,7 @@ public abstract class Rover extends AbstractPlayer implements PiWarsCollidableOb
         Rover rover = (Rover)newObject;
         rover.roverColour = roverColour;
         rover.attachmentId = attachmentId;
-        rover.cameraId = cameraId;
+        rover.cameraIds = cameraIds;
 
         return newObject;
     }

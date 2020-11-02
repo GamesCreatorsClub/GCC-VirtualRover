@@ -17,6 +17,7 @@ import org.ah.piwars.virtualrover.rovers.AbstractRoverModel;
 import org.ah.piwars.virtualrover.rovers.CBiSRoverModel;
 import org.ah.piwars.virtualrover.rovers.GCCRoverModelM16;
 import org.ah.piwars.virtualrover.rovers.GCCRoverModelM18;
+import org.ah.piwars.virtualrover.rovers.MacFeegleModel;
 
 import static org.ah.piwars.virtualrover.screens.GreetingScreen.ARROW_BUTTON_MARGIN;
 import static org.ah.piwars.virtualrover.screens.GreetingScreen.ARROW_BUTTON_WIDTH;
@@ -115,6 +116,9 @@ public class RoverSelectionActor extends Group {
             roverModel = new GCCRoverModelM18(assetManager);
         } else if (selectedRoverType == RoverType.CBIS) {
             roverModel = new CBiSRoverModel(assetManager);
+        } else if (selectedRoverType == RoverType.MacFeegle) {
+            // TODO update this
+            roverModel = new MacFeegleModel(assetManager);
         }
         roverModel.update(roverGameObject);
         roverDescriptionLabel.setText(selectedRoverType.getName());

@@ -10,6 +10,7 @@ import static org.ah.piwars.virtualrover.message.PiWarsMessageCode.ClientScreens
 public class ClientScreenshotMessage extends Message {
 
     private static final byte[] EMPTY_BUFFER = new byte[0];
+    private int cameraId;
     private int frameNo;
     private int packetNo;
     private int totalPackets;
@@ -38,6 +39,14 @@ public class ClientScreenshotMessage extends Message {
     @Override
     public MessageCode getType() { return ClientScreenshot; }
 
+    public void setCameraId(int cameraId) {
+        this.cameraId = cameraId;
+    }
+
+    public int getCameraId() {
+        return cameraId;
+    }
+
     public void setFrameNo(int frameNo) {
         this.frameNo = frameNo;
     }
@@ -63,7 +72,7 @@ public class ClientScreenshotMessage extends Message {
     }
 
     public int noDataSize() {
-        return super.size() + 4 + 2 + 2 + 2;
+        return super.size() + 4 + 2 + 2 + 2 + 2;
     }
 
     @Override
@@ -74,6 +83,7 @@ public class ClientScreenshotMessage extends Message {
     @Override
     protected void deserializeImpl(Serializer deserializer) {
         super.deserializeImpl(deserializer);
+        cameraId = deserializer.deserializeUnsignedShort();
         frameNo = deserializer.deserializeInt();
         packetNo = deserializer.deserializeUnsignedShort();
         totalPackets = deserializer.deserializeUnsignedShort();
@@ -84,6 +94,7 @@ public class ClientScreenshotMessage extends Message {
 
     @Override
     protected void serializeImpl(Serializer serializer) {
+        serializer.serializeUnsignedShort(cameraId);
         serializer.serializeInt(frameNo);
 
         if (buffer == null) {

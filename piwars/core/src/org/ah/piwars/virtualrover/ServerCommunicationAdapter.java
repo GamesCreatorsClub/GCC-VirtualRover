@@ -38,6 +38,8 @@ import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.message.ServerClientAuthenticatedMessage;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter<PiWarsGame> implements GameObjectAddedListener, GameObjectRemovedListener {
 
@@ -52,13 +54,13 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private int playerTwoId;
     private int gameMessageId;
-    private int cameraAttachmentId;
+    private Set<Integer> cameraAttachmentIds = new LinkedHashSet<Integer>();
     private int mineSweeperId;
 
     private AssetManager assetManager;
     private boolean local;
 
-    private boolean makeCameraSnapshot;
+    private Set<Integer> makeCameraSnapshot = new LinkedHashSet<Integer>();
 
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
@@ -89,7 +91,10 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     @Override
     protected void processMessage(Message message) {
         if (message instanceof ServerRequestScreenshotMessage) {
-            makeCameraSnapshot = true;
+            int cameraId = ((ServerRequestScreenshotMessage)message).getCameraId();
+            if (!makeCameraSnapshot.contains(cameraId)) {
+                makeCameraSnapshot.add(cameraId);
+            }
             message.free();
         } else {
             super.processMessage(message);
@@ -142,7 +147,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         this.playerId = playerId;
         playerTwoId = 0;
         gameMessageId = 0;
-        cameraAttachmentId = 0;
+        cameraAttachmentIds.clear();
         mineSweeperId = 0;
 
         this.local = local;
@@ -178,8 +183,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         if (gameMessageId == objectId) {
             gameMessageId = 0;
         }
-        if (cameraAttachmentId == objectId) {
-            cameraAttachmentId = 0;
+        if (cameraAttachmentIds.contains(objectId)) {
+            cameraAttachmentIds.remove(objectId);
         }
         if (mineSweeperId == objectId) {
             mineSweeperId = 0;
@@ -211,7 +216,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
             allVisibleObjects.put(gameObject.getId(), piNoonAttachmentModel);
         } else if (gameObject instanceof CameraAttachment) {
-            cameraAttachmentId = gameObject.getId();
+            cameraAttachmentIds.add(gameObject.getId());
         } else if (gameObject instanceof GameMessageObject) {
             gameMessageId = gameObject.getId();
         } else if (gameObject instanceof BarrelObject) {
@@ -298,9 +303,17 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return null;
     }
 
-    public CameraAttachment getCameraAttachment() {
-        if (engine != null && cameraAttachmentId > 0) {
-            CameraAttachment cameraAttachment = engine.getGame().getCurrentGameState().get(cameraAttachmentId);
+    public CameraAttachment firstCameraAttachment() {
+        if (engine != null && cameraAttachmentIds.size() > 0) {
+            CameraAttachment cameraAttachment = engine.getGame().getCurrentGameState().get(cameraAttachmentIds.iterator().next());
+            return cameraAttachment;
+        }
+        return null;
+    }
+
+    public CameraAttachment getCameraAttachment(int cameraId) {
+        if (engine != null && cameraAttachmentIds.size() > 0 && cameraAttachmentIds.contains(cameraId)) {
+            CameraAttachment cameraAttachment = engine.getGame().getCurrentGameState().get(cameraId);
             return cameraAttachment;
         }
         return null;
@@ -314,16 +327,20 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return null;
     }
 
-    public boolean isMakeCameraSnapshot() {
-        return makeCameraSnapshot;
+    public boolean hasMakeCameraSnapshotRequest() {
+        return makeCameraSnapshot.size() > 0;
     }
 
-    public void makeCameraSnapshot(byte[] snapshotData) {
-        makeCameraSnapshot = false;
+    public int getCameraIdForCameraSnapshotRequest() {
+        return makeCameraSnapshot.size() > 0 ? makeCameraSnapshot.iterator().next() : -1;
+    }
+
+    public void makeCameraSnapshot(int cameraId, byte[] snapshotData) {
+        makeCameraSnapshot.remove(cameraId);
         int packetPayloadAllowance;
 
         ClientScreenshotMessage clientScreenshotMessage =
-                ((PiWarsMessageFactory)messageFactory).createClientScreenshotMessage(0, 0, EMPTY_ARRAY, 0, 0);
+                ((PiWarsMessageFactory)messageFactory).createClientScreenshotMessage(cameraId, 0, 0, EMPTY_ARRAY, 0, 0);
         try {
             packetPayloadAllowance = clientScreenshotMessage.size();
         } finally {
@@ -342,7 +359,7 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             if (packetNo * packetLen + thisPacketLen > snapshotData.length) {
                 thisPacketLen = snapshotData.length - packetNo * packetLen;
             }
-            clientScreenshotMessage = ((PiWarsMessageFactory)messageFactory).createClientScreenshotMessage(packetNo, totalPackets, snapshotData, packetNo * packetLen, thisPacketLen);
+            clientScreenshotMessage = ((PiWarsMessageFactory)messageFactory).createClientScreenshotMessage(cameraId, packetNo, totalPackets, snapshotData, packetNo * packetLen, thisPacketLen);
             try {
                 serverCommunication.send(clientScreenshotMessage);
             } catch (IOException e) {

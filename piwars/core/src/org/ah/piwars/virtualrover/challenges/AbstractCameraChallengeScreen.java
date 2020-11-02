@@ -113,7 +113,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
     }
 
     protected void processCameraAttachemnt() {
-        cameraAttachment = serverCommunicationAdapter.getCameraAttachment();
+        cameraAttachment = serverCommunicationAdapter.firstCameraAttachment();
         if (cameraAttachment != null) {
             Rover rover = serverCommunicationAdapter.getEngine().getGame().getCurrentGameState().get(cameraAttachment.getParentId());
             if (rover != null) {
@@ -164,9 +164,9 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
 
         modelBatch.end();
 
-        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
-            snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
-        }
+//        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
+//            snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
+//        }
         thirdPersonCameraFrameBuffer.end();
     }
 
@@ -181,6 +181,16 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
             background.render(attachedCamera, modelBatch, environment);
         }
 
+        if (serverCommunicationAdapter.hasMakeCameraSnapshotRequest()) {
+            int cameraId = serverCommunicationAdapter.getCameraIdForCameraSnapshotRequest();
+            cameraAttachment = serverCommunicationAdapter.getCameraAttachment(cameraId);
+            if (cameraAttachment != null) {
+                Rover rover = serverCommunicationAdapter.getEngine().getGame().getCurrentGameState().get(cameraAttachment.getParentId());
+                if (rover != null) {
+                    updateFirstPersonCamera(rover, cameraAttachment);
+                }
+            }
+        }
         modelBatch.begin(attachedCamera);
 
         renderingContext.frameBuffer = attachedCameraFrameBuffer;
@@ -189,7 +199,7 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
 
         modelBatch.end();
 
-        if (serverCommunicationAdapter.isMakeCameraSnapshot()) {
+        if (serverCommunicationAdapter.hasMakeCameraSnapshotRequest()) {
             snapshotData = ScreenUtils.getFrameBufferPixels(0, 0, 320, 256, true);
         }
         attachedCameraFrameBuffer.end();
@@ -305,8 +315,8 @@ public abstract class AbstractCameraChallengeScreen extends AbstractChallengeScr
             console.render();
         }
 
-        if (serverCommunicationAdapter.isMakeCameraSnapshot() && snapshotData != null) {
-            serverCommunicationAdapter.makeCameraSnapshot(snapshotData);
+        if (serverCommunicationAdapter.hasMakeCameraSnapshotRequest() && snapshotData != null) {
+            serverCommunicationAdapter.makeCameraSnapshot(serverCommunicationAdapter.getCameraIdForCameraSnapshotRequest(), snapshotData);
         }
     }
 

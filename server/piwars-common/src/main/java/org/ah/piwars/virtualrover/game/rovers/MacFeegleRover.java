@@ -9,16 +9,18 @@ import org.ah.themvsus.engine.common.game.GameObjectFactory;
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.asShape2DList;
 import static org.ah.piwars.virtualrover.engine.utils.CollisionUtils.polygonFromBox;
 
-public class GCCRoverM18 extends Rover {
+public class MacFeegleRover extends Rover {
 
-    public GCCRoverM18(GameObjectFactory factory, int id) {
-        super(factory, id, RoverType.GCCM18);
+    public MacFeegleRover(GameObjectFactory factory, int id) {
+        super(factory, id, RoverType.MacFeegle);
 
-        this.polygons = asShape2DList(polygonFromBox(-100f,  -100f, 100f,  100f));
-        this.attachmentPosition = new Vector2(80f, 0);
-        this.cameraPosition = new Vector3(75f, 0f, 110f);
+        this.stereoCamera = true;
+
+        this.polygons = asShape2DList(polygonFromBox(-100f,  -75f, 100f,  75f));
+        this.attachmentPosition = new Vector2(100f, 0);
+        this.cameraPosition = new Vector3(100f, 0f, 320f);
         this.cameraOrientation = new Quaternion();
-        this.cameraOrientation.setEulerAngles(10f, 0f, 0f); // positive yaw is down
+        this.cameraOrientation.setEulerAngles(45f, 0f, 0f); // positive yaw is down
         this.cameraAngle = 45f;
     }
 }

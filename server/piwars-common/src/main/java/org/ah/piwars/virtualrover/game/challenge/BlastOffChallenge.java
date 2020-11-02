@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Shape2D;
 
 import org.ah.piwars.virtualrover.game.GameMessageObject;
 import org.ah.piwars.virtualrover.game.PiWarsGame;
-import org.ah.piwars.virtualrover.game.attachments.CameraAttachment;
 import org.ah.piwars.virtualrover.game.rovers.Rover;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
@@ -171,11 +170,6 @@ public class BlastOffChallenge extends CameraAbstractChallenge {
                     challenge.stopTimer();
                     challenge.getGameMessage().setMessage("Time is up!", false);
                     challenge.stateMachine.toState(ChallengeState.END, challenge);
-                }
-
-                CameraAttachment player1Attachment = challenge.getCameraAttachment();
-
-                if (player1Attachment != null) {
                 }
             }
         },
