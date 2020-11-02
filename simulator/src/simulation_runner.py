@@ -7,6 +7,7 @@ import pygame
 import sys
 
 from enum import Enum
+from functools import cmp_to_key
 from PIL import Image
 from threading import Thread
 
@@ -15,7 +16,7 @@ from piwarssim.engine.message import MessageFactory
 from piwarssim.engine.message.MessageCode import MessageCode
 from piwarssim.engine.server import ServerEngine
 from piwarssim.engine.simulation import PiWarsSimObjectTypes
-from piwarssim.engine.simulation.rovers import RoverType
+from piwarssim.engine.simulation.attachments.CameraAttachemntObject import CameraAttachmentObject
 from piwarssim.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 from piwarssim.engine.transfer.TCPServerModule import TCPServerModule
 from piwarssim.engine.transfer.UDPServerModule import UDPServerModule
@@ -29,43 +30,27 @@ class SnapshotState(Enum):
 
 
 class SnapshotHandler:
-    def __init__(self):
+    def __init__(self, camera_id, create_open_cv_image=False):
+        self.camera_id = camera_id
+        self.camera_order = 1
         self.image = None
+        self.open_cv_image = None
+        self._create_open_cv_image = create_open_cv_image
         self._state = SnapshotState.Idle
         self._image_bytes = None
         self._received_callback = None
-        self._delay = 0.25  # 4 times a second
-        self._receive_timestamp = 0
-
-    def set_snapshot_delay(self, snapshot_delay):
-        """
-        Amount of time (in simulation) before snapshot is delivered after requested.
-        Zero means before next 'tick'
-        :param snapshot_delay: amount in seconds
-        :return:
-        """
-        self._delay = snapshot_delay
-
-    def get_snapshot_delay(self):
-        return self._delay
+        self._received_timestamp = 0
 
     def snapshot_requested(self):
         return self._state != SnapshotState.Idle
 
-    def wait_for_snapshot(self, current_timestamp):
-        if self._state != SnapshotState.Idle:
-            return current_timestamp < self._receive_timestamp
-
-        self._state = SnapshotState.Idle
-
-        return False
-
     def request_snapshot(self, current_timestamp, server_engine, snapshot_received_callback=None):
-        self._receive_timestamp = current_timestamp + self._delay
+        self._received_timestamp = current_timestamp
         self._received_callback = snapshot_received_callback
 
         message = server_engine.get_message_factory().obtain(MessageCode.ServerRequestScreenshot)
         try:
+            message.set_camera_id(self.camera_id)
             server_engine.send_message(message)
         finally:
             message.free()
@@ -85,8 +70,70 @@ class SnapshotHandler:
             self.image = pygame.image.fromstring(pil_image.tobytes("raw"), (320, 256), "RGBA")
 
             if self._received_callback is not None:
-                open_cv_image = numpy.array(pil_image)
-                self._received_callback(open_cv_image)
+                if self._create_open_cv_image:
+                    self.open_cv_image = numpy.array(pil_image)
+                self._received_callback(self)
+
+
+class SnapshotRequester:
+    def __init__(self, server_engine, sim_rover_id):
+        self._server_engine = server_engine
+        self._sim_rover_id = sim_rover_id
+        self._snapshot_handlers_list = []
+        self._snapshot_handlers_map = {}
+        self._snapshot_handlers_to_process = []
+        self._current_timestamp = None
+        self._snapshot_callback = None
+        self._processed_snapshot_handlers = []
+        self._in_progress = False
+        self._server_engine.set_screenshot_callback(self._internal_snapshot_callback)
+        self._server_engine.challenge.register_after_sim_object_added_listener(self._after_sim_object_camera_added_listener)
+
+    def _after_sim_object_camera_added_listener(self, challenge, sim_object):
+        if isinstance(sim_object, CameraAttachmentObject):
+            camera_id = sim_object.get_id()
+            handler = SnapshotHandler(camera_id)
+            self._snapshot_handlers_list.append(handler)
+            self._snapshot_handlers_list.sort(key=cmp_to_key(lambda x, y: 1 if x.camera_order < y.camera_order else (0 if x.camera_order == y.camera_order else -1)))
+            self._snapshot_handlers_map[camera_id] = handler
+
+    def get_camera_snapshots(self):
+        return self._snapshot_handlers_map
+
+    def get_camera_snapshopts_as_list(self):
+        return self._snapshot_handlers_list
+
+    def request_snapshot(self, current_timestamp, snapshot_callback):
+        self._snapshot_handlers_to_process = [handler for handler in self._snapshot_handlers_list]
+        self._current_timestamp = current_timestamp
+        self._snapshot_callback = snapshot_callback
+        self._in_progress = True
+        self._process()
+
+    def is_snapshot_request_in_progress(self):
+        return self._in_progress
+
+    def _internal_snapshot_callback(self, message):
+        camera_id = message.get_camera_id()
+        if camera_id in self._snapshot_handlers_map:
+            self._snapshot_handlers_map[camera_id].snapshot_callback(message)
+        else:
+            # TODO should we throw an error in case of getting snapshot for camera we don't know anything about?
+            print(f"Got snapshot for camera id {camera_id} which is not available")
+
+    def _snapshot_received_callback(self, snapshot_handler):
+        self._processed_snapshot_handlers.append(snapshot_handler)
+        self._process()
+
+    def _process(self):
+        if len(self._snapshot_handlers_to_process) > 0:
+            snapshot_handler = self._snapshot_handlers_to_process[0]
+            self._snapshot_handlers_to_process = self._snapshot_handlers_to_process[1:]
+            snapshot_handler.request_snapshot(self._current_timestamp, self._server_engine, self._snapshot_received_callback)
+        else:
+            if self._snapshot_callback is not None:
+                self._snapshot_callback(self._processed_snapshot_handlers)
+            self._in_progress = False
 
 
 class SimulationRunner:
@@ -102,11 +149,11 @@ class SimulationRunner:
         self._sim_rover_id = None
         self._sim_game_message_id = None
         self._visualiser = None
-        self._snapshot_handler = SnapshotHandler()
         self._paused = False
         self._step = False
         self._delta_tick = 0.02
         self._timestamp = 0
+        self._snapshot_requester = None
 
     def set_delta_tick(self, delta_tick):
         """
@@ -130,17 +177,8 @@ class SimulationRunner:
     def get_timestamp(self):
         return self._timestamp
 
-    def set_snapshot_delay(self, snapshot_delay):
-        """
-        Amount of time (in simulation) before snapshot is delivered after requested.
-        Zero means before next 'tick'
-        :param snapshot_delay: amount in seconds
-        :return:
-        """
-        self._snapshot_handler.set_snapshot_delay(snapshot_delay)
-
-    def get_snapshot_delay(self):
-        return self._snapshot_handler.get_snapshot_delay()
+    def get_camera_snapshots(self):
+        return self._snapshot_requester.get_camera_snapshopts()
 
     def update(self):
         # player_inputs = server_engine.get_player_inputs()
@@ -154,7 +192,7 @@ class SimulationRunner:
         if (self._is_connected_method is None
                     or (self._is_connected_method())
                         and self._server_engine.is_client_ready()
-                        and not self._snapshot_handler.wait_for_snapshot(self._timestamp)) \
+                        and not self._snapshot_requester.is_snapshot_request_in_progress()) \
                 and (not self._paused or self._step):
             self.simulation_adapter.update(self._timestamp, self._delta_tick)
             self._timestamp += self._delta_tick
@@ -164,15 +202,18 @@ class SimulationRunner:
         self._screen.fill((1.0, 0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         self.simulation_adapter.draw(self._screen, self._screen_world_rect)
 
-        if self._snapshot_handler.image is not None:
-            self._screen.blit(self._snapshot_handler.image, (0, 0))
+        i = 0
+        for snapshot_handler in self._snapshot_requester.get_camera_snapshopts_as_list():
+            if snapshot_handler.image is not None:
+                self._screen.blit(snapshot_handler.image, (0, i))
+                i += snapshot_handler.image.get_height()
         if self._paused:
             self._screen.blit(self._font.render("Paused", True, (255, 255, 255)), (10, 0))
         self._screen.blit(self._font.render(f"{self._timestamp:3.2f}", True, (255, 255, 255)), (700, 0))
         pygame.display.flip()
 
     def request_snapshot(self, snapshot_received_callback=None):
-        self._snapshot_handler.request_snapshot(self._timestamp, self._server_engine, snapshot_received_callback)
+        self._snapshot_requester.request_snapshot(self._timestamp, snapshot_received_callback)
 
     def leave(self):
         if self._visualiser is not None:
@@ -242,9 +283,9 @@ class SimulationRunner:
         self._server_engine = ServerEngine(challenge)
         self._sim_rover_id = self._server_engine.challenge.spawn_rover(rover).get_id()
         self._sim_game_message_id = self._server_engine.challenge.create_game_message_object().get_id()
+        self._snapshot_requester = SnapshotRequester(self._server_engine, self._sim_rover_id)
 
         self._server_engine.process(self._timestamp)  # Move to '0' seconds position
-        self._server_engine.set_screenshot_callback(self._snapshot_handler.snapshot_callback)
 
         self.simulation_adapter.set_server_engine(self._server_engine)
         self.simulation_adapter.set_sim_rover_id(self._sim_rover_id)
@@ -289,7 +330,7 @@ class SimulationRunner:
                 self._paused = not self._paused
             if pressed[pygame.K_o] and not previous_pressed[pygame.K_o]:
                 self._step = not self._step
-            if pressed[pygame.K_s] and not self._snapshot_handler.snapshot_requested():
+            if pressed[pygame.K_s] and not self._snapshot_requester.is_snapshot_request_in_progress():
                 self.request_snapshot()
 
             previous_pressed = pressed

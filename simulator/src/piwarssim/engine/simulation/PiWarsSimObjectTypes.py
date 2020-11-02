@@ -8,6 +8,7 @@ from piwarssim.engine.simulation.attachments.CameraAttachemntObject import Camer
 from piwarssim.engine.simulation.objects.FishTowerSimObject import FishTowerSimObject
 from piwarssim.engine.simulation.objects.GolfBallSimObject import GolfBallSimObject
 from piwarssim.engine.simulation.objects.ToyCubeSimObject import ToyCubeSimObject
+from piwarssim.engine.simulation.rovers import MacFeegle
 from piwarssim.engine.simulation.rovers.GCCRoverM16 import GCCRoverM16
 from piwarssim.engine.simulation.rovers.GCCRoverM18 import GCCRoverM18
 from piwarssim.engine.simulation.rovers.CBISRover import CBISRover
@@ -38,6 +39,8 @@ class PiWarsSimObjectTypes(Enum):
     GCCRoverM18 = (True, lambda factory, sim_object_id, sim_object_type: GCCRoverM18(factory, sim_object_id, sim_object_type),)
 
     CBISRover = (True, lambda factory, sim_object_id, sim_object_type: CBISRover(factory, sim_object_id, sim_object_type),)
+
+    MacFeegle = (True, lambda factory, sim_object_id, sim_object_type: MacFeegle(factory, sim_object_id, sim_object_type),)
 
     def __new__(cls, is_rover, new_object_function):
         value = len(cls.__members__)

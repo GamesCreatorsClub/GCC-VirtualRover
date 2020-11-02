@@ -31,7 +31,9 @@ class AbstractRoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
         self._rover_name = rover_type.get_name()
         self._rover_colour = RoverColor.White
         self._attachment_id = 0
-        self._camera_id = 0
+        self.stereo_camera = False
+        self.interpupilary_distance = 61
+        self._camera_ids = []
         self.attachmentPosition = (80.0, 0.0)
         self.cameraPosition = (75.0, 0.0, 20.0)
         self.cameraOrientation = ()
@@ -46,11 +48,11 @@ class AbstractRoverSimObject(MovingSimulationObjectWithPositionAndOrientation):
     def set_rover_colour(self, rover_colour):
         self._rover_colour = rover_colour
 
-    def get_camera_id(self):
-        return self._camera_id
+    def get_camera_ids(self):
+        return self._camera_ids
 
-    def set_camera_id(self, camera_id):
-        self._camera_id = camera_id
+    def add_camera_id(self, camera_id):
+        self._camera_ids.append(camera_id)
 
     def get_attachment_id(self):
         return self._attachment_id

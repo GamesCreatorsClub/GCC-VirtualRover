@@ -1,6 +1,8 @@
+from piwarssim.engine.simulation.GameMessageSimObject import GameMessageSimObject
 from piwarssim.engine.simulation.PiWarsSimObjectTypes import PiWarsSimObjectTypes
 from piwarssim.engine.simulation.SimulationStateFactory import SimulationStateFactory
 from piwarssim.engine.simulation.SimulationObjectFactory import SimulationObjectFactory
+from piwarssim.engine.simulation.rovers import AbstractRoverSimObject
 
 
 class AbstractChallenge:
@@ -15,6 +17,8 @@ class AbstractChallenge:
         self._previous_sim_states = []
         self._new_sim_objects = []
         self._remove_sim_object = []
+        self._before_sim_object_added_listeners = []
+        self._after_sim_object_added_listeners = []
         self._min_width = 0
         self._max_width = 0
         self._min_length = 0
@@ -28,6 +32,47 @@ class AbstractChallenge:
         self._sim_rover_id = None  # Handy id for subclasses needing rover details
         self._game_message_object_id = None  # Handy id for subclasses needing game message object
         self._game_tick_micros = AbstractChallenge.GAME_TICK_IN_us
+        self.camera_ids = []
+        self.rover_id = 0
+
+        self.register_after_sim_object_added_listener(self._after_sim_object_added_rover_listener)
+        self.register_after_sim_object_added_listener(self._after_sim_object_added_game_message_listener)
+
+    def _after_sim_object_added_rover_listener(self, challenge, sim_object):
+        if isinstance(sim_object, AbstractRoverSimObject):
+            self.rover_id = sim_object.get_id()
+
+            camera_attachment = self._sim_object_factory.obtain(PiWarsSimObjectTypes.CameraAttachment)
+            camera_attachment.set_id(self.new_id())
+            camera_attachment.attach_to_rover(sim_object)
+            self.add_new_sim_object_immediately(camera_attachment)
+            self.camera_ids.append(camera_attachment.get_id())
+
+            if sim_object.stereo_camera:
+                camera_attachment = self._sim_object_factory.obtain(PiWarsSimObjectTypes.CameraAttachment)
+                camera_attachment.set_id(self.new_id())
+                camera_attachment.attach_to_rover(sim_object, True)
+                self.add_new_sim_object_immediately(camera_attachment)
+                self.camera_ids.append(camera_attachment.get_id())
+
+    def _after_sim_object_added_game_message_listener(self, challenge, sim_object):
+        if isinstance(sim_object, GameMessageSimObject):
+            game_message_object = self.get_game_message_object()
+            game_message_object.has_timer = True
+            game_message_object.timer_stopped = False
+            game_message_object.set_timer_tens(3000, self)
+
+    def register_before_sim_object_added_listener(self, listener):
+        self._before_sim_object_added_listeners.append(listener)
+
+    def unregister_before_sim_object_added_listener(self, listener):
+        del self._before_sim_object_added_listeners[self._before_sim_object_added_listeners.index(listener)]
+
+    def register_after_sim_object_added_listener(self, listener):
+        self._after_sim_object_added_listeners.append(listener)
+
+    def unregister_aftersim_object_added_listener(self, listener):
+        del self._after_sim_object_added_listeners[self._after_sim_object_added_listeners.index(listener)]
 
     def get_challenge_id(self):
         return self._challenge_id
@@ -133,10 +178,12 @@ class AbstractChallenge:
         return self._next_sim_state.new_id()
 
     def before_sim_object_added(self, sim_object):
-        pass
+        for listener in self._before_sim_object_added_listeners:
+            listener(self, sim_object)
 
     def after_sim_object_added(self, sim_object):
-        pass
+        for listener in self._after_sim_object_added_listeners:
+            listener(self, sim_object)
 
     def sim_object_removed(self, sim_object):
         pass

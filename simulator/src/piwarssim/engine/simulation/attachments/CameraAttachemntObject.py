@@ -47,12 +47,15 @@ class CameraAttachmentObject(SimulationObjectWithPositionAndOrientation):
 
         return new_object
 
-    def attach_to_rover(self, rover):
+    def attach_to_rover(self, rover, left=False):
         self.set_parent_id(rover.get_id())
-        self.set_position_v(rover.camera_position)
+        if rover.stereo_camera:
+            self.set_position_v((rover.camera_position[0], (-1 if left else 1 ) * rover.interpupilary_distance / 2, rover.camera_position[2]))
+        else:
+            self.set_position_v(rover.camera_position)
         self.set_orientation_q(rover.camera_orientation)
         self._camera_angle = rover.camera_angle
-        rover.set_camera_id(self.get_id())
+        rover.add_camera_id(self.get_id())
 
     def __repr__(self):
         return "CameraAttachment[" + super(CameraAttachmentObject, self).__repr__() + ", parent=" + str(self._parent_id) + "]"

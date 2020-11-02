@@ -14,7 +14,6 @@ class PiNoonChallenge(AbstractChallenge):
 
     FLOOR_POLYGON = polygon_from_box(-CHALLENGE_WIDTH / 2, -CHALLENGE_WIDTH / 2,  CHALLENGE_WIDTH / 2, CHALLENGE_WIDTH / 2)
 
-
     def __init__(self):
         super(PiNoonChallenge, self).__init__("PiNoon")
         self.wall_polygons = PiNoonChallenge.WALL_POLYGONS
