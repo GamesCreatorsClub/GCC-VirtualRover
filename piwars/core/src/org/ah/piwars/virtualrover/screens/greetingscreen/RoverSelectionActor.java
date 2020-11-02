@@ -28,7 +28,7 @@ public class RoverSelectionActor extends Group {
 
     private Rover roverGameObject;
 
-    private static RoverType[] ROVER_TYPE_VALUES = RoverType.values();
+    private static RoverType[] ROVER_TYPE_VALUES = new RoverType[] { RoverType.GCCM16, RoverType.CBIS };
 
     private AssetManager assetManager;
 
