@@ -24,6 +24,8 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
     private boolean error = false;
     private boolean gameReady;
 
+    private String mapId;
+
     public ConnectingScreen(ServerCommunicationAdapter serverCommunicationAdapter, FishtankMain game, AssetManager assetManager) {
         this.serverCommunicationAdapter = serverCommunicationAdapter;
         this.game = game;
@@ -42,6 +44,7 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
     @Override
     public void render(float delta) {
         if (gameReady) {
+            serverCommunicationAdapter.startEngine(mapId, 0, false, true);
             game.showTank();
         } else if (connected) {
             Gdx.gl.glClearColor(0.8f, 1f, 0.8f, 1f);
@@ -67,6 +70,7 @@ public class ConnectingScreen extends ScreenAdapter implements ServerConnectionC
 
     @Override
     public void gameMap(String mapId, int playerId) {
+        this.mapId = mapId;
         this.gameReady = true;
     }
 

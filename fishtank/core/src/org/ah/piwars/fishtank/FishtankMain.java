@@ -67,7 +67,7 @@ public class FishtankMain extends Game {
 
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, assetManager);
 
-        tankScreen = new FishtankScreen(assetManager, console);
+        tankScreen = new FishtankScreen(assetManager, console, serverCommunicationAdapter);
         connectingScreen = new ConnectingScreen(serverCommunicationAdapter, this, assetManager);
 
         tankScreen.create();

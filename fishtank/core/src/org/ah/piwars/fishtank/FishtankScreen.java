@@ -39,15 +39,20 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.IntSet;
 
+import org.ah.piwars.fishtank.game.FishtankGame;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.ChatListener;
 import org.ah.piwars.fishtank.view.Console;
+import org.ah.piwars.fishtank.world.FishModelLink;
+import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
 public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     protected Console console;
+    private ServerCommunicationAdapter adapter;
 
     private int width;
     private int height;
@@ -71,9 +76,11 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     private ModelInstance backgroundInstance;
 
-    public FishtankScreen(AssetManager assetManager, Console console) {
+
+    public FishtankScreen(AssetManager assetManager, Console console, ServerCommunicationAdapter adapter) {
         this.assetManager = assetManager;
         this.console = console;
+        this.adapter = adapter;
     }
 
     public void create() {
@@ -96,6 +103,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         inputController = new CameraInputController(camera);
         Gdx.input.setInputProcessor(inputController);
 
+        unknownObjectIds = new IntSet();
 
         fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
         fishModelInstance = new ModelInstance(fishModel);
@@ -162,8 +170,12 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
     private Node spine3;
     private Node spine4;
 
+    private IntSet unknownObjectIds;
+
     @Override
     public void render(float delta) {
+        progressEngine();
+
         inputController.update();
 
         t = (t + delta * 0.02f) % 1f;
@@ -196,7 +208,16 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
         modelBatch.begin(camera);
         modelBatch.render(backgroundInstance, environment);
-        modelBatch.render(fishModelInstance, environment);
+//        modelBatch.render(fishModelInstance, environment);
+
+        for (VisibleObject visibleObject : adapter.getVisibleObjects().values()) {
+            if (visibleObject instanceof FishModelLink) {
+                FishModelLink fishModel = (FishModelLink) visibleObject;
+
+                fishModel.render(modelBatch, environment);
+            }
+        }
+
         modelBatch.end();
     }
 
@@ -228,6 +249,18 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     @Override
     public void pause() {
+    }
+
+    protected void progressEngine() {
+        ClientEngine<FishtankGame> engine = adapter.getEngine();
+        if (engine != null) {
+            long now = System.currentTimeMillis();
+            engine.progressEngine(now, unknownObjectIds);
+
+            if (unknownObjectIds.size > 0) {
+                adapter.requestFullUpdate(unknownObjectIds);
+            }
+        }
     }
 
     @Override

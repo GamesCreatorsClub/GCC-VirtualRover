@@ -3,7 +3,9 @@ package org.ah.piwars.fishtank.game.fish;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
+import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
+import org.ah.themvsus.engine.common.game.GameObjectType;
 
 public class SpadefishFish extends Fish {
 
@@ -15,4 +17,7 @@ public class SpadefishFish extends Fish {
         this.cameraOrientation.setEulerAngles(22.5f, 0f, 0f); // positive yaw is down
         this.cameraAngle = 45f;
     }
+
+    @Override
+    public GameObjectType getType() { return FishtankGameTypeObject.Spadefish; }
 }

@@ -1,8 +1,6 @@
 package org.ah.piwars.fishtank.server.engine;
 
 import org.ah.piwars.fishtank.game.FishtankGame;
-import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
-import org.ah.piwars.fishtank.game.fish.Fish;
 import org.ah.piwars.fishtank.input.FishtankPlayerInputs;
 import org.ah.piwars.fishtank.message.FishtankMessageFactory;
 import org.ah.themvsus.engine.common.game.GameObject;
@@ -17,7 +15,6 @@ import org.ah.themvsus.server.engine.ServerEngine;
 import java.util.Properties;
 
 import static org.ah.themvsus.server.log.LogHelper.ACCESS_LOGGER;
-import static org.ah.themvsus.server.log.LogHelper.GAME_LOGGER;
 
 public class FishtankServerEngine extends ServerEngine<FishtankGame> {
 
@@ -75,9 +72,7 @@ public class FishtankServerEngine extends ServerEngine<FishtankGame> {
             if (waitingPlayer != null) {
                 game.removeGameObject(playerId);
             }
-
-            Fish rover = game.spawnFish(clientSession.getSessionId(), FishtankGameTypeObject.Spadefish);
-            GAME_LOGGER.info(clientSession.clientString() + ": Created new player at " + rover.getPosition().x + ", " + rover.getPosition().y + "; id=" + rover.getId());
+//            GAME_LOGGER.info(clientSession.clientString() + ": Created new player at " + rover.getPosition().x + ", " + rover.getPosition().y + "; id=" + rover.getId());
         }
         sendWorld(clientSession);
     }

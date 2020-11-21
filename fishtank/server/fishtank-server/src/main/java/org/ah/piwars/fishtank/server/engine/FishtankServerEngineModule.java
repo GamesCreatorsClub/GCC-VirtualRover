@@ -1,6 +1,8 @@
 package org.ah.piwars.fishtank.server.engine;
 
 import org.ah.piwars.fishtank.game.FishtankGame;
+import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
+import org.ah.piwars.fishtank.game.fish.Fish;
 import org.ah.themvsus.server.ServerEngineModule;
 import org.ah.themvsus.server.authentication.AuthenticationAndAuthorisation;
 import org.ah.themvsus.server.engine.ServerEngine;
@@ -33,6 +35,10 @@ public class FishtankServerEngineModule extends ServerEngineModule {
 
             FishtankGame game = new FishtankGame("PiNoon");
             game.init();
+
+            Fish fish1 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
+            Fish fish2 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
+            fish2.setPosition(5f, 2f, 2f);
 
             return game;
         } catch (Throwable t) {
