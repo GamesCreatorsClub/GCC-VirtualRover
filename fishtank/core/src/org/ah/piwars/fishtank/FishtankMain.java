@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 
 import org.ah.piwars.fishtank.screens.ConnectingScreen;
 import org.ah.piwars.fishtank.screens.LoadingScreen;
@@ -64,6 +65,14 @@ public class FishtankMain extends Game {
         console.raw("Welcome to Virtual PiWars " + version);
         console.raw("Games Creators Club Virtual Rover");
         console.raw("(c) Creative Sphere Limited");
+
+        Model fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
+        for (Node node : fishModel.nodes) {
+//            node.scale.scl(0.1f, 0.1f, 0.1f);
+            node.scale.scl(FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE);
+            node.translation.setZero();
+            node.calculateTransforms(true);
+        }
 
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, assetManager);
 

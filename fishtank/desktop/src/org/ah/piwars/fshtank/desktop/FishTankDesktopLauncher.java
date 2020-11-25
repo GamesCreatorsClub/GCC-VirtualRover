@@ -19,7 +19,8 @@ public class FishTankDesktopLauncher {
         platformSpecific.setServerDetails("127.0.0.1", 7453);
 
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowedMode(1280, 1024);
+        config.setWindowedMode(1024, 768);
+        config.setWindowPosition(10, 100);
         new Lwjgl3Application(new FishtankMain(platformSpecific), config);
     }
 }

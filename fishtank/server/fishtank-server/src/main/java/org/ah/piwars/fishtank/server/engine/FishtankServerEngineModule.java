@@ -10,6 +10,8 @@ import org.ah.themvsus.server.engine.ServerEngine;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import static com.badlogic.gdx.math.MathUtils.atan2;
+
 import static org.ah.themvsus.server.log.LogHelper.GAME_LOGGER;
 import static org.ah.themvsus.server.log.LogHelper.SERVER_LOGGER;
 
@@ -37,8 +39,13 @@ public class FishtankServerEngineModule extends ServerEngineModule {
             game.init();
 
             Fish fish1 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
-            Fish fish2 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
-            fish2.setPosition(5f, 2f, 2f);
+            fish1.setPosition(3f, 0f, 2f);
+            fish1.getOrientation().setFromAxisRad(0f, 1f, 0f, atan2(3f, 2f));
+
+//            Fish fish2 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
+//            fish2.setSpeed(0f);
+//            fish2.setPosition(5f, 2f, 2f);
+//            fish2.getOrientation().setFromAxisRad(0f, 1f, 0f, atan2(5f, 2f));
 
             return game;
         } catch (Throwable t) {
