@@ -96,8 +96,8 @@ public class FishModelLink implements VisibleObject {
                 final float step = MathUtils.PI / 16;
 
                 float swimFactor1 = 0.05f + (speed * 0.2f);
-                float swimFactor2 = 0.1f + (speed * 0.3f);
-                float swimFactor3 = 0.15f + (speed * 0.4f);
+                float swimFactor2 = 0.1f + (speed * 0.5f);
+                float swimFactor3 = 0.15f + (speed * 0.5f);
                 float swimFactor4 = 0.2f + (speed * 0.5f);
 
                 float yaw1 = swimFactor1 * MathUtils.sin(t);
