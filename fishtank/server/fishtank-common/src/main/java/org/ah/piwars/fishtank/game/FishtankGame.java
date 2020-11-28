@@ -49,7 +49,7 @@ public class FishtankGame extends Game {
         planes[BACK_PLANE_INDEX] = new Plane(BACK, HALF_HEIGHT);
         planes[RIGHT_PLANE_INDEX] = new Plane(RIGHT, HALF_WIDTH);
         planes[FRONT_PLANE_INDEX] = new Plane(FRONT, HALF_HEIGHT);
-        planes[BOTTOM_PLANE_INDEX] = new Plane(UP, HALF_DEPTH);
+        planes[BOTTOM_PLANE_INDEX] = new Plane(DOWN, HALF_DEPTH);
     }
 
     public Fish spawnFish(int id, FishtankGameTypeObject fishType) {

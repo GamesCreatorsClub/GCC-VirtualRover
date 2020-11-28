@@ -26,6 +26,10 @@ public class FishModelLink implements VisibleObject {
     private FishtankGame game;
 
     private Vector3 position = new Vector3();
+    private Quaternion orientation = new Quaternion();
+    private Quaternion newOrientation = new Quaternion();
+    private Quaternion tempQuaternion = new Quaternion();
+
     private Quaternion spine1Orientation = new Quaternion();
     private Quaternion spine2Orientation = new Quaternion();
     private Quaternion spine3Orientation = new Quaternion();
@@ -67,16 +71,23 @@ public class FishModelLink implements VisibleObject {
             if (fish != null) {
 
                 final float delta = Math.min(1f / 10f, Gdx.graphics.getDeltaTime());
+                float speed = fish.getSpeed();
     //          animationController.update(delta);
 
 
-                t = (t + delta * 0.02f) % 1f;
+//                t = (t + delta * speed * 0.15f) % 1f;
+                t = (t + delta * speed * 20f);
 
                 position.set(fish.getPosition());
                 position.scl(FishtankScreen.WORLD_SCALE);
 
+                orientation  = fish.getOrientation();
+                newOrientation.setFromAxisRad(0f, 1f, 0f, orientation.getYawRad());
+                tempQuaternion.setFromAxisRad(0f, 0f, 1f, orientation.getPitchRad());
+                newOrientation.mul(tempQuaternion);
+
                 fishModelInstance.transform.idt();
-                fishModelInstance.transform.set(position, fish.getOrientation());
+                fishModelInstance.transform.set(position, newOrientation);
 //                fishModelInstance.transform.set(fish.getOrientation());
 //                fishModelInstance.transform.setTranslation(position);
                 fishModelInstance.transform.scale(FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE);
@@ -84,15 +95,20 @@ public class FishModelLink implements VisibleObject {
 
                 final float step = MathUtils.PI / 16;
 
-                float yaw1 = 2f * MathUtils.sin(t * 200f) * 15 / MathUtils.PI;
-                float yaw2 = 2f * MathUtils.sin(t * 200f + step) * 15 / MathUtils.PI;
-                float yaw3 = 2f * MathUtils.sin(t * 200f + step * 2) * 15 / MathUtils.PI;
-                float yaw4 = 2f * MathUtils.sin(t * 200f + step * 3) * 15 / MathUtils.PI;
+                float swimFactor1 = 0.05f + (speed * 0.2f);
+                float swimFactor2 = 0.1f + (speed * 0.3f);
+                float swimFactor3 = 0.15f + (speed * 0.4f);
+                float swimFactor4 = 0.2f + (speed * 0.5f);
 
-                spine1Orientation.setEulerAngles(0f, 0f, yaw1).mul(spine1.rotation);
-                spine2Orientation.setEulerAngles(0f, 0f, yaw2).mul(spine2.rotation);
-                spine3Orientation.setEulerAngles(0f, 0f, yaw3).mul(spine3.rotation);
-                spine4Orientation.setEulerAngles(0f, 0f, yaw4).mul(spine4.rotation);
+                float yaw1 = swimFactor1 * MathUtils.sin(t);
+                float yaw2 = swimFactor2 * MathUtils.sin(t + step);
+                float yaw3 = swimFactor3 * MathUtils.sin(t + step * 2);
+                float yaw4 = swimFactor4 * MathUtils.sin(t + step * 3);
+
+                spine1Orientation.setEulerAnglesRad(0f, 0f, yaw1).mul(spine1.rotation);
+                spine2Orientation.setEulerAnglesRad(0f, 0f, yaw2).mul(spine2.rotation);
+                spine3Orientation.setEulerAnglesRad(0f, 0f, yaw3).mul(spine3.rotation);
+                spine4Orientation.setEulerAnglesRad(0f, 0f, yaw4).mul(spine4.rotation);
                 spine1.localTransform.set(spine1.translation, spine1Orientation, spine1.scale);
                 spine2.localTransform.set(spine2.translation, spine2Orientation, spine2.scale);
                 spine3.localTransform.set(spine3.translation, spine3Orientation, spine3.scale);

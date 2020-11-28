@@ -39,8 +39,8 @@ public class FishtankServerEngineModule extends ServerEngineModule {
             game.init();
 
             Fish fish1 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
-            fish1.setPosition(3f, 0f, 2f);
-            fish1.getOrientation().setFromAxisRad(0f, 1f, 0f, atan2(3f, 2f));
+            fish1.setPosition(40f, 0f, 2f);
+            fish1.getOrientation().setFromAxisRad(0f, 1f, 0f, atan2(1f, 3f));
 
 //            Fish fish2 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
 //            fish2.setSpeed(0f);
