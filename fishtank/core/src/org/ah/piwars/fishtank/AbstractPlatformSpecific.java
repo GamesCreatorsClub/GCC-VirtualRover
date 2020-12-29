@@ -6,9 +6,11 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     private int serverPort;
     private ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback;
     private boolean hasSound = true;
-    protected boolean isSimulation;
+    private TankView tankView = PlatformSpecific.TankView.FRONT;
     protected boolean isLocalOnly;
-    protected String requestedChallenge;
+
+    private boolean mirrorWalls;
+    private boolean highresFloor;
 
     @Override
     public void setServerDetails(String socketAddress, int port) {
@@ -45,5 +47,32 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     @Override
     public boolean hasSound() {
         return this.hasSound;
+    }
+
+    @Override
+    public TankView getTankView() {
+        return tankView;
+    }
+
+    public void setTankView(TankView tankView) {
+        this.tankView = tankView;
+    }
+
+    @Override
+    public boolean isMirrorWalls() {
+        return mirrorWalls;
+    }
+
+    public void setMirrorWalls(boolean mirrorWalls) {
+        this.mirrorWalls = mirrorWalls;
+    }
+
+    @Override
+    public boolean isHighresFloor() {
+        return highresFloor;
+    }
+
+    public void setHighresFloor(boolean highresFloor) {
+        this.highresFloor = highresFloor;
     }
 }

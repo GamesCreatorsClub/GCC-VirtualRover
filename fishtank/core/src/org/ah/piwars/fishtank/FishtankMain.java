@@ -14,6 +14,11 @@ import org.ah.themvsus.engine.client.ServerCommunication;
 
 public class FishtankMain extends Game {
 
+    // public static final String TANK_BOTTOM_MODEL = "tank/tank-2-150.g3db";
+    // public static final String TANK_BOTTOM_MODEL = "tank/tank-1-75.g3db";
+    // public static final String TANK_BOTTOM_MODEL = "tank/tank-1-100.g3db";
+    public static final String TANK_BOTTOM_MODEL = "tank/tank-2-100.g3db";
+
     private PlatformSpecific platformSpecific;
 
     private ServerCommunication serverCommunication;
@@ -43,7 +48,11 @@ public class FishtankMain extends Game {
         assetManager.load("font/droidsansmono-15.fnt", BitmapFont.class);
 
         assetManager.load("fish/spadefish/spadefish.g3db", Model.class);
+        assetManager.load("fish/tetra/tetra.g3db", Model.class);
 
+        assetManager.load(TANK_BOTTOM_MODEL, Model.class);
+//        assetManager.load("Pebbles_025_BaseColor.jpg", Texture.class);
+//        assetManager.load("Pebbles_025_Normal.jpg", Texture.class);
 
         serverCommunication = platformSpecific.getServerCommunication();
 
@@ -66,17 +75,13 @@ public class FishtankMain extends Game {
         console.raw("Games Creators Club Virtual Rover");
         console.raw("(c) Creative Sphere Limited");
 
-        Model fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
-        for (Node node : fishModel.nodes) {
-//            node.scale.scl(0.1f, 0.1f, 0.1f);
-            node.scale.scl(FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE);
-            node.translation.setZero();
-            node.calculateTransforms(true);
-        }
+//        Model fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
+        applyWorldScale(assetManager.get("fish/spadefish/spadefish.g3db", Model.class));
+        applyWorldScale(assetManager.get("fish/tetra/tetra.g3db", Model.class));
 
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, assetManager);
 
-        tankScreen = new FishtankScreen(assetManager, console, serverCommunicationAdapter);
+        tankScreen = new FishtankScreen(platformSpecific, assetManager, console, serverCommunicationAdapter);
         connectingScreen = new ConnectingScreen(serverCommunicationAdapter, this, assetManager);
 
         tankScreen.create();
@@ -99,5 +104,13 @@ public class FishtankMain extends Game {
         if (console != null) { console.dispose(); }
         if (loadingScreen != null) { loadingScreen.dispose(); }
         if (tankScreen != null) { tankScreen.dispose(); }
+    }
+
+    private void applyWorldScale(Model fishModel) {
+        for (Node node : fishModel.nodes) {
+          node.scale.scl(FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE);
+          node.translation.setZero();
+          node.calculateTransforms(true);
+      }
     }
 }

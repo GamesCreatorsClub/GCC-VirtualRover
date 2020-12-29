@@ -16,19 +16,25 @@ import org.ah.themvsus.engine.common.input.PlayerInputs;
 
 public class FishtankGame extends Game {
 
-    public static Vector3 UP = new Vector3(0f, 1f, 0f);
-    public static Vector3 LEFT = new Vector3(-1f, 0f, 0f);
-    public static Vector3 BACK = new Vector3(0f, 0f, -1f);
-    public static Vector3 RIGHT = new Vector3(1f, 0f, 0f);
-    public static Vector3 FRONT = new Vector3(0f, 0f, 1f);
-    public static Vector3 DOWN = new Vector3(0f, -1f, 0f);
+    public static Vector3 LEFT  = new Vector3(-1f,  0f,  0f);
+    public static Vector3 RIGHT = new Vector3( 1f,  0f,  0f);
+//    public static Vector3 UP    = new Vector3( 0f,  1f,  0f);
+//    public static Vector3 DOWN  = new Vector3( 0f, -1f,  0f);
+//    public static Vector3 BACK  = new Vector3( 0f,  0f, -1f);
+//    public static Vector3 FRONT = new Vector3( 0f,  0f,  1f);
+
+    public static Vector3 UP    = new Vector3( 0f,  0f,  1f);
+    public static Vector3 DOWN  = new Vector3( 0f,  0f, -1f);
+    public static Vector3 BACK  = new Vector3( 0f, -1f,  0f);
+    public static Vector3 FRONT = new Vector3( 0f,  1f,  0f);
+
 
     public static int GAME_TICK_IN_us = 16000;
 
-    public static float WIDTH = 160;
-    public static float HALF_WIDTH = 80;
-    public static float HEIGHT = 160;
-    public static float HALF_HEIGHT = 80;
+    public static float WIDTH = 200;
+    public static float HALF_WIDTH = 100;
+    public static float HEIGHT = 200;
+    public static float HALF_HEIGHT = 100;
     public static float DEPTH = 120;
     public static float HALF_DEPTH = 60;
 

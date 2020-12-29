@@ -2,7 +2,7 @@ sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["../android/assets"]
 
-project.ext.mainClassName = "org.ah.piwars.fishtank.desktop.DesktopLauncher"
+project.ext.mainClassName = "org.ah.piwars.fshtank.desktop.FishtankDesktopLauncher"
 project.ext.assetsDir = new File("../android/assets")
 
 task run(dependsOn: classes, type: JavaExec) {

@@ -56,7 +56,7 @@ public class Parameters {
                 } else if ("--undecorated".equals(args[i]) || "-u".equals(args[i])) {
                     undecorated = true;
                     i++;
-                } else if ("--full-screen".equals(args[i]) || "-fc".equals(args[i])) {
+                } else if ("--fullscreen".equals(args[i]) || "--full-screen".equals(args[i]) || "-fc".equals(args[i])) {
                     fullScreen = true;
                     i++;
                 } else if ("--mute".equals(args[i]) || "-m".equals(args[i]) || "--no-sound".equals(args[i])) {

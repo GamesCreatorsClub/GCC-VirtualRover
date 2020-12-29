@@ -5,7 +5,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 import org.ah.piwars.fishtank.PathRotationTest;
 
-public class FishTankDesktopLauncher2 {
+public class FishtankDesktopLauncher2 {
     public static void main (String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowedMode(1280, 1024);

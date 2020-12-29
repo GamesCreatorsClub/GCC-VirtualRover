@@ -12,7 +12,7 @@ public interface VisibleObject {
 
     Color getColour();
 
-    void render(ModelBatch batch, Environment environment);
+    void render(float delta, ModelBatch batch, Environment environment);
 
     void dispose();
 }

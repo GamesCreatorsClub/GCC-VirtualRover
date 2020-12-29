@@ -23,6 +23,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -44,6 +46,8 @@ import org.ah.piwars.fishtank.world.FishModelLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
+import static java.lang.String.format;
+
 public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     public static final float WORLD_SCALE = 0.1f;
@@ -59,24 +63,32 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
     protected PerspectiveCamera camera;
 
     private CameraInputController inputController;
+    private WiiMoteCameraController wiiMoteCameraController;
 
+    private SpriteBatch spriteBatch;
     private ModelBatch modelBatch;
 
     private Environment environment;
 
     private AssetManager assetManager;
 
-    private Model gridAndAxesModel;
-    private ModelInstance gridAndAxesInstance;
+    // private Model gridAndAxesModel;
+    // private ModelInstance gridAndAxesInstance;
     private Model fishtankLeftSideModel;
     private ModelInstance fishtankLeftSideInstance;
     private Model fishtankRightSideModel;
     private ModelInstance fishtankRightSideInstance;
     private Model fishtankBackSideModel;
     private ModelInstance fishtankBackSideInstance;
+    private Model fishtankBottomModel;
+    private ModelInstance fishtankBottomInstance;
+    private PlatformSpecific platformSpecific;
+
+    protected BitmapFont fontSmallMono;
 
 
-    public FishtankScreen(AssetManager assetManager, Console console, ServerCommunicationAdapter adapter) {
+    public FishtankScreen(PlatformSpecific platformSpecific, AssetManager assetManager, Console console, ServerCommunicationAdapter adapter) {
+        this.platformSpecific = platformSpecific;
         this.assetManager = assetManager;
         this.console = console;
         this.adapter = adapter;
@@ -84,6 +96,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     public void create() {
         modelBatch = new ModelBatch();
+        spriteBatch = new SpriteBatch();
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, .4f, .4f, .4f, 1f));
@@ -93,22 +106,46 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         hudCamera.setToOrtho(true);
 
         float h = FishtankGame.HALF_HEIGHT * WORLD_SCALE;
+        float displayWidth = 160f * WORLD_SCALE;
 
-        camera = new PerspectiveCamera(45, width, height);
-        float tang = 1f / (float)Math.tan(Math.PI / 8.0);
-        camera.position.set(0f, 0f, h * tang);
-        camera.lookAt(0f, 0f, h);
+//        float yOffset = - (h - FishtankGame.HALF_DEPTH * WORLD_SCALE) / 2f;
+        float yOffset = -20f * WORLD_SCALE;
+
+        float camera_angle = 135f;
+        float camera_distance = 0.5f;
+
+        camera = new PerspectiveCamera(camera_angle, width, height);
+//        float camera_distance = ((float)Math.tan(camera_angle * Math.PI / 180f)); //  + h * 0.1f;
+        if (platformSpecific.getTankView() == PlatformSpecific.TankView.FRONT) {
+            camera.position.set(0f, yOffset, h + displayWidth * 2 * camera_distance);
+            camera.lookAt(0f, 0f, 0f);
+        } else if (platformSpecific.getTankView() == PlatformSpecific.TankView.LEFT) {
+            camera.position.set(-(h + displayWidth * 2 * camera_distance), yOffset, 0f);
+            camera.lookAt(0f, 0f, 0f);
+        } else if (platformSpecific.getTankView() == PlatformSpecific.TankView.RIGHT) {
+            camera.position.set(h + displayWidth * 2 * camera_distance, yOffset, 0f);
+            camera.lookAt(0f, 0f, 0f);
+        } else {
+            // ERROR but we don't want to do anything about it...
+            camera.position.set(0f, 0f, h * camera_distance);
+            camera.lookAt(0f, 0f, 0f);
+        }
         camera.near = 0.1f;
         camera.far = 300f;
 
         inputController = new CameraInputController(camera);
-        Gdx.input.setInputProcessor(inputController);
+       // Gdx.input.setInputProcessor(inputController);
+        wiiMoteCameraController = new WiiMoteCameraController(camera, inputController, 0.5f);
+        Gdx.input.setInputProcessor(wiiMoteCameraController);
         camera.update();
+
+        // wiiMoteCameraController.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
+        wiiMoteCameraController.updateCameraAfterController();
 
         unknownObjectIds = new IntSet();
 
-        gridAndAxesModel = createGrid();
-        gridAndAxesInstance = new ModelInstance(gridAndAxesModel, "gridAndAxes");
+        // gridAndAxesModel = createGrid();
+        // gridAndAxesInstance = new ModelInstance(gridAndAxesModel, "gridAndAxes");
 
         createFishtankSides();
     }
@@ -121,39 +158,73 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
     public void render(float delta) {
         progressEngine();
 
-        inputController.update();
-        camera.update();
+//        if (inputController != null) {
+//            inputController.update();
+//            camera.update();
+//        }
+
+        wiiMoteCameraController.update();
 
         t = (t + delta * 0.02f) % 1f;
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glClearColor(0.2f, 1f, 1.0f, 1f);
+        // Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
 
         modelBatch.begin(camera);
         modelBatch.render(fishtankLeftSideInstance, environment);
         modelBatch.render(fishtankRightSideInstance, environment);
         modelBatch.render(fishtankBackSideInstance, environment);
-        modelBatch.render(gridAndAxesInstance, environment);
+        modelBatch.render(fishtankBottomInstance, environment);
+        // modelBatch.render(gridAndAxesInstance, environment);
 
         for (VisibleObject visibleObject : adapter.getVisibleObjects().values()) {
             if (visibleObject instanceof FishModelLink) {
                 FishModelLink fishModel = (FishModelLink) visibleObject;
 
-                fishModel.render(modelBatch, environment);
+                fishModel.render(delta, modelBatch, environment);
             }
         }
 
         modelBatch.end();
+        spriteBatch.setProjectionMatrix(hudCamera.combined);
+        spriteBatch.begin();
+
+        drawText(fontSmallMono, format("%.4f, %.4f", wiiMoteCameraController.getX(), wiiMoteCameraController.getY()), 10, height - 10);
+        drawText(fontSmallMono, format("%.4f, %.4f, %.4f", camera.position.x, camera.position.y, camera.position.z), 10, height - 30);
+        drawText(fontSmallMono, format("%.4f, %.4f, %.4f", camera.direction.x, camera.direction.y, camera.direction.z), 10, height - 50);
+
+        spriteBatch.end();
+    }
+
+    private void drawText(BitmapFont font, String text, float x, float y) {
+        fontSmallMono.setColor(Color.BLACK);
+        for (int i = -1; i < 2; i += 2) {
+            for (int j = -1; j < 2; j += 2) {
+                fontSmallMono.draw(spriteBatch, text, x + i, y + j);
+            }
+        }
+        fontSmallMono.setColor(Color.WHITE);
+        fontSmallMono.draw(spriteBatch, text, x, y);
     }
 
     @Override
     public void dispose() {
-        gridAndAxesModel.dispose();
+        // gridAndAxesModel.dispose();
         fishtankLeftSideModel.dispose();
         fishtankRightSideModel.dispose();
         fishtankBackSideModel.dispose();
+        fishtankBottomModel.dispose();
         modelBatch.dispose();
+        spriteBatch.dispose();
+    }
+
+    @Override
+    public void show() {
+        if (fontSmallMono == null) {
+            fontSmallMono = assetManager.get("font/droidsansmono-15.fnt");
+        }
     }
 
     @Override
@@ -266,16 +337,16 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         modelBuilder.begin();
 
         modelBuilder.node().id = "fishtankLeftSide";
-        MeshPartBuilder left = modelBuilder.part("leftSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked, new Material());
+        MeshPartBuilder left = modelBuilder.part("leftSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked | Usage.Normal, new Material());
         left.setColor(new Color(0f, 0f, 0.7f, 1f));
-        left.rect(-w, -d, -h, -w, d, -h, -w, d, h, -w, -d, h, -1f, 0f, 0f);
+        left.rect(-w, -d, -h, -w, d, -h, -w, d, h, -w, -d, h, 1f, 0f, 0f);
         fishtankLeftSideModel = modelBuilder.end();
         fishtankLeftSideInstance = new ModelInstance(fishtankLeftSideModel, "fishtankLeftSide");
 
         modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         modelBuilder.node().id = "fishtankRightSide";
-        MeshPartBuilder right = modelBuilder.part("rightSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked, new Material());
+        MeshPartBuilder right = modelBuilder.part("rightSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked | Usage.Normal, new Material());
         right.setColor(new Color(0f, 0f, 0.7f, 1f));
         right.rect(w, -d, -h, w, -d, h, w, d, h, w, d, -h, -1f, 0f, 0f);
         fishtankRightSideModel = modelBuilder.end();
@@ -284,10 +355,31 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         modelBuilder = new ModelBuilder();
         modelBuilder.begin();
         modelBuilder.node().id = "fishtankBackSide";
-        MeshPartBuilder back = modelBuilder.part("backSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked, new Material());
+        MeshPartBuilder back = modelBuilder.part("backSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked | Usage.Normal, new Material());
         back.setColor(new Color(0f, 0f, 0.7f, 1f));
-        back.rect(-w, d, -h, -w, -d, -h, w, -d, -h, w, d, -h, 0f, -1f, 0f);
+        back.rect(-w, d, -h, -w, -d, -h, w, -d, -h, w, d, -h, 0f, 0f, -1f);
         fishtankBackSideModel = modelBuilder.end();
         fishtankBackSideInstance = new ModelInstance(fishtankBackSideModel, "fishtankBackSide");
+
+//        Material bottomMaterial = new Material(
+//                TextureAttribute.createDiffuse(assetManager.get("Pebbles_025_BaseColor.jpg", Texture.class)),
+//                TextureAttribute.createBump(assetManager.get("Pebbles_025_Normal.jpg", Texture.class))
+//        );
+
+//        modelBuilder = new ModelBuilder();
+//        modelBuilder.begin();
+//        modelBuilder.node().id = "fishtankBottom";
+//        // long bottomAttributes = Usage.Position | Usage.TextureCoordinates | Usage.ColorUnpacked | Usage.Normal | Usage.BiNormal | Usage.Tangent;
+//        long bottomAttributes = Usage.Position | Usage.TextureCoordinates | Usage.Normal;
+//        MeshPartBuilder bottom = modelBuilder.part("bottom", GL20.GL_TRIANGLES, bottomAttributes, bottomMaterial);
+//        bottom.setColor(new Color(0f, 0f, 0f, 1f));
+//        bottom.rect(-w, -d, -h, -w, -d, h, w, -d, h, w, -d, -h, 0f, 1f, 0f);
+//        fishtankBottomModel = modelBuilder.end();
+//        fishtankBottomInstance = new ModelInstance(fishtankBottomModel, "fishtankBottom");
+
+        fishtankBottomModel = assetManager.get(FishtankMain.TANK_BOTTOM_MODEL);
+        fishtankBottomInstance = new ModelInstance(fishtankBottomModel);
+        fishtankBottomInstance.transform.translate(0f, -d, 0f);
+        fishtankBottomInstance.transform.scl(0.0125f);
     }
 }

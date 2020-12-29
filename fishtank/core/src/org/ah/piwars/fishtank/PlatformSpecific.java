@@ -4,6 +4,12 @@ import org.ah.themvsus.engine.client.ServerCommunication;
 
 public interface PlatformSpecific {
 
+    enum TankView {
+        FRONT,
+        LEFT,
+        RIGHT
+    }
+
     static interface RegistrationCallback {
         void success();
         void failure(String message);
@@ -26,4 +32,10 @@ public interface PlatformSpecific {
     void fireServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapter serverCommunicationAdapter);
 
     void setServerCommunicationAdapterCreatedCallback(ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback);
+
+    TankView getTankView();
+
+    boolean isMirrorWalls();
+
+    boolean isHighresFloor();
 }

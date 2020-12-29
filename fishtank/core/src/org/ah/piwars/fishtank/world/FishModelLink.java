@@ -1,6 +1,5 @@
 package org.ah.piwars.fishtank.world;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -48,32 +47,35 @@ public class FishModelLink implements VisibleObject {
 
     public void makeObject(AssetManager assetManager) {
         fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
+        fishModel = assetManager.get("fish/tetra/tetra.g3db", Model.class);
 
         BoundingBox bb = new BoundingBox();
         fishModel.calculateBoundingBox(bb);
         System.out.println("spadefish bb=" + bb);
         fishModelInstance = new ModelInstance(fishModel);
 
-        spine1 = fishModelInstance.getNode("spine1");
-        spine2 = fishModelInstance.getNode("spine2");
-        spine3 = fishModelInstance.getNode("spine3");
-        spine4 = fishModelInstance.getNode("spine4");
-        spine1.isAnimated = true;
-        spine2.isAnimated = true;
-        spine3.isAnimated = true;
-        spine4.isAnimated = true;
+        spine1 = loadSpine("spine1");
+        spine2 = loadSpine("spine2");
+        spine3 = loadSpine("spine3");
+        spine4 = loadSpine("spine4");
+//        spine1 = fishModelInstance.getNode("spine1");
+//        spine2 = fishModelInstance.getNode("spine2");
+//        spine3 = fishModelInstance.getNode("spine3");
+//        spine4 = fishModelInstance.getNode("spine4");
+//        spine1.isAnimated = true;
+//        spine2.isAnimated = true;
+//        spine3.isAnimated = true;
+//        spine4.isAnimated = true;
     }
 
     @Override
-    public void render(ModelBatch batch, Environment environment) {
+    public void render(float delta, ModelBatch batch, Environment environment) {
         if (fishModelInstance != null) {
             Fish fish = game.getCurrentGameState().get(id);
             if (fish != null) {
 
-                final float delta = Math.min(1f / 10f, Gdx.graphics.getDeltaTime());
                 float speed = fish.getSpeed();
     //          animationController.update(delta);
-
 
 //                t = (t + delta * speed * 0.15f) % 1f;
                 t = (t + delta * speed * 20f);
@@ -93,26 +95,23 @@ public class FishModelLink implements VisibleObject {
                 fishModelInstance.transform.scale(FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE, FishtankScreen.WORLD_SCALE);
                 fishModelInstance.transform.rotate(0f, 1f, 0f, -90);
 
-                final float step = MathUtils.PI / 16;
+                final float step = MathUtils.PI / 32;
 
-                float swimFactor1 = 0.05f + (speed * 0.2f);
-                float swimFactor2 = 0.1f + (speed * 0.5f);
-                float swimFactor3 = 0.15f + (speed * 0.5f);
-                float swimFactor4 = 0.2f + (speed * 0.5f);
+                float swimFactor1 = 0.1f + (speed * 0.05f);
+                float swimFactor2 = 0.1f + (speed * 0.17f);
+                float swimFactor3 = 0.1f + (speed * 0.13f);
+                float swimFactor4 = 0.1f + (speed * 0.1f);
 
                 float yaw1 = swimFactor1 * MathUtils.sin(t);
                 float yaw2 = swimFactor2 * MathUtils.sin(t + step);
-                float yaw3 = swimFactor3 * MathUtils.sin(t + step * 2);
-                float yaw4 = swimFactor4 * MathUtils.sin(t + step * 3);
+                float yaw3 = swimFactor3 * MathUtils.sin(t + step * 1f);
+                float yaw4 = swimFactor4 * MathUtils.sin(t + step * 2f);
 
-                spine1Orientation.setEulerAnglesRad(0f, 0f, yaw1).mul(spine1.rotation);
-                spine2Orientation.setEulerAnglesRad(0f, 0f, yaw2).mul(spine2.rotation);
-                spine3Orientation.setEulerAnglesRad(0f, 0f, yaw3).mul(spine3.rotation);
-                spine4Orientation.setEulerAnglesRad(0f, 0f, yaw4).mul(spine4.rotation);
-                spine1.localTransform.set(spine1.translation, spine1Orientation, spine1.scale);
-                spine2.localTransform.set(spine2.translation, spine2Orientation, spine2.scale);
-                spine3.localTransform.set(spine3.translation, spine3Orientation, spine3.scale);
-                spine4.localTransform.set(spine4.translation, spine4Orientation, spine4.scale);
+                setSpineTransform(spine1, yaw1, spine1Orientation);
+                setSpineTransform(spine2, yaw2, spine2Orientation);
+                setSpineTransform(spine3, yaw3, spine3Orientation);
+                setSpineTransform(spine4, yaw4, spine4Orientation);
+
                 fishModelInstance.calculateTransforms();
 
                 batch.render(fishModelInstance, environment);
@@ -135,5 +134,20 @@ public class FishModelLink implements VisibleObject {
     public void dispose() {
         fishModel.dispose();
         game = null;
+    }
+
+    private Node loadSpine(String name) {
+        Node node = fishModelInstance.getNode(name);
+        if (node != null) {
+            node.isAnimated = true;
+        }
+        return node;
+    }
+
+    private void setSpineTransform(Node spine, float yaw, Quaternion spineOrientation) {
+        if (spine != null) {
+            tempQuaternion.setEulerAnglesRad(0f, 0f, yaw).mul(spine.rotation);
+            spine.localTransform.set(spine.translation, tempQuaternion, spine.scale);
+        }
     }
 }

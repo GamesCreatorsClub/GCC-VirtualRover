@@ -17,17 +17,24 @@ import org.ah.themvsus.engine.common.transfer.Serializer;
 
 public abstract class Fish extends GameObjectWithPositionAndOrientation {
 
+    enum Behaviour {
+        FAST_SWIMMING,
+        SLOW_SWIMMING,
+        SHOALING,
+        IN_SHOAL,
+        MIRROR
+    }
+
     protected static final float SMALL_ANGLE = MathUtils.PI / 64f;
 
     protected float speed = 0.4f;
+    protected Behaviour behaviour = Behaviour.FAST_SWIMMING;
 
     protected Matrix4 transformation = new Matrix4();
 
-    protected Quaternion tempQuaternion = new Quaternion();
-
+    private Quaternion tempQuaternion = new Quaternion();
     private Vector3 direction = new Vector3();
     private Vector3 temp = new Vector3();
-
     protected Ray ray = new Ray();
 
     public Fish(GameObjectFactory factory, int id) {

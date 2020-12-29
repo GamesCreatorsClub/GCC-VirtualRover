@@ -55,13 +55,26 @@ public class FishtankServer {
 
         Logger logger = LogHelper.SERVER_LOGGER;
 
-        int udpPort = 0;
-        String udpPortString = config.getProperty("udp.port", "7454");
-        try {
-            udpPort = Integer.parseInt(udpPortString);
-        } catch (NumberFormatException e) {
-            logger.severe("UDP port number is not an integer; '" + udpPortString + "'");
-            System.exit(4);
+        boolean isTCP = false;
+
+        int serverPort = 0;
+        if (config.containsKey("udp.port")) {
+            String udpPortString = config.getProperty("udp.port", "7454");
+            try {
+                serverPort = Integer.parseInt(udpPortString);
+            } catch (NumberFormatException e) {
+                logger.severe("UDP port number is not an integer; '" + udpPortString + "'");
+                System.exit(4);
+            }
+        } else if (config.containsKey("tcp.port")) {
+            isTCP = true;
+            String tcpPortString = config.getProperty("tcp.port", "7454");
+            try {
+                serverPort = Integer.parseInt(tcpPortString);
+            } catch (NumberFormatException e) {
+                logger.severe("TCP port number is not an integer; '" + tcpPortString + "'");
+                System.exit(4);
+            }
         }
         int httpPort = 0;
         String httpPortString = config.getProperty("http.port", "8000");
@@ -83,7 +96,11 @@ public class FishtankServer {
         String httpsContextPath = config.getProperty("https.contextPath", "/fishtank");
 
         logger.info("Launching server:");
-        logger.info("    UDP server at port " + udpPort);
+        if (isTCP) {
+            logger.info("    TCP server at port " + serverPort);
+        } else {
+            logger.info("    UDP server at port " + serverPort);
+        }
         logger.info("    HTTP server at port " + httpPort);
         logger.info("    HTTP context path '" + httpContextPath + "'");
         logger.info("    HTTPS server at port " + httpsPort);
@@ -117,8 +134,12 @@ public class FishtankServer {
         WebSocketModule webSocketModule = new WebSocketModule(vertx, serverEngineModule.getServerEngine(), httpServer, config);
         webSocketModule.init();
 
-        UDPServerModule udpServerModule = new UDPServerModule(vertx, serverEngineModule.getServerEngine(), config);
-        udpServerModule.init();
+        if (isTCP) {
+            throw new UnsupportedOperationException("TCP is not yet supported");
+        } else {
+            UDPServerModule udpServerModule = new UDPServerModule(vertx, serverEngineModule.getServerEngine(), config);
+            udpServerModule.init();
+        }
 
         httpServer.listen(httpPort);
         httpsServer.listen(httpsPort);
