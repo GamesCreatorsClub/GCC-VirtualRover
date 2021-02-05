@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import org.ah.piwars.fishtank.FishtankScreen;
 import org.ah.piwars.fishtank.VisibleObject;
 import org.ah.piwars.fishtank.game.FishtankGame;
+import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
 import org.ah.piwars.fishtank.game.fish.Fish;
 import org.ah.themvsus.engine.common.game.GameObject;
 
@@ -39,15 +40,20 @@ public class FishModelLink implements VisibleObject {
     private Node spine4;
     float t = 0;
     boolean dontMove = false;
+    private FishtankGameTypeObject fishType;
 
-    public FishModelLink(FishtankGame game, int id) {
+    public FishModelLink(FishtankGame game, int id, FishtankGameTypeObject fishType) {
         this.game = game;
         this.id = id;
+        this.fishType = fishType;
     }
 
     public void makeObject(AssetManager assetManager) {
-        fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
-        fishModel = assetManager.get("fish/tetra/tetra.g3db", Model.class);
+        if (fishType == FishtankGameTypeObject.Spadefish) {
+            fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
+        } else {
+            fishModel = assetManager.get("fish/tetra/tetra-half.g3db", Model.class);
+        }
 
         BoundingBox bb = new BoundingBox();
         fishModel.calculateBoundingBox(bb);

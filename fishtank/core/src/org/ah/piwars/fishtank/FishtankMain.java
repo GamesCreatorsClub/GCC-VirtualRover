@@ -48,7 +48,7 @@ public class FishtankMain extends Game {
         assetManager.load("font/droidsansmono-15.fnt", BitmapFont.class);
 
         assetManager.load("fish/spadefish/spadefish.g3db", Model.class);
-        assetManager.load("fish/tetra/tetra.g3db", Model.class);
+        assetManager.load("fish/tetra/tetra-half.g3db", Model.class);
 
         assetManager.load(TANK_BOTTOM_MODEL, Model.class);
 //        assetManager.load("Pebbles_025_BaseColor.jpg", Texture.class);
@@ -77,7 +77,7 @@ public class FishtankMain extends Game {
 
 //        Model fishModel = assetManager.get("fish/spadefish/spadefish.g3db", Model.class);
         applyWorldScale(assetManager.get("fish/spadefish/spadefish.g3db", Model.class));
-        applyWorldScale(assetManager.get("fish/tetra/tetra.g3db", Model.class));
+        applyWorldScale(assetManager.get("fish/tetra/tetra-half.g3db", Model.class));
 
         serverCommunicationAdapter = new ServerCommunicationAdapter(serverCommunication, console, assetManager);
 

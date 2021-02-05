@@ -18,10 +18,6 @@ public class FishtankGame extends Game {
 
     public static Vector3 LEFT  = new Vector3(-1f,  0f,  0f);
     public static Vector3 RIGHT = new Vector3( 1f,  0f,  0f);
-//    public static Vector3 UP    = new Vector3( 0f,  1f,  0f);
-//    public static Vector3 DOWN  = new Vector3( 0f, -1f,  0f);
-//    public static Vector3 BACK  = new Vector3( 0f,  0f, -1f);
-//    public static Vector3 FRONT = new Vector3( 0f,  0f,  1f);
 
     public static Vector3 UP    = new Vector3( 0f,  0f,  1f);
     public static Vector3 DOWN  = new Vector3( 0f,  0f, -1f);

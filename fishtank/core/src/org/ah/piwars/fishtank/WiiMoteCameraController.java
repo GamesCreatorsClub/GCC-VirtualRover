@@ -15,8 +15,11 @@ public class WiiMoteCameraController extends InputAdapter {
     public static final float KEYBOARD_STEP = 0.001f;
 
     private PerspectiveCamera camera;
-    private float x;
-    private float y;
+    private float inputX;
+    private float inputY;
+
+    private float camX;
+    private float camY;
 
     private CameraInputController cameraController;
 
@@ -32,32 +35,32 @@ public class WiiMoteCameraController extends InputAdapter {
         cameraController.autoUpdate = false;
     }
 
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
+    public void setCamPosition(float x, float y) {
+        this.camX = x;
+        this.camY = y;
     }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
+    public float getInputX() { return inputX; }
+    public float getInputY() { return inputY; }
 
     @Override
     public boolean keyDown(int keycode) {
         boolean processed = false;
         if (keycode == Keys.UP) {
-            y = y + KEYBOARD_STEP;
+            inputY = inputY + KEYBOARD_STEP;
             processed = true;
         } else if (keycode == Keys.DOWN) {
-            y = y - KEYBOARD_STEP;
+            inputY = inputY - KEYBOARD_STEP;
             processed = true;
         } else if (keycode == Keys.LEFT) {
-            x = x - KEYBOARD_STEP;
+            inputX = inputX - KEYBOARD_STEP;
             processed = true;
         } else if (keycode == Keys.RIGHT) {
-            x = x + KEYBOARD_STEP;
+            inputX = inputX + KEYBOARD_STEP;
             processed = true;
         } else if (keycode == Keys.R) {
-            x = 0f;
-            y = 0f;
+            inputX = 0f;
+            inputY = 0f;
         }
         if (keycode == Keys.A) { dx = -KEYBOARD_STEP / 10f; }
         if (keycode == Keys.D) { dx = KEYBOARD_STEP / 10f; }
@@ -127,8 +130,8 @@ public class WiiMoteCameraController extends InputAdapter {
 
     public void update() {
         if (dx != 0 || dy != 0) {
-            x += dx;
-            y += dy;
+            inputX += dx;
+            inputY += dy;
             updateCamera();
         }
     }
@@ -143,8 +146,8 @@ public class WiiMoteCameraController extends InputAdapter {
         //        float f = camera.near * factor * 0.01f;
         float f = FishtankScreen.WORLD_SCALE2 * factor;
 
-        x = camera.position.x * f;
-        y = camera.position.y * f / aspectRatio;
+        inputX = camera.position.x * f;
+        inputY = camera.position.y * f / aspectRatio;
 
 //        tmp.set(camera.position);
 //        tmp.x = -tmp.x;
@@ -168,7 +171,7 @@ public class WiiMoteCameraController extends InputAdapter {
 
         float f = camera.near * factor;
 
-        camera.projection.setToProjection(-f - x, f - x, -f * aspectRatio - y, f * aspectRatio - y, 0.1f, 300f);
+        camera.projection.setToProjection(-f - camX, f - camX, -f * aspectRatio - camY, f * aspectRatio - camY, 0.1f, 300f);
 
         camera.view.setToLookAt(camera.position, tmp.set(camera.position).add(camera.direction), camera.up);
         camera.combined.set(camera.projection);

@@ -16,6 +16,7 @@ package org.ah.piwars.fishtank;
  ******************************************************************************/
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -39,6 +40,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
 
 import org.ah.piwars.fishtank.game.FishtankGame;
+import org.ah.piwars.fishtank.input.FishtankPlayerInputs;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.ChatListener;
 import org.ah.piwars.fishtank.view.Console;
@@ -48,7 +50,7 @@ import org.ah.themvsus.engine.common.game.Player;
 
 import static java.lang.String.format;
 
-public class FishtankScreen extends ScreenAdapter implements ChatListener {
+public class FishtankScreen extends ScreenAdapter implements ChatListener, InputProcessor {
 
     public static final float WORLD_SCALE = 0.1f;
     public static final float WORLD_SCALE2 = 0.01f;
@@ -61,6 +63,8 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     protected OrthographicCamera hudCamera;
     protected PerspectiveCamera camera;
+
+    protected FishtankPlayerInputs playerInputs = new FishtankPlayerInputs();
 
     private CameraInputController inputController;
     private WiiMoteCameraController wiiMoteCameraController;
@@ -164,6 +168,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 //        }
 
         wiiMoteCameraController.update();
+        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY());
 
         t = (t + delta * 0.02f) % 1f;
 
@@ -191,7 +196,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         spriteBatch.setProjectionMatrix(hudCamera.combined);
         spriteBatch.begin();
 
-        drawText(fontSmallMono, format("%.4f, %.4f", wiiMoteCameraController.getX(), wiiMoteCameraController.getY()), 10, height - 10);
+        drawText(fontSmallMono, format("%.4f, %.4f", wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY()), 10, height - 10);
         drawText(fontSmallMono, format("%.4f, %.4f, %.4f", camera.position.x, camera.position.y, camera.position.z), 10, height - 30);
         drawText(fontSmallMono, format("%.4f, %.4f, %.4f", camera.direction.x, camera.direction.y, camera.direction.z), 10, height - 50);
 
@@ -381,5 +386,53 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         fishtankBottomInstance = new ModelInstance(fishtankBottomModel);
         fishtankBottomInstance.transform.translate(0f, -d, 0f);
         fishtankBottomInstance.transform.scl(0.0125f);
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

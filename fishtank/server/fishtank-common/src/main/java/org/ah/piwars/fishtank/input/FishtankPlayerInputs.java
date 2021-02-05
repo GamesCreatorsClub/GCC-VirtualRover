@@ -12,7 +12,7 @@ public class FishtankPlayerInputs extends PlayerInputs {
 
     @Override public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("PiWarsPlayerInputs[\n");
+        sb.append("FishtankPlayerInputs[\n");
         sb.append(toStringInternal());
         sb.append("]");
         return sb.toString();

@@ -4,13 +4,16 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.IntMap;
 
 import org.ah.piwars.fishtank.engine.client.FishtankClientEngine;
+import org.ah.piwars.fishtank.game.CameraPositionObject;
 import org.ah.piwars.fishtank.game.FishtankGame;
+import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
 import org.ah.piwars.fishtank.game.fish.Fish;
 import org.ah.piwars.fishtank.input.FishtankPlayerInput;
 import org.ah.piwars.fishtank.logging.GdxClientLoggingAdapter;
 import org.ah.piwars.fishtank.message.FishtankMessageFactory;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.Console;
+import org.ah.piwars.fishtank.world.CameraPositionLink;
 import org.ah.piwars.fishtank.world.FishModelLink;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication;
@@ -36,6 +39,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     private boolean local;
 
     private Set<Integer> makeCameraSnapshot = new LinkedHashSet<Integer>();
+
+    private CameraPositionLink cameraPositionModel;
 
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
@@ -127,11 +132,14 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     @Override
     public void gameObjectAdded(GameObject gameObject) {
-        if (gameObject instanceof Fish) {
+        if (gameObject instanceof CameraPositionObject) {
+            setCameraPositionModel(new CameraPositionLink(engine.getGame(), gameObject.getId()));
+            gameObject.setLinkBack(getCameraPositionModel());
+        } else if (gameObject instanceof Fish) {
             Fish fish = (Fish)gameObject;
 
-            FishModelLink playerModel = new FishModelLink(engine.getGame(), gameObject.getId());
-            allVisibleObjects.put(fish.getId(), playerModel);
+            FishModelLink playerModel = new FishModelLink(engine.getGame(), gameObject.getId(), (FishtankGameTypeObject)fish.getType());
+            allVisibleObjects.put(gameObject.getId(), playerModel);
             playerModel.makeObject(assetManager);
             fish.setLinkBack(playerModel);
         }
@@ -151,5 +159,13 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         }
 
         allVisibleObjects.clear();
+    }
+
+    public CameraPositionLink getCameraPositionModel() {
+        return cameraPositionModel;
+    }
+
+    public void setCameraPositionModel(CameraPositionLink cameraPositionModel) {
+        this.cameraPositionModel = cameraPositionModel;
     }
 }
