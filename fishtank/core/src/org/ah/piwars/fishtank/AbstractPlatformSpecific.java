@@ -7,6 +7,7 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
     private ServerCommunicationAdapterCreatedCallback serverCommunicationAdapterCreatedCallback;
     private boolean hasSound = true;
     private TankView tankView = PlatformSpecific.TankView.FRONT;
+    private boolean cameraInputAllowed = false;
     protected boolean isLocalOnly;
 
     private boolean mirrorWalls;
@@ -74,5 +75,14 @@ public abstract class AbstractPlatformSpecific implements PlatformSpecific {
 
     public void setHighresFloor(boolean highresFloor) {
         this.highresFloor = highresFloor;
+    }
+
+    public void setCameraInputAllowed(boolean cameraInputAllowed) {
+        this.cameraInputAllowed = cameraInputAllowed;
+    }
+
+    @Override
+    public boolean isCameraInputAllowed() {
+        return cameraInputAllowed;
     }
 }

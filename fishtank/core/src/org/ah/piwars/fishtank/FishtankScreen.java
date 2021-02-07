@@ -44,6 +44,7 @@ import org.ah.piwars.fishtank.input.FishtankPlayerInputs;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.ChatListener;
 import org.ah.piwars.fishtank.view.Console;
+import org.ah.piwars.fishtank.world.CameraPositionLink;
 import org.ah.piwars.fishtank.world.FishModelLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
@@ -89,6 +90,8 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
     private PlatformSpecific platformSpecific;
 
     protected BitmapFont fontSmallMono;
+
+    private float cameraFactor = 0.5f;
 
 
     public FishtankScreen(PlatformSpecific platformSpecific, AssetManager assetManager, Console console, ServerCommunicationAdapter adapter) {
@@ -138,18 +141,10 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         camera.far = 300f;
 
         inputController = new CameraInputController(camera);
-       // Gdx.input.setInputProcessor(inputController);
-        wiiMoteCameraController = new WiiMoteCameraController(camera, inputController, 0.5f);
+        wiiMoteCameraController = new WiiMoteCameraController(camera, inputController, cameraFactor);
         Gdx.input.setInputProcessor(wiiMoteCameraController);
-        camera.update();
-
-        // wiiMoteCameraController.setPosition(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
-        wiiMoteCameraController.updateCameraAfterController();
 
         unknownObjectIds = new IntSet();
-
-        // gridAndAxesModel = createGrid();
-        // gridAndAxesInstance = new ModelInstance(gridAndAxesModel, "gridAndAxes");
 
         createFishtankSides();
     }
@@ -160,15 +155,20 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
 
     @Override
     public void render(float delta) {
-        progressEngine();
-
-//        if (inputController != null) {
-//            inputController.update();
-//            camera.update();
-//        }
 
         wiiMoteCameraController.update();
+        CameraPositionLink cameraPositionModel = adapter.getCameraPositionModel();
+        if (cameraPositionModel != null) {
+            cameraPositionModel.updateFrom(wiiMoteCameraController);
+        }
+
+        progressEngine();
+
+        if (cameraPositionModel != null) {
+            cameraPositionModel.updateTo(wiiMoteCameraController);
+        }
         wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY());
+        wiiMoteCameraController.updateCamera();
 
         t = (t + delta * 0.02f) % 1f;
 
@@ -251,6 +251,9 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
             camera.viewportWidth = width;
             camera.viewportHeight = height;
         }
+
+        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY());
+//        wiiMoteCameraController.updateCameraAfterController(camera.position.x, camera.position.y);
     }
 
     @Override
@@ -261,6 +264,12 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         ClientEngine<FishtankGame> engine = adapter.getEngine();
         if (engine != null) {
             long now = System.currentTimeMillis();
+
+            if (platformSpecific.isCameraInputAllowed()) {
+                CameraPositionLink cameraPositionModel = adapter.getCameraPositionModel();
+                adapter.setPlayerOneInput(cameraPositionModel.getPlayerInput());
+            }
+
             engine.progressEngine(now, unknownObjectIds);
 
             if (unknownObjectIds.size > 0) {

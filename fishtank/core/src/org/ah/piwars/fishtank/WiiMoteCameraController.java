@@ -1,7 +1,7 @@
 package org.ah.piwars.fishtank;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -23,16 +23,17 @@ public class WiiMoteCameraController extends InputAdapter {
 
     private CameraInputController cameraController;
 
-    private float dx = 0f;
-    private float dy = 0f;
-
     private float factor;
+    private int button;
+
+    private Vector3 cameraDirection = new Vector3();
 
     public WiiMoteCameraController(PerspectiveCamera camera, CameraInputController cameraController, float factor) {
         this.camera = camera;
         this.cameraController = cameraController;
         this.factor = factor;
         cameraController.autoUpdate = false;
+        cameraDirection.set(camera.direction);
     }
 
     public void setCamPosition(float x, float y) {
@@ -46,26 +47,7 @@ public class WiiMoteCameraController extends InputAdapter {
     @Override
     public boolean keyDown(int keycode) {
         boolean processed = false;
-        if (keycode == Keys.UP) {
-            inputY = inputY + KEYBOARD_STEP;
-            processed = true;
-        } else if (keycode == Keys.DOWN) {
-            inputY = inputY - KEYBOARD_STEP;
-            processed = true;
-        } else if (keycode == Keys.LEFT) {
-            inputX = inputX - KEYBOARD_STEP;
-            processed = true;
-        } else if (keycode == Keys.RIGHT) {
-            inputX = inputX + KEYBOARD_STEP;
-            processed = true;
-        } else if (keycode == Keys.R) {
-            inputX = 0f;
-            inputY = 0f;
-        }
-        if (keycode == Keys.A) { dx = -KEYBOARD_STEP / 10f; }
-        if (keycode == Keys.D) { dx = KEYBOARD_STEP / 10f; }
-        if (keycode == Keys.S) { dy = KEYBOARD_STEP / 10f; }
-        if (keycode == Keys.W) { dy = -KEYBOARD_STEP / 10f; }
+
         processed = processed | cameraController.keyDown(keycode);
         if (processed) {
             updateCamera();
@@ -75,12 +57,6 @@ public class WiiMoteCameraController extends InputAdapter {
 
     @Override
     public boolean keyUp(int keycode) {
-        if (keycode == Keys.A || keycode == Keys.D) {
-            dx = 0f;
-        }
-        if (keycode == Keys.S || keycode == Keys.W) {
-            dy = 0f;
-        }
         boolean processed = cameraController.keyUp(keycode);
         if (processed) { updateCamera(); }
         return processed;
@@ -95,23 +71,34 @@ public class WiiMoteCameraController extends InputAdapter {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        boolean processed = cameraController.touchDown(screenX, screenY, pointer, button);
-        if (processed) { updateCameraAfterController(); }
-        return processed;
+        this.button = button;
+        if (button == Buttons.RIGHT) {
+            boolean processed = cameraController.touchDown(screenX, screenY, pointer, button);
+            if (processed) { updateCameraAfterController(); }
+            return processed;
+        }
+        return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        boolean processed = cameraController.touchUp(screenX, screenY, pointer, button);
-        if (processed) { updateCameraAfterController(); }
-        return processed;
+        if (button == Buttons.RIGHT) {
+            boolean processed = cameraController.touchUp(screenX, screenY, pointer, button);
+            if (processed) { updateCameraAfterController(); }
+            return processed;
+        }
+        this.button = 0;
+        return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        boolean processed = cameraController.touchDragged(screenX, screenY, pointer);
-        if (processed) { updateCameraAfterController(); }
-        return processed;
+        if (this.button == Buttons.RIGHT) {
+            boolean processed = cameraController.touchDragged(screenX, screenY, pointer);
+            if (processed) { updateCameraAfterController(); }
+            return processed;
+        }
+        return false;
     }
 
     @Override
@@ -129,11 +116,6 @@ public class WiiMoteCameraController extends InputAdapter {
     }
 
     public void update() {
-        if (dx != 0 || dy != 0) {
-            inputX += dx;
-            inputY += dy;
-            updateCamera();
-        }
     }
 
     public void updateCameraAfterController() {
@@ -148,6 +130,8 @@ public class WiiMoteCameraController extends InputAdapter {
 
         inputX = camera.position.x * f;
         inputY = camera.position.y * f / aspectRatio;
+
+//        camera.direction.set(cameraDirection);
 
 //        tmp.set(camera.position);
 //        tmp.x = -tmp.x;

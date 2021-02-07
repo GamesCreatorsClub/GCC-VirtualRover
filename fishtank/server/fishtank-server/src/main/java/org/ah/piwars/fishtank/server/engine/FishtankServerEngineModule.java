@@ -1,5 +1,6 @@
 package org.ah.piwars.fishtank.server.engine;
 
+import org.ah.piwars.fishtank.game.CameraPositionObject;
 import org.ah.piwars.fishtank.game.FishtankGame;
 import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
 import org.ah.piwars.fishtank.game.fish.Fish;
@@ -37,6 +38,10 @@ public class FishtankServerEngineModule extends ServerEngineModule {
 
             FishtankGame game = new FishtankGame("PiNoon");
             game.init();
+
+            int cameraPositionId = game.newId();
+            CameraPositionObject cameraPosition = (CameraPositionObject) game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.CameraPosition, cameraPositionId);
+            game.addNewGameObject(cameraPosition);
 
             Fish fish1 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
             fish1.getOrientation().setFromAxisRad(0f, 1f, 0f, atan2(1f, 3f));

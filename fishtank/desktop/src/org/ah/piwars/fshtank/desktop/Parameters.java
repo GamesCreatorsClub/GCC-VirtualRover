@@ -23,6 +23,7 @@ public class Parameters {
     public static final boolean DEFAULT_JOGL = false;
     public static final boolean DEFAULT_LOCAL = false;
     public static final boolean DEFAULT_TCP = false;
+    public static final boolean DEFAULT_CAMERA_INPUT = false;
     public static final int DEFAULT_PORT = 7453;
     public static final PlatformSpecific.TankView DEFAULT_FISHTANK_VIEW = PlatformSpecific.TankView.FRONT;
 
@@ -39,6 +40,7 @@ public class Parameters {
     private Boolean lwjgl = null;
     private Boolean local = null;
     private Boolean tcp = null;
+    private Boolean cameraInputAllowed = null;
     private InetSocketAddress serverAddress;
 
     private PlatformSpecific.TankView viewTank = null;
@@ -140,6 +142,9 @@ public class Parameters {
                     }
                     propertiesFilename = args[i + 1];
                     i = i + 2;
+                } else if ("--allow-camera-input".equals(args[i])) {
+                    cameraInputAllowed = true;
+                    i = i + 1;
                 } else if ("--help".equals(args[i]) || "-h".equals(args[i]) || "-?".equals(args[i])) {
                     i++;
                     printHelp();
@@ -171,6 +176,7 @@ public class Parameters {
         System.out.println("--tcp                    use TCP over UDP");
         System.out.println("--local or -lo           is server to be started at local machine. ");
         System.out.println("                         Mutually exclusive with --server. This is default.");
+        System.out.println("--allow-camera-input     Allow camera movement input from the client. Debug only. Default " + DEFAULT_CAMERA_INPUT + ".");
         System.out.println("--debug or -d            Switch client debugging. This is not a default.");
         System.out.println("--help or -h or -?       This help.");
         System.out.println();
@@ -222,6 +228,7 @@ public class Parameters {
         local = local != null ? local : Boolean.valueOf(props.getProperty("server.local", Boolean.toString(DEFAULT_LOCAL)));
         tcp = tcp != null ? tcp : Boolean.valueOf(props.getProperty("server.tcp", Boolean.toString(DEFAULT_TCP)));
 
+        cameraInputAllowed = cameraInputAllowed != null ? cameraInputAllowed : Boolean.valueOf(props.getProperty("camera.input-allowed", Boolean.toString(DEFAULT_CAMERA_INPUT)));
         viewTank = viewTank != null ? viewTank : PlatformSpecific.TankView.valueOf(props.getProperty("gfx.view", DEFAULT_FISHTANK_VIEW.toString()).toUpperCase());
 
         serverAddress = serverAddress != null

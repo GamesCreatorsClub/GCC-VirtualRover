@@ -38,4 +38,6 @@ public interface PlatformSpecific {
     boolean isMirrorWalls();
 
     boolean isHighresFloor();
+
+    boolean isCameraInputAllowed();
 }
