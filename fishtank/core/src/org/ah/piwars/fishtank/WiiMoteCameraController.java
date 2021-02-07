@@ -28,9 +28,14 @@ public class WiiMoteCameraController extends InputAdapter {
 
     private Vector3 cameraDirection = new Vector3();
 
-    public WiiMoteCameraController(PerspectiveCamera camera, CameraInputController cameraController, float factor) {
+    private float startX, startY;
+    private final Vector3 tmpV1 = new Vector3();
+    private final Vector3 tmpV2 = new Vector3();
+
+    public WiiMoteCameraController(PerspectiveCamera camera, float factor) {
         this.camera = camera;
-        this.cameraController = cameraController;
+        this.cameraController = new CameraInputController(camera);
+;
         this.factor = factor;
         cameraController.autoUpdate = false;
         cameraDirection.set(camera.direction);
@@ -47,71 +52,74 @@ public class WiiMoteCameraController extends InputAdapter {
     @Override
     public boolean keyDown(int keycode) {
         boolean processed = false;
-
-        processed = processed | cameraController.keyDown(keycode);
-        if (processed) {
-            updateCamera();
-        }
+//        processed = processed | cameraController.keyDown(keycode);
+//        if (processed) {
+//            updateCamera();
+//        }
         return processed;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        boolean processed = cameraController.keyUp(keycode);
-        if (processed) { updateCamera(); }
+        boolean processed = false;
+//        processed = processed | cameraController.keyUp(keycode);
+//        if (processed) { updateCamera(); }
         return processed;
     }
 
     @Override
     public boolean keyTyped(char character) {
-        boolean processed = cameraController.keyTyped(character);
-        if (processed) { updateCamera(); }
+        boolean processed = false;
+//        processed = processed | cameraController.keyTyped(character);
+//        if (processed) { updateCamera(); }
         return processed;
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        boolean processed = false;
         this.button = button;
         if (button == Buttons.RIGHT) {
-            boolean processed = cameraController.touchDown(screenX, screenY, pointer, button);
+            processed = processed | cameraController.touchDown(screenX, screenY, pointer, button);
             if (processed) { updateCameraAfterController(); }
-            return processed;
         }
-        return false;
+        return processed;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        boolean processed = false;
         if (button == Buttons.RIGHT) {
-            boolean processed = cameraController.touchUp(screenX, screenY, pointer, button);
+            processed = processed | cameraController.touchUp(screenX, screenY, pointer, button);
             if (processed) { updateCameraAfterController(); }
-            return processed;
         }
         this.button = 0;
-        return false;
+        return processed;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        boolean processed = false;
         if (this.button == Buttons.RIGHT) {
-            boolean processed = cameraController.touchDragged(screenX, screenY, pointer);
+            processed = processed | cameraController.touchDragged(screenX, screenY, pointer);
             if (processed) { updateCameraAfterController(); }
-            return processed;
         }
-        return false;
+        return processed;
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        boolean processed = cameraController.mouseMoved(screenX, screenY);
-        if (processed) { updateCamera(); }
+        boolean processed = false;
+//        processed = processed | cameraController.mouseMoved(screenX, screenY);
+//        if (processed) { updateCamera(); }
         return processed;
     }
 
     @Override
     public boolean scrolled(int amount) {
-        boolean processed = cameraController.scrolled(amount);
-        if (processed) { updateCamera(); }
+        boolean processed = false;
+//        processed = processed | cameraController.scrolled(amount);
+//        if (processed) { updateCamera(); }
         return processed;
     }
 
@@ -125,19 +133,10 @@ public class WiiMoteCameraController extends InputAdapter {
 
         float aspectRatio = height / width;
 
-        //        float f = camera.near * factor * 0.01f;
         float f = FishtankScreen.WORLD_SCALE2 * factor;
 
         inputX = camera.position.x * f;
         inputY = camera.position.y * f / aspectRatio;
-
-//        camera.direction.set(cameraDirection);
-
-//        tmp.set(camera.position);
-//        tmp.x = -tmp.x;
-//        tmp.z = -tmp.z;
-//
-//        camera.lookAt(tmp);
 
         updateCamera();
     }
@@ -149,9 +148,6 @@ public class WiiMoteCameraController extends InputAdapter {
         float height = Gdx.graphics.getHeight();
 
         float aspectRatio = height / width;
-
-//        float xp = ((x / width) - 0.5f) * 0.2f;
-//        float yp = (0.5f - (y / height)) * 0.2f;
 
         float f = camera.near * factor;
 

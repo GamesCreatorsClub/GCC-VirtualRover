@@ -33,7 +33,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
@@ -67,7 +66,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
 
     protected FishtankPlayerInputs playerInputs = new FishtankPlayerInputs();
 
-    private CameraInputController inputController;
     private WiiMoteCameraController wiiMoteCameraController;
 
     private SpriteBatch spriteBatch;
@@ -140,8 +138,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         camera.near = 0.1f;
         camera.far = 300f;
 
-        inputController = new CameraInputController(camera);
-        wiiMoteCameraController = new WiiMoteCameraController(camera, inputController, cameraFactor);
+        wiiMoteCameraController = new WiiMoteCameraController(camera, cameraFactor);
         Gdx.input.setInputProcessor(wiiMoteCameraController);
 
         unknownObjectIds = new IntSet();
