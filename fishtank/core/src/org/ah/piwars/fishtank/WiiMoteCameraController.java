@@ -14,16 +14,11 @@ public class WiiMoteCameraController extends InputAdapter {
     public static final float KEYBOARD_STEP = 0.001f;
 
     private PerspectiveCamera camera;
-    private float inputX;
-    private float inputY;
-
-    private float camX;
-    private float camY;
 
     private float factor;
     private int button;
 
-    private Vector3 cameraDirection = new Vector3();
+    private Vector3 input = new Vector3();
 
     public float translateUnits = 10f;
 
@@ -37,16 +32,15 @@ public class WiiMoteCameraController extends InputAdapter {
 
         this.factor = factor;
 
-        cameraDirection.set(camera.direction);
+        input.set(camera.position);
     }
 
     public void setCamPosition(float x, float y) {
-        this.camX = x;
-        this.camY = y;
+        this.camera.position.x = x;
+        this.camera.position.y = y;
     }
 
-    public float getInputX() { return inputX; }
-    public float getInputY() { return inputY; }
+    public Vector3 getInput() { return input; }
 
     @Override
     public boolean keyDown(int keycode) {
@@ -100,10 +94,13 @@ public class WiiMoteCameraController extends InputAdapter {
             startX = screenX;
             startY = screenY;
 
-            camera.translate(tmpV1.set(camera.direction).crs(camera.up).nor().scl(-deltaX * translateUnits));
-            camera.translate(tmpV2.set(camera.up).scl(-deltaY * translateUnits));
+            // camera.translate(tmpV1.set(camera.direction).crs(camera.up).nor().scl(-deltaX * translateUnits));
+            // camera.translate(tmpV2.set(camera.up).scl(-deltaY * translateUnits));
+            input.add(tmpV1.set(camera.direction).crs(camera.up).nor().scl(-deltaX * translateUnits));
+            input.add(tmpV2.set(camera.up).scl(-deltaY * translateUnits));
 //            if (translateTarget) target.add(tmpV1).add(tmpV2);
-            updateCameraAfterController(camera.position.x, camera.position.y);
+//            inputX = input.x;
+//            inputY = input.y;
         }
         return processed;
     }
@@ -120,35 +117,24 @@ public class WiiMoteCameraController extends InputAdapter {
         return processed;
     }
 
-    public void update() {
-    }
-
-    public void updateCameraAfterController(float x, float y) {
-
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-
-        float aspectRatio = height / width;
-
-        float f = FishtankScreen.WORLD_SCALE2 * factor;
-
-        inputX = x * f;
-        inputY = y * f / aspectRatio;
-
-        updateCamera();
-    }
-
     public void updateCamera() {
         boolean updateFrustum = true;
 
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
-
         float aspectRatio = height / width;
 
-        float f = camera.near * factor;
+        float f = FishtankScreen.WORLD_SCALE2 * factor;
 
-        camera.projection.setToProjection(-f - camX, f - camX, -f * aspectRatio - camY, f * aspectRatio - camY, 0.1f, 300f);
+        float xOffset = camera.position.x * f;
+        float yOffset = camera.position.y * f / aspectRatio;
+
+        f = camera.near * factor;
+
+//        camera.position.x = camX;
+//        camera.position.y = camY;
+
+        camera.projection.setToProjection(-f - xOffset, f - xOffset, -f * aspectRatio - yOffset, f * aspectRatio - yOffset, 0.1f, 300f);
 
         camera.view.setToLookAt(camera.position, tmp.set(camera.position).add(camera.direction), camera.up);
         camera.combined.set(camera.projection);

@@ -153,7 +153,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
     @Override
     public void render(float delta) {
 
-        wiiMoteCameraController.update();
         CameraPositionLink cameraPositionModel = adapter.getCameraPositionModel();
         if (cameraPositionModel != null) {
             cameraPositionModel.updateFrom(wiiMoteCameraController);
@@ -164,8 +163,8 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         if (cameraPositionModel != null) {
             cameraPositionModel.updateTo(wiiMoteCameraController);
         }
-        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY());
-        //wiiMoteCameraController.updateCamera();
+        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInput().x, wiiMoteCameraController.getInput().y);
+        wiiMoteCameraController.updateCamera();
 
         t = (t + delta * 0.02f) % 1f;
 
@@ -193,7 +192,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         spriteBatch.setProjectionMatrix(hudCamera.combined);
         spriteBatch.begin();
 
-        drawText(fontSmallMono, format("%.4f, %.4f", wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY()), 10, height - 10);
+        drawText(fontSmallMono, format("%.4f, %.4f", wiiMoteCameraController.getInput().x, wiiMoteCameraController.getInput().y), 10, height - 10);
         drawText(fontSmallMono, format("%.4f, %.4f, %.4f", camera.position.x, camera.position.y, camera.position.z), 10, height - 30);
         drawText(fontSmallMono, format("%.4f, %.4f, %.4f", camera.direction.x, camera.direction.y, camera.direction.z), 10, height - 50);
 
@@ -249,7 +248,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
             camera.viewportHeight = height;
         }
 
-        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY());
+        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInput().x, wiiMoteCameraController.getInput().y);
 //        wiiMoteCameraController.updateCameraAfterController(camera.position.x, camera.position.y);
     }
 

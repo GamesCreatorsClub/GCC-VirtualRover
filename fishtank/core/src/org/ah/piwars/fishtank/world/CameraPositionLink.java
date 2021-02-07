@@ -57,8 +57,8 @@ public class CameraPositionLink implements VisibleObject {
 
     public void updateFrom(WiiMoteCameraController wiiMoteCameraController) {
         // TODO calculate distanc better
-        cameraInput.camX(wiiMoteCameraController.getInputX());
-        cameraInput.camY(wiiMoteCameraController.getInputY());
+        cameraInput.camX(wiiMoteCameraController.getInput().x);
+        cameraInput.camY(wiiMoteCameraController.getInput().y);
         cameraInput.camZ(500f);
     }
 
