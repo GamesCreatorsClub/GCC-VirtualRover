@@ -165,7 +165,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
             cameraPositionModel.updateTo(wiiMoteCameraController);
         }
         wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInputX(), wiiMoteCameraController.getInputY());
-        wiiMoteCameraController.updateCamera();
+        //wiiMoteCameraController.updateCamera();
 
         t = (t + delta * 0.02f) % 1f;
 
