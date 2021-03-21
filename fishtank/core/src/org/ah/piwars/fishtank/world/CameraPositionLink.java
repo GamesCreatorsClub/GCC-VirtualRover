@@ -60,6 +60,7 @@ public class CameraPositionLink implements VisibleObject {
         cameraInput.camX(wiiMoteCameraController.getInput().x);
         cameraInput.camY(wiiMoteCameraController.getInput().y);
         cameraInput.camZ(500f);
+        // System.out.println("Sending " + cameraInput.camX() + "," + cameraInput.camY());
     }
 
     public void updateTo(WiiMoteCameraController wiiMoteCameraController) {
@@ -67,8 +68,10 @@ public class CameraPositionLink implements VisibleObject {
         if (cameraPositionObject != null) {
             float x = cameraPositionObject.getPosition().x;
             float y = cameraPositionObject.getPosition().y;
+            float z = cameraPositionObject.getPosition().z;
             // TODO Fetch z and calculate x and y properly!
-            wiiMoteCameraController.setCamPosition(x, y);
+            wiiMoteCameraController.setCamPosition(x, y, z);
+            // System.out.println("Received " + x + ", " + y);
         }
     }
 }

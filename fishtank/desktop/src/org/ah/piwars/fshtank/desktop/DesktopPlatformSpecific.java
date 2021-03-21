@@ -28,5 +28,6 @@ public class DesktopPlatformSpecific extends AbstractPlatformSpecific {
 
         setMirrorWalls(Boolean.valueOf(props.getProperty("gfx.mirrorwalls", "true")));
         setHighresFloor(Boolean.valueOf(props.getProperty("gfx.highresfloor", "true")));
+        setCameraInputAllowed(parameters.isCameraInputAllowed());
     }
 }

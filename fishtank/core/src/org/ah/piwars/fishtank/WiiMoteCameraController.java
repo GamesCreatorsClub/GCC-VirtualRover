@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
+import org.ah.piwars.fishtank.PlatformSpecific.TankView;
+
 public class WiiMoteCameraController extends InputAdapter {
 
     private final Vector3 tmp = new Vector3();
@@ -27,17 +29,25 @@ public class WiiMoteCameraController extends InputAdapter {
     private final Vector3 tmpV1 = new Vector3();
     private final Vector3 tmpV2 = new Vector3();
 
-    public WiiMoteCameraController(PerspectiveCamera camera, float factor) {
-        this.camera = camera;
+    private TankView tankView;
 
+    public WiiMoteCameraController(PerspectiveCamera camera, float factor, PlatformSpecific.TankView tankView) {
+        this.camera = camera;
         this.factor = factor;
+        this.tankView = tankView;
 
         input.set(camera.position);
     }
 
-    public void setCamPosition(float x, float y) {
-        this.camera.position.x = x;
+    public void setCamPosition(float x, float y, float z) {
+        if (tankView == PlatformSpecific.TankView.FRONT) {
+            this.camera.position.x = x;
+        } else {
+            this.camera.position.z = z;
+        }
+//        this.camera.position.x = x;
         this.camera.position.y = y;
+//        this.camera.position.z = z;
     }
 
     public Vector3 getInput() { return input; }
@@ -120,19 +130,24 @@ public class WiiMoteCameraController extends InputAdapter {
     public void updateCamera() {
         boolean updateFrustum = true;
 
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-        float aspectRatio = height / width;
+        float aspectRatio = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
 
-        float f = FishtankScreen.WORLD_SCALE2 * factor;
+        float factor2 = FishtankScreen.WORLD_SCALE2 * factor;
 
-        float xOffset = camera.position.x * f;
-        float yOffset = camera.position.y * f / aspectRatio;
+        float xOffset;
+        float yOffset;
+        if (tankView == PlatformSpecific.TankView.FRONT) {
+            xOffset = camera.position.x * factor2;
+            yOffset = camera.position.y * factor2 / aspectRatio;
+        } else if (tankView == PlatformSpecific.TankView.LEFT) {
+            xOffset = camera.position.z * factor2;
+            yOffset = camera.position.y * factor2 / aspectRatio;
+        } else {
+            xOffset = camera.position.x * factor2;
+            yOffset = camera.position.y * factor2 / aspectRatio;
+        }
 
-        f = camera.near * factor;
-
-//        camera.position.x = camX;
-//        camera.position.y = camY;
+        float f = camera.near * factor;
 
         camera.projection.setToProjection(-f - xOffset, f - xOffset, -f * aspectRatio - yOffset, f * aspectRatio - yOffset, 0.1f, 300f);
 

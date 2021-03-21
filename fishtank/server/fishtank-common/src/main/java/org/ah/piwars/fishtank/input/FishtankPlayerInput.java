@@ -64,7 +64,7 @@ public class FishtankPlayerInput extends PlayerInput {
 
     @Override
     public int size() {
-        return 9;
+        return 14;
     }
 
     @Override
@@ -136,13 +136,13 @@ public class FishtankPlayerInput extends PlayerInput {
     @Override
     public void assignFrom(PlayerInput playerInput) {
         super.assignFrom(playerInput);
-        FishtankPlayerInput piwarsPlayerInput = (FishtankPlayerInput)playerInput;
-        camX = piwarsPlayerInput.camX;
-        camY = piwarsPlayerInput.camY;
-        camZ = piwarsPlayerInput.camZ;
+        FishtankPlayerInput fishtankPlayerInput = (FishtankPlayerInput)playerInput;
+        camX = fishtankPlayerInput.camX;
+        camY = fishtankPlayerInput.camY;
+        camZ = fishtankPlayerInput.camZ;
 
-        trigger = piwarsPlayerInput.trigger;
-        pause = piwarsPlayerInput.pause;
+        trigger = fishtankPlayerInput.trigger;
+        pause = fishtankPlayerInput.pause;
     }
 
     @Override public String toStringInternal() {
@@ -150,6 +150,6 @@ public class FishtankPlayerInput extends PlayerInput {
     }
 
     @Override public String toString() {
-        return "PiWarsPlayerInput[" + toStringInternal() + "]";
+        return "FishtankPlayerInput[" + toStringInternal() + "]";
     }
 }

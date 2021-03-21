@@ -11,6 +11,7 @@ import org.ah.piwars.fishtank.game.fish.Fish;
 import org.ah.piwars.fishtank.input.FishtankPlayerInput;
 import org.ah.piwars.fishtank.logging.GdxClientLoggingAdapter;
 import org.ah.piwars.fishtank.message.FishtankMessageFactory;
+import org.ah.piwars.fishtank.message.FishtankPlayerInputMessage;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.Console;
 import org.ah.piwars.fishtank.world.CameraPositionLink;
@@ -42,6 +43,8 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
     private CameraPositionLink cameraPositionModel;
 
+    private FishtankPlayerInputMessage cameraPositionInputMessage;
+
     public ServerCommunicationAdapter(
             ServerCommunication serverCommunication,
             Console console,
@@ -57,11 +60,14 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         this.assetManager = assetManager;
 
         serverCommunication.setReceiver(this);
+
+        cameraPositionInputMessage = messageFactory.createPlayerInputCommand();
     }
 
     @Override
     protected void processServerClientAuthenticateMessage(ServerClientAuthenticatedMessage serverInternalMessage) {
         super.processServerClientAuthenticateMessage(serverInternalMessage);
+        cameraPositionInputMessage.setSessionId(sessionId);
     }
 
     @Override
@@ -73,12 +79,12 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         return allVisibleObjects;
     }
 
-    public void setPlayerOneInput(FishtankPlayerInput playerInput) {
-        getEngine().updateInput(playerInput);
+    public void setCameraPositionInput(FishtankPlayerInput cameraPositionInput) {
+        getEngine().updateInput(cameraPositionInput);
 
-        if (serverCommunication.isConnected()) {
-            engine.sendPlayerInput();
-        }
+//        if (serverCommunication.isConnected()) {
+//            engine.sendPlayerInput();
+//        }
     }
 
     @Override
@@ -101,12 +107,13 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
         FishtankGame game = new FishtankGame(mapId);
         game.setIsServer(local);
         game.init();
-        FishtankClientEngine engine = new FishtankClientEngine(game, serverCommunication, logger);
+        FishtankClientEngine engine = new FishtankClientEngine(game, serverCommunication, cameraPositionInputMessage, logger);
         engine.setFollowOnly(simulation);
         this.engine = engine;
 
         engine.getGame().addGameObjectAddedListener(this);
         engine.getGame().addGameObjectRemovedListener(this);
+        engine.setPlayerInputs(cameraPositionInputMessage.getInputs());
         if (!local) {
             sendClientReady();
         }

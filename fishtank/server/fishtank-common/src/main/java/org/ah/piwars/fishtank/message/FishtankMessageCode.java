@@ -10,7 +10,7 @@ public abstract class FishtankMessageCode extends MessageCode {
             { setOrdinal(PlayerInput.ordinal()); }
 
             @Override public Message newObject(MessageFactory factory) { return new FishtankPlayerInputMessage(factory); }
-            @Override public String toString() { return "PiWarsPlayerInput"; }
+            @Override public String toString() { return "FishtankPlayerInput"; }
         };
     }
 

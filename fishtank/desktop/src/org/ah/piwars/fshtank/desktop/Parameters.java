@@ -304,6 +304,10 @@ public class Parameters {
         return viewTank;
     }
 
+    public boolean isCameraInputAllowed() {
+        return cameraInputAllowed;
+    }
+
     private static File getCodePath() {
         String classPath = "/" + Parameters.class.getName().replace(".", "/") + ".class";
         URL resource = Parameters.class.getResource(classPath);

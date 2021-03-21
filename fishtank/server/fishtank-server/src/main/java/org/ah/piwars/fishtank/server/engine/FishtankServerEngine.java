@@ -41,6 +41,7 @@ public class FishtankServerEngine extends ServerEngine<FishtankGame> {
 
     @Override
     protected void authenticationCompleted(ClientSession<?> clientSession) {
+        clientSession.setAcceptInputs(true);
     }
 
     @Override

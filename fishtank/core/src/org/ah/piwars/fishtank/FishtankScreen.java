@@ -16,7 +16,6 @@ package org.ah.piwars.fishtank;
  ******************************************************************************/
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -50,7 +49,7 @@ import org.ah.themvsus.engine.common.game.Player;
 
 import static java.lang.String.format;
 
-public class FishtankScreen extends ScreenAdapter implements ChatListener, InputProcessor {
+public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     public static final float WORLD_SCALE = 0.1f;
     public static final float WORLD_SCALE2 = 0.01f;
@@ -75,8 +74,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
 
     private AssetManager assetManager;
 
-    // private Model gridAndAxesModel;
-    // private ModelInstance gridAndAxesInstance;
     private Model fishtankLeftSideModel;
     private ModelInstance fishtankLeftSideInstance;
     private Model fishtankRightSideModel;
@@ -138,7 +135,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         camera.near = 0.1f;
         camera.far = 300f;
 
-        wiiMoteCameraController = new WiiMoteCameraController(camera, cameraFactor);
+        wiiMoteCameraController = new WiiMoteCameraController(camera, cameraFactor, platformSpecific.getTankView());
         Gdx.input.setInputProcessor(wiiMoteCameraController);
 
         unknownObjectIds = new IntSet();
@@ -154,16 +151,16 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
     public void render(float delta) {
 
         CameraPositionLink cameraPositionModel = adapter.getCameraPositionModel();
-        if (cameraPositionModel != null) {
-            cameraPositionModel.updateFrom(wiiMoteCameraController);
-        }
+//        if (cameraPositionModel != null) {
+//            cameraPositionModel.updateFrom(wiiMoteCameraController);
+//        }
 
         progressEngine();
 
         if (cameraPositionModel != null) {
             cameraPositionModel.updateTo(wiiMoteCameraController);
         }
-        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInput().x, wiiMoteCameraController.getInput().y);
+        // wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInput().x, wiiMoteCameraController.getInput().y);
         wiiMoteCameraController.updateCamera();
 
         t = (t + delta * 0.02f) % 1f;
@@ -248,7 +245,17 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
             camera.viewportHeight = height;
         }
 
-        wiiMoteCameraController.setCamPosition(wiiMoteCameraController.getInput().x, wiiMoteCameraController.getInput().y);
+        if (platformSpecific.getTankView() == PlatformSpecific.TankView.FRONT) {
+            wiiMoteCameraController.setCamPosition(
+                    wiiMoteCameraController.getInput().x,
+                    wiiMoteCameraController.getInput().y,
+                    camera.position.z);
+        } else {
+            wiiMoteCameraController.setCamPosition(
+                    camera.position.x,
+                    wiiMoteCameraController.getInput().y,
+                    wiiMoteCameraController.getInput().x);
+        }
 //        wiiMoteCameraController.updateCameraAfterController(camera.position.x, camera.position.y);
     }
 
@@ -263,7 +270,9 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
 
             if (platformSpecific.isCameraInputAllowed()) {
                 CameraPositionLink cameraPositionModel = adapter.getCameraPositionModel();
-                adapter.setPlayerOneInput(cameraPositionModel.getPlayerInput());
+                if (cameraPositionModel != null) {
+                    adapter.setCameraPositionInput(cameraPositionModel.getPlayerInput());
+                }
             }
 
             engine.progressEngine(now, unknownObjectIds);
@@ -391,53 +400,5 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener, Input
         fishtankBottomInstance = new ModelInstance(fishtankBottomModel);
         fishtankBottomInstance.transform.translate(0f, -d, 0f);
         fishtankBottomInstance.transform.scl(0.0125f);
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        // TODO Auto-generated method stub
-        return false;
     }
 }

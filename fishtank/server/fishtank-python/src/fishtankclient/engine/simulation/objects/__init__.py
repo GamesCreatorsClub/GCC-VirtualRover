@@ -1,0 +1,5 @@
+
+from fishtankclient.engine.simulation.objects.BarrelSimObject import BarrelSimObject, BarrelColour
+from fishtankclient.engine.simulation.objects.ToyCubeSimObject import ToyCubeSimObject, ToyCubeColour
+from fishtankclient.engine.simulation.objects.GolfBallSimObject import GolfBallSimObject
+from fishtankclient.engine.simulation.objects.FishTowerSimObject import FishSimObject

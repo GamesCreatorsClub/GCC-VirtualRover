@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 
 import org.ah.piwars.fishtank.game.fish.Fish;
+import org.ah.piwars.fishtank.input.FishtankPlayerInput;
+import org.ah.piwars.fishtank.input.FishtankPlayerInputs;
 import org.ah.themvsus.engine.common.game.Game;
 import org.ah.themvsus.engine.common.game.GameObject;
 import org.ah.themvsus.engine.common.game.GameObjectFactory;
@@ -42,6 +44,8 @@ public class FishtankGame extends Game {
     public static int BOTTOM_PLANE_INDEX = 5;
 
     private Plane[] planes = new Plane[6];
+    private int cameraPositionObjectId;
+    private FishtankPlayerInput playerInput = (FishtankPlayerInput)FishtankPlayerInput.INPUTS_FACTORY.obtain();
 
     public FishtankGame(String mapId) {
         super(GAME_TICK_IN_us);
@@ -88,12 +92,23 @@ public class FishtankGame extends Game {
 
     @Override
     public void processPlayerInputs(int playerId, PlayerInputs playerInputs) {
-        super.processPlayerInputs(playerId, playerInputs);
+        // super.processPlayerInputs(playerId, playerInputs);
+
+        CameraPositionObject cameraPositionObject = getCurrentGameState().get(cameraPositionObjectId);
+        if (cameraPositionObject != null) {
+            if (((FishtankPlayerInputs)playerInputs).getPlayerInput(playerInput)) {
+                // System.out.println("Got player input with " + playerInput.camX() + ", " + playerInput.camY());
+                cameraPositionObject.setPosition(playerInput.camX(), playerInput.camY(), playerInput.camZ());
+            }
+        }
     }
 
     @Override
     protected void fireGameObjectAdded(GameObject newGameObject) {
         super.fireGameObjectAdded(newGameObject);
+        if (newGameObject instanceof CameraPositionObject) {
+            cameraPositionObjectId = newGameObject.getId();
+        }
     }
 
     @Override

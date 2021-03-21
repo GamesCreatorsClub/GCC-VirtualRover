@@ -42,6 +42,7 @@ public class FishtankServer {
 //        }
 
         config = new Properties();
+        config.setProperty("udp.port", Integer.toString(7453));
 
         init(config);
 

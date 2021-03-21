@@ -17,4 +17,14 @@ public class FishtankPlayerInputs extends PlayerInputs {
         sb.append("]");
         return sb.toString();
     }
+
+    public boolean getPlayerInput(FishtankPlayerInput playerInput) {
+        if (inputs.isEmpty()) {
+            return false;
+        }
+        FishtankPlayerInput fishtankPlayerInput = (FishtankPlayerInput) inputs.get(inputs.size - 1);
+        playerInput.assignFrom(fishtankPlayerInput);
+        clean();
+        return true;
+    }
 }
