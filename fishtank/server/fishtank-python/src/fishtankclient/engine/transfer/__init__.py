@@ -5,5 +5,5 @@ from fishtankclient.engine.transfer.SizeCalculationSerializer import SizeCalcula
 
 from fishtankclient.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 
-from fishtankclient.engine.transfer.UDPServerModule import UDPServerModule
-from fishtankclient.engine.transfer.TCPServerModule import TCPServerModule
+from fishtankclient.engine.transfer.UDPServerCommunication import UDPServerCommunication
+from fishtankclient.engine.transfer.TCPServerCommunication import TCPServerCommunication

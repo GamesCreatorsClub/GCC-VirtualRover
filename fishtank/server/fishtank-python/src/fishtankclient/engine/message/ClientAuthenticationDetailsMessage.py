@@ -32,5 +32,5 @@ class ClientAuthenticationDetailsMessage(Message):
 
     def serialize_impl(self, serializer):
         # super(ClientAuthenticationDetailsMessage, self).serialize_impl(serializer)
-        serializer.serialize_string(self._username)
-        serializer.serialize_string(self._passhash)
+        serializer.serialize_string(self._username if self._username is not None else "")
+        serializer.serialize_string(self._passhash if self._passhash is not None else "")

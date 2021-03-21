@@ -6,8 +6,8 @@ class PlayerInputMessage(Message):
     def __init__(self, factory, message_type):
         super(PlayerInputMessage, self).__init__(factory, message_type)
         self._session_id = None
-        self._frame_no = None
-        self._game_update_frame_no = None
+        self._frame_no = 0
+        self._game_update_frame_no = 0
         self._player_inputs = PlayerInputs()
         self._received_removed_frame_nos = []
         self._input_size = 0
@@ -22,6 +22,9 @@ class PlayerInputMessage(Message):
 
     def get_session_id(self):
         return self._session_id
+
+    def set_session_id(self, session_id):
+        self._session_id = session_id
 
     def set_frame_no(self, frame_no):
         self._frame_no = frame_no

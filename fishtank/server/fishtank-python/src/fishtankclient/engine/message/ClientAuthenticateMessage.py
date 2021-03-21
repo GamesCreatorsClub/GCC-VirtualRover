@@ -6,7 +6,7 @@ class ClientAuthenticateMessage(ClientAuthenticationDetailsMessage):
         super(ClientAuthenticateMessage, self).__init__(factory, message_type)
 
     def deserialize_impl(self, deserializer):
-        pass
+        super().deserialize_impl(deserializer)
 
     def serialize_impl(self, serializer):
-        pass
+        super().serialize_impl(serializer)

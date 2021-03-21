@@ -19,6 +19,8 @@ class PlayerInputs:
         self._inputs = []
 
     def clear(self):
+        for input in self._inputs:
+            input.free()
         del self._inputs[:]
 
     def get_inputs(self):

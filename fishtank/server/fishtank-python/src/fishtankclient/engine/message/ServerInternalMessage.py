@@ -10,6 +10,7 @@ class ServerInternalState(Enum):
     RegistrationSuccessful = ()
     RegistrationFailed = ()
     SessionClosed = ()
+    AuthorisationFailed = ()
     RegistrationServerURL = ()
 
     def __new__(cls):

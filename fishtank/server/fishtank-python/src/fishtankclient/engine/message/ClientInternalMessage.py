@@ -29,6 +29,7 @@ class ClientInternalMessage(Message):
     def __init__(self, factory, message_type):
         super(ClientInternalMessage, self).__init__(factory, message_type)
         self._state = ClientInternalState.RequestServerDetails
+        self._message = None
 
     def free(self):
         super(ClientInternalMessage, self).free()
@@ -40,17 +41,24 @@ class ClientInternalMessage(Message):
     def set_state(self, state):
         self._state = state
 
+    def get_messag(self):
+        return self._message
+
+    def set_message(self, message):
+        self._message = message
+
     def size(self):
         return super(ClientInternalMessage, self).size() + 1
 
     def deserialize_impl(self, deserializer):
         # super(ClientInternalMessage, self).deserialize_impl(deserializer)
         self._state = ClientInternalState.from_ordinal(deserializer.deserialize_unsigned_byte())
+        self._message = deserializer.deserialize_short_string()
 
     def serialize_impl(self, serializer):
         # super(ClientInternalMessage, self).serialize_impl(serializer)
         serializer.serialize_unsigned_byte(self._state.ordinal())
-
+        serializer.serialize_short_string(self._message if self._message is not None else "")
 
 if __name__ == '__main__':
     # Simple test

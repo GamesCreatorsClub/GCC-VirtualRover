@@ -3,7 +3,7 @@ from fishtankclient.engine.message.Message import Message
 
 class ServerClientAuthenticatedMessage(Message):
     def __init__(self, factory, message_type):
-        super(ServerClientAuthenticatedMessage, self).__init__(factory, message_type)
+        super().__init__(factory, message_type)
         self._session_id = 0
 
     def get_session_id(self):
@@ -13,7 +13,7 @@ class ServerClientAuthenticatedMessage(Message):
         self._session_id = sesssion_id
 
     def size(self):
-        return super(ServerClientAuthenticatedMessage, self).size() + 4
+        return super().size() + 4
 
     def deserialize_impl(self, deserializer):
         # super(ServerClientAuthenticatedMessage, self).deserialize_impl(deserializer)

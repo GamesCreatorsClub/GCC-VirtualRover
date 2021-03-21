@@ -11,6 +11,12 @@ class Message(TypedObject):
         self._total_size = 0
         self._deserializer = None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.free()
+
     def get_type(self):
         return self._message_type
 

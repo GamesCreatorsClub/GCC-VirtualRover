@@ -11,30 +11,32 @@ from socket import timeout
 class TCPServerCommunication:
     MAGIC = 0xA8
 
-    def __init__(self, server_engine, serializer_factory, message_factory, address="0.0.0.0", port=7454):
-        self._connected = False
-        self._server_engine = server_engine
+    def __init__(self, serializer_factory, message_factory, address="127.0.0.1", port=7454):
         self._serializer_factory = serializer_factory
         self._message_factory = message_factory
         self._address = address
         self._port = port
-        self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._server_socket.connect((self._address, self._port))
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        self._server_engine.register_sender(self.send, self._serializer_factory)
-
-        self._server_socket_thread = threading.Thread(target=self.accept_clients, daemon=True)
-        self._server_socket_thread.start()
+        self._receiving_thread = threading.Thread(target=self.receiving_loop, daemon=True)
+        self.callback = None
+        self.connected = False
 
     def is_connected(self):
-        return self._client_socket is not None
+        return self.connected
+
+    def connect(self, server_connection_callback):
+        self._socket.connect((self._address, self._port))
+        self.connected = True
+        self.callback = server_connection_callback
+        self._receiving_thread.start()
 
     def send(self, packet):
-        if self._client_socket is not None:
+        if self.connected:
             packet = self.add_packet_header(packet)
             try:
-                self._client_socket.sendall(packet)
+                self._socket.sendall(packet)
             except:
                 pass
 
@@ -45,24 +47,8 @@ class TCPServerCommunication:
         packet[1:1] = struct.pack('B', l & 0xFF)
         return packet
 
-    def accept_clients(self):
-        self._server_socket.settimeout(10)
-        while True:
-            try:
-                conn, addr = self._server_socket.accept()
-                self._client_address = addr
-                self._client_socket = conn
-            except timeout:
-                pass
-            except Exception as ex:
-                print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
-
-    def process(self):
-        while True:
-            self.receive_message()
-
     def receive_message(self):
-        if self._client_socket is not None:
+        if self.connected:
             try:
                 data = self._client_socket.recv(2)
                 if len(data) == 0:
@@ -78,17 +64,30 @@ class TCPServerCommunication:
                         buf += data
 
                         message = self._message_factory.create_message(deserializer)
-                        self._server_engine.receive_message(message)
+                        self.callback.receive_message(message)
                     else:
                         print("Expected MAGIC " + hex(TCPServerCommunication.MAGIC) + " but got " + hex(data[0]))
             except timeout:
+                time.sleep(0.05)
                 pass
             except ConnectionResetError:
+                time.sleep(0.05)
                 self._client_socket = None
             except Exception as ex:
+                time.sleep(0.05)
                 print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
         else:
-            time.sleep(1)
+            time.sleep(0.05)
+
+    def receiving_loop(self):
+        try:
+            self._connected = True
+            self.callback.connected()
+
+            while True:
+                self.receive_message()
+        except Exception as ex:
+            print("Error receiving and processing message: " + str(ex) + "\n" + ''.join(traceback.format_tb(ex.__traceback__)))
 
 
 if __name__ == '__main__':
@@ -114,7 +113,7 @@ if __name__ == '__main__':
 
     engine = DummyEngine()
 
-    tcpServerModule = TCPServerCommunication(engine, serializer_factory, message_factory, port=7777)
+    tcpServerModule = TCPServerCommunication(serializer_factory, message_factory, port=7777)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         client_socket.connect(('127.0.0.1', 7777))

@@ -21,13 +21,19 @@ class PlayerInput:
     def set_sequence_no(self, sequence_no):
         self._sequence_no = sequence_no
 
-    def cam_x(self):
+    def cam_x(self, cam_x=None):
+        if cam_x is not None:
+            self._cam_x = cam_x
         return self._cam_x
 
-    def cam_y(self):
+    def cam_y(self, cam_y):
+        if cam_y is not None:
+            self._cam_y = cam_y
         return self._cam_y
 
-    def cam_z(self):
+    def cam_z(self, cam_z):
+        if cam_z is not None:
+            self._cam_z = cam_z
         return self._cam_z
 
     def trigger(self):
