@@ -38,7 +38,7 @@ class UDPServerCommunication:
         self._receiving_thread.start()
 
     def send_message(self, message):
-        serialiser = serializer_factory.obtain()
+        serialiser = self._serializer_factory.obtain()
         try:
             serialiser.setup()
             message.serialize(serialiser)
