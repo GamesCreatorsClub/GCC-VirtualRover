@@ -82,9 +82,9 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
     public void setCameraPositionInput(FishtankPlayerInput cameraPositionInput) {
         getEngine().updateInput(cameraPositionInput);
 
-//        if (serverCommunication.isConnected()) {
-//            engine.sendPlayerInput();
-//        }
+        if (serverCommunication.isConnected()) {
+            engine.sendPlayerInput();
+        }
     }
 
     @Override
