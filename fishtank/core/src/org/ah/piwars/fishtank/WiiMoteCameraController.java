@@ -19,7 +19,6 @@ public class WiiMoteCameraController extends InputAdapter {
 
     private PerspectiveCamera camera;
 
-    private float cameraAngle;
     private float cameraAngleRad;
     private float cameraAngleTan;
     private int button;
@@ -37,7 +36,6 @@ public class WiiMoteCameraController extends InputAdapter {
 
     public WiiMoteCameraController(PerspectiveCamera camera, float cameraAngle, PlatformSpecific.TankView tankView) {
         this.camera = camera;
-        this.cameraAngle = cameraAngle;
         this.cameraAngleRad = (float)(cameraAngle * Math.PI / 180f);
         this.cameraAngleTan = (float)Math.tan(cameraAngleRad);
         this.tankView = tankView;
@@ -157,27 +155,18 @@ public class WiiMoteCameraController extends InputAdapter {
 
         float halfViewportWidth;
         float halfViewportHeight;
-        float near;
-        float far;
-
-//        halfViewportSize = camera.near * 0.5f;
-//        halfViewportSize = 0.05f; // 1
-//        halfViewportSize = 0.04f; // 2
+        float near = camera.near;
+        float far = camera.far;
 
         halfViewportWidth = 0.5f / this.cameraAngleTan;
         halfViewportWidth = halfViewportWidth / aspectRatio;
 
         halfViewportHeight = 0.5f / this.cameraAngleTan;
 
-        float cameraBackOff = 1.1f;
+        float cameraBackOff = 1.3333333f;
         halfViewportWidth = halfViewportWidth * cameraBackOff;
         halfViewportHeight = halfViewportHeight * cameraBackOff;
 
-        near = camera.near;
-        far = camera.far;
-
-//        near = 0.1f;
-//        far = 300f;
 
         camera.projection.setToProjection(
                 -halfViewportWidth - xOffset, halfViewportWidth - xOffset,

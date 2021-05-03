@@ -108,7 +108,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         hudCamera.setToOrtho(true);
 
         float halfHeight = FishtankGame.HALF_HEIGHT * WORLD_SCALE;
-//        float displayWidth = 160f * WORLD_SCALE;
         float halfDisplayWidth = 160f * WORLD_SCALE * 0.5f;
 
         float yOffset;
@@ -119,20 +118,13 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
         float cameraAngle;
         cameraAngle = 6.5f;
-//        cameraAngle = 10f;
         float cameraAngleRad = (float)(cameraAngle * Math.PI / 180f);
         float cameraAngleTan = (float)Math.tan(cameraAngleRad);
 
         float camera_distance;
         camera_distance = halfDisplayWidth / cameraAngleTan;
-//        camera_distance = camera_distance * 0.25f; // 1
-//        camera_distance = camera_distance * 2f; // 2
-//        camera_distance = camera_distance * 0.75f;
-//        camera_distance = camera_distance * 1.33f;
 
         camera = new PerspectiveCamera(cameraAngle, width, height);
-//        camera.near = 0.1f;
-//        camera.far = 300f;
         camera.near = camera_distance;
         camera.far = camera_distance + halfHeight * 2.5f;
 
