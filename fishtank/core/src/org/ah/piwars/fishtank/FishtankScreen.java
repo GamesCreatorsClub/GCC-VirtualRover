@@ -47,6 +47,8 @@ import org.ah.piwars.fishtank.world.FishModelLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
+import static org.ah.piwars.fishtank.game.FishtankGame.HALF_DEPTH;
+
 import static java.lang.String.format;
 
 public class FishtankScreen extends ScreenAdapter implements ChatListener {
@@ -105,37 +107,54 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         hudCamera = new OrthographicCamera(width, height);
         hudCamera.setToOrtho(true);
 
-        float h = FishtankGame.HALF_HEIGHT * WORLD_SCALE;
-        float displayWidth = 160f * WORLD_SCALE;
+        float halfHeight = FishtankGame.HALF_HEIGHT * WORLD_SCALE;
+//        float displayWidth = 160f * WORLD_SCALE;
+        float halfDisplayWidth = 160f * WORLD_SCALE * 0.5f;
 
-//        float yOffset = - (h - FishtankGame.HALF_DEPTH * WORLD_SCALE) / 2f;
-        float yOffset = -20f * WORLD_SCALE;
+        float yOffset;
+        yOffset = - (halfHeight - HALF_DEPTH * WORLD_SCALE) / 2f;
+//        yOffset = -20f * WORLD_SCALE;
+//        yOffset = 10f * WORLD_SCALE;
+        yOffset = 0f;
 
-        float cameraAngle = 6.5f;
+        float cameraAngle;
+        cameraAngle = 6.5f;
+//        cameraAngle = 10f;
         float cameraAngleRad = (float)(cameraAngle * Math.PI / 180f);
         float cameraAngleTan = (float)Math.tan(cameraAngleRad);
 
         float camera_distance;
-        camera_distance = displayWidth;
+        camera_distance = halfDisplayWidth / cameraAngleTan;
+//        camera_distance = camera_distance * 0.25f; // 1
+//        camera_distance = camera_distance * 2f; // 2
+//        camera_distance = camera_distance * 0.75f;
+//        camera_distance = camera_distance * 1.33f;
 
         camera = new PerspectiveCamera(cameraAngle, width, height);
+//        camera.near = 0.1f;
+//        camera.far = 300f;
+        camera.near = camera_distance;
+        camera.far = camera_distance + halfHeight * 2.5f;
+
+        System.out.println("halfDisplayWidth=" + halfDisplayWidth);
+        System.out.println("halfHeight=" + halfHeight);
+        System.out.println("cameraAngleTan=" + cameraAngleTan);
+        System.out.println("camera_distance=" + camera_distance);
 
         if (platformSpecific.getTankView() == PlatformSpecific.TankView.FRONT) {
-            camera.position.set(0f, yOffset, h + camera_distance);
+            camera.position.set(0f, yOffset, halfHeight + camera_distance);
             camera.lookAt(0f, 0f, 0f);
         } else if (platformSpecific.getTankView() == PlatformSpecific.TankView.LEFT) {
-            camera.position.set(-(h + camera_distance), yOffset, 0f);
+            camera.position.set(-(halfHeight + camera_distance), yOffset, 0f);
             camera.lookAt(0f, 0f, 0f);
         } else if (platformSpecific.getTankView() == PlatformSpecific.TankView.RIGHT) {
-            camera.position.set(h + camera_distance, yOffset, 0f);
+            camera.position.set(halfHeight + camera_distance, yOffset, 0f);
             camera.lookAt(0f, 0f, 0f);
         } else {
             // ERROR but we don't want to do anything about it...
-            camera.position.set(0f, 0f, h * camera_distance);
+            camera.position.set(0f, 0f, halfHeight * camera_distance);
             camera.lookAt(0f, 0f, 0f);
         }
-        camera.near = 0.1f;
-        camera.far = 300f;
 
         wiiMoteCameraController = new WiiMoteCameraController(camera, cameraAngle, platformSpecific.getTankView());
         Gdx.input.setInputProcessor(wiiMoteCameraController);

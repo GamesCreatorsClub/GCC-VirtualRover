@@ -20,6 +20,8 @@ public class WiiMoteCameraController extends InputAdapter {
     private PerspectiveCamera camera;
 
     private float cameraAngle;
+    private float cameraAngleRad;
+    private float cameraAngleTan;
     private int button;
 
     private Vector3 input = new Vector3();
@@ -36,6 +38,8 @@ public class WiiMoteCameraController extends InputAdapter {
     public WiiMoteCameraController(PerspectiveCamera camera, float cameraAngle, PlatformSpecific.TankView tankView) {
         this.camera = camera;
         this.cameraAngle = cameraAngle;
+        this.cameraAngleRad = (float)(cameraAngle * Math.PI / 180f);
+        this.cameraAngleTan = (float)Math.tan(cameraAngleRad);
         this.tankView = tankView;
 
         input.set(camera.position);
@@ -134,24 +138,51 @@ public class WiiMoteCameraController extends InputAdapter {
 
         float aspectRatio = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
 
-        float possitionOffsetFactor = WORLD_SCALE2 * 0.5f;
+        float possitionOffsetFactor;
+        possitionOffsetFactor = WORLD_SCALE2 * 0.5f;
+        possitionOffsetFactor = 1f;
 
         float xOffset;
         float yOffset;
         if (tankView == PlatformSpecific.TankView.FRONT) {
             xOffset = camera.position.x * possitionOffsetFactor;
-            yOffset = camera.position.y * possitionOffsetFactor / aspectRatio;
+            yOffset = camera.position.y * possitionOffsetFactor;
         } else if (tankView == PlatformSpecific.TankView.LEFT) {
             xOffset = camera.position.z * possitionOffsetFactor;
-            yOffset = camera.position.y * possitionOffsetFactor / aspectRatio;
+            yOffset = camera.position.y * possitionOffsetFactor;
         } else {
             xOffset = camera.position.x * possitionOffsetFactor;
-            yOffset = camera.position.y * possitionOffsetFactor / aspectRatio;
+            yOffset = camera.position.y * possitionOffsetFactor;
         }
 
-        float halfViewportSize = camera.near * 0.5f;
+        float halfViewportWidth;
+        float halfViewportHeight;
+        float near;
+        float far;
 
-        camera.projection.setToProjection(-halfViewportSize - xOffset, halfViewportSize - xOffset, -halfViewportSize * aspectRatio - yOffset, halfViewportSize * aspectRatio - yOffset, 0.1f, 300f);
+//        halfViewportSize = camera.near * 0.5f;
+//        halfViewportSize = 0.05f; // 1
+//        halfViewportSize = 0.04f; // 2
+
+        halfViewportWidth = 0.5f / this.cameraAngleTan;
+        halfViewportWidth = halfViewportWidth / aspectRatio;
+
+        halfViewportHeight = 0.5f / this.cameraAngleTan;
+
+        float cameraBackOff = 1.1f;
+        halfViewportWidth = halfViewportWidth * cameraBackOff;
+        halfViewportHeight = halfViewportHeight * cameraBackOff;
+
+        near = camera.near;
+        far = camera.far;
+
+//        near = 0.1f;
+//        far = 300f;
+
+        camera.projection.setToProjection(
+                -halfViewportWidth - xOffset, halfViewportWidth - xOffset,
+                -halfViewportHeight - yOffset, halfViewportHeight - yOffset,
+                near, far);
 
         camera.view.setToLookAt(camera.position, tmp.set(camera.position).add(camera.direction), camera.up);
         camera.combined.set(camera.projection);
