@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Vector3;
 
 import org.ah.piwars.fishtank.PlatformSpecific.TankView;
 
+import static org.ah.piwars.fishtank.FishtankScreen.WORLD_SCALE2;
+
 public class WiiMoteCameraController extends InputAdapter {
 
     private final Vector3 tmp = new Vector3();
@@ -17,7 +19,7 @@ public class WiiMoteCameraController extends InputAdapter {
 
     private PerspectiveCamera camera;
 
-    private float factor;
+    private float cameraAngle;
     private int button;
 
     private Vector3 input = new Vector3();
@@ -31,9 +33,9 @@ public class WiiMoteCameraController extends InputAdapter {
 
     private TankView tankView;
 
-    public WiiMoteCameraController(PerspectiveCamera camera, float factor, PlatformSpecific.TankView tankView) {
+    public WiiMoteCameraController(PerspectiveCamera camera, float cameraAngle, PlatformSpecific.TankView tankView) {
         this.camera = camera;
-        this.factor = factor;
+        this.cameraAngle = cameraAngle;
         this.tankView = tankView;
 
         input.set(camera.position);
@@ -132,24 +134,24 @@ public class WiiMoteCameraController extends InputAdapter {
 
         float aspectRatio = (float) Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth();
 
-        float factor2 = FishtankScreen.WORLD_SCALE2 * factor;
+        float possitionOffsetFactor = WORLD_SCALE2 * 0.5f;
 
         float xOffset;
         float yOffset;
         if (tankView == PlatformSpecific.TankView.FRONT) {
-            xOffset = camera.position.x * factor2;
-            yOffset = camera.position.y * factor2 / aspectRatio;
+            xOffset = camera.position.x * possitionOffsetFactor;
+            yOffset = camera.position.y * possitionOffsetFactor / aspectRatio;
         } else if (tankView == PlatformSpecific.TankView.LEFT) {
-            xOffset = camera.position.z * factor2;
-            yOffset = camera.position.y * factor2 / aspectRatio;
+            xOffset = camera.position.z * possitionOffsetFactor;
+            yOffset = camera.position.y * possitionOffsetFactor / aspectRatio;
         } else {
-            xOffset = camera.position.x * factor2;
-            yOffset = camera.position.y * factor2 / aspectRatio;
+            xOffset = camera.position.x * possitionOffsetFactor;
+            yOffset = camera.position.y * possitionOffsetFactor / aspectRatio;
         }
 
-        float f = camera.near * factor;
+        float halfViewportSize = camera.near * 0.5f;
 
-        camera.projection.setToProjection(-f - xOffset, f - xOffset, -f * aspectRatio - yOffset, f * aspectRatio - yOffset, 0.1f, 300f);
+        camera.projection.setToProjection(-halfViewportSize - xOffset, halfViewportSize - xOffset, -halfViewportSize * aspectRatio - yOffset, halfViewportSize * aspectRatio - yOffset, 0.1f, 300f);
 
         camera.view.setToLookAt(camera.position, tmp.set(camera.position).add(camera.direction), camera.up);
         camera.combined.set(camera.projection);

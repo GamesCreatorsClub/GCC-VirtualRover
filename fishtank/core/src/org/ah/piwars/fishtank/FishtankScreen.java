@@ -86,8 +86,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     protected BitmapFont fontSmallMono;
 
-    private float cameraFactor = 0.5f;
-
 
     public FishtankScreen(PlatformSpecific platformSpecific, AssetManager assetManager, Console console, ServerCommunicationAdapter adapter) {
         this.platformSpecific = platformSpecific;
@@ -113,19 +111,23 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 //        float yOffset = - (h - FishtankGame.HALF_DEPTH * WORLD_SCALE) / 2f;
         float yOffset = -20f * WORLD_SCALE;
 
-        float camera_angle = 135f;
-        float camera_distance = 0.5f;
+        float cameraAngle = 6.5f;
+        float cameraAngleRad = (float)(cameraAngle * Math.PI / 180f);
+        float cameraAngleTan = (float)Math.tan(cameraAngleRad);
 
-        camera = new PerspectiveCamera(camera_angle, width, height);
-//        float camera_distance = ((float)Math.tan(camera_angle * Math.PI / 180f)); //  + h * 0.1f;
+        float camera_distance;
+        camera_distance = displayWidth;
+
+        camera = new PerspectiveCamera(cameraAngle, width, height);
+
         if (platformSpecific.getTankView() == PlatformSpecific.TankView.FRONT) {
-            camera.position.set(0f, yOffset, h + displayWidth * 2 * camera_distance);
+            camera.position.set(0f, yOffset, h + camera_distance);
             camera.lookAt(0f, 0f, 0f);
         } else if (platformSpecific.getTankView() == PlatformSpecific.TankView.LEFT) {
-            camera.position.set(-(h + displayWidth * 2 * camera_distance), yOffset, 0f);
+            camera.position.set(-(h + camera_distance), yOffset, 0f);
             camera.lookAt(0f, 0f, 0f);
         } else if (platformSpecific.getTankView() == PlatformSpecific.TankView.RIGHT) {
-            camera.position.set(h + displayWidth * 2 * camera_distance, yOffset, 0f);
+            camera.position.set(h + camera_distance, yOffset, 0f);
             camera.lookAt(0f, 0f, 0f);
         } else {
             // ERROR but we don't want to do anything about it...
@@ -135,7 +137,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         camera.near = 0.1f;
         camera.far = 300f;
 
-        wiiMoteCameraController = new WiiMoteCameraController(camera, cameraFactor, platformSpecific.getTankView());
+        wiiMoteCameraController = new WiiMoteCameraController(camera, cameraAngle, platformSpecific.getTankView());
         Gdx.input.setInputProcessor(wiiMoteCameraController);
 
         unknownObjectIds = new IntSet();
