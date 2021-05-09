@@ -4,3 +4,7 @@
 /target/
 /logs
 test-registration.data
+registration.data
+roles.data
+userroles.data
+
