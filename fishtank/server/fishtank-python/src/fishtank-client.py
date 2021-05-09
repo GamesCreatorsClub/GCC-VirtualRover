@@ -80,11 +80,14 @@ while True:
     time.sleep(0.025)
     if handler.is_connected:
         if wiimote.initialised:
-            x = -(wiimote.ir_list[0][1] - 512) / 64.0
-            y = -(wiimote.ir_list[0][2] - 512) / 64.0 - 3
-            z = y
-            handler.send_cam_pos(x, -z, y)
-            print(f"{x} x {y}")
+            wx = - (wiimote.ir_list[0][1] - 512) / 10.0 # 32.0 #64.0
+            wy = -(wiimote.ir_list[0][2] - 512) / 10.0  # 32.0 - 15 # 33.0 # 64.0 - 33
+            x = wx
+            y = wx + 64.0
+            z = -wy + 32.0
+            # y = y - 32.0
+            handler.send_cam_pos(x, z, y)
+            # print(f"{x} x {y}")
         else:
             if wiimote.connected and not wiimote.initialising:
                 wiimote.init_wiimote()

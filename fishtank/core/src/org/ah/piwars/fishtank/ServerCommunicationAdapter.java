@@ -16,11 +16,13 @@ import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.Console;
 import org.ah.piwars.fishtank.world.CameraPositionLink;
 import org.ah.piwars.fishtank.world.FishModelLink;
+import org.ah.piwars.fishtank.world.StaticObjectLink;
 import org.ah.themvsus.engine.client.CommonServerCommunicationAdapter;
 import org.ah.themvsus.engine.client.ServerCommunication;
 import org.ah.themvsus.engine.common.game.Game.GameObjectAddedListener;
 import org.ah.themvsus.engine.common.game.Game.GameObjectRemovedListener;
 import org.ah.themvsus.engine.common.game.GameObject;
+import org.ah.themvsus.engine.common.game.GameObjectWithPositionAndOrientation;
 import org.ah.themvsus.engine.common.message.Message;
 import org.ah.themvsus.engine.common.message.ServerClientAuthenticatedMessage;
 
@@ -149,6 +151,16 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
             allVisibleObjects.put(gameObject.getId(), playerModel);
             playerModel.makeObject(assetManager);
             fish.setLinkBack(playerModel);
+        } else if (gameObject.getType() == FishtankGameTypeObject.Anchor
+                || gameObject.getType() == FishtankGameTypeObject.Tresure
+                || gameObject.getType() == FishtankGameTypeObject.Benchy) {
+
+            GameObjectWithPositionAndOrientation staticObject = (GameObjectWithPositionAndOrientation)gameObject;
+
+            StaticObjectLink playerModel = new StaticObjectLink(engine.getGame(), gameObject.getId(), (FishtankGameTypeObject)staticObject.getType());
+            allVisibleObjects.put(gameObject.getId(), playerModel);
+            playerModel.makeObject(assetManager);
+            staticObject.setLinkBack(playerModel);
         }
     }
 

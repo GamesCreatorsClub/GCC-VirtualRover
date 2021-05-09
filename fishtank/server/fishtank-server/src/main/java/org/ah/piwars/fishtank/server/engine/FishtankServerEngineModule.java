@@ -3,7 +3,10 @@ package org.ah.piwars.fishtank.server.engine;
 import org.ah.piwars.fishtank.game.CameraPositionObject;
 import org.ah.piwars.fishtank.game.FishtankGame;
 import org.ah.piwars.fishtank.game.FishtankGameTypeObject;
+import org.ah.piwars.fishtank.game.fish.AnchorObject;
+import org.ah.piwars.fishtank.game.fish.BenchyObject;
 import org.ah.piwars.fishtank.game.fish.Fish;
+import org.ah.piwars.fishtank.game.fish.TresureObject;
 import org.ah.themvsus.server.ServerEngineModule;
 import org.ah.themvsus.server.authentication.AuthenticationAndAuthorisation;
 import org.ah.themvsus.server.engine.ServerEngine;
@@ -40,7 +43,7 @@ public class FishtankServerEngineModule extends ServerEngineModule {
             game.init();
 
             int cameraPositionId = game.newId();
-            CameraPositionObject cameraPosition = (CameraPositionObject) game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.CameraPosition, cameraPositionId);
+            CameraPositionObject cameraPosition = game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.CameraPosition, cameraPositionId);
             game.addNewGameObject(cameraPosition);
 
             Fish fish1 = game.spawnFish(game.newId(), FishtankGameTypeObject.Spadefish);
@@ -58,6 +61,21 @@ public class FishtankServerEngineModule extends ServerEngineModule {
             Fish fish4 = game.spawnFish(game.newId(), FishtankGameTypeObject.Tetrafish);
             fish4.getOrientation().setFromAxisRad(0f, 1f, 0f, atan2(-1f, 3f));
             fish4.setPosition(0f, 0f, 20f);
+
+            int anchorId = game.newId();
+            AnchorObject anchor = game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.Anchor, anchorId);
+            game.addNewGameObject(anchor);
+            anchor.setPosition(10f, -60f, 60f);
+
+            int treasureId = game.newId();
+            TresureObject treasure = game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.Tresure, treasureId);
+            game.addNewGameObject(treasure);
+            treasure.setPosition(-60f, -60f, 50f);
+
+            int benchyId = game.newId();
+            BenchyObject benchy = game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.Benchy, benchyId);
+            game.addNewGameObject(benchy);
+            benchy.setPosition(20f, -60f, -20f);
 
             return game;
         } catch (Throwable t) {

@@ -50,6 +50,10 @@ public class FishtankMain extends Game {
         assetManager.load("fish/spadefish/spadefish.g3db", Model.class);
         assetManager.load("fish/tetra/tetra-half.g3db", Model.class);
 
+        assetManager.load("decorations/anchor.g3db", Model.class);
+        assetManager.load("decorations/benchy.g3db", Model.class);
+        assetManager.load("decorations/tresure.g3db", Model.class);
+
         assetManager.load(TANK_BOTTOM_MODEL, Model.class);
 //        assetManager.load("Pebbles_025_BaseColor.jpg", Texture.class);
 //        assetManager.load("Pebbles_025_Normal.jpg", Texture.class);

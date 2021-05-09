@@ -44,6 +44,7 @@ import org.ah.piwars.fishtank.view.ChatListener;
 import org.ah.piwars.fishtank.view.Console;
 import org.ah.piwars.fishtank.world.CameraPositionLink;
 import org.ah.piwars.fishtank.world.FishModelLink;
+import org.ah.piwars.fishtank.world.StaticObjectLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
@@ -179,8 +180,8 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         t = (t + delta * 0.02f) % 1f;
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        Gdx.gl.glClearColor(0.2f, 1f, 1.0f, 1f);
-        // Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+//        Gdx.gl.glClearColor(0.2f, 1f, 1.0f, 1f);
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
 
         modelBatch.begin(camera);
@@ -195,6 +196,10 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
                 FishModelLink fishModel = (FishModelLink) visibleObject;
 
                 fishModel.render(delta, modelBatch, environment);
+            } else if (visibleObject instanceof StaticObjectLink) {
+                StaticObjectLink staticModel = (StaticObjectLink) visibleObject;
+
+                staticModel.render(delta, modelBatch, environment);
             }
         }
 
@@ -370,7 +375,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
         modelBuilder.node().id = "fishtankLeftSide";
         MeshPartBuilder left = modelBuilder.part("leftSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked | Usage.Normal, new Material());
-        left.setColor(new Color(0f, 0f, 0.7f, 1f));
+        left.setColor(new Color(0f, 0f, 0.2f, 1f));
         left.rect(-w, -d, -h, -w, d, -h, -w, d, h, -w, -d, h, 1f, 0f, 0f);
         fishtankLeftSideModel = modelBuilder.end();
         fishtankLeftSideInstance = new ModelInstance(fishtankLeftSideModel, "fishtankLeftSide");
@@ -379,7 +384,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         modelBuilder.begin();
         modelBuilder.node().id = "fishtankRightSide";
         MeshPartBuilder right = modelBuilder.part("rightSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked | Usage.Normal, new Material());
-        right.setColor(new Color(0f, 0f, 0.7f, 1f));
+        right.setColor(new Color(0f, 0f, 0.2f, 1f));
         right.rect(w, -d, -h, w, -d, h, w, d, h, w, d, -h, -1f, 0f, 0f);
         fishtankRightSideModel = modelBuilder.end();
         fishtankRightSideInstance = new ModelInstance(fishtankRightSideModel, "fishtankRightSide");
@@ -388,7 +393,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         modelBuilder.begin();
         modelBuilder.node().id = "fishtankBackSide";
         MeshPartBuilder back = modelBuilder.part("backSide", GL20.GL_TRIANGLES, Usage.Position | Usage.ColorUnpacked | Usage.Normal, new Material());
-        back.setColor(new Color(0f, 0f, 0.7f, 1f));
+        back.setColor(new Color(0f, 0f, 0.2f, 1f));
         back.rect(-w, d, -h, -w, -d, -h, w, -d, -h, w, d, -h, 0f, 0f, -1f);
         fishtankBackSideModel = modelBuilder.end();
         fishtankBackSideInstance = new ModelInstance(fishtankBackSideModel, "fishtankBackSide");
