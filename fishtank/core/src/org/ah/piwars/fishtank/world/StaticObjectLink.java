@@ -43,12 +43,20 @@ public class StaticObjectLink implements VisibleObject {
         } else if (objectType == FishtankGameTypeObject.Tresure) {
             objectModel = assetManager.get("decorations/tresure.g3db", Model.class);
         } else if (objectType == FishtankGameTypeObject.Benchy) {
-            objectModel = assetManager.get("decorations/benchy.g3db", Model.class);
+          objectModel = assetManager.get("decorations/benchy.g3db", Model.class);
+        } else if (objectType == FishtankGameTypeObject.Ball) {
+          objectModel = assetManager.get("decorations/ball.g3db", Model.class);
         }
 
         BoundingBox bb = new BoundingBox();
         objectModel.calculateBoundingBox(bb);
-        System.out.println("anchor bb=" + bb);
+        if (objectType == FishtankGameTypeObject.Anchor) {
+            System.out.println("anchor bb=" + bb);
+        } else if (objectType == FishtankGameTypeObject.Tresure) {
+            System.out.println("tresure bb=" + bb);
+        } else if (objectType == FishtankGameTypeObject.Benchy) {
+            System.out.println("benchy bb=" + bb);
+        }
         fishModelInstance = new ModelInstance(objectModel);
     }
 

@@ -14,6 +14,7 @@ import org.ah.piwars.fishtank.message.FishtankMessageFactory;
 import org.ah.piwars.fishtank.message.FishtankPlayerInputMessage;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.Console;
+import org.ah.piwars.fishtank.world.BallObjectLink;
 import org.ah.piwars.fishtank.world.CameraPositionLink;
 import org.ah.piwars.fishtank.world.FishModelLink;
 import org.ah.piwars.fishtank.world.StaticObjectLink;
@@ -157,10 +158,18 @@ public class ServerCommunicationAdapter extends CommonServerCommunicationAdapter
 
             GameObjectWithPositionAndOrientation staticObject = (GameObjectWithPositionAndOrientation)gameObject;
 
-            StaticObjectLink playerModel = new StaticObjectLink(engine.getGame(), gameObject.getId(), (FishtankGameTypeObject)staticObject.getType());
-            allVisibleObjects.put(gameObject.getId(), playerModel);
-            playerModel.makeObject(assetManager);
-            staticObject.setLinkBack(playerModel);
+            StaticObjectLink staticObjectModel = new StaticObjectLink(engine.getGame(), gameObject.getId(), (FishtankGameTypeObject)staticObject.getType());
+            staticObjectModel.makeObject(assetManager);
+
+            allVisibleObjects.put(gameObject.getId(), staticObjectModel);
+            staticObject.setLinkBack(staticObjectModel);
+        } else if (gameObject.getType() == FishtankGameTypeObject.Ball) {
+            GameObjectWithPositionAndOrientation ballObject = (GameObjectWithPositionAndOrientation)gameObject;
+
+            BallObjectLink model = new BallObjectLink(engine.getGame(), gameObject.getId());
+            allVisibleObjects.put(gameObject.getId(), model);
+            model.makeObject(assetManager);
+            ballObject.setLinkBack(model);
         }
     }
 

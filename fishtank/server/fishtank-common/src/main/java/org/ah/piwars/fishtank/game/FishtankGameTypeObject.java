@@ -1,6 +1,7 @@
 package org.ah.piwars.fishtank.game;
 
 import org.ah.piwars.fishtank.game.fish.AnchorObject;
+import org.ah.piwars.fishtank.game.fish.BallObject;
 import org.ah.piwars.fishtank.game.fish.BenchyObject;
 import org.ah.piwars.fishtank.game.fish.SpadefishFish;
 import org.ah.piwars.fishtank.game.fish.TetraFish;
@@ -41,7 +42,12 @@ public abstract class FishtankGameTypeObject extends GameObjectType {
         @Override public String toString() { return "BenchyObjectType"; }
     };
 
+    public static FishtankGameTypeObject Ball = new FishtankGameTypeObject() {
+        @Override public GameObject newObject(GameObjectFactory factory) { return new BallObject(factory, -1); }
+        @Override public String toString() { return "BallType"; }
+    };
+
     protected static GameObjectType[] DEFINED_TYPES = {
-            CameraPosition, Spadefish, Tetrafish, Anchor, Tresure, Benchy
+            CameraPosition, Spadefish, Tetrafish, Anchor, Tresure, Benchy, Ball
     };
 }

@@ -1,6 +1,7 @@
 package org.ah.piwars.fishtank;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -13,6 +14,10 @@ import static org.ah.piwars.fishtank.FishtankScreen.WORLD_SCALE2;
 
 public class WiiMoteCameraController extends InputAdapter {
 
+    public static interface TriggerCallback {
+        void triggerChanged(boolean triggerState);
+    }
+
     private final Vector3 tmp = new Vector3();
 
     public static final float KEYBOARD_STEP = 0.001f;
@@ -22,6 +27,8 @@ public class WiiMoteCameraController extends InputAdapter {
     private float cameraAngleRad;
     private float cameraAngleTan;
     private int button;
+    private boolean previousTriggerState = false;
+    private TriggerCallback triggerCallback = null;
 
     private Vector3 input = new Vector3();
 
@@ -59,12 +66,20 @@ public class WiiMoteCameraController extends InputAdapter {
     @Override
     public boolean keyDown(int keycode) {
         boolean processed = false;
+        if (keycode == Input.Keys.T && !previousTriggerState) {
+            previousTriggerState = true;
+            fireTriggerCallback(true);
+        }
         return processed;
     }
 
     @Override
     public boolean keyUp(int keycode) {
         boolean processed = false;
+        if (keycode == Input.Keys.T) {
+            previousTriggerState = false;
+            fireTriggerCallback(false);
+        }
         return processed;
     }
 
@@ -181,6 +196,16 @@ public class WiiMoteCameraController extends InputAdapter {
             camera.invProjectionView.set(camera.combined);
             Matrix4.inv(camera.invProjectionView.val);
             camera.frustum.update(camera.invProjectionView);
+        }
+    }
+
+    public void registerTriggerCallback(TriggerCallback triggerCallback) {
+        this.triggerCallback = triggerCallback;
+    }
+
+    private void fireTriggerCallback(boolean triggerState) {
+        if (triggerCallback != null) {
+            triggerCallback.triggerChanged(triggerState);
         }
     }
 }

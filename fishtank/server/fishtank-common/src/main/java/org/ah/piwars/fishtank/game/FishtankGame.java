@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 
+import org.ah.piwars.fishtank.game.fish.BallObject;
 import org.ah.piwars.fishtank.game.fish.Fish;
 import org.ah.piwars.fishtank.input.FishtankPlayerInput;
 import org.ah.piwars.fishtank.input.FishtankPlayerInputs;
@@ -46,6 +47,7 @@ public class FishtankGame extends Game {
     private Plane[] planes = new Plane[6];
     private int cameraPositionObjectId;
     private FishtankPlayerInput playerInput = (FishtankPlayerInput)FishtankPlayerInput.INPUTS_FACTORY.obtain();
+    private boolean previousTriggerState = false;
 
     public FishtankGame(String mapId) {
         super(GAME_TICK_IN_us);
@@ -65,6 +67,19 @@ public class FishtankGame extends Game {
 
         players.add(id);
         return fish;
+    }
+
+    public BallObject spawnBall() {
+        int id = newId();
+        BallObject ball = getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.Ball, id);
+
+        float x = (float)(Math.random() * 120f - 60f);
+        float y = (float)(Math.random() * 120f - 60f);
+
+        ball.setPosition(-x, 50f, y);
+
+        addNewGameObject(ball);
+        return ball;
     }
 
     @Override
@@ -99,6 +114,12 @@ public class FishtankGame extends Game {
             if (((FishtankPlayerInputs)playerInputs).getPlayerInput(playerInput)) {
                 // System.out.println("Got player input with " + playerInput.camX() + ", " + playerInput.camY());
                 cameraPositionObject.setPosition(playerInput.camX(), playerInput.camY(), playerInput.camZ());
+                if (playerInput.trigger() != previousTriggerState) {
+                    previousTriggerState = playerInput.trigger();
+                    if (playerInput.trigger()) {
+                        spawnBall();
+                    }
+                }
             }
         }
     }
@@ -106,6 +127,7 @@ public class FishtankGame extends Game {
     @Override
     protected void fireGameObjectAdded(GameObject newGameObject) {
         super.fireGameObjectAdded(newGameObject);
+
         if (newGameObject instanceof CameraPositionObject) {
             cameraPositionObjectId = newGameObject.getId();
         }

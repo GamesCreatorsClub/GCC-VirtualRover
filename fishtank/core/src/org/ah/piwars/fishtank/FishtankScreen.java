@@ -37,14 +37,12 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntSet;
 
+import org.ah.piwars.fishtank.WiiMoteCameraController.TriggerCallback;
 import org.ah.piwars.fishtank.game.FishtankGame;
-import org.ah.piwars.fishtank.input.FishtankPlayerInputs;
 import org.ah.piwars.fishtank.view.ChatColor;
 import org.ah.piwars.fishtank.view.ChatListener;
 import org.ah.piwars.fishtank.view.Console;
 import org.ah.piwars.fishtank.world.CameraPositionLink;
-import org.ah.piwars.fishtank.world.FishModelLink;
-import org.ah.piwars.fishtank.world.StaticObjectLink;
 import org.ah.themvsus.engine.client.ClientEngine;
 import org.ah.themvsus.engine.common.game.Player;
 
@@ -52,7 +50,7 @@ import static org.ah.piwars.fishtank.game.FishtankGame.HALF_DEPTH;
 
 import static java.lang.String.format;
 
-public class FishtankScreen extends ScreenAdapter implements ChatListener {
+public class FishtankScreen extends ScreenAdapter implements ChatListener, TriggerCallback {
 
     public static final float WORLD_SCALE = 0.1f;
     public static final float WORLD_SCALE2 = 0.01f;
@@ -65,8 +63,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
     protected OrthographicCamera hudCamera;
     protected PerspectiveCamera camera;
-
-    protected FishtankPlayerInputs playerInputs = new FishtankPlayerInputs();
 
     private WiiMoteCameraController wiiMoteCameraController;
 
@@ -151,6 +147,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
 
         wiiMoteCameraController = new WiiMoteCameraController(camera, cameraAngle, platformSpecific.getTankView());
         Gdx.input.setInputProcessor(wiiMoteCameraController);
+        wiiMoteCameraController.registerTriggerCallback(this);
 
         unknownObjectIds = new IntSet();
 
@@ -180,7 +177,6 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         t = (t + delta * 0.02f) % 1f;
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-//        Gdx.gl.glClearColor(0.2f, 1f, 1.0f, 1f);
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl20.glEnable(GL20.GL_DEPTH_TEST);
 
@@ -192,15 +188,7 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         // modelBatch.render(gridAndAxesInstance, environment);
 
         for (VisibleObject visibleObject : adapter.getVisibleObjects().values()) {
-            if (visibleObject instanceof FishModelLink) {
-                FishModelLink fishModel = (FishModelLink) visibleObject;
-
-                fishModel.render(delta, modelBatch, environment);
-            } else if (visibleObject instanceof StaticObjectLink) {
-                StaticObjectLink staticModel = (StaticObjectLink) visibleObject;
-
-                staticModel.render(delta, modelBatch, environment);
-            }
+            visibleObject.render(delta, modelBatch, environment);
         }
 
         modelBatch.end();
@@ -418,5 +406,15 @@ public class FishtankScreen extends ScreenAdapter implements ChatListener {
         fishtankBottomInstance = new ModelInstance(fishtankBottomModel);
         fishtankBottomInstance.transform.translate(0f, -d, 0f);
         fishtankBottomInstance.transform.scl(0.0125f);
+    }
+
+    @Override
+    public void triggerChanged(boolean triggerState) {
+        if (platformSpecific.isCameraInputAllowed()) {
+            CameraPositionLink cameraPositionModel = adapter.getCameraPositionModel();
+            if (cameraPositionModel != null) {
+                cameraPositionModel.getPlayerInput().trigger(triggerState);
+            }
+        }
     }
 }
