@@ -77,6 +77,11 @@ public class FishtankServerEngineModule extends ServerEngineModule {
             game.addNewGameObject(benchy);
             benchy.setPosition(20f, -60f, -20f);
 
+//            int ball1Id = game.newId();
+//            BallObject ball1 = game.getGameObjectFactory().newGameObjectWithId(FishtankGameTypeObject.Ball, ball1Id);
+//            game.addNewGameObject(ball1);
+//            ball1.setPosition(-10f, 30f, -20f);
+
             return game;
         } catch (Throwable t) {
             SERVER_LOGGER.log(Level.SEVERE, "Error before main loop!", t);
