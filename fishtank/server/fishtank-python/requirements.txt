@@ -1,5 +1,5 @@
 cwiid==3.0.0
-pygame==1.9.5
+#pygame==1.9.5
 smbus2==0.4.1
 vl53l1x==0.0.5
 RPi.GPIO==0.7.0
