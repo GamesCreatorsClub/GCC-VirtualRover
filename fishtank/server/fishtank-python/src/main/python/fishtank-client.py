@@ -8,6 +8,8 @@ from fishtankclient.engine.transfer import UDPServerCommunication
 from fishtankclient.engine.transfer.ByteSerializerFactory import ByteSerializerFactory
 from fishtankclient.engine.message.MessageFactory import MessageFactory
 from fishtankclient.engine.message.MessageCode import MessageCode
+from vl53l1x_handler import VL53L1X_Handler
+
 
 serializer_factory = ByteSerializerFactory()
 message_factory = MessageFactory()
@@ -23,6 +25,7 @@ class Handler:
     def __init__(self):
         self.session_id = 0
         self.is_connected = False
+        self.trigger = False
 
     def connected(self):
         print("Connected to server")
@@ -54,9 +57,13 @@ class Handler:
             player_input.cam_x(x)
             player_input.cam_y(y)
             player_input.cam_z(z)
+            player_input.trigger(self.trigger)
             player_inputs.clear()
             player_inputs.add(player_input)
             udpServerModule.send_message(player_input_message)
+
+    def trigger_callback(self, trigger):
+        self.trigger = trigger
 
 
 wiimote = WiiMote()
@@ -65,6 +72,9 @@ wiimote.start_connecting()
 
 handler = Handler()
 udpServerModule.connect(handler)
+
+vl53l1x = VL53L1X_Handler(handler.trigger_callback)
+vl53l1x.start()
 
 # # message = message_factory.obtain(MessageCode.Nop)
 # message = message_factory.obtain(MessageCode.PlayerServerUpdate)

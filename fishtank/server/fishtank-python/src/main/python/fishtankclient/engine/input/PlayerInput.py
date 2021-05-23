@@ -36,7 +36,9 @@ class PlayerInput:
             self._cam_z = cam_z
         return self._cam_z
 
-    def trigger(self):
+    def trigger(self, trigger):
+        if trigger is not None:
+            self._trigger = trigger
         return self._trigger
 
     def pause(self):

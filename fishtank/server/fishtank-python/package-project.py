@@ -21,12 +21,12 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 
-SOURCE_PATHS = [join(CURRENT_PATH, "src/main"), join(CURRENT_PATH, "src/resources")]  # List of your source directories
+SOURCE_PATHS = [join(CURRENT_PATH, "src/main/python"), join(CURRENT_PATH, "src/resources")]  # List of your source directories
 
 # Remove 'src/resources' from above list if you don't need them.
 
-RESULT_NAME = "put-your-project-name-here"  # CHANGE: your project name - name of resulting executable
-MAIN_FILE = "put-your-main-file-name-here"  # CHANGE: Main python file without '.py' suffix (that will be invoked)
+RESULT_NAME = "fishtank-python"  # CHANGE: your project name - name of resulting executable
+MAIN_FILE = "fishtank-client"  # CHANGE: Main python file without '.py' suffix (that will be invoked)
 
 REQUIREMENTS_FILE = join(CURRENT_PATH, "requirements.txt")  # Requirements file to package with your source (no need to change)
 
@@ -73,7 +73,7 @@ def list_all_paths(dir_name):
 
 def install_requirements(requirements_file, target_directory):
     print(f"Attempting to install requirements from '{requirements_file}' in '{target_directory}")
-    os.system(f"pip install --platform=aarch64 -r {glob.glob(requirements_file)[0]} --target {target_directory}")
+    os.system(f"pip install -r {glob.glob(requirements_file)[0]} --target {target_directory}")
 
 
 def update_build_version(version_file, target_templates_path):
