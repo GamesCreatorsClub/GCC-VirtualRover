@@ -12,8 +12,10 @@ class WiiMote:
         self.connected = False
         self.initialising = False
         self.initialised = False
+        self.loop_callback = None
 
-    def start_connecting(self):
+    def start_connecting(self, loop_callback=None):
+        self.loop_callback = loop_callback
         self.wiimote_thread = threading.Thread(target=self.try_to_connect, daemon=True)
         self.wiimote_thread.start()
 
@@ -85,3 +87,7 @@ class WiiMote:
                 self.connected = True
             except RuntimeError as e:
                 print("Failed to connect... " + str(e))
+                if self.loop_callback is not None:
+                    callback_direction = self.loop_callback()
+                    if callback_direction is not None and not callback_direction:
+                        return

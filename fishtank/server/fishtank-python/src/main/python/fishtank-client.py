@@ -1,5 +1,7 @@
 import math
 import time
+import sys
+import os
 
 from fishtankclient.WiiMote import WiiMote
 from fishtankclient.engine.input.PlayerInputs import PlayerInputFactory
@@ -9,6 +11,37 @@ from fishtankclient.engine.transfer.ByteSerializerFactory import ByteSerializerF
 from fishtankclient.engine.message.MessageFactory import MessageFactory
 from fishtankclient.engine.message.MessageCode import MessageCode
 from vl53l1x_handler import VL53L1X_Handler
+
+
+parent_pid = None
+if len(sys.argv) > 1:
+    parent_pid = sys.argv[1]
+    print(f"Got parent process ID: {parent_pid}")
+    if not os.path.exists("/proc"):
+        print("But doesn't have /proc file - removing parent_id")
+        parent_pid = None
+    else:
+        parent_pid = "/proc/" + parent_pid
+        if not os.path.exists(parent_pid):
+            print(f"Cannot file dir {parent_pid} - removing parent_id")
+            parent_pid = None
+else:
+    print("No process id passed in")
+
+
+count = 0
+
+
+def test_parent_process():
+    global count
+    if parent_pid is not None:
+        if not os.path.exists(parent_pid):
+            print(f"Parent process doesn't exist any more. Leaving... ; proc={parent_pid}")
+            os._exit(0)
+        else:
+            if count <= 0:
+                print(f"Parent process {parent_pid} still exists")
+                count = 20
 
 
 serializer_factory = ByteSerializerFactory()
@@ -67,7 +100,7 @@ class Handler:
 
 
 wiimote = WiiMote()
-wiimote.start_connecting()
+wiimote.start_connecting(test_parent_process)
 
 
 handler = Handler()
@@ -85,29 +118,35 @@ vl53l1x.start()
 # message.serialize(serializer)
 # udpServerModule.send(serializer.get_buffer())
 
-a = 0
-while True:
-    time.sleep(0.025)
-    if handler.is_connected:
-        if wiimote.initialised:
-            wx = - (wiimote.ir_list[0][1] - 512) / 10.0 # 32.0 #64.0
-            wy = -(wiimote.ir_list[0][2] - 512) / 10.0  # 32.0 - 15 # 33.0 # 64.0 - 33
-            x = wx
-            y = wx + 64.0
-            z = -wy + 32.0
-            # y = y - 32.0
-            handler.send_cam_pos(x, z, y)
-            # print(f"{x} x {y}")
-        else:
-            if wiimote.connected and not wiimote.initialising:
-                wiimote.init_wiimote()
-            x = 4 * math.sin(a)  # + 4.0
-            y = 4 * math.cos(a) + 4.0
-            z = 4 * math.sin(a)
-            a = a + math.pi / 50.0
-            if a > math.pi * 2.0:
-                a = a - math.pi * 2.0
-            handler.send_cam_pos(x, -z, y)
-            # print(f"{x} x {y}")
-    # else:
-    #     print(f"handler.is_connected {handler.is_connected}")
+
+try:
+    a = 0
+    while True:
+        time.sleep(0.025)
+        if handler.is_connected:
+            if wiimote.initialised:
+                wx = - (wiimote.ir_list[0][1] - 512) / 10.0 # 32.0 #64.0
+                wy = -(wiimote.ir_list[0][2] - 512) / 10.0  # 32.0 - 15 # 33.0 # 64.0 - 33
+                x = wx
+                y = wx + 64.0
+                z = -wy + 32.0
+                # y = y - 32.0
+                handler.send_cam_pos(x, z, y)
+                # print(f"{x} x {y}")
+            else:
+                if wiimote.connected and not wiimote.initialising:
+                    wiimote.init_wiimote()
+                x = 4 * math.sin(a)  # + 4.0
+                y = 4 * math.cos(a) + 4.0
+                z = 4 * math.sin(a)
+                a = a + math.pi / 50.0
+                if a > math.pi * 2.0:
+                    a = a - math.pi * 2.0
+                handler.send_cam_pos(x, -z, y)
+                # print(f"{x} x {y}")
+        # else:
+        #     print(f"handler.is_connected {handler.is_connected}")
+        test_parent_process()
+
+except KeyboardInterrupt as i:
+    sys.exit(0)
